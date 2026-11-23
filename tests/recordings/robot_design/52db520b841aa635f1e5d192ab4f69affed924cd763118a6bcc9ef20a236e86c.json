@@ -3,7 +3,7 @@
   "prompt_version": "robot-design/1",
   "request_key": "52db520b841aa635f1e5d192ab4f69affed924cd763118a6bcc9ef20a236e86c",
   "response": {
-    "id": "msg_011ChK6pd3TbL6uU9VYW9yGD",
+    "id": "msg_011ChKEFnYTdTG5BWhqExpup",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -44,11 +44,10 @@
         "value": 0.5
       },
       "questions": [
-        "末端执行器（夹爪等）是否包含在 0.5 kg 负载内，还是另计？",
-        "5 个轴的构型（如腰部回转+肩+肘+腕俯仰+腕滚转）是否有指定？",
-        "关节角度范围有无要求？",
-        "外购件成本是否有具体预算上限？",
-        "是否有整机自重或尺寸限制？"
+        "5 轴的具体构型是什么（如腰转+肩+肘+腕俯仰+腕滚转）？末端是否带夹爪，夹爪质量是否计入 0.5 kg？",
+        "“外购件成本尽量低”有没有具体预算上限？",
+        "关节最高角速度 60°/s 是否要求每个关节都达到，还是仅部分关节？",
+        "0.5 kg 负载是否要在臂展 350 mm 的最远处也能承受？"
       ],
       "reach": {
         "quote": "臂展 350 mm（工具点在桌面高度上能到的最远水平距离）",

@@ -12,6 +12,7 @@
     两条链取装在臂上的质量轻的（伺服链的驱动器不在臂上，不计），另一条并列在报告里。
   5 模组质量回代到第 1 步，重复到选型不再变（最多 MAX_ROUNDS 轮）。
   6 重复定位精度：位置测量分辨率一项，在水平伸直姿态上逐关节最坏相加，与需求比（repeatability()）。
+  8 装不装得下：关节转角与 U 形支架、共线轴转、关节距（analysis/robot/fit.py）。
   7 杆件：强度（对屈服与弯曲疲劳的安全系数，安全系数要求同选件）与末端下垂（只计杆件），analysis/robot/links.py。
 成本：零件库没有价格数据，“外购件成本尽量低”判不了，结论记待确认并写明缺什么。
 """
@@ -182,26 +183,30 @@ def operating_points(res: Mapping, joints: list[str]) -> list[tuple[float, float
 
 
 def pick_smart(lib, req: Mapping, points=None):
-    """一体化关节模组：没有“不通过”里最轻的。返回 (校验结果或 None, 候选数)"""
+    """一体化关节模组：没有“不通过”、且有机械接口数据（舵盘孔位、安装孔、外形）的里面最轻的——
+    没有接口数据的装不装得下判不了，不选（ADR-0115 44.3 之二）。返回 (校验结果或 None, 候选数)"""
+    from analysis.robot import fit
     from engine import smart_actuator
 
-    cands = smart_actuator.candidates(req, lib.all(), top=40, points=points)
+    with_iface = [c for c in lib.all() if c.get("category") == "smart_actuator" and fit.housing_geometry(c) is not None]
+    cands = smart_actuator.candidates(req, with_iface, top=40, points=points)
     ok = [c for c in cands if c["mass_kg"] is not None]
     return (ok[0] if ok else None), len(cands)
 
 
 def smart_shortfall(lib, req: Mapping, points=None) -> str:
     """一体化模组一个都不行时，说清楚卡在哪：堵转力矩最大的那个没通过的项"""
+    from analysis.robot import fit
     from engine import smart_actuator
     from engine.values import nominal
 
-    comps = [c for c in lib.all() if c.get("category") == "smart_actuator"]
+    comps = [c for c in lib.all() if c.get("category") == "smart_actuator" and fit.housing_geometry(c) is not None]
     if not comps:
-        return "库里没有一体化关节模组"
+        return "库里没有带机械接口数据的一体化关节模组"
     top = max(comps, key=lambda c: nominal((c.get("params") or {}).get("stall_torque_nm")) or 0.0)
     r = smart_actuator.check(req, top, points)
     bad = [f"{x['check']} {x.get('message', '')}" for x in r["checks"] if x["status"] == "fail"]
-    return f"库里 {len(comps)} 个一体化模组都不通过；力矩最大的 {top['model']}：" + "；".join(bad)
+    return f"库里有接口数据的 {len(comps)} 个一体化模组都不通过；力矩最大的 {top['model']}：" + "；".join(bad)
 
 
 def choose(lib, req: Mapping, ratio: float | None, points=None) -> dict:
@@ -262,6 +267,7 @@ def build(concept: Mapping, payload_kg: float, *, base: Mapping | None = None, m
             "open_items": open_items, "bom": bom(lib, concept, picks),
             "repeatability": repeatability(lib, concept, dt, picks, repeatability_mm, points_mm),
             "links": link_check(concept, dt, res, mods, payload_kg, float(base.get("safety_factor") or 1.0)),
+            "fit": fit_check(lib, concept, picks),
             "cost": {"status": "unknown", "note": "零件库没有价格数据；“外购件成本尽量低”要等登记了有价格的公开目录才判得了"}}
 
 
@@ -328,6 +334,63 @@ def _resolution_error(lib, m, q: Mapping, picks: Mapping) -> dict:
         rows.append({"joint": j.id, "lever_mm": round(lever, 1), "counts_per_rev": counts, "error_mm": round(e, 3)})
     return {"rows": rows, "worst_mm": round(total, 3), "missing": missing,
             "backlash_lost_motion_mm": round(lost, 2) if lost else None}
+
+
+def build_check(concept: Mapping, cond: Mapping) -> dict:
+    """构型循环用（assist/robot_design.design 的 after_screen）：按条件选件并校核装配、杆件、精度。
+    返回 {"ok", "items"（没通过的项，给 AI 看）, "summary"（选中的模组与外形，给 AI 改构型用）, "result"}"""
+    payload = cond.get("payload")
+    if not isinstance(payload, (int, float)) or isinstance(payload, bool):
+        return {"ok": True, "items": [], "summary": "需求里没有末端负载：选件不做"}
+    sp = cond.get("joint_speed")
+    move_s = move_s_for(sp) if isinstance(sp, (int, float)) and not isinstance(sp, bool) and sp > 0 else MOVE_S
+    pts = [[cond["reach"], 0.0, 0.0]] if isinstance(cond.get("reach"), (int, float)) else []
+    pts += list(((concept.get("workspace") or {}).get("points_mm")) or [])
+    rep = cond.get("repeatability")
+    try:
+        out = build(copy.deepcopy(dict(concept)), float(payload), move_s=move_s, points_mm=pts,
+                    repeatability_mm=float(rep) if isinstance(rep, (int, float)) and not isinstance(rep, bool) else None)
+    except (BuildError, ValueError) as ex:
+        return {"ok": False, "items": [f"选件算不了：{ex}"], "summary": ""}
+    items = []
+    if out["status"] != "pass":
+        items.append(f"选件：{out.get('note', '')}")
+    for key, name in (("fit", "装配"), ("links", "杆件强度")):
+        part = out.get(key) or {}
+        rows = (part.get("joints") or []) + (part.get("links") or []) if key == "fit" else part.get("items") or []
+        items += [f"{name}：{r.get('joint') or r.get('link') or r.get('item')} {r.get('note', '')}" for r in rows
+                  if r.get("status") == "fail"]
+    r = out.get("repeatability") or {}
+    if r.get("status") == "fail":
+        items.append(f"重复定位精度：{r.get('note', '')}")
+    lib = _library()
+    summ = []
+    for g, p in (out.get("picks") or {}).items():
+        if not p.get("components"):
+            continue
+        comp = lib.get(p["components"][0])
+        txt = f"模组组 {g}（关节 {'、'.join(p['joints'])}）选 {comp.get('model')}"
+        if p.get("chain") == "smart":
+            from analysis.robot import fit
+
+            gm = fit.housing_geometry(comp)
+            if gm:
+                txt += (f"：壳体宽 {2 * gm['half_width']:g} mm，输出轴离壳体底面 {gm['axis_to_bottom']:g} mm（这一面最远）；"
+                        "只有输出舵盘（与背面惰轮舵盘同轴）会转，能固定的面（底面、两侧面）都与输出轴平行")
+        summ.append(txt)
+    return {"ok": not items, "items": items, "summary": "；".join(summ), "result": out}
+
+
+def fit_check(lib, concept: Mapping, picks: Mapping) -> dict:
+    """装不装得下（analysis/robot/fit.py）：一体化模组按它的机械接口算；伺服链没有整体外形与接口，判不了"""
+    from analysis.robot import fit
+
+    acts = {}
+    for p in picks.values():
+        if p.get("chain") == "smart":
+            comp = lib.get(p["components"][0])
+            acts.update({j: comp for j in p["joints"]})
+    return fit.check(concept, acts)
 
 
 def dynamic_factor(res: Mapping) -> float:
@@ -398,6 +461,11 @@ def summary(out: Mapping) -> str:
                          + "、".join(f"{i['item']} {min(i['safety_yield'], i['safety_fatigue']):.1f}" for i in lk["items"]
                                     if i.get("safety_yield") is not None)
                          + f"）；末端下垂（只计杆件）{lk['tool_sag_mm']:.3f} mm")
+        ft = out.get("fit")
+        if ft:
+            lines.append(f"装不装得下：{ft['overall']}")
+            lines += [f"  {x.get('joint') or x.get('link')}：{x['status']}（{x['note']}）" for x in ft["joints"] + ft["links"]
+                      if x["status"] != "pass" or x.get("d_min_mm")]
         lines += [f"待确认：{x}" for x in out.get("open_items", [])]
         lines.append(f"成本：{out['cost']['note']}")
     return "\n".join(lines)

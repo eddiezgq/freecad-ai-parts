@@ -118,16 +118,53 @@ def test_unknown_link_material_fails():
 
 
 def test_teaching_arm_recording_replays_to_pass():
-    """案例 A 的真实 AI 录制（design-eval run 45057651041）：重放得同一结论，采用的构型重新初筛也通过；不调用真实模型"""
+    """案例 A 的真实 AI 录制（design-eval run 45111962180，3 轮）：重放得同一结论；不调用真实模型。
+    选件与装配校核每轮约半分钟，这里按保存的结果逐轮回放（真正重算采用构型的在 test_case_a_loop_fixed_the_wrist_with_build_feedback）"""
     from analysis.robot import screen
     from ingest.llm_extract import RecordedClient
 
-    res = RD.design(TEXT, RecordedClient(RD.RECORDINGS_DIR), model=RD.DEFAULT_MODEL)
-    assert res["status"] == "pass"
+    saved = json.loads((Path(__file__).parents[1] / "examples" / "robots" / "teaching-arm" / "out"
+                        / "concept-result.json").read_text(encoding="utf-8"))
+    verdicts = [rd["build"] for rd in saved["rounds"] if "build" in rd]
+
+    def after(concept, cond):
+        return dict(verdicts.pop(0))
+
+    res = RD.design(TEXT, RecordedClient(RD.RECORDINGS_DIR), model=RD.DEFAULT_MODEL, after_screen=after)
+    assert res["status"] == "pass" and res["chosen_round"] == 3 and not verdicts
     c = res["chosen"]
     assert c["kind"] == "serial_arm" and len(c["joints"]) == 5
     assert screen(c, 0.5)["overall"] in ("pass", "unknown")
     assert RD._passes(RD.evaluate(c, res["conditions"]))
-    saved = json.loads((Path(__file__).parents[1] / "examples" / "robots" / "teaching-arm" / "out"
-                        / "concept-result.json").read_text(encoding="utf-8"))
     assert saved["chosen"] == c
+
+
+def test_build_check_failure_goes_back_to_ai():
+    """初筛通过、但选件与装配校核没通过：不采用，没通过的项与模组外形交回 AI，下一轮通过才采用（ADR-0115 44.3 之二）"""
+    calls = []
+
+    def after(concept, cond):
+        calls.append(concept["name"])
+        if len(calls) == 1:
+            return {"ok": False, "items": ["装配：j5 共线装不上"], "summary": "选 XM540-W270：壳体宽 33.5 mm"}
+        return {"ok": True, "items": [], "summary": ""}
+
+    ai = Script([{"candidates": [arm()], "recommend": 0, "reason": "第一版"}, {"candidates": [arm()], "recommend": 0, "reason": "改腕部"}])
+    res = RD.design(TEXT, ai, after_screen=after)
+    assert res["status"] == "pass" and res["chosen_round"] == 2 and len(calls) == 2
+    assert res["rounds"][0]["build"]["ok"] is False and res["rounds"][1]["build"]["ok"] is True
+    second = ai.requests[2]["user"]
+    assert "选件、装配后没通过" in second and "j5 共线装不上" in second and "壳体宽 33.5 mm" in second
+
+
+def test_case_a_loop_fixed_the_wrist_with_build_feedback():
+    from assist.robot_build import build_check
+
+    res = json.loads((Path(__file__).parents[1] / "examples" / "robots" / "teaching-arm" / "out" / "concept-result.json")
+                     .read_text(encoding="utf-8"))
+    first = res["rounds"][0]["build"]                                  # 真实 AI 第 1 轮：腕部共线轴转装不上，交回 AI
+    assert first["ok"] is False and any("j5" in x and "共线" in x for x in first["items"])
+    assert "XM540-W270" in first["summary"] and "能固定的面" in first["summary"]
+    assert res["rounds"][1]["build"]["ok"] is False and any("伸进" in x for x in res["rounds"][1]["build"]["items"])
+    bc = build_check(res["chosen"], res["conditions"])                 # 第 3 轮采用的构型：重新算一遍也通过
+    assert bc["ok"] is True and not bc["items"]

@@ -240,8 +240,11 @@ def feedback(evs: list[dict]) -> str:
     return "\n".join(out)
 
 
-def design(statement: str, client, *, model: str = DEFAULT_MODEL, max_rounds: int = MAX_ROUNDS, progress=None) -> dict:
-    """原话 → 条件 → 最多 max_rounds 轮构型与初筛。返回全部记录"""
+def design(statement: str, client, *, model: str = DEFAULT_MODEL, max_rounds: int = MAX_ROUNDS, progress=None,
+           after_screen=None) -> dict:
+    """原话 → 条件 → 最多 max_rounds 轮构型与初筛。返回全部记录。
+    after_screen(构型, 条件) → {"ok", "items", "summary"}：初筛通过、采用的构型再做选件与装配校核（ADR-0115 44.3 之二）；
+    不通过就把没通过的项交回 AI，与初筛共用轮数"""
     def say(text):
         if progress is not None:
             progress(text, None, None)
@@ -271,6 +274,15 @@ def design(statement: str, client, *, model: str = DEFAULT_MODEL, max_rounds: in
         if ok:
             rec = prop.get("recommend")
             pick = rec if isinstance(rec, int) and rec in ok else ok[0]
+            if after_screen is not None:
+                say(f"第 {k} 轮：构型 {pick} 选件与装配校核")
+                bc = after_screen(cands[pick], cond)
+                rd["build"] = {"candidate": pick, "ok": bc["ok"], "items": bc["items"], "summary": bc.get("summary", "")}
+                if not bc["ok"]:
+                    rd["feedback"] += (f"\n\n构型 {pick} 初筛通过，但按它选件、装配后没通过（下一轮请据此改构型）：\n"
+                                       + "\n".join(f"- [不通过] {x}" for x in bc["items"])
+                                       + (f"\n选件与模组外形：{bc['summary']}" if bc.get("summary") else ""))
+                    continue
             out.update(status="pass", chosen_round=k, chosen_candidate=pick, chosen=cands[pick],
                        chosen_note="" if pick == rec else f"AI 推荐的构型 {rec} 没通过初筛，采用第一个通过的构型 {pick}")
             return out
@@ -286,6 +298,7 @@ def main(argv: list[str] | None = None) -> int:
     mode.add_argument("--replay", type=Path)
     mode.add_argument("--record", action="store_true")
     ap.add_argument("--provider", choices=("claude", "deepseek"))
+    ap.add_argument("--screen-only", action="store_true", help="只做初筛，不做选件与装配校核")
     a = ap.parse_args(argv)
     if a.record:
         from assist.llm import GatewayClient
@@ -296,7 +309,12 @@ def main(argv: list[str] | None = None) -> int:
         from ingest.llm_extract import RecordedClient
 
         client, model = RecordedClient(a.replay or RECORDINGS_DIR), DEFAULT_MODEL
-    res = design(a.statement.read_text(encoding="utf-8"), client, model=model)
+    after = None
+    if not a.screen_only:
+        from assist.robot_build import build_check
+
+        after = build_check
+    res = design(a.statement.read_text(encoding="utf-8"), client, model=model, after_screen=after)
     if a.out:
         a.out.parent.mkdir(parents=True, exist_ok=True)
         a.out.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
