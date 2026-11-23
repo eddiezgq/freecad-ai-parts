@@ -374,6 +374,16 @@ def build_check(concept: Mapping, cond: Mapping) -> dict:
         out["cad"] = cad
         items += [f"三维装配：{h['a']} 与 {h['b']} 干涉 {h['volume_mm3']:g} mm³" for h in cad.get("interferences", [])]
         items += [f"三维装配：{x}" for x in cad.get("problems", [])]
+        if cad.get("status") == "pass" and cad.get("_full") is not None:
+            from assist import robot_verify
+
+            v = robot_verify.verify(concept, out, cad["_full"], float(payload))
+            out["verify"] = {k: v[k] for k in ("status", "compare", "moving_mass_kg")}
+            for g, c in v["checks"].items():
+                items += [f"按三维装配的真实质量复核（支架、套管都算上，会动的部分 {v['moving_mass_kg']:g} kg）：模组组 {g} "
+                          f"{x['check']} {x.get('message', '')}；改法：减小肩、肘处的重力力矩（缩短杆件、减小杆件截面、"
+                          "把重的东西靠近肩部）" for x in c["checks"] if x["status"] == "fail"]
+        cad.pop("_full", None)
     summ = []
     for g, p in (out.get("picks") or {}).items():
         if not p.get("components"):
@@ -429,8 +439,10 @@ def cad_check(lib, concept: Mapping, out: Mapping) -> dict | None:
     try:
         res = robot_cad.build(concept, ft, comp)
     except robot_cad.CadError as ex:
-        return {"status": "fail", "interferences": [], "problems": [str(ex)]}
-    return {k: res[k] for k in ("status", "interferences", "problems", "mass_kg", "cog_mm")}
+        return {"status": "fail", "interferences": [], "problems": [str(ex)], "_full": None}
+    keep = {k: res[k] for k in ("status", "interferences", "problems", "mass_kg", "cog_mm")}
+    keep["_full"] = res
+    return keep
 
 
 def fit_check(lib, concept: Mapping, picks: Mapping) -> dict:

@@ -270,7 +270,7 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
             A = J["H"]
             tag = actuator_solid(comp)
             _place(tag, A)
-            parts.append({"name": f"{jid} 模组 {comp.get('model')}", "kind": "actuator", "tag": tag, "joint": jid,
+            parts.append({"name": f"{jid} 模组 {comp.get('model')}", "kind": "actuator", "tag": tag, "joint": jid, "body": J["parent"],
                           "mass_kg": (comp["params"].get("mass_kg") or {}).get("value"), "component": comp["id"]})
             child_link = m.links[J["child"]]
             nxt = [c for c in m.joints if c.parent == J["child"]]
@@ -284,19 +284,21 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
                 tag, info = flange(sec, J["U"][:3, :3].T @ xw)
                 name = f"{jid} 舵盘法兰"
             _place(tag, J["U"])
-            parts.append({"name": name, "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6"})
+            parts.append({"name": name, "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6", "body": J["child"]})
             J["socket_end"] = info["socket_end"]
             if J["parent"] == "base":
                 table_z = -float(J["origin"][2])                       # 安装面在模组坐标系里的 z（竖轴）
                 tag = housing_base(None, g, table_z=table_z)
                 _place(tag, A)
-                parts.append({"name": f"{jid} 基座", "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6"})
+                parts.append({"name": f"{jid} 基座", "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6",
+                              "body": "base"})
             else:
                 psec = _section(m.links[J["parent"]])
                 pj = m.by_child[J["parent"]]
                 tag = housing_base(psec, g, xdir=J["H"][:3, :3].T @ _link_xdir(lay, pj.id))
                 _place(tag, A)
-                parts.append({"name": f"{jid} 壳体底座", "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6"})
+                parts.append({"name": f"{jid} 壳体底座", "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6",
+                              "body": J["parent"]})
         # 杆件：本关节的套管口到下一关节壳体底座的套管底
         t, Ls = DESIGN["plate_mm"], DESIGN["socket_len_mm"]
         problems = []
@@ -322,7 +324,8 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
             sec = _section(link)
             tag = _prism(sec, start, axis_dir, length, _link_xdir(lay, jid))
             parts.append({"name": f"杆件 {link['id']}（{link['shape']}，长 {length:.1f} mm）", "kind": "link", "tag": tag,
-                          "link": link["id"], "material": link.get("material") or "6061-T6", "length_mm": round(length, 1)})
+                          "link": link["id"], "material": link.get("material") or "6061-T6", "length_mm": round(length, 1),
+                          "body": link["id"]})
         _occ().synchronize()
         for p in parts:
             if p["kind"] != "actuator":
