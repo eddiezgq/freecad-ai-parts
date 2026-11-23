@@ -19,7 +19,8 @@ from freecad_addon.fc import cam_objects as CO
 COLORS = {"error": "#c62828", "warn": "#b26a00", "unknown": "#6b6b6b", "pass": "#2e7d32"}
 TOOL_KINDS = {"rough": ("turn",), "finish": ("turn",), "groove": ("groove",), "thread": ("thread_turn",), "bore": ("bore",),
               "drill": ("drill",), "pocket": ("flat_endmill", "bull_endmill"), "profile": ("flat_endmill", "bull_endmill"),
-              "live_face": ("flat_endmill",), "live_keyway": ("flat_endmill",), "live_flat": ("flat_endmill",)}
+              "live_face": ("flat_endmill",), "live_keyway": ("flat_endmill",), "live_flat": ("flat_endmill",),
+              "swarf5": ("flat_endmill",), "surface5": ("ball_endmill",), "curve5": ("ball_endmill",)}
 _LAST = None                  # 最近打开的面板（测试用）
 
 
@@ -644,6 +645,46 @@ class LiveOpCommand:
         edit(op)
 
 
+class FiveOpCommand:
+    """五轴联动工序（ADR-0106 C3d）：在三维视图里点直纹面 / 曲面 / 边 → 铣削作业（五轴机床）的第一个装夹加一道五轴工序"""
+
+    def __init__(self, kind):
+        self.kind = kind
+
+    def GetResources(self):
+        tip = {"swarf5": "点一个或几个直纹面（圆锥、斜面、直纹曲面）：平底刀侧刃贴着面，刀轴沿直纹线（五轴联动）",
+               "surface5": "点一个曲面：球头刀按曲面法向加前倾、侧倾精加工（五轴联动）",
+               "curve5": "点一条或几条边：球头刀沿边走，刀轴取边旁边朝上那个面的法向（五轴联动）"}[self.kind]
+        return {"MenuText": T(CO.FIVE_KINDS[self.kind]), "ToolTip": T(tip)}
+
+    def IsActive(self):
+        s = _target_setup()
+        return FreeCAD.ActiveDocument is not None and (s is None or CO.job_of(s).Kind != "turn")
+
+    def run(self, obj, subs):
+        jobs = [j for j in FreeCAD.ActiveDocument.Objects if CO.is_job(j) and j.Model == obj and j.Kind != "turn"]
+        if not jobs:
+            raise CO.CamObjError("先给这个零件建铣削作业（机床选五轴加工中心），再点它上面的面或边")
+        return CO.add_five_op(CO.setups(jobs[0])[0], self.kind, list(subs))
+
+    def Activated(self):
+        from PySide import QtWidgets
+
+        want = "Edge" if self.kind == "curve5" else "Face"
+        sel = [(s.Object, [n for n in s.SubElementNames if n.startswith(want)]) for s in FreeCADGui.Selection.getSelectionEx()]
+        sel = [x for x in sel if x[1]]
+        if not sel:
+            QtWidgets.QMessageBox.information(None, T("问渠CAM"), T("先在三维视图里点边" if self.kind == "curve5" else "先在三维视图里点面"))
+            return
+        try:
+            op = self.run(*sel[0])
+        except Exception as exc:  # noqa: BLE001
+            QtWidgets.QMessageBox.warning(None, T("问渠CAM"), T(str(exc)))
+            return
+        FreeCAD.ActiveDocument.recompute()
+        edit(op)
+
+
 class OpCommand:
     """对选中的工序：重算刀路 / 确认 / 上移 / 下移"""
 
@@ -784,7 +825,8 @@ COMMANDS = {"FAP_CamNewTurnJob": NewJobCommand("turn"), "FAP_CamNewMillJob": New
             "FAP_CamOpUp": OpCommand("up"), "FAP_CamOpDown": OpCommand("down"), "FAP_CamOpCopy": OpEditCommand("copy"),
             "FAP_CamOpHide": OpEditCommand("hide"), **ADD_OPS, "FAP_CamNewOp": AddOpGroup(), "FAP_CamReplay": _replay_cmd(),
             "FAP_CamTiltSetup": TiltSetupCommand(),
-            **{f"FAP_CamLive_{k}": LiveOpCommand(k) for k in CO.LIVE_KINDS}}
+            **{f"FAP_CamLive_{k}": LiveOpCommand(k) for k in CO.LIVE_KINDS},
+            **{f"FAP_CamFive_{k}": FiveOpCommand(k) for k in CO.FIVE_KINDS}}
 
 
 

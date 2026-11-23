@@ -191,6 +191,11 @@ overtravel and collisions. The check list may show: a rotary axis turning more t
 travel limit and switched solution) — an error, no program; a tool axis within 1° of a rotary axis (near a singularity) — a warning; a rotary axis needing
 more speed than the machine has — a warning that the feed will drop. The move from machine Z home to the first tool position after switching on tool-tip
 control is left to the control and not checked ("unknown").
+In the machining tree: choose a five-axis machine for the milling job (e.g. EX-5AX-AC), pick faces or edges in the 3D view, then choose "5-axis swarf (ruled face)",
+"5-axis surface finishing (ball end mill)" or "5-axis curve following" under New operation. The tool comes from the tool library (swarf needs flutes long enough for
+the ruling) with mid-catalogue parameters; lead, tilt, fixed lead direction, singularity avoidance and collision tilting are operation properties — change them and
+right-click "Regenerate path". Surface finishing runs parallel lines in plan view and skips places where the ball would cut into neighbouring faces (noted in the
+operation's reason). The path wireframe shows short lines along the tool axis; calculation, replay, 3D comparison and program output work as usual.
 Example: `examples/wenquest-cam/03-cone-5axis` (runs without FreeCAD).
 
 # Mill-turn
