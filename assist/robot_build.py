@@ -31,6 +31,11 @@ MAX_ROUNDS = 5
 MOVE_DEG, MOVE_S, ACCEL, T0 = 90.0, 1.0, 0.25, 0.2
 BASE_REQ = {"safety_factor": 1.2, "supply": {"current_type": "ac", "voltage_v": 200, "phases": 3},
             "fieldbus_protocol": "ethercat", "ambient_temp_c": 25}
+def move_s_for(speed_rpm: float) -> float:
+    """关节最高角速度（rpm）→ 检验动作转 MOVE_DEG 的用时：梯形速度（加减速各占 ACCEL），最高速度 = MOVE_DEG / (用时 × (1 − ACCEL))"""
+    return MOVE_DEG / (speed_rpm * 6.0 * (1 - ACCEL))
+
+
 def duty_text(move_s: float) -> str:
     return (f"检验动作（需求没给速度，设计取值）：从水平伸直姿态出发，各转动关节同时转 {MOVE_DEG:g}°，用时 {move_s:g} s，"
             f"加减速各占 {ACCEL:.0%}（最高 {MOVE_DEG / move_s / (1 - ACCEL):.0f}°/s）；末端带满载")
@@ -221,7 +226,7 @@ def choose(lib, req: Mapping, ratio: float | None, points=None) -> dict:
 
 
 def build(concept: Mapping, payload_kg: float, *, base: Mapping | None = None, move_s: float = MOVE_S,
-          repeatability_mm: float | None = None) -> dict:
+          repeatability_mm: float | None = None, points_mm=None) -> dict:
     lib = _library()
     base = dict(base or BASE_REQ)
     dt = duty(concept, move_s)
@@ -254,20 +259,46 @@ def build(concept: Mapping, payload_kg: float, *, base: Mapping | None = None, m
     return {"status": "pass", "rounds": rounds, "picks": picks, "duty": dt, "result": res,
             "module_masses_kg": mods, "link_masses_kg": _link_masses(concept), "assumptions": [duty_text(move_s), *ASSUMPTIONS],
             "open_items": open_items, "bom": bom(lib, concept, picks),
-            "repeatability": repeatability(lib, concept, dt, picks, repeatability_mm),
+            "repeatability": repeatability(lib, concept, dt, picks, repeatability_mm, points_mm),
             "cost": {"status": "unknown", "note": "零件库没有价格数据；“外购件成本尽量低”要等登记了有价格的公开目录才判得了"}}
 
 
-def repeatability(lib, concept: Mapping, dt: Mapping, picks: Mapping, target_mm: float | None) -> dict:
+def repeatability(lib, concept: Mapping, dt: Mapping, picks: Mapping, target_mm: float | None,
+                  points_mm=None) -> dict:
     """末端重复定位精度（只算位置测量的分辨率这一项，最坏情况线性相加）：
-    每个转动关节的角度不确定 ±½ 个计数 = ±π / 每转计数（rad），乘以该关节轴线到工具点的距离，在水平伸直姿态（力臂最大）上逐关节相加。
+    每个转动关节的角度不确定 ±½ 个计数 = ±π / 每转计数（rad），乘以该关节轴线到工具点的距离，逐关节相加。
+    在哪里算：需求要够得着的点（臂展点与方案的工作空间点，取逆解得到的姿态）里最坏的；没有这些点时用水平伸直姿态（力臂最大，偏保守）。
     一体化模组：规格表的分辨率是输出端每转计数（位置控制 0–360°），直接用；回差另报（同方向趋近时不计，反向时最坏会多出这么多）。
     伺服链：编码器在电机端，每转计数 = 2^位数 × 减速比；库里没有编码器位数 → 待确认；减速器的空回也不在这里算。
     """
     from analysis.robot import kinematics as K
 
     m = K.build(concept)
-    q = dt["initial"]
+    poses = []
+    for p in points_mm or []:
+        q, _ = K.ik(m, p)
+        if q is not None:
+            poses.append((f"需求点 {tuple(round(float(x), 1) for x in p)}", q))
+    if not poses:
+        poses = [("水平伸直（力臂最大）", dt["initial"])]
+    out = max((dict(_resolution_error(lib, m, q, picks), pose=name) for name, q in poses), key=lambda r: r["worst_mm"])
+    missing = out.pop("missing")
+    out["target_mm"] = target_mm
+    if missing or target_mm is None:
+        out["status"] = "unknown"
+        out["note"] = "缺数据：" + "、".join(missing) if missing else "需求没给重复定位精度"
+    else:
+        total, lost = out["worst_mm"], out["backlash_lost_motion_mm"]
+        out["status"] = "pass" if total <= target_mm + 1e-9 else "fail"
+        out["note"] = (f"{out['pose']}：分辨率一项最坏 ±{total:.2f} mm，要求 ±{target_mm:g} mm"
+                       + (f"；反向趋近时回差最坏再多 {lost:.1f} mm" if lost else ""))
+    return out
+
+
+def _resolution_error(lib, m, q: Mapping, picks: Mapping) -> dict:
+    """一个姿态下各关节分辨率误差（mm）与回差空回"""
+    from analysis.robot import kinematics as K
+
     T = K.fk(m, q)
     tip = K.tool_point(m, q)
     group_of = {j: g for g, pk in picks.items() for j in pk["joints"]}
@@ -293,16 +324,8 @@ def repeatability(lib, concept: Mapping, dt: Mapping, picks: Mapping, target_mm:
         if backlash:
             lost += math.radians(backlash / 60) * lever
         rows.append({"joint": j.id, "lever_mm": round(lever, 1), "counts_per_rev": counts, "error_mm": round(e, 3)})
-    out = {"pose": "水平伸直（力臂最大）", "rows": rows, "worst_mm": round(total, 3), "target_mm": target_mm,
-           "backlash_lost_motion_mm": round(lost, 2) if lost else None}
-    if missing or target_mm is None:
-        out["status"] = "unknown"
-        out["note"] = "缺数据：" + "、".join(missing) if missing else "需求没给重复定位精度"
-    else:
-        out["status"] = "pass" if total <= target_mm + 1e-9 else "fail"
-        out["note"] = (f"分辨率一项最坏 ±{total:.2f} mm，要求 ±{target_mm:g} mm"
-                       + (f"；反向趋近时回差最坏再多 {lost:.1f} mm" if lost else ""))
-    return out
+    return {"rows": rows, "worst_mm": round(total, 3), "missing": missing,
+            "backlash_lost_motion_mm": round(lost, 2) if lost else None}
 
 
 def _link_masses(concept: Mapping) -> dict:
@@ -360,7 +383,8 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m assist.robot_build", description="整机：构型 → 载荷 → 选件（ADR-0115 44.3）")
     ap.add_argument("concept_result", type=Path, help="assist.robot_design 的结果（JSON）")
     ap.add_argument("-o", "--out", type=Path)
-    ap.add_argument("--move-s", type=float, default=MOVE_S, help=f"检验动作每个关节转 {MOVE_DEG:g}° 的用时（s，默认 {MOVE_S:g}）")
+    ap.add_argument("--move-s", type=float, help=f"检验动作每个关节转 {MOVE_DEG:g}° 的用时（s）；不给时按需求的关节最高角速度，"
+                    f"需求也没给就用 {MOVE_S:g}")
     a = ap.parse_args(argv)
     cr = json.loads(a.concept_result.read_text(encoding="utf-8"))
     if cr.get("status") != "pass":
@@ -370,9 +394,17 @@ def main(argv: list[str] | None = None) -> int:
     if isinstance(payload, bool) or not isinstance(payload, (int, float)) or not math.isfinite(payload):
         print("需求里没有末端负载：载荷算不了", file=sys.stderr)
         return 1
-    rep = (cr.get("conditions") or {}).get("repeatability")
-    out = build(copy.deepcopy(cr["chosen"]), float(payload), move_s=a.move_s,
-                repeatability_mm=float(rep) if isinstance(rep, (int, float)) and not isinstance(rep, bool) else None)
+    cond = cr.get("conditions") or {}
+    rep = cond.get("repeatability")
+    move_s = a.move_s
+    sp = cond.get("joint_speed")
+    if move_s is None and isinstance(sp, (int, float)) and not isinstance(sp, bool) and sp > 0:
+        move_s = move_s_for(sp)                                      # 需求给了关节最高角速度：检验动作按它
+    pts = [[cond["reach"], 0.0, 0.0]] if isinstance(cond.get("reach"), (int, float)) else []
+    pts += list(((cr["chosen"].get("workspace") or {}).get("points_mm")) or [])
+    out = build(copy.deepcopy(cr["chosen"]), float(payload), move_s=move_s or MOVE_S,
+                repeatability_mm=float(rep) if isinstance(rep, (int, float)) and not isinstance(rep, bool) else None,
+                points_mm=pts)
     print(summary(out), file=sys.stderr)
     if a.out:
         keep = {k: v for k, v in out.items() if k != "result"}

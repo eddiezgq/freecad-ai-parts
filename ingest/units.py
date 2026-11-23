@@ -47,7 +47,7 @@ SUFFIX_UNITS: dict[str, str] = {
 # 量纲有歧义的字段，只接受白名单中的写法（规范化后的形式）
 _ANGLE = {"arcmin", "arcsec", "arc min", "arc-min", "arc sec", "arc-sec", "degree", "deg", "rad", "radian", "'", '"', "°"}
 _RATIO = {"", "1", "dimensionless", "%", "percent"}
-_SPEED = {"rpm", "r/min", "rev/min", "min^-1", "min-1", "1/min", "rps", "r/s", "rev/s"}
+_SPEED = {"rpm", "r/min", "rev/min", "min^-1", "min-1", "1/min", "rps", "r/s", "rev/s", "°/s", "deg/s"}
 _FREQ = {"Hz", "kHz"}
 _TIME = {"s", "sec", "second", "seconds", "ms"}
 WHITELIST: dict[str, set[str]] = {
@@ -60,6 +60,7 @@ _TORQUE_ALIASES = {"nm": "N*m", "n.m": "N*m", "n-m": "N*m"}  # 只用于扭矩�
 _ALIASES = {
     "r/min": "rpm", "rev/min": "rpm", "min^-1": "rpm", "min-1": "rpm", "1/min": "rpm",
     "rps": "rpm*60", "r/s": "rpm*60", "rev/s": "rpm*60",
+    "°/s": "degree/second", "deg/s": "degree/second",                 # 关节角速度（机器人需求，ADR-0115）
     "'": "arcmin", '"': "arcsec", "°": "degree", "deg": "degree",
     "arc min": "arcmin", "arc-min": "arcmin", "arc sec": "arcsec", "arc-sec": "arcsec",
     "%": "percent", "": "dimensionless", "1": "dimensionless",
