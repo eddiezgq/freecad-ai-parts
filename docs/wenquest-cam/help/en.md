@@ -171,6 +171,21 @@ In the machining tree: choose a five-axis machine for the milling job (e.g. EX-5
 that plane, FreeCAD computes the paths in plane coordinates, and the stock is the real stock turned into plane coordinates (a tilted box) — so face
 the slope first, then machine the pocket in it. Calculation, replay, 3D comparison and program output work as usual.
 
+# Simultaneous 5-axis
+
+On five-axis machining centres an operation can be simultaneous 5-axis (`simul5`): every move carries a tool axis, and the axis changes continuously
+along the cut. For now the swarf tool positions are available (`swarf` in `analysis/cam/fiveaxis.py`: give the bottom and top edges of a ruled surface as
+two polylines; the tool axis follows the rulings and the side of a flat end mill lies on the surface); picking faces in FreeCAD comes in a later version.
+Programs use tool-tip control (RTCP): FANUC / Huazhong write `G43.4 H..` … `G49`, Siemens `TRAORI` … `TRAFOOF`, Heidenhain
+`FUNCTION TCPM F TCP AXIS POS PATHCTRL AXIS` … `FUNCTION RESET TCPM`; each block has the tool-tip work coordinates and the rotary angles. Rotary angles
+follow a continuous solution along the path (a continuous C axis keeps turning instead of wrapping). Machines without tool-tip control and GSK controls get
+no program. Simulation: material removal by tri-dexel (a move whose axis changes is split every 2°), and the machine simulation solves every sample for
+overtravel and collisions. The check list may show: a rotary axis turning more than 30° in one cutting move (a singularity was crossed or an axis hit its
+travel limit and switched solution) — an error, no program; a tool axis within 1° of a rotary axis (near a singularity) — a warning; a rotary axis needing
+more speed than the machine has — a warning that the feed will drop. The move from machine Z home to the first tool position after switching on tool-tip
+control is left to the control and not checked ("unknown").
+Example: `examples/wenquest-cam/03-cone-5axis` (runs without FreeCAD).
+
 # Mill-turn
 
 On mill-turn centres (such as the example EX-MT-CY: X, Y, Z, C axes, live tools) one program can hold turning operations and live-tool milling:

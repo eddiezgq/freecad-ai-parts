@@ -187,6 +187,46 @@ def millturn_lines_siemens(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[st
     return out
 
 
+def simul5_lines(op, machine, safe) -> list[str]:
+    """五轴联动（刀尖跟随 RTCP，ADR-0106 C3a）：FANUC 写法。先退 Z 到机床原点、转回转轴到第一个刀轴，再 G43.4 开刀尖跟随，
+    每段写刀尖工件坐标 + 回转轴角度；完了 G49 关、退 Z。走刀点都要带刀轴 axis"""
+    from analysis.cam import fiveaxis as FA
+
+    model = machine.get("model") or {}
+    mvs = [mv for mv in op["moves"] if mv["t"] in ("rapid", "feed")]
+    if not mvs or any(mv.get("axis") is None for mv in mvs):
+        raise ValueError("五轴联动工序的每个走刀点都要带刀轴 axis")
+    rots = FA.rotary_path(model, [mv["axis"] for mv in mvs])
+    t = op["tool"]
+    L = ["G91 G28 Z0.0", "G90", "G00 " + " ".join(f"{k}{num(v)}" for k, v in FA.rotary_words(model, rots[0])),
+         f"G43.4 H{t.get('offset', t['n']):02d}"]
+    pos, rprev, mode, last_f = {}, {}, None, None
+    for k, (mv, q) in enumerate(zip(mvs, rots)):
+        g = "G00" if mv["t"] == "rapid" else "G01"
+        w = []
+        for a in ("x", "y", "z"):
+            if a in mv and (a not in pos or abs(pos[a] - mv[a]) > 5e-4):
+                w.append(a.upper() + num(mv[a]))
+                pos[a] = mv[a]
+        for a, v in FA.rotary_words(model, q):
+            if a not in rprev or abs(rprev[a] - v) > 5e-4:
+                w.append(a + num(v))
+                rprev[a] = v
+        if not w:
+            continue
+        line = ([g] if g != mode else []) + w
+        mode = g
+        if g == "G01" and mv.get("f") != last_f:
+            line.append("F" + num(mv["f"], 1))
+            last_f = mv["f"]
+        if k == 0:
+            line.append("M08")
+        lines_ok = " ".join(line)
+        L.append(lines_ok)
+    L += ["G49", "G91 G28 Z0.0", "G90", "M09", "M05"]
+    return L
+
+
 def post_mill(prog, machine):
     """2.5 轴铣：G17、G90 绝对、G94 每分进给、G54、M06 换刀、G43 长度补偿、G81 / G83 钻孔循环。"""
     lines: list[str] = []
@@ -198,6 +238,9 @@ def post_mill(prog, machine):
         op["_line"] = len(lines) + 1             # 这道工序从程序第几行起（仿真后按工序统计用，如自适应开粗的切宽）
         lines.append(comment(op.get("title", "")))
         lines += [f"T{t['n']} M06", "G54", f"S{round(sp['rpm'])} M03"]
+        if op.get("simul5"):
+            lines += simul5_lines(op, machine, safe)
+            continue
         lines += tilt_lines(op)
         mvs = [mv for mv in op["moves"] if mv["t"] != "comment"]
         x0 = next((mv for mv in mvs if "x" in mv), {"x": 0, "y": 0})

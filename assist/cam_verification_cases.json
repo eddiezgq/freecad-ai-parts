@@ -562,6 +562,56 @@
     "en": "Mill-turn: face slot and cylinder slot removed volume"
    },
    "source": "V = ap·(L·D + πD²/4); ∫∫(√(R² − y²) − r) dy dz"
+  },
+  {
+   "id": "CAM-55",
+   "test": "tests/test_cam_fiveaxis_c3a.py::test_swarf_positions_on_cone",
+   "category": "geom",
+   "title": {
+    "zh": "五轴联动：直纹面侧刃铣刀位贴锥面",
+    "en": "5-axis: swarf tool positions on the cone"
+   },
+   "source": "|(p − b) × u| = R"
+  },
+  {
+   "id": "CAM-56",
+   "test": "tests/test_cam_fiveaxis_c3a.py::test_rtcp_release_and_readback",
+   "category": "post",
+   "title": {
+    "zh": "五轴联动：刀尖跟随程序（FANUC / 西门子 / 海德汉 / 华中）回读与刀位一致",
+    "en": "5-axis: tool-tip control programs (FANUC / Siemens / Heidenhain / Huazhong) read back to the tool positions"
+   },
+   "source": "tip, axis = forward(q) vs. tool positions"
+  },
+  {
+   "id": "CAM-57",
+   "test": "tests/test_cam_fiveaxis_c3a.py::test_continuous_c_does_not_wrap",
+   "category": "kin",
+   "title": {
+    "zh": "五轴联动：连续回转轴不绕远",
+    "en": "5-axis: continuous rotary axis does not wrap"
+   },
+   "source": "ΔC = 360°/n; C_end − C_start = 360°"
+  },
+  {
+   "id": "CAM-58",
+   "test": "tests/test_cam_fiveaxis_c3a.py::test_dexel_no_overcut_no_leftover",
+   "category": "geom",
+   "title": {
+    "zh": "五轴联动：圆锥台侧刃 dexel 不过切、不剩料",
+    "en": "5-axis: cone swarf dexel no overcut, no leftover"
+   },
+   "source": "r(z) = Rb − (z + H)·tan 15°"
+  },
+  {
+   "id": "CAM-59",
+   "test": "tests/test_cam_fiveaxis_c3a.py::test_singular_point_warning",
+   "category": "must",
+   "title": {
+    "zh": "五轴联动：过奇异点报警、回转轴突变不出程序",
+    "en": "5-axis: singular point warned, rotary flip refused"
+   },
+   "source": "|v × w| = sin θ < sin 1°; |ΔC| > 30°"
   }
  ]
 }

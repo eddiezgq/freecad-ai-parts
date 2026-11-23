@@ -277,6 +277,64 @@ def _sie_tilt(op) -> list[str]:
     return [f'CYCLE800(1,"",0,57,{num(o[0])},{num(o[1])},{num(o[2])},{num(a, 4)},{num(b, 4)},{num(c, 4)},0,0,0,-1,0,0)']
 
 
+def _simul5(op, machine, dialect: str) -> list[str]:
+    """五轴联动（刀尖跟随，ADR-0106 C3a）：退 Z → 转到第一个刀轴 → 开刀尖跟随 → 刀尖工件坐标 + 回转轴角度 → 关 → 退 Z。
+    FANUC / 华中 G43.4 … G49；西门子 TRAORI … TRAFOOF；海德汉 FUNCTION TCPM … FUNCTION RESET TCPM（与 M128 / M129 同一功能）"""
+    from analysis.cam import fiveaxis as FA
+
+    model = machine.get("model") or {}
+    if not (model.get("features") or {}).get("rtcp"):
+        raise ReleaseError(f"{machine['name']} 没开刀尖跟随（RTCP），五轴联动程序不输出（非 RTCP 输出在 ADR-0106 C3c）")
+    mvs = [mv for mv in op["moves"] if mv["t"] in ("rapid", "feed")]
+    try:
+        rots = FA.rotary_path(model, [mv["axis"] for mv in mvs])
+    except FA.FiveAxisError as exc:
+        raise ReleaseError(str(exc)) from exc
+    t = op["tool"]
+    kl = dialect == "heidenhain"
+    sie = dialect == "siemens"
+    h = klartext.hnum if kl else (lambda v: v)
+    r0 = " ".join(f"{a}{h(num(v))}" for a, v in FA.rotary_words(model, rots[0]))
+    if kl:
+        L = ["M140 MB MAX", f"L {r0} R0 FMAX", "FUNCTION TCPM F TCP AXIS POS PATHCTRL AXIS"]
+    elif sie:
+        L = ["G0 SUPA Z0", f"G0 {r0}", "TRAORI"]
+    else:
+        L = ["G91 G28 Z0.0", "G90", f"G00 {r0}", f"G43.4 H{t.get('offset', t['n']):02d}"]
+    pos, rprev, mode, last_f = {}, {}, None, None
+    for k, (mv, q) in enumerate(zip(mvs, rots)):
+        w = []
+        for a in ("x", "y", "z"):
+            if a not in pos or abs(pos[a] - mv[a]) > 5e-4:
+                w.append(a.upper() + h(num(mv[a])))
+                pos[a] = mv[a]
+        for a, v in FA.rotary_words(model, q):
+            if a not in rprev or abs(rprev[a] - v) > 5e-4:
+                w.append(a + h(num(v)))
+                rprev[a] = v
+        if not w:
+            continue
+        fw = ""
+        if mv["t"] == "feed" and mv.get("f") != last_f:
+            fw = fnum(mv["f"], 1)
+            last_f = mv["f"]
+        if kl:
+            L.append(f"L {' '.join(w)} R0 " + ("FMAX" if mv["t"] == "rapid" else (f"F{fw}" if fw else "")).strip() + (" M8" if k == 0 else ""))
+            L[-1] = " ".join(L[-1].split())
+            continue
+        g = ("G0" if sie else "G00") if mv["t"] == "rapid" else ("G1" if sie else "G01")
+        line = ([g] if g != mode else []) + w + ([f"F{fw}"] if fw else []) + ([("M8" if sie else "M08")] if k == 0 else [])
+        mode = g
+        L.append(" ".join(line))
+    if kl:
+        L += ["FUNCTION RESET TCPM", "M140 MB MAX", "M9", "M5"]
+    elif sie:
+        L += ["TRAFOOF", "G0 SUPA Z0", "M9", "M5"]
+    else:
+        L += ["G49", "G91 G28 Z0.0", "G90", "M09", "M05"]
+    return L
+
+
 def _mill(prog, machine, sim_res, post, dialect):
     sie = dialect == "siemens"
     max_rpm = float(machine["max_rpm"])
@@ -298,6 +356,13 @@ def _mill(prog, machine, sim_res, post, dialect):
         rpm = float(sp["rpm"])
         if rpm > max_rpm + 1e-9:
             raise ReleaseError(f"工序 {k} 转速 {rpm:.0f} 超过机床最高转速 {max_rpm:g}")
+        if op.get("simul5"):
+            if sie:
+                L += [_semi(f"工序 {k}：{op.get('title', '')}"), f"T{t['n']} M6", "D1", "G54", f"S{round(rpm)} M3", *_simul5(op, machine, "siemens")]
+            else:
+                L += [_paren(f"OP{k} T{t['n']:02d}" + (f" D{num(t['d'])}" if t.get("d") else "")), f"T{t['n']} M06", "G54",
+                      f"S{round(rpm)} M03", *_simul5(op, machine, "fanuc")]
+            continue
         mvs = _mill_moves(op)
         x0 = next((mv for mv in mvs if "x" in mv), {"x": 0.0, "y": 0.0})
         if sie:
@@ -389,6 +454,10 @@ def _heidenhain_mill(prog, machine, sim_res, post):
         rpm = float(sp["rpm"])
         if rpm > max_rpm + 1e-9:
             raise ReleaseError(f"工序 {k} 转速 {rpm:.0f} 超过机床最高转速 {max_rpm:g}")
+        if op.get("simul5"):
+            body += [_kl_comment(f"OP{k} T{t['n']:02d}" + (f" D{num(t['d'])}" if t.get("d") else "")), f"TOOL CALL {t['n']} Z S{round(rpm)}",
+                     "M3", *_simul5(op, machine, "heidenhain")]
+            continue
         mvs = _mill_moves(op)
         x0 = next((mv for mv in mvs if "x" in mv), {"x": 0.0, "y": 0.0})
         body += [_kl_comment(f"OP{k} T{t['n']:02d}" + (f" D{num(t['d'])}" if t.get("d") else "")), f"TOOL CALL {t['n']} Z S{round(rpm)}",
@@ -482,6 +551,9 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
                     "utf8": cfg["comments"] == "utf8" and fam != "siemens",
                     "turn_cycles": cfg["cycles"]["turn"], "drill_cycles": cfg["cycles"]["drill"] and fam != "siemens",
                     "millturn": cfg.get("millturn")})
+    if fam == "gsk" and any(op.get("simul5") for op in prog.get("ops") or []):
+        _FMT.reset(tok)
+        raise ReleaseError("广数系统没有刀尖跟随（RTCP），五轴联动程序不输出（ADR-0106 C3a）")
     try:
         if fam == "heidenhain":
             text = klartext.finish(*_heidenhain_mill(prog, machine, sim_res, post), cfg, int(prog.get("number", 1)))
@@ -525,6 +597,7 @@ def to_fanuc(text: str, controller: str, lathe: bool, *, tags: bool = False) -> 
     out = ["%", "O0001"]
     lims = None
     trafo = None
+    rtcp, cur_tool = False, 0
     spd = 0.0
     mark, prev = len(out), 0
     for i, raw in enumerate(text.splitlines(), 1):
@@ -536,6 +609,7 @@ def to_fanuc(text: str, controller: str, lathe: bool, *, tags: bool = False) -> 
             continue
         ws = line.split()
         spd = next((float(w[1:]) for w in ws if w.startswith("S") and w[1:].replace(".", "").isdigit()), spd)
+        cur_tool = next((int(w[1:]) for w in ws if w.startswith("T") and w[1:].isdigit()), cur_tool)
         if ws[0] in ("G331", "G332"):             # 西门子刚性攻丝 → 进给直线（回读只比路径；进给 = 螺距 × 转速）
             kk = next(float(w[1:]) for w in ws if w.startswith("K"))
             out.append(" ".join(["G01"] + [w for w in ws[1:] if w[0] in "XYZ"] + [f"F{kk * spd:g}"]))
@@ -564,10 +638,16 @@ def to_fanuc(text: str, controller: str, lathe: bool, *, tags: bool = False) -> 
             trafo = ("tracyl", float(mtc.group(1)))
             out.append(f"G07.1 C{float(mtc.group(1)) / 2:g}")
             continue
+        if line == "TRAORI":                     # 五轴刀尖跟随（ADR-0106 C3a）→ G43.4
+            out.append(f"G43.4 H{cur_tool:02d}")
+            rtcp = True
+            continue
         if line == "TRAFOOF":
             if trafo:
                 out.append("G13.1" if trafo[0] == "transmit" else "G07.1 C0")
-            trafo = None
+            elif rtcp:
+                out.append("G49")
+            trafo, rtcp = None, False
             continue
         if line == "DIAMOF" or (line in ("G17", "G19") and trafo):   # TRANSMIT / TRACYL 里的平面；外面的 G19 / G18 是分度铣，照留
             continue
