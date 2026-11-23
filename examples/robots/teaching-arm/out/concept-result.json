@@ -14,7 +14,7 @@
        "offset_mm": [
         0,
         0,
-        70
+        50
        ],
        "parent": "flange",
        "type": "gripper"
@@ -106,8 +106,8 @@
         ],
         "parent": "forearm",
         "range_deg": [
-         -120,
-         120
+         -110,
+         110
         ],
         "ratio": 50,
         "transmission": "reducer",
@@ -174,8 +174,8 @@
         "length_mm": 50,
         "material": "6061-T6",
         "section": {
-         "id_mm": 26,
-         "od_mm": 32
+         "id_mm": 24,
+         "od_mm": 30
         },
         "shape": "tube"
        },
@@ -571,7 +571,7 @@
          0,
          1
         ],
-        "child": "turret",
+        "child": "carriage",
         "id": "j1",
         "module_group": "jm",
         "origin_mm": [
@@ -580,9 +580,9 @@
          65
         ],
         "parent": "base",
-        "range_deg": [
-         -170,
-         170
+        "range_mm": [
+         0,
+         300
         ],
         "transmission": "direct",
         "type": "revolute"
@@ -590,10 +590,10 @@
        {
         "axis": [
          0,
-         1,
-         0
+         0,
+         1
         ],
-        "child": "upper_arm",
+        "child": "arm1",
         "id": "j2",
         "module_group": "jm",
         "origin_mm": [
@@ -601,7 +601,7 @@
          0,
          70
         ],
-        "parent": "turret",
+        "parent": "carriage",
         "range_deg": [
          -30,
          150
@@ -612,7 +612,15 @@
        {
         "axis": [
          0,
-         1,
+         0,
+         1
+        ],
+        "child": "arm2",
+        "id": "j3",
+        "module_group": "mod_big",
+        "origin_mm": [
+         200,
+         0,
          0
         ],
         "child": "forearm",
@@ -641,14 +649,15 @@
         "id": "j4",
         "module_group": "jm",
         "origin_mm": [
+         200,
          0,
          0,
          150
         ],
-        "parent": "forearm",
+        "parent": "arm2",
         "range_deg": [
-         -120,
-         120
+         -100,
+         100
         ],
         "transmission": "direct",
         "type": "revolute"
@@ -686,7 +695,7 @@
          "id_mm": 60,
          "od_mm": 70
         },
-        "shape": "tube"
+        "shape": "box"
        },
        {
         "id": "upper_arm",
@@ -712,7 +721,7 @@
        },
        {
         "id": "wrist",
-        "length_mm": 50,
+        "length_mm": 60,
         "material": "6061-T6",
         "section": {
          "thickness_mm": 8,
@@ -811,6 +820,48 @@
       }
      ],
      "overall": "unknown"
+    },
+    {
+     "items": [
+      {
+       "item": "自由度",
+       "status": "pass",
+       "value": 5,
+       "limit": 5
+      },
+      {
+       "item": "安装方式",
+       "status": "pass",
+       "value": "table",
+       "limit": "table"
+      },
+      {
+       "item": "关节模组复用",
+       "status": "pass",
+       "value": 2,
+       "limit": "≥ 2",
+       "note": "同一个 module_group 的关节数"
+      },
+      {
+       "item": "重复定位精度",
+       "status": "unknown",
+       "limit": "± 1 mm",
+       "note": "选件后按编码器分辨率与减速器回差算（这一步判不了）"
+      },
+      {
+       "item": "结构",
+       "status": "pass",
+       "note": "5 根杆件、5 个关节"
+      },
+      {
+       "item": "臂展点（安装面上 r = 350 mm）",
+       "status": "fail",
+       "value": 38.89,
+       "limit": "≤ 0.05 mm",
+       "note": "关节行程内够不着"
+      }
+     ],
+     "overall": "fail"
     }
    ],
    "feedback": "构型 0：\n- [待确认] 重复定位精度（要求 ± 1 mm）；选件后按编码器分辨率与减速器回差算（这一步判不了）\n\n构型 0 初筛通过，但按它选件、装配后没通过（下一轮请据此改构型）：\n- [不通过] 装配：wrist j5 的壳体离 j4 最近 3.4 mm（沿杆向），j4 的 U 底板要 47.8 mm；差 44.4 mm：j5 的壳体伸进了 j4 的 U 形支架转动范围；j5 的轴线与本杆（本关节到 j5 壳体中心）不垂直（偏 29°）：模组的底面与轴线平行，底面朝不了杆向，直管接不上。改法：让 j5 的轴线垂直于本杆（轴转关节就让它的子杆垂直于本杆伸出；轴转关节的原点在输出舵盘端面、壳体中心在它后面 24.5 mm，原点要沿它的轴线前移 24.5 mm，壳体中心才落在杆轴上）\n选件与模组外形：模组组 jm（关节 j1、j2、j3、j4、j5）选 XM540-W270：壳体宽 33.5 mm，输出轴离壳体底面 44.75 mm（这一面最远）；只有输出舵盘（与背面惰轮舵盘同轴）会转，能固定的面（底面、两侧面）都与输出轴平行",
@@ -924,8 +975,8 @@
         ],
         "parent": "forearm",
         "range_deg": [
-         -120,
-         120
+         -110,
+         110
         ],
         "transmission": "direct",
         "type": "revolute"
@@ -1583,8 +1634,8 @@
     ],
     "parent": "forearm",
     "range_deg": [
-     -120,
-     120
+     -110,
+     110
     ],
     "transmission": "direct",
     "type": "revolute"

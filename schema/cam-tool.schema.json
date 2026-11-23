@@ -167,6 +167,15 @@
        "type": "number",
        "exclusiveMinimum": 0,
        "description": "切槽刀宽"
+      },
+      "edges": {
+       "type": "integer",
+       "minimum": 1,
+       "description": "刃数（样本 No. of edges）；切断刀杆配两刃刀片时最大切深可能另有限制。ADR-0119"
+      },
+      "cutoff_only": {
+       "type": "boolean",
+       "description": "切断专用：槽底切不平（如京瓷 PF、PM 槽型和带导角的），起草切槽时不挑；不写就是可切槽。ADR-0119"
       }
      },
      "required": [
@@ -242,6 +251,11 @@
        "type": "number",
        "exclusiveMinimum": 0,
        "description": "切槽刀杆能切的最大槽深（样本 CDX）；ADR-0118"
+      },
+      "max_depth_two_edge_mm": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "description": "装两刃刀片时的最大切深（样本另注时才写，如京瓷 KGD 的 CDX ≥ 20 时两刃刀片最深 18）；ADR-0119"
       },
       "f_mm": {
        "type": "number",
