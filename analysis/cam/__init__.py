@@ -561,6 +561,7 @@ def groove_depths(setup, mach) -> dict:
 
 def groove_holder_checks(setup, sc, stock_d) -> list[dict]:
     """切槽刀（T3）、切断刀（T8）的刀杆最大槽深（样本 CDX，ADR-0118）：槽比它深 → 错误（刀杆撞工件）；
+    两刃刀片且刀杆另注了两刃最大切深的按它查，刃数没写而深度超过它 → unknown（ADR-0119）；
     厂家代号的方柄刀杆没写最大槽深 → unknown"""
     lib = _lib_tools(setup)
     given = (setup.get("machine_sim") or {}).get("tools") or {}
@@ -575,7 +576,13 @@ def groove_holder_checks(setup, sc, stock_d) -> list[dict]:
         hd = (given.get(str(n)) or {}).get("holder") or (t or {}).get("holder") or {}
         code = hd.get("vendor_code") or hd.get("iso5608") or hd.get("id") or ""
         if hd.get("max_depth_mm") is not None:
-            mx = float(hd["max_depth_mm"])
+            edges = ((t or {}).get("insert") or {}).get("edges")
+            two = hd.get("max_depth_two_edge_mm")
+            mx = float(two) if two is not None and edges == 2 else float(hd["max_depth_mm"])
+            if two is not None and edges is None and float(two) + 1e-9 < depth <= float(hd["max_depth_mm"]) + 1e-9:
+                out.append({"line": None, "level": "unknown", "text":
+                            f"T{n} 的刀杆 {code} 装两刃刀片最深 {float(two):g} mm，要切 {depth:.3f} mm；刀片刃数没写，够不够没查"})
+                continue
             if depth > mx + 1e-9:
                 out.append({"line": None, "level": "error", "text": (
                     f"T{n} 的刀杆 {code} 最大槽深 {mx:g} mm，切断要切到毛坯中心（{depth:.3f} mm）切不到（刀杆撞工件），换切断刀杆" if parting else

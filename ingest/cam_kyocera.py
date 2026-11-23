@@ -18,6 +18,13 @@
 最大槽深 CDX、刀杆高 H、宽 B、刀头长 LH、刀尖高 HF、全长 LF、刀尖偏距 WF、可装刃宽 CW min ~ max。表格合并单元格多，同样照页图逐行抄成 HOLDERS，
 导入时核对每个代号在 G056 上。自动车床用的 KGM（G055，样本标 2026 年 9 月停产）、深槽 KGM-T（G057，可切深度随工件直径变，G054 另有表）不收。
 
+切断（ADR-0119，样本 H 分册 H_EN.pdf）：
+- 刀片 H033 GDM / GDMS 的 PM（通用切断，含 6° 导角 -6D）、PH（切槽兼切断，高进给）槽型：刃宽、刀尖圆弧、刃数（GDM 两刃、GDMS 单刃）；
+  PM 槽型切不出平槽底（H032、H033 注）→ 切断专用 cutoff_only；PF、PQ、PG（自动车床小进给用）不收。
+- 刀杆 H040 方柄整体式 KGD（R、L 都有货）：最大切深 CDX、H、B、LH、HF、LF、WF、可装刃宽；H040 注 CDX ≥ 20 时两刃刀片最深 18 mm
+  → max_depth_two_edge_mm = 18。能装的刀片系列 KGD 写 GD、KGM 写 GM（ADR-0119）。
+- 切削条件 H045（PM、PH 表）：PM 刃宽 2~4 一档；PH 刃宽 2、3~4 两档；切削速度取各牌号合集；P = 碳钢、合金钢，M 不锈钢，K 铸铁；表里没有 N、S、H。
+
 命令：python -m ingest.cam_kyocera data/raw/cam/kyocera --out analysis/cam/libraries/kyocera.json \
       --holders-out analysis/cam/libraries/kyocera-holders.json
 """
@@ -96,6 +103,46 @@ HOLDERS = [
 HOLDER_CHECK = ["CDX", "10.8", "14.8", "18.8", "23.8", "18.3", "23.3", "17.8", "22.8"]
 
 
+CUT_PDF = "H_EN.pdf"
+CUT_INS_PAGE, CUT_HOLDER_PAGE, CUT_COND_PAGE = 33, 40, 45
+# (系列, 代号后段, CW, RE, 刃数) —— 照 H033 抄；PM 切断专用
+CUT_INSERTS = [
+    ("GDM", "2020N-020PM", 2.0, 0.2, 2), ("GDM", "2520N-020PM", 2.5, 0.2, 2), ("GDM", "3020N-025PM", 3.0, 0.25, 2), ("GDM", "4020N-030PM", 4.0, 0.3, 2),
+    ("GDM", "2020R-020PM-6D", 2.0, 0.2, 2), ("GDM", "2520R-020PM-6D", 2.5, 0.2, 2), ("GDM", "3020R-025PM-6D", 3.0, 0.25, 2),
+    ("GDMS", "2020N-020PM", 2.0, 0.2, 1), ("GDMS", "3020N-025PM", 3.0, 0.25, 1), ("GDMS", "4020N-030PM", 4.0, 0.3, 1),
+    ("GDMS", "2020R-020PM-6D", 2.0, 0.2, 1), ("GDMS", "3020R-025PM-6D", 3.0, 0.25, 1), ("GDMS", "4020R-030PM-6D", 4.0, 0.3, 1),
+    ("GDM", "2020N-020PH", 2.0, 0.2, 2), ("GDM", "3020N-030PH", 3.0, 0.3, 2), ("GDM", "4020N-030PH", 4.0, 0.3, 2),
+    ("GDMS", "2020N-020PH", 2.0, 0.2, 1), ("GDMS", "3020N-030PH", 3.0, 0.3, 1), ("GDMS", "4020N-030PH", 4.0, 0.3, 1),
+]
+# H045：切削速度（各牌号合集）与进给
+CUT_VC = {"P": (70.0, 200.0),   # 碳钢 80~200、80~200、100~200；合金钢 70~180、70~180、80~180
+          "M": (60.0, 150.0),   # 不锈钢 60~150
+          "K": (100.0, 200.0)}  # 铸铁 PR1215 100~200
+CUT_FEED = {"PM": {"P": (0.08, 0.18), "M": (0.06, 0.12), "K": (0.08, 0.18)},                      # 刃宽 2~4
+            "PH2": {"P": (0.10, 0.25), "M": (0.05, 0.12), "K": (0.10, 0.25)},                     # 刃宽 2
+            "PH34": {"P": (0.15, 0.28), "M": (0.08, 0.15), "K": (0.15, 0.28)}}                    # 刃宽 3~4
+CUT_COND_CHECK = ["0.08 ~ 0.18", "0.06 ~ 0.12", "0.10 ~ 0.25", "0.15 ~ 0.28", "0.05 ~ 0.12", "0.08 ~ 0.15"]
+# (代号后段, CDX, H, B, LH, HF, LF, WF, CW min, CW max) —— 照 H040 逐行抄，R、L 都有货
+CUT_HOLDERS = [
+    ("1616H-2T06", 6, 16, 16, 27.7, 16, 100, 15.2, 2, 3), ("1616H-2T10", 10, 16, 16, 30.2, 16, 100, 15.2, 2, 3),
+    ("1616H-2T17", 17, 16, 16, 31.2, 16, 100, 15.2, 2, 3), ("2012K-2T17", 17, 20, 12, 32.5, 20, 125, 11.2, 2, 3),
+    ("2020K-2T06", 6, 20, 20, 28, 20, 125, 19.2, 2, 3), ("2020K-2T10", 10, 20, 20, 30.5, 20, 125, 19.2, 2, 3),
+    ("2020K-2T17", 17, 20, 20, 32.5, 20, 125, 19.2, 2, 3), ("2525M-2T06", 6, 25, 25, 28, 25, 150, 24.2, 2, 3),
+    ("2525M-2T10", 10, 25, 25, 30.5, 25, 150, 24.2, 2, 3), ("2525M-2T17", 17, 25, 25, 32.5, 25, 150, 24.2, 2, 3),
+    ("2012K-2.4T17", 17, 20, 12, 32.5, 20, 125, 11, 2.4, 3), ("2020K-2.4T17", 17, 20, 20, 32.5, 20, 125, 19, 2.4, 3),
+    ("1216JX-3T06", 6, 12, 16, 19.5, 12, 120, 14.8, 3, 4), ("1616H-3T06", 6, 16, 16, 27.7, 16, 100, 14.8, 3, 4),
+    ("1616H-3T10", 10, 16, 16, 30.2, 16, 100, 14.8, 3, 4), ("1616H-3T20", 20, 16, 16, 34.2, 16, 100, 14.8, 3, 4),
+    ("2012K-3T20", 20, 20, 12, 34.5, 20, 125, 10.8, 3, 4), ("2020K-3T06", 6, 20, 20, 28, 20, 125, 18.8, 3, 4),
+    ("2020K-3T10", 10, 20, 20, 30.5, 20, 125, 18.8, 3, 4), ("2020K-3T20", 20, 20, 20, 34.5, 20, 125, 18.8, 3, 4),
+    ("2525M-3T06", 6, 25, 25, 28, 25, 150, 23.8, 3, 4), ("2525M-3T10", 10, 25, 25, 30.5, 25, 150, 23.8, 3, 4),
+    ("2525M-3T20", 20, 25, 25, 35.5, 25, 150, 23.8, 3, 4),
+    ("1216JX-4T06", 6, 12, 16, 19.5, 12, 120, 14.3, 4, 5), ("2020K-4T10", 10, 20, 20, 30.5, 20, 125, 18.3, 4, 5),
+    ("2020K-4T20", 20, 20, 20, 34.5, 20, 125, 18.3, 4, 5), ("2525M-4T10", 10, 25, 25, 30.5, 25, 150, 23.3, 4, 5),
+    ("2525M-4T20", 20, 25, 25, 35.5, 25, 150, 23.3, 4, 5), ("2525M-4T25", 25, 25, 25, 40.5, 25, 150, 23.3, 4, 5),
+]
+TWO_EDGE_LIMIT = 18.0     # H040 注：CDX ≥ 20 时两刃刀片最深 18
+
+
 class KyoceraError(ValueError):
     pass
 
@@ -136,7 +183,7 @@ def groove_tools(raw: Path) -> list[dict]:
         t = {"id": "KY-" + code,
              "name": f"京瓷 {code} 外圆切槽刀片（刃宽 {cw:g}{'，全圆弧' if fullr else ''}）",
              "kind": "groove",
-             "insert": {"iso": code, "nose_radius_mm": re_, "width_mm": cw}}
+             "insert": {"iso": code, "nose_radius_mm": re_, "width_mm": cw, "edges": 2}}        # G048、G049 都是两刃
         if b is not None:
             t["cutting"] = [{"iso_group": g, "vc_m_min": {"min": VC[g][0], "max": VC[g][1]},
                              "f_mm_rev": {"min": FEED[g][b][0], "max": FEED[g][b][1]}} for g in ("P", "M", "K", "N")]
@@ -162,15 +209,70 @@ def build_holders(raw: Path) -> dict:
             code = f"KGM{hand}{rest}"
             out.append({"id": "KY-" + code, "name": f"京瓷 {code} 外圆切槽刀杆（刃宽 {cmin:g}{'' if cmin == cmax else f'–{cmax:g}'}，最大槽深 {cdx:g}）",
                         "vendor_code": code, "use": "groove",
-                        "insert": {"groove_width_mm": {"min": float(cmin), "max": float(cmax)}},
+                        "insert": {"groove_width_mm": {"min": float(cmin), "max": float(cmax)}, "series": ["GM"]},
                         "f_mm": float(wf), "h_mm": float(h), "b_mm": float(b), "l1_mm": float(lf), "h1_mm": float(hf),
                         "head_mm": float(lh), "max_depth_mm": float(cdx),
                         "source": {"kind": "catalog", "ref": SOURCE, "page": f"G{HOLDER_PAGE:03d}"}})
-    return {"format": "cam-holder/1", "name": "京瓷 外圆切槽刀杆 KGM（样本参数）", "holders": out}
+    return {"format": "cam-holder/1", "name": "京瓷 切槽刀杆 KGM、切断刀杆 KGD（样本参数）", "holders": out + cutoff_holders(raw)}
+
+
+def cutoff_holders(raw: Path) -> list[dict]:
+    pdf = Path(raw) / CUT_PDF
+    if not pdf.exists():
+        raise KyoceraError(f"缺样本：{pdf}")
+    text = _page(pdf, CUT_HOLDER_PAGE)
+    for r in CUT_HOLDERS:
+        if r[0] not in text:
+            raise KyoceraError(f"H{CUT_HOLDER_PAGE:03d} 上找不到 {r[0]}（刀杆表对不上，样本版本变了？）")
+    out = []
+    for rest, cdx, h, b, lh, hf, lf, wf, cmin, cmax in CUT_HOLDERS:
+        for hand in "RL":
+            code = f"KGD{hand}{rest}"
+            e = {"id": "KY-" + code, "name": f"京瓷 {code} 切断刀杆（刃宽 {cmin:g}–{cmax:g}，最大切深 {cdx:g}）",
+                 "vendor_code": code, "use": "groove",
+                 "insert": {"groove_width_mm": {"min": float(cmin), "max": float(cmax)}, "series": ["GD"]},
+                 "f_mm": float(wf), "h_mm": float(h), "b_mm": float(b), "l1_mm": float(lf), "h1_mm": float(hf),
+                 "head_mm": float(lh), "max_depth_mm": float(cdx),
+                 "source": {"kind": "catalog", "ref": SOURCE, "page": f"H{CUT_HOLDER_PAGE:03d}"}}
+            if cdx >= 20:
+                e["max_depth_two_edge_mm"] = TWO_EDGE_LIMIT
+                e["source"]["page"] += "（注：CDX ≥ 20 时两刃刀片最深 18）"
+            out.append(e)
+    return out
+
+
+def cutoff_tools(raw: Path) -> list[dict]:
+    pdf = Path(raw) / CUT_PDF
+    if not pdf.exists():
+        raise KyoceraError(f"缺样本：{pdf}")
+    ins, cond = _page(pdf, CUT_INS_PAGE), _page(pdf, CUT_COND_PAGE)
+    for fam, rest, *_ in CUT_INSERTS:
+        if rest not in ins or fam not in ins:
+            raise KyoceraError(f"H{CUT_INS_PAGE:03d} 上找不到 {fam} {rest}")
+    for s in CUT_COND_CHECK:
+        if s not in cond:
+            raise KyoceraError(f"H{CUT_COND_PAGE:03d} 上找不到 {s}（切削条件表对不上，样本版本变了？）")
+    tools = []
+    for fam, rest, cw, re_, edges in CUT_INSERTS:
+        code = fam + rest
+        pm = "PM" in rest
+        band = "PM" if pm else ("PH2" if cw == 2.0 else "PH34")
+        lead = "，6° 导角" if rest.endswith("-6D") else ""
+        tools.append({
+            "id": "KY-" + code,
+            "name": f"京瓷 {code} {'切断' if pm else '切槽兼切断'}刀片（刃宽 {cw:g}，{'单' if edges == 1 else '两'}刃{lead}）",
+            "kind": "groove",
+            "insert": {"iso": code, "nose_radius_mm": re_, "width_mm": cw, "edges": edges, **({"cutoff_only": True} if pm else {})},
+            "cutting": [{"iso_group": g, "vc_m_min": {"min": CUT_VC[g][0], "max": CUT_VC[g][1]},
+                         "f_mm_rev": {"min": CUT_FEED[band][g][0], "max": CUT_FEED[band][g][1]}} for g in ("P", "M", "K")],
+            "source": {"kind": "catalog", "ref": SOURCE,
+                       "page": f"尺寸 H{CUT_INS_PAGE:03d}；切削条件 H{CUT_COND_PAGE:03d}（{'PM，刃宽 2~4' if pm else ('PH，刃宽 2' if cw == 2.0 else 'PH，刃宽 3~4')}；切削速度为各牌号合集）"}})
+    return tools
 
 
 def build(raw: Path) -> dict:
-    return {"format": "cam-tool/1", "name": "京瓷 外圆切槽刀片 GMM / GMG（样本参数）", "tools": groove_tools(raw)}
+    return {"format": "cam-tool/1", "name": "京瓷 切槽刀片 GMM / GMG、切断刀片 GDM / GDMS（样本参数）",
+            "tools": groove_tools(raw) + cutoff_tools(raw)}
 
 
 def main(argv=None) -> int:
