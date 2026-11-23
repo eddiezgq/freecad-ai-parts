@@ -112,6 +112,26 @@ sources:
         version: E1103c Part C（版本日期以文件为准，下载时固定 SHA-256）
         url: https://www.nsk.com/content/dam/nsk/common/catalogs/ctrgPdf/bearings/e1103c_partc.pdf
         sha256: "3c1acfda536bb6a77487d1fcf6812618e31c62582fb20089659d20b7af07a6e2"
+  - id: robotis
+    vendor: ROBOTIS Co., Ltd.
+    url: https://emanual.robotis.com/docs/en/dxl/x/
+    terms_url: https://emanual.robotis.com/
+    categories: [smart_actuator]
+    license: params-only
+    terms_checked: true
+    terms_note: >-
+      2026-11-22 查：e-Manual 页脚“© ROBOTIS”，没有使用条款或许可声明链接；ROBOTIS 美国站（robotis.us）只有“All rights reserved”，没有使用条款页。
+      e-Manual 的源码仓库 github.com/ROBOTIS-GIT/emanual 公开，其中的 MIT 许可是网站模板（Minimal Mistakes，Copyright Michael Rose）的，
+      不覆盖 ROBOTIS 的手册内容（e-Manual 首页只说编程库按 MIT 免费用）。
+      按 ADR-0040（项目负责人授权 Claude 判断）与 ADR-0117：只收公开规格表里的参数（力矩、转速、电流、质量、减速比、回差、分辨率、
+      电压范围、外形尺寸），逐项注明出处并链接回 e-Manual 原页；规格表源文件按固定提交下载一次，不遍历、不爬取网站；
+      不转存手册文字、图片、图纸与 CAD。
+    documents:
+      - id: src-robotis-emanual-dxl-x-info
+        title: ROBOTIS e-Manual，DYNAMIXEL X 系列规格表源文件（_data/dxl_x_info.yml，网页 Specifications 一节由它生成）
+        version: ROBOTIS-GIT/emanual 提交 0807b1b5f7472bbbbb2c9751f1d3406678e86d37（2026-08-10），以 SHA-256 标识（2026-11-22 登记）
+        url: https://raw.githubusercontent.com/ROBOTIS-GIT/emanual/0807b1b5f7472bbbbb2c9751f1d3406678e86d37/_data/dxl_x_info.yml
+        sha256: "440121eb2577fca1b9954965dc74727b1ce3ba3332438952c8c20ee29ae6ebc0"
   - id: leaderdrive
     vendor: 苏州绿的谐波传动科技股份有限公司（Leaderdrive）
     url: https://www.leaderdrive.com

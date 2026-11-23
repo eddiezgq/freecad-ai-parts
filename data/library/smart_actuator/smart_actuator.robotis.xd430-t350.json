@@ -1,0 +1,184 @@
+{
+  "category": "smart_actuator",
+  "envelope": {
+    "parts": [
+      {
+        "height_mm": {
+          "confidence": 1.0,
+          "method": "computed",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "formula": "保守外框：a = max(W, H, D)；沿输出轴长 a，截面 2a × 2a（舵盘在哪个面、轴线位置只在图纸里）",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：Dimensions (W x H x D) = 28.5 x 46.5 x 34"
+          },
+          "value": 93.0
+        },
+        "label": "body（保守外框）",
+        "length_mm": {
+          "confidence": 1.0,
+          "method": "computed",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "formula": "保守外框：a = max(W, H, D)；沿输出轴长 a，截面 2a × 2a（舵盘在哪个面、轴线位置只在图纸里）",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：Dimensions (W x H x D) = 28.5 x 46.5 x 34"
+          },
+          "value": 46.5
+        },
+        "shape": "box",
+        "width_mm": {
+          "confidence": 1.0,
+          "method": "computed",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "formula": "保守外框：a = max(W, H, D)；沿输出轴长 a，截面 2a × 2a（舵盘在哪个面、轴线位置只在图纸里）",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：Dimensions (W x H x D) = 28.5 x 46.5 x 34"
+          },
+          "value": 93.0
+        },
+        "z_start_mm": -46.5
+      }
+    ]
+  },
+  "id": "smart_actuator.robotis.xd430-t350",
+  "license": "params-only",
+  "model": "XD430-T350",
+  "note": "解析结构化规格表（确定性程序，不经 AI）；2026-11-22 Claude 抽查 XM430-W350、XM540-W270、XC330-T181、XH540-W150 四个型号的网页规格表，各项与解析结果一致（经张国庆授权，ADR-0040）。参数取自 ROBOTIS e-Manual 规格表（src-robotis-emanual-dxl-x-info，ADR-0040、ADR-0117），力矩与转速是输出端、推荐电压下的值；堵转力矩不是连续额定（厂商没给连续额定，连续力矩校核为待确认）；舵盘与壳体安装孔位只在厂商图纸里，没有收录，整机装配时这两处接口判待确认；包络是保守外框。",
+  "params": {
+    "backlash_arcmin": {
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：Backlash"
+      },
+      "value": 15.0
+    },
+    "gear_ratio": {
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：Gear Ratio"
+      },
+      "value": 353.5
+    },
+    "mass_kg": {
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：Weight（原单位 g）"
+      },
+      "value": 0.085
+    },
+    "no_load_speed_rpm": {
+      "condition": "12 V（厂商推荐电压）",
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：No Load Speed"
+      },
+      "value": 30.0
+    },
+    "resolution_counts_per_rev": {
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：Resolution"
+      },
+      "value": 4096
+    },
+    "stall_current_a": {
+      "condition": "12 V（厂商推荐电压）",
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：Stall Torque 一栏括号内的电流"
+      },
+      "value": 1.3
+    },
+    "stall_torque_nm": {
+      "condition": "12 V（厂商推荐电压）",
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：Stall Torque"
+      },
+      "value": 3.4
+    }
+  },
+  "ports": [
+    {
+      "dir": "in",
+      "id": "power_in",
+      "spec": {
+        "current_type": {
+          "confidence": 1.0,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：Input Voltage（直流）"
+          },
+          "value": "dc"
+        },
+        "phases": {
+          "confidence": 1.0,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：直流"
+          },
+          "value": 0
+        },
+        "voltage_v": {
+          "confidence": 1.0,
+          "max": 14.8,
+          "method": "extracted",
+          "min": 10.0,
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：Input Voltage"
+          }
+        }
+      },
+      "type": "electrical.power_supply"
+    },
+    {
+      "dir": "bidir",
+      "id": "bus",
+      "spec": {
+        "protocol": {
+          "confidence": 1.0,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xd430-t350/ Specifications：Control Table 一节：X 系列用 DYNAMIXEL Protocol 2.0；物理层 RS-485 Asynchronous Serial Communication (8bit, 1stop, No Parity)"
+          },
+          "value": "dynamixel_2"
+        }
+      },
+      "type": "signal.fieldbus"
+    }
+  ],
+  "series": "DYNAMIXEL X",
+  "status": "active",
+  "vendor": "ROBOTIS"
+}

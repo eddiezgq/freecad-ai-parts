@@ -1,0 +1,174 @@
+{
+  "category": "smart_actuator",
+  "envelope": {
+    "parts": [
+      {
+        "height_mm": {
+          "confidence": 1.0,
+          "method": "computed",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "formula": "保守外框：a = max(W, H, D)；沿输出轴长 a，截面 2a × 2a（舵盘在哪个面、轴线位置只在图纸里）",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：Dimensions (W x H x D) = 20 x 34 x 26"
+          },
+          "value": 68.0
+        },
+        "label": "body（保守外框）",
+        "length_mm": {
+          "confidence": 1.0,
+          "method": "computed",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "formula": "保守外框：a = max(W, H, D)；沿输出轴长 a，截面 2a × 2a（舵盘在哪个面、轴线位置只在图纸里）",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：Dimensions (W x H x D) = 20 x 34 x 26"
+          },
+          "value": 34.0
+        },
+        "shape": "box",
+        "width_mm": {
+          "confidence": 1.0,
+          "method": "computed",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "formula": "保守外框：a = max(W, H, D)；沿输出轴长 a，截面 2a × 2a（舵盘在哪个面、轴线位置只在图纸里）",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：Dimensions (W x H x D) = 20 x 34 x 26"
+          },
+          "value": 68.0
+        },
+        "z_start_mm": -34.0
+      }
+    ]
+  },
+  "id": "smart_actuator.robotis.xl330-m077",
+  "license": "params-only",
+  "model": "XL330-M077",
+  "note": "解析结构化规格表（确定性程序，不经 AI）；2026-11-22 Claude 抽查 XM430-W350、XM540-W270、XC330-T181、XH540-W150 四个型号的网页规格表，各项与解析结果一致（经张国庆授权，ADR-0040）。参数取自 ROBOTIS e-Manual 规格表（src-robotis-emanual-dxl-x-info，ADR-0040、ADR-0117），力矩与转速是输出端、推荐电压下的值；堵转力矩不是连续额定（厂商没给连续额定，连续力矩校核为待确认）；舵盘与壳体安装孔位只在厂商图纸里，没有收录，整机装配时这两处接口判待确认；包络是保守外框。",
+  "params": {
+    "gear_ratio": {
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：Gear Ratio"
+      },
+      "value": 77.5
+    },
+    "mass_kg": {
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：Weight（原单位 g）"
+      },
+      "value": 0.018
+    },
+    "no_load_speed_rpm": {
+      "condition": "5 V（厂商推荐电压）",
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：No Load Speed"
+      },
+      "value": 383.0
+    },
+    "resolution_counts_per_rev": {
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：Resolution"
+      },
+      "value": 4096
+    },
+    "stall_current_a": {
+      "condition": "5 V（厂商推荐电压）",
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：Stall Torque 一栏括号内的电流"
+      },
+      "value": 1.47
+    },
+    "stall_torque_nm": {
+      "condition": "5 V（厂商推荐电压）",
+      "confidence": 1.0,
+      "method": "extracted",
+      "reviewed": true,
+      "source": {
+        "doc": "src-robotis-emanual-dxl-x-info",
+        "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：Stall Torque"
+      },
+      "value": 0.215
+    }
+  },
+  "ports": [
+    {
+      "dir": "in",
+      "id": "power_in",
+      "spec": {
+        "current_type": {
+          "confidence": 1.0,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：Input Voltage（直流）"
+          },
+          "value": "dc"
+        },
+        "phases": {
+          "confidence": 1.0,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：直流"
+          },
+          "value": 0
+        },
+        "voltage_v": {
+          "confidence": 1.0,
+          "max": 6.0,
+          "method": "extracted",
+          "min": 3.7,
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：Input Voltage"
+          }
+        }
+      },
+      "type": "electrical.power_supply"
+    },
+    {
+      "dir": "bidir",
+      "id": "bus",
+      "spec": {
+        "protocol": {
+          "confidence": 1.0,
+          "method": "extracted",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-emanual-dxl-x-info",
+            "note": "https://emanual.robotis.com/docs/en/dxl/x/xl330-m077/ Specifications：Control Table 一节：X 系列用 DYNAMIXEL Protocol 2.0；物理层 TTL Half Duplex Asynchronous Serial Communication (8bit, 1stop, No Parity)"
+          },
+          "value": "dynamixel_2"
+        }
+      },
+      "type": "signal.fieldbus"
+    }
+  ],
+  "series": "DYNAMIXEL X",
+  "status": "active",
+  "vendor": "ROBOTIS"
+}
