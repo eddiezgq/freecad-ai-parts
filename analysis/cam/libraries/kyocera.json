@@ -1,0 +1,2339 @@
+{
+ "format": "cam-tool/1",
+ "name": "京瓷 外圆切槽刀片 GMM / GMG（样本参数）",
+ "tools": [
+  {
+   "id": "KY-GMM2420-020MW",
+   "name": "京瓷 GMM2420-020MW 外圆切槽刀片（刃宽 2.4）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM2420-020MW",
+    "nose_radius_mm": 0.2,
+    "width_mm": 2.4
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 2.0~3.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM3020-020MW",
+   "name": "京瓷 GMM3020-020MW 外圆切槽刀片（刃宽 3）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM3020-020MW",
+    "nose_radius_mm": 0.2,
+    "width_mm": 3.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 2.0~3.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM3020-040MW",
+   "name": "京瓷 GMM3020-040MW 外圆切槽刀片（刃宽 3）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM3020-040MW",
+    "nose_radius_mm": 0.4,
+    "width_mm": 3.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 2.0~3.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM4020-020MW",
+   "name": "京瓷 GMM4020-020MW 外圆切槽刀片（刃宽 4）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM4020-020MW",
+    "nose_radius_mm": 0.2,
+    "width_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 4.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM4020-040MW",
+   "name": "京瓷 GMM4020-040MW 外圆切槽刀片（刃宽 4）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM4020-040MW",
+    "nose_radius_mm": 0.4,
+    "width_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 4.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM4020-080MW",
+   "name": "京瓷 GMM4020-080MW 外圆切槽刀片（刃宽 4）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM4020-080MW",
+    "nose_radius_mm": 0.8,
+    "width_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 4.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM5020-040MW",
+   "name": "京瓷 GMM5020-040MW 外圆切槽刀片（刃宽 5）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM5020-040MW",
+    "nose_radius_mm": 0.4,
+    "width_mm": 5.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 5.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM5020-080MW",
+   "name": "京瓷 GMM5020-080MW 外圆切槽刀片（刃宽 5）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM5020-080MW",
+    "nose_radius_mm": 0.8,
+    "width_mm": 5.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 5.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM6020-040MW",
+   "name": "京瓷 GMM6020-040MW 外圆切槽刀片（刃宽 6）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM6020-040MW",
+    "nose_radius_mm": 0.4,
+    "width_mm": 6.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.12,
+      "max": 0.3
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 6.0/8.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM6020-080MW",
+   "name": "京瓷 GMM6020-080MW 外圆切槽刀片（刃宽 6）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM6020-080MW",
+    "nose_radius_mm": 0.8,
+    "width_mm": 6.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.12,
+      "max": 0.3
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 6.0/8.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM8030-080MW",
+   "name": "京瓷 GMM8030-080MW 外圆切槽刀片（刃宽 8）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM8030-080MW",
+    "nose_radius_mm": 0.8,
+    "width_mm": 8.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.12,
+      "max": 0.3
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 6.0/8.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM3020-020MS",
+   "name": "京瓷 GMM3020-020MS 外圆切槽刀片（刃宽 3）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM3020-020MS",
+    "nose_radius_mm": 0.2,
+    "width_mm": 3.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 2.0~3.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM3020-040MS",
+   "name": "京瓷 GMM3020-040MS 外圆切槽刀片（刃宽 3）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM3020-040MS",
+    "nose_radius_mm": 0.4,
+    "width_mm": 3.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 2.0~3.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM4020-040MS",
+   "name": "京瓷 GMM4020-040MS 外圆切槽刀片（刃宽 4）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM4020-040MS",
+    "nose_radius_mm": 0.4,
+    "width_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 4.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM5020-040MS",
+   "name": "京瓷 GMM5020-040MS 外圆切槽刀片（刃宽 5）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM5020-040MS",
+    "nose_radius_mm": 0.4,
+    "width_mm": 5.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 5.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM6020-040MS",
+   "name": "京瓷 GMM6020-040MS 外圆切槽刀片（刃宽 6）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM6020-040MS",
+    "nose_radius_mm": 0.4,
+    "width_mm": 6.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.12,
+      "max": 0.3
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 6.0/8.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG3020-000MS",
+   "name": "京瓷 GMG3020-000MS 外圆切槽刀片（刃宽 3）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG3020-000MS",
+    "nose_radius_mm": 0.0,
+    "width_mm": 3.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 2.0~3.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG3020-020MS",
+   "name": "京瓷 GMG3020-020MS 外圆切槽刀片（刃宽 3）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG3020-020MS",
+    "nose_radius_mm": 0.2,
+    "width_mm": 3.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 2.0~3.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG3020-040MS",
+   "name": "京瓷 GMG3020-040MS 外圆切槽刀片（刃宽 3）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG3020-040MS",
+    "nose_radius_mm": 0.4,
+    "width_mm": 3.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 2.0~3.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG4020-020MS",
+   "name": "京瓷 GMG4020-020MS 外圆切槽刀片（刃宽 4）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG4020-020MS",
+    "nose_radius_mm": 0.2,
+    "width_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 4.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG4020-040MS",
+   "name": "京瓷 GMG4020-040MS 外圆切槽刀片（刃宽 4）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG4020-040MS",
+    "nose_radius_mm": 0.4,
+    "width_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 4.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG4020-080MS",
+   "name": "京瓷 GMG4020-080MS 外圆切槽刀片（刃宽 4）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG4020-080MS",
+    "nose_radius_mm": 0.8,
+    "width_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 4.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG5020-040MS",
+   "name": "京瓷 GMG5020-040MS 外圆切槽刀片（刃宽 5）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG5020-040MS",
+    "nose_radius_mm": 0.4,
+    "width_mm": 5.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 5.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG5020-080MS",
+   "name": "京瓷 GMG5020-080MS 外圆切槽刀片（刃宽 5）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG5020-080MS",
+    "nose_radius_mm": 0.8,
+    "width_mm": 5.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 5.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG6020-080MS",
+   "name": "京瓷 GMG6020-080MS 外圆切槽刀片（刃宽 6）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG6020-080MS",
+    "nose_radius_mm": 0.8,
+    "width_mm": 6.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.12,
+      "max": 0.3
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G048；切削条件 G143（切槽一栏，刃宽档 6.0/8.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG2520-030MG",
+   "name": "京瓷 GMG2520-030MG 外圆切槽刀片（刃宽 2.5）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG2520-030MG",
+    "nose_radius_mm": 0.3,
+    "width_mm": 2.5
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 2.0~3.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG3020-030MG",
+   "name": "京瓷 GMG3020-030MG 外圆切槽刀片（刃宽 3）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG3020-030MG",
+    "nose_radius_mm": 0.3,
+    "width_mm": 3.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 2.0~3.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG3520-030MG",
+   "name": "京瓷 GMG3520-030MG 外圆切槽刀片（刃宽 3.5）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG3520-030MG",
+    "nose_radius_mm": 0.3,
+    "width_mm": 3.5
+   },
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；G143 没有刃宽 3.5 这一档，不写切削参数"
+   }
+  },
+  {
+   "id": "KY-GMG4020-040MG",
+   "name": "京瓷 GMG4020-040MG 外圆切槽刀片（刃宽 4）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG4020-040MG",
+    "nose_radius_mm": 0.4,
+    "width_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 4.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG5020-040MG",
+   "name": "京瓷 GMG5020-040MG 外圆切槽刀片（刃宽 5）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG5020-040MG",
+    "nose_radius_mm": 0.4,
+    "width_mm": 5.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 5.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG6020-040MG",
+   "name": "京瓷 GMG6020-040MG 外圆切槽刀片（刃宽 6）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG6020-040MG",
+    "nose_radius_mm": 0.4,
+    "width_mm": 6.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.12,
+      "max": 0.3
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 6.0/8.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG8030-050MG",
+   "name": "京瓷 GMG8030-050MG 外圆切槽刀片（刃宽 8）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG8030-050MG",
+    "nose_radius_mm": 0.5,
+    "width_mm": 8.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.12,
+      "max": 0.3
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 6.0/8.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM3020-150R",
+   "name": "京瓷 GMM3020-150R 外圆切槽刀片（刃宽 3，全圆弧）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM3020-150R",
+    "nose_radius_mm": 1.5,
+    "width_mm": 3.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 2.0~3.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM4020-200R",
+   "name": "京瓷 GMM4020-200R 外圆切槽刀片（刃宽 4，全圆弧）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM4020-200R",
+    "nose_radius_mm": 2.0,
+    "width_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 4.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM5020-250R",
+   "name": "京瓷 GMM5020-250R 外圆切槽刀片（刃宽 5，全圆弧）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM5020-250R",
+    "nose_radius_mm": 2.5,
+    "width_mm": 5.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 5.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMM6020-300R",
+   "name": "京瓷 GMM6020-300R 外圆切槽刀片（刃宽 6，全圆弧）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMM6020-300R",
+    "nose_radius_mm": 3.0,
+    "width_mm": 6.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.2,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.12,
+      "max": 0.3
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 6.0/8.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG3020-150R",
+   "name": "京瓷 GMG3020-150R 外圆切槽刀片（刃宽 3，全圆弧）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG3020-150R",
+    "nose_radius_mm": 1.5,
+    "width_mm": 3.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.2
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 2.0~3.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG4020-200R",
+   "name": "京瓷 GMG4020-200R 外圆切槽刀片（刃宽 4，全圆弧）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG4020-200R",
+    "nose_radius_mm": 2.0,
+    "width_mm": 4.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.2
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.3
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 4.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GMG5020-250R",
+   "name": "京瓷 GMG5020-250R 外圆切槽刀片（刃宽 5，全圆弧）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GMG5020-250R",
+    "nose_radius_mm": 2.5,
+    "width_mm": 5.0
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 220.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 160.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.35
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.4
+     }
+    },
+    {
+     "iso_group": "N",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 500.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 5.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  }
+ ]
+}

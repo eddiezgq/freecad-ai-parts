@@ -173,6 +173,14 @@ def _rule_pick(op):
         return max(c, key=lambda t: (ap_max(t), _nose(t) <= 0.8 + 1e-9, _nose(t) if _nose(t) <= 0.8 + 1e-9 else -_nose(t)))
     if op["kind"] == "finish":
         return min(c, key=_nose)
+    if op["kind"] in ("groove", "face_groove", "part"):
+        # 切槽：不超过槽宽里最宽的（走刀次数少）；切断：最窄的（省料、切削力小）。全圆弧刀片（RE = 刃宽/2）槽底是圆的，
+        # 有别的就不挑；同宽取刀尖圆弧最小的（槽底清角）
+        def w(t):
+            return (t.get("insert") or {}).get("width_mm", 0.0)
+        sq = [t for t in c if not (w(t) > 0 and abs(2 * _nose(t) - w(t)) < 1e-9)] or c
+        best = (min if op["kind"] == "part" else max)(w(t) for t in sq)
+        return min((t for t in sq if w(t) == best), key=lambda t: (_nose(t), t["id"]))
     return c[0]
 
 
