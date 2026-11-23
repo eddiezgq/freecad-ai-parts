@@ -1,0 +1,36 @@
+{
+ "why": "刀片系列是代号开头的大写字母",
+ "instance": {
+  "format": "cam-holder/1",
+  "name": "测试",
+  "holders": [
+   {
+    "id": "KY-KGDR2525M-3T20",
+    "vendor_code": "KGDR2525M-3T20",
+    "use": "groove",
+    "insert": {
+     "groove_width_mm": {
+      "min": 3,
+      "max": 4
+     },
+     "series": [
+      "gd-1"
+     ]
+    },
+    "f_mm": 23.8,
+    "h_mm": 25,
+    "b_mm": 25,
+    "l1_mm": 150,
+    "head_mm": 35.5,
+    "h1_mm": 25,
+    "max_depth_mm": 20,
+    "max_depth_two_edge_mm": 18,
+    "source": {
+     "kind": "catalog",
+     "ref": "kyocera",
+     "page": "H040"
+    }
+   }
+  ]
+ }
+}
