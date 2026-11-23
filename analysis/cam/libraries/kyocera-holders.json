@@ -1,6 +1,6 @@
 {
  "format": "cam-holder/1",
- "name": "京瓷 外圆切槽刀杆 KGM（样本参数）",
+ "name": "京瓷 切槽刀杆 KGM、切断刀杆 KGD（样本参数）",
  "holders": [
   {
    "id": "KY-KGMR1212H-3",
@@ -11,7 +11,10 @@
     "groove_width_mm": {
      "min": 3.0,
      "max": 3.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 10.8,
    "h_mm": 12.0,
@@ -35,7 +38,10 @@
     "groove_width_mm": {
      "min": 3.0,
      "max": 4.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 14.8,
    "h_mm": 16.0,
@@ -59,7 +65,10 @@
     "groove_width_mm": {
      "min": 3.0,
      "max": 4.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 18.8,
    "h_mm": 20.0,
@@ -83,7 +92,10 @@
     "groove_width_mm": {
      "min": 3.0,
      "max": 4.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 18.8,
    "h_mm": 20.0,
@@ -107,7 +119,10 @@
     "groove_width_mm": {
      "min": 3.0,
      "max": 4.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 23.8,
    "h_mm": 25.0,
@@ -131,7 +146,10 @@
     "groove_width_mm": {
      "min": 3.0,
      "max": 4.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 23.8,
    "h_mm": 25.0,
@@ -155,7 +173,10 @@
     "groove_width_mm": {
      "min": 4.0,
      "max": 5.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 18.3,
    "h_mm": 20.0,
@@ -179,7 +200,10 @@
     "groove_width_mm": {
      "min": 4.0,
      "max": 5.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 23.3,
    "h_mm": 25.0,
@@ -203,7 +227,10 @@
     "groove_width_mm": {
      "min": 4.0,
      "max": 5.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 23.3,
    "h_mm": 25.0,
@@ -227,7 +254,10 @@
     "groove_width_mm": {
      "min": 5.0,
      "max": 6.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 17.8,
    "h_mm": 20.0,
@@ -251,7 +281,10 @@
     "groove_width_mm": {
      "min": 5.0,
      "max": 6.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 22.8,
    "h_mm": 25.0,
@@ -275,7 +308,10 @@
     "groove_width_mm": {
      "min": 8.0,
      "max": 8.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 22.0,
    "h_mm": 25.0,
@@ -299,7 +335,10 @@
     "groove_width_mm": {
      "min": 8.0,
      "max": 8.0
-    }
+    },
+    "series": [
+     "GM"
+    ]
    },
    "f_mm": 22.0,
    "h_mm": 25.0,
@@ -313,6 +352,1586 @@
     "ref": "kyocera",
     "page": "G056"
    }
+  },
+  {
+   "id": "KY-KGDR1616H-2T06",
+   "name": "京瓷 KGDR1616H-2T06 切断刀杆（刃宽 2–3，最大切深 6）",
+   "vendor_code": "KGDR1616H-2T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 15.2,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 27.7,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL1616H-2T06",
+   "name": "京瓷 KGDL1616H-2T06 切断刀杆（刃宽 2–3，最大切深 6）",
+   "vendor_code": "KGDL1616H-2T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 15.2,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 27.7,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR1616H-2T10",
+   "name": "京瓷 KGDR1616H-2T10 切断刀杆（刃宽 2–3，最大切深 10）",
+   "vendor_code": "KGDR1616H-2T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 15.2,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 30.2,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL1616H-2T10",
+   "name": "京瓷 KGDL1616H-2T10 切断刀杆（刃宽 2–3，最大切深 10）",
+   "vendor_code": "KGDL1616H-2T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 15.2,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 30.2,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR1616H-2T17",
+   "name": "京瓷 KGDR1616H-2T17 切断刀杆（刃宽 2–3，最大切深 17）",
+   "vendor_code": "KGDR1616H-2T17",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 15.2,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 31.2,
+   "max_depth_mm": 17.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL1616H-2T17",
+   "name": "京瓷 KGDL1616H-2T17 切断刀杆（刃宽 2–3，最大切深 17）",
+   "vendor_code": "KGDL1616H-2T17",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 15.2,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 31.2,
+   "max_depth_mm": 17.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2012K-2T17",
+   "name": "京瓷 KGDR2012K-2T17 切断刀杆（刃宽 2–3，最大切深 17）",
+   "vendor_code": "KGDR2012K-2T17",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 11.2,
+   "h_mm": 20.0,
+   "b_mm": 12.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.5,
+   "max_depth_mm": 17.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2012K-2T17",
+   "name": "京瓷 KGDL2012K-2T17 切断刀杆（刃宽 2–3，最大切深 17）",
+   "vendor_code": "KGDL2012K-2T17",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 11.2,
+   "h_mm": 20.0,
+   "b_mm": 12.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.5,
+   "max_depth_mm": 17.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2020K-2T06",
+   "name": "京瓷 KGDR2020K-2T06 切断刀杆（刃宽 2–3，最大切深 6）",
+   "vendor_code": "KGDR2020K-2T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 19.2,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 28.0,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2020K-2T06",
+   "name": "京瓷 KGDL2020K-2T06 切断刀杆（刃宽 2–3，最大切深 6）",
+   "vendor_code": "KGDL2020K-2T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 19.2,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 28.0,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2020K-2T10",
+   "name": "京瓷 KGDR2020K-2T10 切断刀杆（刃宽 2–3，最大切深 10）",
+   "vendor_code": "KGDR2020K-2T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 19.2,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.5,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2020K-2T10",
+   "name": "京瓷 KGDL2020K-2T10 切断刀杆（刃宽 2–3，最大切深 10）",
+   "vendor_code": "KGDL2020K-2T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 19.2,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.5,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2020K-2T17",
+   "name": "京瓷 KGDR2020K-2T17 切断刀杆（刃宽 2–3，最大切深 17）",
+   "vendor_code": "KGDR2020K-2T17",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 19.2,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.5,
+   "max_depth_mm": 17.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2020K-2T17",
+   "name": "京瓷 KGDL2020K-2T17 切断刀杆（刃宽 2–3，最大切深 17）",
+   "vendor_code": "KGDL2020K-2T17",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 19.2,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.5,
+   "max_depth_mm": 17.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2525M-2T06",
+   "name": "京瓷 KGDR2525M-2T06 切断刀杆（刃宽 2–3，最大切深 6）",
+   "vendor_code": "KGDR2525M-2T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 24.2,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2525M-2T06",
+   "name": "京瓷 KGDL2525M-2T06 切断刀杆（刃宽 2–3，最大切深 6）",
+   "vendor_code": "KGDL2525M-2T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 24.2,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2525M-2T10",
+   "name": "京瓷 KGDR2525M-2T10 切断刀杆（刃宽 2–3，最大切深 10）",
+   "vendor_code": "KGDR2525M-2T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 24.2,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.5,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2525M-2T10",
+   "name": "京瓷 KGDL2525M-2T10 切断刀杆（刃宽 2–3，最大切深 10）",
+   "vendor_code": "KGDL2525M-2T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 24.2,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.5,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2525M-2T17",
+   "name": "京瓷 KGDR2525M-2T17 切断刀杆（刃宽 2–3，最大切深 17）",
+   "vendor_code": "KGDR2525M-2T17",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 24.2,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 32.5,
+   "max_depth_mm": 17.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2525M-2T17",
+   "name": "京瓷 KGDL2525M-2T17 切断刀杆（刃宽 2–3，最大切深 17）",
+   "vendor_code": "KGDL2525M-2T17",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.0,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 24.2,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 32.5,
+   "max_depth_mm": 17.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2012K-2.4T17",
+   "name": "京瓷 KGDR2012K-2.4T17 切断刀杆（刃宽 2.4–3，最大切深 17）",
+   "vendor_code": "KGDR2012K-2.4T17",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.4,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 11.0,
+   "h_mm": 20.0,
+   "b_mm": 12.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.5,
+   "max_depth_mm": 17.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2012K-2.4T17",
+   "name": "京瓷 KGDL2012K-2.4T17 切断刀杆（刃宽 2.4–3，最大切深 17）",
+   "vendor_code": "KGDL2012K-2.4T17",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.4,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 11.0,
+   "h_mm": 20.0,
+   "b_mm": 12.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.5,
+   "max_depth_mm": 17.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2020K-2.4T17",
+   "name": "京瓷 KGDR2020K-2.4T17 切断刀杆（刃宽 2.4–3，最大切深 17）",
+   "vendor_code": "KGDR2020K-2.4T17",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.4,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 19.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.5,
+   "max_depth_mm": 17.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2020K-2.4T17",
+   "name": "京瓷 KGDL2020K-2.4T17 切断刀杆（刃宽 2.4–3，最大切深 17）",
+   "vendor_code": "KGDL2020K-2.4T17",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 2.4,
+     "max": 3.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 19.0,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 32.5,
+   "max_depth_mm": 17.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR1216JX-3T06",
+   "name": "京瓷 KGDR1216JX-3T06 切断刀杆（刃宽 3–4，最大切深 6）",
+   "vendor_code": "KGDR1216JX-3T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 14.8,
+   "h_mm": 12.0,
+   "b_mm": 16.0,
+   "l1_mm": 120.0,
+   "h1_mm": 12.0,
+   "head_mm": 19.5,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL1216JX-3T06",
+   "name": "京瓷 KGDL1216JX-3T06 切断刀杆（刃宽 3–4，最大切深 6）",
+   "vendor_code": "KGDL1216JX-3T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 14.8,
+   "h_mm": 12.0,
+   "b_mm": 16.0,
+   "l1_mm": 120.0,
+   "h1_mm": 12.0,
+   "head_mm": 19.5,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR1616H-3T06",
+   "name": "京瓷 KGDR1616H-3T06 切断刀杆（刃宽 3–4，最大切深 6）",
+   "vendor_code": "KGDR1616H-3T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 14.8,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 27.7,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL1616H-3T06",
+   "name": "京瓷 KGDL1616H-3T06 切断刀杆（刃宽 3–4，最大切深 6）",
+   "vendor_code": "KGDL1616H-3T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 14.8,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 27.7,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR1616H-3T10",
+   "name": "京瓷 KGDR1616H-3T10 切断刀杆（刃宽 3–4，最大切深 10）",
+   "vendor_code": "KGDR1616H-3T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 14.8,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 30.2,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL1616H-3T10",
+   "name": "京瓷 KGDL1616H-3T10 切断刀杆（刃宽 3–4，最大切深 10）",
+   "vendor_code": "KGDL1616H-3T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 14.8,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 30.2,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR1616H-3T20",
+   "name": "京瓷 KGDR1616H-3T20 切断刀杆（刃宽 3–4，最大切深 20）",
+   "vendor_code": "KGDR1616H-3T20",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 14.8,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 34.2,
+   "max_depth_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDL1616H-3T20",
+   "name": "京瓷 KGDL1616H-3T20 切断刀杆（刃宽 3–4，最大切深 20）",
+   "vendor_code": "KGDL1616H-3T20",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 14.8,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 34.2,
+   "max_depth_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDR2012K-3T20",
+   "name": "京瓷 KGDR2012K-3T20 切断刀杆（刃宽 3–4，最大切深 20）",
+   "vendor_code": "KGDR2012K-3T20",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 10.8,
+   "h_mm": 20.0,
+   "b_mm": 12.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 34.5,
+   "max_depth_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDL2012K-3T20",
+   "name": "京瓷 KGDL2012K-3T20 切断刀杆（刃宽 3–4，最大切深 20）",
+   "vendor_code": "KGDL2012K-3T20",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 10.8,
+   "h_mm": 20.0,
+   "b_mm": 12.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 34.5,
+   "max_depth_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDR2020K-3T06",
+   "name": "京瓷 KGDR2020K-3T06 切断刀杆（刃宽 3–4，最大切深 6）",
+   "vendor_code": "KGDR2020K-3T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 18.8,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 28.0,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2020K-3T06",
+   "name": "京瓷 KGDL2020K-3T06 切断刀杆（刃宽 3–4，最大切深 6）",
+   "vendor_code": "KGDL2020K-3T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 18.8,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 28.0,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2020K-3T10",
+   "name": "京瓷 KGDR2020K-3T10 切断刀杆（刃宽 3–4，最大切深 10）",
+   "vendor_code": "KGDR2020K-3T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 18.8,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.5,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2020K-3T10",
+   "name": "京瓷 KGDL2020K-3T10 切断刀杆（刃宽 3–4，最大切深 10）",
+   "vendor_code": "KGDL2020K-3T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 18.8,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.5,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2020K-3T20",
+   "name": "京瓷 KGDR2020K-3T20 切断刀杆（刃宽 3–4，最大切深 20）",
+   "vendor_code": "KGDR2020K-3T20",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 18.8,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 34.5,
+   "max_depth_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDL2020K-3T20",
+   "name": "京瓷 KGDL2020K-3T20 切断刀杆（刃宽 3–4，最大切深 20）",
+   "vendor_code": "KGDL2020K-3T20",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 18.8,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 34.5,
+   "max_depth_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDR2525M-3T06",
+   "name": "京瓷 KGDR2525M-3T06 切断刀杆（刃宽 3–4，最大切深 6）",
+   "vendor_code": "KGDR2525M-3T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 23.8,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2525M-3T06",
+   "name": "京瓷 KGDL2525M-3T06 切断刀杆（刃宽 3–4，最大切深 6）",
+   "vendor_code": "KGDL2525M-3T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 23.8,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 28.0,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2525M-3T10",
+   "name": "京瓷 KGDR2525M-3T10 切断刀杆（刃宽 3–4，最大切深 10）",
+   "vendor_code": "KGDR2525M-3T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 23.8,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.5,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2525M-3T10",
+   "name": "京瓷 KGDL2525M-3T10 切断刀杆（刃宽 3–4，最大切深 10）",
+   "vendor_code": "KGDL2525M-3T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 23.8,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.5,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2525M-3T20",
+   "name": "京瓷 KGDR2525M-3T20 切断刀杆（刃宽 3–4，最大切深 20）",
+   "vendor_code": "KGDR2525M-3T20",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 23.8,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.5,
+   "max_depth_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDL2525M-3T20",
+   "name": "京瓷 KGDL2525M-3T20 切断刀杆（刃宽 3–4，最大切深 20）",
+   "vendor_code": "KGDL2525M-3T20",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 23.8,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.5,
+   "max_depth_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDR1216JX-4T06",
+   "name": "京瓷 KGDR1216JX-4T06 切断刀杆（刃宽 4–5，最大切深 6）",
+   "vendor_code": "KGDR1216JX-4T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 14.3,
+   "h_mm": 12.0,
+   "b_mm": 16.0,
+   "l1_mm": 120.0,
+   "h1_mm": 12.0,
+   "head_mm": 19.5,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL1216JX-4T06",
+   "name": "京瓷 KGDL1216JX-4T06 切断刀杆（刃宽 4–5，最大切深 6）",
+   "vendor_code": "KGDL1216JX-4T06",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 14.3,
+   "h_mm": 12.0,
+   "b_mm": 16.0,
+   "l1_mm": 120.0,
+   "h1_mm": 12.0,
+   "head_mm": 19.5,
+   "max_depth_mm": 6.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2020K-4T10",
+   "name": "京瓷 KGDR2020K-4T10 切断刀杆（刃宽 4–5，最大切深 10）",
+   "vendor_code": "KGDR2020K-4T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 18.3,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.5,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2020K-4T10",
+   "name": "京瓷 KGDL2020K-4T10 切断刀杆（刃宽 4–5，最大切深 10）",
+   "vendor_code": "KGDL2020K-4T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 18.3,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 30.5,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2020K-4T20",
+   "name": "京瓷 KGDR2020K-4T20 切断刀杆（刃宽 4–5，最大切深 20）",
+   "vendor_code": "KGDR2020K-4T20",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 18.3,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 34.5,
+   "max_depth_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDL2020K-4T20",
+   "name": "京瓷 KGDL2020K-4T20 切断刀杆（刃宽 4–5，最大切深 20）",
+   "vendor_code": "KGDL2020K-4T20",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 18.3,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 34.5,
+   "max_depth_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDR2525M-4T10",
+   "name": "京瓷 KGDR2525M-4T10 切断刀杆（刃宽 4–5，最大切深 10）",
+   "vendor_code": "KGDR2525M-4T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 23.3,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.5,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDL2525M-4T10",
+   "name": "京瓷 KGDL2525M-4T10 切断刀杆（刃宽 4–5，最大切深 10）",
+   "vendor_code": "KGDL2525M-4T10",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 23.3,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 30.5,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040"
+   }
+  },
+  {
+   "id": "KY-KGDR2525M-4T20",
+   "name": "京瓷 KGDR2525M-4T20 切断刀杆（刃宽 4–5，最大切深 20）",
+   "vendor_code": "KGDR2525M-4T20",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 23.3,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.5,
+   "max_depth_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDL2525M-4T20",
+   "name": "京瓷 KGDL2525M-4T20 切断刀杆（刃宽 4–5，最大切深 20）",
+   "vendor_code": "KGDL2525M-4T20",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 23.3,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 35.5,
+   "max_depth_mm": 20.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDR2525M-4T25",
+   "name": "京瓷 KGDR2525M-4T25 切断刀杆（刃宽 4–5，最大切深 25）",
+   "vendor_code": "KGDR2525M-4T25",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 23.3,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 40.5,
+   "max_depth_mm": 25.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
+  },
+  {
+   "id": "KY-KGDL2525M-4T25",
+   "name": "京瓷 KGDL2525M-4T25 切断刀杆（刃宽 4–5，最大切深 25）",
+   "vendor_code": "KGDL2525M-4T25",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    },
+    "series": [
+     "GD"
+    ]
+   },
+   "f_mm": 23.3,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 40.5,
+   "max_depth_mm": 25.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "H040（注：CDX ≥ 20 时两刃刀片最深 18）"
+   },
+   "max_depth_two_edge_mm": 18.0
   }
  ]
 }

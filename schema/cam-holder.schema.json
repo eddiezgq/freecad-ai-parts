@@ -65,7 +65,7 @@
     },
     "insert": {
      "type": "object",
-     "description": "能装的刀片：ISO 1832 代号前两位（形状 + 法后角，可多个）与尺寸位（刃长 2 位 + 厚度 2 位）；或螺纹刀片尺寸位 thread_size（ADR-0115）；或切槽刀片刃宽范围 groove_width_mm（ADR-0118）",
+     "description": "能装的刀片：ISO 1832 代号前两位（形状 + 法后角，可多个）与尺寸位（刃长 2 位 + 厚度 2 位）；或螺纹刀片尺寸位 thread_size（ADR-0115）；或切槽刀片刃宽范围 groove_width_mm（ADR-0118）；切槽刀杆可再写能装的刀片系列 series（ADR-0119）",
      "properties": {
       "codes": {
        "type": "array",
@@ -102,6 +102,15 @@
         "max"
        ],
        "additionalProperties": false
+      },
+      "series": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "string",
+        "pattern": "^[A-Z]{1,4}$"
+       },
+       "description": "切槽、切断刀杆能装的刀片系列（刀片代号开头的字母，如京瓷 KGM 装 GM…、KGD 装 GD…）；同一家各系列刀座也不通用。ADR-0119"
       }
      },
      "additionalProperties": false,
@@ -166,6 +175,11 @@
      "type": "number",
      "exclusiveMinimum": 0,
      "description": "切槽刀杆能切的最大槽深（样本 CDX）；槽更深刀杆撞工件。ADR-0118"
+    },
+    "max_depth_two_edge_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "description": "装两刃刀片时的最大切深（样本另注时才写，如京瓷 KGD 的 CDX ≥ 20 时两刃刀片最深 18）；ADR-0119"
     },
     "nose_radius_mm": {
      "type": "number",

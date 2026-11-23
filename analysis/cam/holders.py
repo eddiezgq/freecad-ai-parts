@@ -168,15 +168,33 @@ def pick(insert_iso: str, hand: str = "R", cats: list[dict] | None = None, bore_
     return min(cands, key=lambda h: (code(h)[2] != want, abs(h.get("h_mm", 25) - 25) + abs(h.get("b_mm", 25) - 25), h["id"]))
 
 
+def groove_reach(h: dict, edges: int | None) -> float | None:
+    """刀杆能切的深度（ADR-0118、0119）：两刃刀片、或刃数不知道时，刀杆另注了两刃最大切深就按它；否则按最大槽深 CDX"""
+    two = h.get("max_depth_two_edge_mm")
+    if two is not None and edges != 1:
+        return float(two)
+    return None if h.get("max_depth_mm") is None else float(h["max_depth_mm"])
+
+
 def pick_groove(width: float, depth: float | None = None, hand: str = "R", cats: list[dict] | None = None,
-                ref: str | None = None) -> dict | None:
-    """切槽刀、切断刀配切槽刀杆（ADR-0118）：刀片刃宽在刀杆的 CW 范围内、手向对上、最大槽深不小于要切的深度（给了的话）；
-    切槽刀片的刀座各家不通用，给了 ref（刀片的样本来源）就只挑同一家样本的刀杆；
+                ref: str | None = None, code: str | None = None, edges: int | None = None) -> dict | None:
+    """切槽刀、切断刀配切槽刀杆（ADR-0118、0119）：刀片刃宽在刀杆的 CW 范围内、手向对上、能切的深度不小于要切的（给了的话；
+    两刃刀片按两刃最大切深）；切槽刀片的刀座各家不通用，给了 ref（刀片的样本来源）就只挑同一家样本的刀杆；
+    刀杆写了能装的刀片系列、又给了刀片代号 code，代号要以其中之一开头（京瓷 KGM 装 GM…、KGD 装 GD…）；
     截面优先 25×25，再取最大槽深小的（刀头短、刚性好），再按代号排序。没有对得上的返回 None"""
-    cands = [h for c in (catalogs() if cats is None else cats) for h in c["holders"]
-             if h.get("use") == "groove" and h["insert"]["groove_width_mm"]["min"] - 1e-9 <= width <= h["insert"]["groove_width_mm"]["max"] + 1e-9
-             and vendor_hand(h["vendor_code"]) == hand and (depth is None or h["max_depth_mm"] >= depth - 1e-9)
-             and (ref is None or (h.get("source") or {}).get("ref") == ref)]
+    def ok(h):
+        rng = h["insert"]["groove_width_mm"]
+        if not (rng["min"] - 1e-9 <= width <= rng["max"] + 1e-9) or vendor_hand(h["vendor_code"]) != hand:
+            return False
+        if ref is not None and (h.get("source") or {}).get("ref") != ref:
+            return False
+        ser = h["insert"].get("series")
+        if ser and code and not any(code.upper().startswith(x) for x in ser):
+            return False
+        reach = groove_reach(h, edges)
+        return depth is None or (reach is not None and reach >= depth - 1e-9)
+
+    cands = [h for c in (catalogs() if cats is None else cats) for h in c["holders"] if h.get("use") == "groove" and ok(h)]
     if not cands:
         return None
     return min(cands, key=lambda h: (abs(h["h_mm"] - 25) + abs(h["b_mm"] - 25), h["max_depth_mm"], h["id"]))
@@ -186,7 +204,8 @@ def as_tool_holder(h: dict) -> dict:
     """刀杆库的一条 → 刀具的 holder（cam-tool/1）"""
     if h.get("use") == "groove":
         return {"id": h["id"], "vendor_code": h["vendor_code"], "f_mm": h["f_mm"], "h_mm": h["h_mm"], "b_mm": h["b_mm"],
-                "l1_mm": h["l1_mm"], "max_depth_mm": h["max_depth_mm"], **({"head_mm": h["head_mm"]} if "head_mm" in h else {})}
+                "l1_mm": h["l1_mm"], "max_depth_mm": h["max_depth_mm"], **({"head_mm": h["head_mm"]} if "head_mm" in h else {}),
+                **({"max_depth_two_edge_mm": h["max_depth_two_edge_mm"]} if "max_depth_two_edge_mm" in h else {})}
     if h.get("use") == "internal" and h.get("vendor_code"):
         return {"id": h["id"], "vendor_code": h["vendor_code"], "f_mm": h["f_mm"], "bar_d_mm": h["bar_d_mm"], "l1_mm": h["l1_mm"],
                 "min_bore_mm": h["min_bore_mm"], **({"head_mm": h["head_mm"]} if "head_mm" in h else {})}
