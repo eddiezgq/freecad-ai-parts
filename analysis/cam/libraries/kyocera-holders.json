@@ -1,0 +1,318 @@
+{
+ "format": "cam-holder/1",
+ "name": "京瓷 外圆切槽刀杆 KGM（样本参数）",
+ "holders": [
+  {
+   "id": "KY-KGMR1212H-3",
+   "name": "京瓷 KGMR1212H-3 外圆切槽刀杆（刃宽 3，最大槽深 9）",
+   "vendor_code": "KGMR1212H-3",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 3.0
+    }
+   },
+   "f_mm": 10.8,
+   "h_mm": 12.0,
+   "b_mm": 12.0,
+   "l1_mm": 100.0,
+   "h1_mm": 12.0,
+   "head_mm": 27.0,
+   "max_depth_mm": 9.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  },
+  {
+   "id": "KY-KGMR1616H-3",
+   "name": "京瓷 KGMR1616H-3 外圆切槽刀杆（刃宽 3–4，最大槽深 9）",
+   "vendor_code": "KGMR1616H-3",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    }
+   },
+   "f_mm": 14.8,
+   "h_mm": 16.0,
+   "b_mm": 16.0,
+   "l1_mm": 100.0,
+   "h1_mm": 16.0,
+   "head_mm": 27.0,
+   "max_depth_mm": 9.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  },
+  {
+   "id": "KY-KGMR2020K-3",
+   "name": "京瓷 KGMR2020K-3 外圆切槽刀杆（刃宽 3–4，最大槽深 9）",
+   "vendor_code": "KGMR2020K-3",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    }
+   },
+   "f_mm": 18.8,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 27.0,
+   "max_depth_mm": 9.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  },
+  {
+   "id": "KY-KGML2020K-3",
+   "name": "京瓷 KGML2020K-3 外圆切槽刀杆（刃宽 3–4，最大槽深 9）",
+   "vendor_code": "KGML2020K-3",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    }
+   },
+   "f_mm": 18.8,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 27.0,
+   "max_depth_mm": 9.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  },
+  {
+   "id": "KY-KGMR2525M-3",
+   "name": "京瓷 KGMR2525M-3 外圆切槽刀杆（刃宽 3–4，最大槽深 9）",
+   "vendor_code": "KGMR2525M-3",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    }
+   },
+   "f_mm": 23.8,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 27.0,
+   "max_depth_mm": 9.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  },
+  {
+   "id": "KY-KGML2525M-3",
+   "name": "京瓷 KGML2525M-3 外圆切槽刀杆（刃宽 3–4，最大槽深 9）",
+   "vendor_code": "KGML2525M-3",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 3.0,
+     "max": 4.0
+    }
+   },
+   "f_mm": 23.8,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 27.0,
+   "max_depth_mm": 9.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  },
+  {
+   "id": "KY-KGMR2020K-4",
+   "name": "京瓷 KGMR2020K-4 外圆切槽刀杆（刃宽 4–5，最大槽深 10）",
+   "vendor_code": "KGMR2020K-4",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    }
+   },
+   "f_mm": 18.3,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 27.0,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  },
+  {
+   "id": "KY-KGMR2525M-4",
+   "name": "京瓷 KGMR2525M-4 外圆切槽刀杆（刃宽 4–5，最大槽深 10）",
+   "vendor_code": "KGMR2525M-4",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    }
+   },
+   "f_mm": 23.3,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 27.0,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  },
+  {
+   "id": "KY-KGML2525M-4",
+   "name": "京瓷 KGML2525M-4 外圆切槽刀杆（刃宽 4–5，最大槽深 10）",
+   "vendor_code": "KGML2525M-4",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 4.0,
+     "max": 5.0
+    }
+   },
+   "f_mm": 23.3,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 27.0,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  },
+  {
+   "id": "KY-KGMR2020K-5",
+   "name": "京瓷 KGMR2020K-5 外圆切槽刀杆（刃宽 5–6，最大槽深 10）",
+   "vendor_code": "KGMR2020K-5",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 5.0,
+     "max": 6.0
+    }
+   },
+   "f_mm": 17.8,
+   "h_mm": 20.0,
+   "b_mm": 20.0,
+   "l1_mm": 125.0,
+   "h1_mm": 20.0,
+   "head_mm": 27.0,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  },
+  {
+   "id": "KY-KGMR2525M-5",
+   "name": "京瓷 KGMR2525M-5 外圆切槽刀杆（刃宽 5–6，最大槽深 10）",
+   "vendor_code": "KGMR2525M-5",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 5.0,
+     "max": 6.0
+    }
+   },
+   "f_mm": 22.8,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 27.0,
+   "max_depth_mm": 10.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  },
+  {
+   "id": "KY-KGMR2525M-8",
+   "name": "京瓷 KGMR2525M-8 外圆切槽刀杆（刃宽 8，最大槽深 25）",
+   "vendor_code": "KGMR2525M-8",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 8.0,
+     "max": 8.0
+    }
+   },
+   "f_mm": 22.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 40.0,
+   "max_depth_mm": 25.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  },
+  {
+   "id": "KY-KGML2525M-8",
+   "name": "京瓷 KGML2525M-8 外圆切槽刀杆（刃宽 8，最大槽深 25）",
+   "vendor_code": "KGML2525M-8",
+   "use": "groove",
+   "insert": {
+    "groove_width_mm": {
+     "min": 8.0,
+     "max": 8.0
+    }
+   },
+   "f_mm": 22.0,
+   "h_mm": 25.0,
+   "b_mm": 25.0,
+   "l1_mm": 150.0,
+   "h1_mm": 25.0,
+   "head_mm": 40.0,
+   "max_depth_mm": 25.0,
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "G056"
+   }
+  }
+ ]
+}

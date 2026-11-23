@@ -541,6 +541,50 @@ def inner_tool_checks(setup, sc) -> list[dict]:
     return out
 
 
+def _groove_depth(tgt, gv) -> float:
+    """槽深（半径方向）：槽两边外圆取大的，减槽底直径，除以 2"""
+    d0 = max(P.d_at(tgt, float(gv["z"])), P.d_at(tgt, float(gv["z"]) - float(gv["width"])))
+    return max(0.0, (d0 - float(gv["d"])) / 2.0)
+
+
+def groove_depths(setup, mach) -> dict:
+    """起草配切槽刀杆用（ADR-0118）：{"groove": 各槽里最深的（mm，半径方向）, "part": 切断要切的深度（毛坯半径）}；没有的不给"""
+    ctx = turn_context(setup, mach)
+    out = {}
+    gd = [_groove_depth(sd["tgt"], gv) for sd in ctx["sides"] for gv in sd["grooves"]]
+    if gd:
+        out["groove"] = max(gd)
+    if setup.get("parting"):
+        out["part"] = ctx["stock_d"] / 2.0
+    return out
+
+
+def groove_holder_checks(setup, sc, stock_d) -> list[dict]:
+    """切槽刀（T3）、切断刀（T8）的刀杆最大槽深（样本 CDX，ADR-0118）：槽比它深 → 错误（刀杆撞工件）；
+    厂家代号的方柄刀杆没写最大槽深 → unknown"""
+    lib = _lib_tools(setup)
+    given = (setup.get("machine_sim") or {}).get("tools") or {}
+    need = []
+    if sc.get("grooves"):
+        need.append((3, max(_groove_depth(sc["tgt"], gv) for gv in sc["grooves"]), False))
+    if sc.get("parting"):
+        need.append((8, float(stock_d) / 2.0, True))
+    out = []
+    for n, depth, parting in need:
+        t = lib.get(n)
+        hd = (given.get(str(n)) or {}).get("holder") or (t or {}).get("holder") or {}
+        code = hd.get("vendor_code") or hd.get("iso5608") or hd.get("id") or ""
+        if hd.get("max_depth_mm") is not None:
+            mx = float(hd["max_depth_mm"])
+            if depth > mx + 1e-9:
+                out.append({"line": None, "level": "error", "text": (
+                    f"T{n} 的刀杆 {code} 最大槽深 {mx:g} mm，切断要切到毛坯中心（{depth:.3f} mm）切不到（刀杆撞工件），换切断刀杆" if parting else
+                    f"T{n} 的刀杆 {code} 最大槽深 {mx:g} mm，槽深 {depth:.3f} mm 切不到（刀杆撞工件），换槽深够的刀杆")})
+        elif hd.get("vendor_code") and hd.get("h_mm"):
+            out.append({"line": None, "level": "unknown", "text": f"T{n} 的刀杆 {code} 没写最大槽深，要切 {depth:.3f} mm 够不够没查"})
+    return out
+
+
 def nose_radii(setup) -> dict:
     """车刀刀尖圆弧半径 {刀号: rε}：按整机仿真设置里刀号对应的刀具库刀具（刀片 nose_radius_mm）。
     没对应上的刀按尖刀算（与以前一样）；刀尖圆弧补偿与仿真都用这个值（ADR-0106 Q2 第 4 步）。"""
@@ -618,6 +662,7 @@ def _turn(setup, mach):
                                "text": f"{side_name}车出来是 R{rr:g} 的圆角（刀尖圆弧）；图纸要清角就要加退刀槽或换小圆弧刀片"})
         checks += thread_insert_checks(setup, sc["threads"])
         checks += inner_tool_checks(setup, sc)
+        checks += groove_holder_checks(setup, sc, stock_d)
         if s.get("under_mm", 0) > 0.05:
             checks.append({"line": None, "level": "error", "text": f"残留：最多 {s['under_mm']:.3f} mm（半径），Z{s['under_z'][0]:.2f} ~ Z{s['under_z'][1]:.2f}"})
         if s.get("face_left", 0) > 0.01:
