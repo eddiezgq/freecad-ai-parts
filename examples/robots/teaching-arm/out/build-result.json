@@ -76,6 +76,91 @@
    },
    "picks": {
     "mod_all": [
+     "smart_actuator.robotis.xh540-w270"
+    ]
+   }
+  },
+  {
+   "module_masses_kg": {
+    "j1": 0.165,
+    "j2": 0.165,
+    "j3": 0.165,
+    "j4": 0.165,
+    "j5": 0.165
+   },
+   "drives": [
+    {
+     "joint": "j1",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 2.4298739937817286,
+     "rms": 0.806592822467299,
+     "speed_max": 20.172921373194416,
+     "unit_speed": "rpm",
+     "power_peak_w": 2.751796104789707,
+     "power_mean_w": -0.24545847235116455,
+     "inertia_max_kgm2": 0.203655212018384
+    },
+    {
+     "joint": "j2",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 5.490181789464139,
+     "rms": 3.867071460370925,
+     "speed_max": 20.00801154092972,
+     "unit_speed": "rpm",
+     "power_peak_w": 11.022297888398114,
+     "power_mean_w": 4.20296478290179,
+     "inertia_max_kgm2": 0.2035436147634652
+    },
+    {
+     "joint": "j3",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 2.5792533483428493,
+     "rms": 2.0677870970257493,
+     "speed_max": 20.007890587069532,
+     "unit_speed": "rpm",
+     "power_peak_w": 4.962944409833808,
+     "power_mean_w": -2.2462752939045636,
+     "inertia_max_kgm2": 0.0580915641056916
+    },
+    {
+     "joint": "j4",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 0.6463059760871072,
+     "rms": 0.4015751814790038,
+     "speed_max": 20.007835432626905,
+     "unit_speed": "rpm",
+     "power_peak_w": 1.1458139675516112,
+     "power_mean_w": -0.36817527995810145,
+     "inertia_max_kgm2": 0.005515922023164364
+    },
+    {
+     "joint": "j5",
+     "kind": "move",
+     "unit_force": "N·m",
+     "peak": 4.6355432213107283e-05,
+     "rms": 1.79856942887504e-05,
+     "speed_max": 20.00800474753629,
+     "unit_speed": "rpm",
+     "power_peak_w": 5.194376401386342e-05,
+     "power_mean_w": -7.2934229589757514e-06,
+     "inertia_max_kgm2": 5.4058150000031655e-06
+    }
+   ],
+   "static": {
+    "gravity_torque_nm": {
+     "j1": -0.0,
+     "j2": -4.882270595878051,
+     "j3": -2.3116695606403166,
+     "j4": -0.5893338021405742,
+     "j5": -0.0
+    }
+   },
+   "picks": {
+    "mod_all": [
      "servo_motor.yaskawa-electric-corporation.sgm7j-a5a",
      "reducer.harmonic-drive-llc.csf-17-50-2uh",
      "drive.yaskawa-america-inc.sgd7s-1r6a"
@@ -259,28 +344,16 @@
  ],
  "picks": {
   "mod_all": {
-   "joints": [
-    "j1",
-    "j2",
-    "j3",
-    "j4",
-    "j5"
+   "chain": "servo",
+   "components": [
+    "servo_motor.yaskawa-electric-corporation.sgm7j-01a",
+    "reducer.harmonic-drive-llc.csf-17-100-2uh",
+    "drive.yaskawa-america-inc.sgd7s-1r6a"
    ],
-   "requirement": {
-    "safety_factor": 1.2,
-    "supply": {
-     "current_type": "ac",
-     "voltage_v": 200,
-     "phases": 3
-    },
-    "fieldbus_protocol": "ethercat",
-    "ambient_temp_c": 25,
-    "output_torque_cont_nm": 11.064,
-    "output_torque_peak_nm": 15.889,
-    "output_speed_rpm": 20.294,
-    "load_inertia_kgm2": 0.533295,
-    "statement": "关节 j1、j2、j3、j4、j5 共用一种模组：连续 11.06 N·m（j2）、峰值 15.89 N·m（j2）、20.3 rpm（j1）",
-    "id": "group-mod_all"
+   "roles": {
+    "servo_motor.yaskawa-electric-corporation.sgm7j-01a": "motor",
+    "reducer.harmonic-drive-llc.csf-17-100-2uh": "reducer",
+    "drive.yaskawa-america-inc.sgd7s-1r6a": "drive"
    },
    "report": {
     "system": "candidate-4",
@@ -642,13 +715,51 @@
      }
     ]
    },
-   "candidates": 10,
+   "overall": "unknown",
    "module_mass_kg": 1.08,
-   "components": [
-    "servo_motor.yaskawa-electric-corporation.sgm7j-01a",
-    "reducer.harmonic-drive-llc.csf-17-100-2uh",
-    "drive.yaskawa-america-inc.sgd7s-1r6a"
-   ]
+   "candidates": 10,
+   "options": {
+    "servo": {
+     "chain": "servo",
+     "components": [
+      "servo_motor.yaskawa-electric-corporation.sgm7j-01a",
+      "reducer.harmonic-drive-llc.csf-17-100-2uh",
+      "drive.yaskawa-america-inc.sgd7s-1r6a"
+     ],
+     "roles": {
+      "servo_motor.yaskawa-electric-corporation.sgm7j-01a": "motor",
+      "reducer.harmonic-drive-llc.csf-17-100-2uh": "reducer",
+      "drive.yaskawa-america-inc.sgd7s-1r6a": "drive"
+     },
+     "overall": "unknown",
+     "module_mass_kg": 1.08,
+     "candidates": 10
+    }
+   },
+   "smart_shortfall": "库里 31 个一体化模组都不通过；力矩最大的 XM540-W270：S1 峰值力矩 × 安全系数 ≤ 堵转力矩：需要 19.1 N·m，能力 10.6 N·m；S3 动作过程 1405 个工作点里最紧的一点（15.6 N·m）：转速 ≤ n₀(1 − T·SF/Tₛ)：需要 19.6 rpm，能力 0 rpm",
+   "joints": [
+    "j1",
+    "j2",
+    "j3",
+    "j4",
+    "j5"
+   ],
+   "requirement": {
+    "safety_factor": 1.2,
+    "supply": {
+     "current_type": "ac",
+     "voltage_v": 200,
+     "phases": 3
+    },
+    "fieldbus_protocol": "ethercat",
+    "ambient_temp_c": 25,
+    "output_torque_cont_nm": 11.064,
+    "output_torque_peak_nm": 15.889,
+    "output_speed_rpm": 20.294,
+    "load_inertia_kgm2": 0.533295,
+    "statement": "关节 j1、j2、j3、j4、j5 共用一种模组：连续 11.06 N·m（j2）、峰值 15.89 N·m（j2）、20.3 rpm（j1）",
+    "id": "group-mod_all"
+   }
   }
  },
  "duty": {
@@ -705,7 +816,8 @@
    479.736328125,
    0.0,
    100.0
-  ]
+  ],
+  "move_s": 1.0
  },
  "module_masses_kg": {
   "j1": 1.08,
@@ -727,12 +839,17 @@
   "关节模组（电机 + 减速器）按样本质量集中在关节处；电缆、壳体、轴承座、夹爪本身的质量不计（夹爪质量方案里没有）",
   "杆件质量按方案的截面、长度与材料密度，均布在本关节到下一关节之间"
  ],
+ "open_items": [
+  "模组组 mod_all（servo）：C3 缺少分度圆直径",
+  "模组组 mod_all（servo）：C8 惯量比：缺少电机转子惯量"
+ ],
  "bom": {
   "purchased": [
    {
     "component": "servo_motor.yaskawa-electric-corporation.sgm7j-01a",
     "role": "motor",
-    "name": null,
+    "model": "SGM7J-01A",
+    "vendor": "Yaskawa Electric Corporation",
     "qty": 5,
     "joints": [
      "j1",
@@ -746,7 +863,8 @@
    {
     "component": "reducer.harmonic-drive-llc.csf-17-100-2uh",
     "role": "reducer",
-    "name": null,
+    "model": "CSF-17-100-2UH",
+    "vendor": "Harmonic Drive LLC",
     "qty": 5,
     "joints": [
      "j1",
@@ -760,7 +878,8 @@
    {
     "component": "drive.yaskawa-america-inc.sgd7s-1r6a",
     "role": "drive",
-    "name": null,
+    "model": "SGD7S-1R6A",
+    "vendor": "Yaskawa America, Inc.",
     "qty": 5,
     "joints": [
      "j1",
@@ -830,7 +949,17 @@
     "mass_kg": 0.0412
    }
   ],
-  "made_mass_kg": 0.635
+  "made_mass_kg": 0.635,
+  "notes": []
+ },
+ "repeatability": {
+  "pose": "水平伸直（力臂最大）",
+  "rows": [],
+  "worst_mm": 0.0,
+  "target_mm": 0.5,
+  "backlash_lost_motion_mm": null,
+  "status": "unknown",
+  "note": "缺数据：j1（伺服链：库里没有编码器位数）、j2（伺服链：库里没有编码器位数）、j3（伺服链：库里没有编码器位数）、j4（伺服链：库里没有编码器位数）、j5（伺服链：库里没有编码器位数）"
  },
  "cost": {
   "status": "unknown",

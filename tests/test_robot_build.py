@@ -124,3 +124,37 @@ def test_case_a_builds_and_converges():
     assert p["requirement"]["output_torque_peak_nm"] == pytest.approx(max(x["peak"] for x in d.values()), rel=1e-3)
     assert out["cost"]["status"] == "unknown"
     assert all(r["qty"] == 5 for r in out["bom"]["purchased"])
+    # 默认检验动作（最高 120°/s）：一体化模组一个都不行，选伺服链，并写明卡在哪（ADR-0117）
+    assert p["chain"] == "servo" and "smart" not in p["options"]
+    assert "都不通过" in p["smart_shortfall"] and "S1" in p["smart_shortfall"]
+
+
+def test_case_a_slower_duty_picks_smart_actuators_and_flags_continuous_torque():
+    """检验动作放慢到每 90° 用 2 s（最高 60°/s）：一体化模组通过峰值与转速，轻得多；连续力矩判待确认（厂商没给连续额定）"""
+    cr = json.loads(CASE_A.read_text(encoding="utf-8"))
+    out = RB.build(copy.deepcopy(cr["chosen"]), cr["conditions"]["payload"], move_s=2.0,
+                   repeatability_mm=cr["conditions"]["repeatability"])
+    assert out["status"] == "pass", out.get("note")
+    p = out["picks"]["mod_all"]
+    assert p["chain"] == "smart" and set(p["options"]) == {"servo", "smart"}
+    assert p["module_mass_kg"] < p["options"]["servo"]["module_mass_kg"] / 4
+    s2 = next(c for c in p["report"]["checks"] if c["check"] == "S2")
+    assert s2["status"] == "unknown" and any("S2" in x for x in out["open_items"])
+    assert "60°/s" in out["assumptions"][0]
+    assert out["repeatability"]["status"] == "fail"                     # 输出端 12 位编码器：±0.5 mm 做不到
+    assert out["repeatability"]["worst_mm"] > cr["conditions"]["repeatability"]
+    assert out["bom"]["notes"]                                           # 总线控制器与直流电源库里没有：写明
+
+
+def test_repeatability_from_output_resolution_hand_calculation():
+    """两杆臂水平伸直、三个关节都用规格表分辨率 4096 的一体化模组：最坏 = Σ (π / 4096) × 力臂（j1 500、j2 500、j3 200 mm）"""
+    c = two_link()
+    dt = RB.duty(c)
+    picks = {"g": {"joints": ["j1", "j2", "j3"], "chain": "smart", "components": ["smart_actuator.robotis.xm430-w350"]}}
+    r = RB.repeatability(RB._library(), c, dt, picks, 0.5)
+    lever = {x["joint"]: x["lever_mm"] for x in r["rows"]}
+    assert lever == pytest.approx({"j1": 500, "j2": 500, "j3": 200}, abs=1.0)
+    assert r["worst_mm"] == pytest.approx(math.pi / 4096 * sum(lever.values()), rel=1e-3)
+    assert r["status"] == "fail" and r["backlash_lost_motion_mm"] == pytest.approx(math.radians(0.25) * 1200, rel=1e-2)
+    picks["g"]["chain"], picks["g"]["components"] = "servo", ["servo_motor.yaskawa-electric-corporation.sgm7j-01a"]
+    assert RB.repeatability(RB._library(), c, dt, picks, 0.5)["status"] == "unknown"   # 编码器位数库里没有：不判
