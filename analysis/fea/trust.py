@@ -15,7 +15,10 @@
         越加密差值越不变小（后一差 ≥ 前一差的 0.8 倍）且一直在长 → 不通过：“疑似应力奇异点”（尖角、点载荷一类，
         理论上应力无穷大，这个点的应力不能当设计依据）；
         加密后来回振荡时，按 Stern 等（2001）的做法取不确定度 U = (最大 − 最小) / 2，相对值 ≤ 容差 → 通过；
-        其余（阶数不合理、误差超限）→ 未知。
+        差值单调变小、但观察阶偏高（p > 6，粗层还没进渐近区）或最后一次加密完全没变（求不出 p）→ 按 Roache（1998）
+        观察阶不可靠时的保守做法：p 取理论阶 2（二阶单元）、安全系数取 3，GCI = 3 · |e / f3| / (r^2 − 1)，
+        e 取最后一个非零差值、r 取对应两层的尺寸比；≤ 容差 → 通过（ADR-0093 补充，11-23）；
+        其余（阶数偏低、误差超限）→ 未知。
 """
 
 from __future__ import annotations
@@ -25,6 +28,9 @@ import math
 PASS, FAIL, UNKNOWN = "pass", "fail", "unknown"
 GAMMA_BAD = 0.1
 GAMMA_BAD_FRACTION = 0.001
+P_FORMAL = 2.0          # 二阶四面体应力的理论收敛阶
+FS_UNSURE = 3.0         # 观察阶不可靠时 GCI 的安全系数（Roache 1998）
+P_MAX = 6.0
 
 
 def item(name: str, verdict: str, text: str, **values) -> dict:
@@ -116,8 +122,21 @@ def convergence(values: list[float], r: float, tol: float = 0.05, what: str = "�
     p, gci = rr["order_p"], rr["gci_ratio"]
     if gci is not None and gci <= tol and (q == 0 or (p is not None and 0.5 <= p <= 6)):
         return item(f"网格收敛（{what}）", PASS, f"网格误差估计 {gci:.1%}（≤ {tol:.0%}）", tolerance_ratio=tol, **rr)
-    if gci is not None and gci > tol:
+    if gci is not None and gci > tol and (p is None or p <= P_MAX):
         return item(f"网格收敛（{what}）", UNKNOWN, f"网格误差估计 {gci:.1%}，大于 {tol:.0%}：再加密网格", tolerance_ratio=tol, **rr)
+    if q is not None and 0 <= q < 1 and (q == 0 or (p is not None and p > P_MAX)):
+        hh = rr.get("local_h_mm")
+        rc, rf = (hh[-3] / hh[-2], hh[-2] / hh[-1]) if hh else (r, r)
+        e, rx = (f3 - f2, rf) if q != 0 else (f2 - f1, rc)
+        if rx > 1 and f3:
+            g = FS_UNSURE * abs(e / f3) / (rx ** P_FORMAL - 1)
+            rr["gci_conservative_ratio"] = g
+            why = "最后一次加密没有变化" if q == 0 else f"观察阶 {p:.1f} 偏高"
+            if g <= tol:
+                return item(f"网格收敛（{what}）", PASS, f"{why}，按理论阶 2、安全系数 3 保守估计网格误差 {g:.1%}（≤ {tol:.0%}）",
+                            tolerance_ratio=tol, **rr)
+            return item(f"网格收敛（{what}）", UNKNOWN, f"{why}，按理论阶 2、安全系数 3 保守估计网格误差 {g:.1%}，大于 {tol:.0%}：再加密网格",
+                        tolerance_ratio=tol, **rr)
     return item(f"网格收敛（{what}）", UNKNOWN, "加密后的变化不规则，估计不出网格误差", tolerance_ratio=tol, **rr)
 
 
