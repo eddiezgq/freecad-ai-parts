@@ -228,6 +228,16 @@ sources:
         version: 2020–2021（文件名），以 SHA-256 标识（2026-11-22 登记）
         url: https://tungaloy.com/wpdata/wp-content/uploads/GC_2020-2021_CN_D_Int.Turning.pdf
         sha256: "d367eceb02de5b443f41ad14d999d1660330c92039a51e4eb8b2d5cca942b42a"
+      - id: src-tungaloy-gc-2023-2024-drilling
+        title: 泰珂洛 钻削样本 2023–2024（中文，188 页；收 SolidDrill DSW 尺寸表 J044–J047）
+        version: 2023–2024（文件名），以 SHA-256 标识（2026-11-22 登记）
+        url: https://tungaloy.com/wpdata/wp-content/uploads/GC_2023-2024_CN_Drilling-1.pdf
+        sha256: "414a086cf821c4c10c9c27b4619dab92a595e532c879e36545f0e6cc2b2f4fa6"
+      - id: src-tungaloy-soliddrill-dsw-dsm
+        title: 泰珂洛 SolidDrill DSW / DSM 样本（英文，11 页；收标准切削条件）
+        version: 未印版本号，以 SHA-256 标识（2026-11-22 登记）
+        url: https://tungaloy.com/wpdata/wp-content/uploads/SolidDrill_DSW-DSM.pdf
+        sha256: "f0a00cf1d36cd4393d133372e6f8be01452b52b29d9307c1696615a245cbed1d"
   - id: golden-egret
     vendor: 厦门金鹭特种合金有限公司（Golden Egret）
     url: https://www.gesac.com.cn

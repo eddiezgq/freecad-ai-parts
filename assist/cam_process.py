@@ -130,8 +130,12 @@ def operations(part: dict, lib: dict) -> list[dict]:
                             "cands": _cands(lib, {"flat_endmill"}, lambda t, w=w: abs(t.get("diameter_mm", -1) - w) < 1e-9)})
             elif k == "holes":
                 d = float(f["d"])
-                ops.append({"id": f"f{i}", "kind": "holes", "title": f"钻孔 Ø{d:g}", "geom": {"d": d, "feature": i - 1},
-                            "cands": _cands(lib, {"drill"}, lambda t, d=d: abs(t.get("diameter_mm", -1) - d) < 1e-9)})
+                dep = float(f.get("depth") or 0.0)
+                same = _cands(lib, {"drill"}, lambda t, d=d: abs(t.get("diameter_mm", -1) - d) < 1e-9)
+                # 刃长够孔深的才要（没写刃长的不筛）；都不够就留着，算的时候报
+                deep = [t for t in same if t.get("flute_length_mm", 1e9) >= dep - 1e-9]
+                ops.append({"id": f"f{i}", "kind": "holes", "title": f"钻孔 Ø{d:g}", "geom": {"d": d, "feature": i - 1, "depth": dep},
+                            "cands": deep or same})
             else:
                 raise ProcessError(f"第 {i} 个特征类型 {k!r} 不认识")
     else:
@@ -158,7 +162,10 @@ def _rule_pick(op):
     if not c:
         return None
     if op["kind"] in ("pocket", "contour", "drill"):
-        return max(c, key=lambda t: t.get("diameter_mm", 0))
+        dmax = max(t.get("diameter_mm", 0) for t in c)
+        return min((t for t in c if t.get("diameter_mm", 0) == dmax), key=lambda t: (t.get("flute_length_mm", 0.0), t["id"]))
+    if op["kind"] == "holes":                          # 同一直径挑刃长最短的（刚性好；刃长不够的已经筛掉）
+        return min(c, key=lambda t: (t.get("flute_length_mm", 0.0), t["id"]))
     if op["kind"] == "rough":
         # 先挑样本最大切深大的（粗车断屑槽），再取刀尖圆弧 ≤ 0.8 里最大的（通用粗车；太大的车端面过中心要多走 2r，小车床 X 负向行程不够）
         def ap_max(t):

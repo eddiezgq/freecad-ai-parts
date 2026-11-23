@@ -144,6 +144,8 @@ def targets(category: str) -> dict[str, tuple[Target, tuple[str, ...]]]:
 # 录制回放（ADR-0021）之后才加入 schema 的字段：暂不放进提示词，否则请求哈希变化、已有录制失效。
 # 下一个提示词版本（重新录制）时放进来；在此之前这些字段由“补数据”录入（ADR-0057）。
 NOT_IN_PROMPT = frozenset({"params/rated_life_h", "params/rated_input_speed_rpm"})
+# 同理：录制之后才加进枚举的取值（ADR-0117 的总线协议 dynamixel_2），暂不列进“可选值”；抽到了也照常按 schema 校验
+ENUM_NOT_IN_PROMPT = frozenset({"dynamixel_2"})
 
 
 def field_catalog(category: str) -> str:
@@ -155,8 +157,9 @@ def field_catalog(category: str) -> str:
         bits = [t.target, t.kind]
         if t.unit:
             bits.append(f"标准单位 {t.unit}")
-        if t.enum:
-            bits.append("可选值 " + " | ".join(map(str, t.enum)))
+        shown = [e for e in t.enum or () if e not in ENUM_NOT_IN_PROMPT]
+        if shown:
+            bits.append("可选值 " + " | ".join(map(str, shown)))
         if t.description:
             bits.append(t.description)
         if t.key:
