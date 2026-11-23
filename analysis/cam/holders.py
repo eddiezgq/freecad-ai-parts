@@ -168,12 +168,15 @@ def pick(insert_iso: str, hand: str = "R", cats: list[dict] | None = None, bore_
     return min(cands, key=lambda h: (code(h)[2] != want, abs(h.get("h_mm", 25) - 25) + abs(h.get("b_mm", 25) - 25), h["id"]))
 
 
-def pick_groove(width: float, depth: float | None = None, hand: str = "R", cats: list[dict] | None = None) -> dict | None:
+def pick_groove(width: float, depth: float | None = None, hand: str = "R", cats: list[dict] | None = None,
+                ref: str | None = None) -> dict | None:
     """切槽刀、切断刀配切槽刀杆（ADR-0118）：刀片刃宽在刀杆的 CW 范围内、手向对上、最大槽深不小于要切的深度（给了的话）；
+    切槽刀片的刀座各家不通用，给了 ref（刀片的样本来源）就只挑同一家样本的刀杆；
     截面优先 25×25，再取最大槽深小的（刀头短、刚性好），再按代号排序。没有对得上的返回 None"""
     cands = [h for c in (catalogs() if cats is None else cats) for h in c["holders"]
              if h.get("use") == "groove" and h["insert"]["groove_width_mm"]["min"] - 1e-9 <= width <= h["insert"]["groove_width_mm"]["max"] + 1e-9
-             and vendor_hand(h["vendor_code"]) == hand and (depth is None or h["max_depth_mm"] >= depth - 1e-9)]
+             and vendor_hand(h["vendor_code"]) == hand and (depth is None or h["max_depth_mm"] >= depth - 1e-9)
+             and (ref is None or (h.get("source") or {}).get("ref") == ref)]
     if not cands:
         return None
     return min(cands, key=lambda h: (abs(h["h_mm"] - 25) + abs(h["b_mm"] - 25), h["max_depth_mm"], h["id"]))

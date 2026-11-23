@@ -109,6 +109,8 @@ def test_pick_groove_by_width_and_depth():
     assert HD.pick_groove(8.0, 20.0)["id"] == "KY-KGMR2525M-8"
     assert HD.pick_groove(4.0, 2.0, hand="L")["id"] == "KY-KGML2525M-3"
     assert HD.pick_groove(2.4) is None                                 # 没有装 2.4 的
+    assert HD.pick_groove(4.0, 2.0, ref="tungaloy") is None            # 刀座各家不通用：别家的刀片不配京瓷刀杆
+    assert HD.pick_groove(4.0, 2.0, ref="kyocera")["id"] == "KY-KGMR2525M-3"
 
 
 def test_square_vendor_holder_box():

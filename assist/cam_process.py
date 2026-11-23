@@ -360,7 +360,7 @@ def draft(part: dict, iso: str, lib: dict | None = None, client=None, *, note: s
 
 def turn_holder(tool, bore_d=None, depth=None) -> dict | None:
     """车刀没写刀杆：按刀片代号从刀杆库配一把——外圆车刀配外圆刀杆（ADR-0112）；内孔刀（镗刀种类或 internal）给了孔径就配镗杆（ADR-0114）；
-    外圆切槽刀给了槽深就按刃宽和槽深配切槽刀杆（ADR-0118）。外螺纹刀、铣刀不配"""
+    外圆切槽刀（厂商样本的）给了槽深就按刃宽和槽深配同一家的切槽刀杆（ADR-0118）。外螺纹刀、铣刀不配"""
     from analysis.cam import holders as HD
 
     h0 = tool.get("holder") or {}
@@ -374,9 +374,10 @@ def turn_holder(tool, bore_d=None, depth=None) -> dict | None:
         h = HD.pick(iso, bore_d=float(bore_d))
     elif not inner and tool.get("kind") == "turn":
         h = HD.pick(iso)
-    elif not inner and tool.get("kind") == "groove" and (tool.get("insert") or {}).get("width_mm") and depth is not None:
-        # 不知道槽深（如 FreeCAD 面板里按刀号配）不配：配错了槽深不够的刀杆反而报错
-        h = HD.pick_groove(float(tool["insert"]["width_mm"]), depth)
+    elif (not inner and tool.get("kind") == "groove" and (tool.get("insert") or {}).get("width_mm") and depth is not None
+          and (tool.get("source") or {}).get("kind") == "catalog"):
+        # 不知道槽深（如 FreeCAD 面板里按刀号配）不配：配错了槽深不够的刀杆反而报错；刀座各家不通用，只配同一家样本的刀杆
+        h = HD.pick_groove(float(tool["insert"]["width_mm"]), depth, ref=tool["source"]["ref"])
     else:
         return None
     return HD.as_tool_holder(h) if h else None
@@ -415,7 +416,8 @@ def _setup(part, by_op, lengths, notes):
             from analysis.cam import holders as HD
 
             w = (tool.get("insert") or {}).get("width_mm")
-            if w and HD.pick_groove(float(w)) is not None:          # 有装得上的刀杆，只是槽深都不够
+            ref = (tool.get("source") or {}).get("ref")
+            if w and ref and HD.pick_groove(float(w), ref=ref) is not None:   # 有装得上的刀杆，只是槽深都不够
                 notes.append(f"T{n}（{tool['id']}）：刀杆库里装得上刃宽 {float(w):g} 的切槽刀杆最大槽深都不到 {depth:.3f} mm，刀杆没配（ADR-0118）")
         mtools[str(n)] = e
 
