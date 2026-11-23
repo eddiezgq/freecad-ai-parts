@@ -8,44 +8,126 @@
           "method": "computed",
           "reviewed": true,
           "source": {
-            "doc": "src-robotis-emanual-dxl-x-info",
-            "formula": "保守外框：a = max(W, H, D)；沿输出轴长 a，截面 2a × 2a（舵盘在哪个面、轴线位置只在图纸里）",
-            "note": "https://emanual.robotis.com/docs/en/dxl/x/xd540-t270/ Specifications：Dimensions (W x H x D) = 33.5 x 58.5 x 44"
+            "doc": "src-robotis-x540-step",
+            "formula": "2 × 轴线到底面距离",
+            "note": "body：FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）；零件库包络按轴线居中：壳体偏在轴线下方（轴线距顶 13.75、距底 44.75），高取 2 × 44.75（保守）",
+            "page": 1
           },
-          "value": 117.0
+          "value": 89.5
         },
-        "label": "body（保守外框）",
+        "label": "body",
         "length_mm": {
           "confidence": 1.0,
-          "method": "computed",
+          "method": "measured",
           "reviewed": true,
           "source": {
-            "doc": "src-robotis-emanual-dxl-x-info",
-            "formula": "保守外框：a = max(W, H, D)；沿输出轴长 a，截面 2a × 2a（舵盘在哪个面、轴线位置只在图纸里）",
-            "note": "https://emanual.robotis.com/docs/en/dxl/x/xd540-t270/ Specifications：Dimensions (W x H x D) = 33.5 x 58.5 x 44"
+            "doc": "src-robotis-x540-step",
+            "note": "body：FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
           },
-          "value": 58.5
+          "value": 44.0
         },
         "shape": "box",
         "width_mm": {
           "confidence": 1.0,
-          "method": "computed",
+          "method": "measured",
           "reviewed": true,
           "source": {
-            "doc": "src-robotis-emanual-dxl-x-info",
-            "formula": "保守外框：a = max(W, H, D)；沿输出轴长 a，截面 2a × 2a（舵盘在哪个面、轴线位置只在图纸里）",
-            "note": "https://emanual.robotis.com/docs/en/dxl/x/xd540-t270/ Specifications：Dimensions (W x H x D) = 33.5 x 58.5 x 44"
+            "doc": "src-robotis-x540-step",
+            "note": "body：FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
           },
-          "value": 117.0
+          "value": 33.5
         },
-        "z_start_mm": -58.5
+        "z_start_mm": -46.5
+      },
+      {
+        "diameter_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "output_horn：FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 26.0
+        },
+        "label": "output_horn",
+        "length_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "output_horn：FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 2.5
+        },
+        "shape": "cylinder",
+        "z_start_mm": -2.5
+      },
+      {
+        "diameter_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "idler_horn：FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 26.0
+        },
+        "label": "idler_horn",
+        "length_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "idler_horn：FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 2.5
+        },
+        "shape": "cylinder",
+        "z_start_mm": -49.0
+      },
+      {
+        "diameter_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "boss：FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 10.0
+        },
+        "label": "boss",
+        "length_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "boss：FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 5.3
+        },
+        "shape": "cylinder",
+        "z_start_mm": 0.0
       }
     ]
   },
   "id": "smart_actuator.robotis.xd540-t270",
   "license": "params-only",
   "model": "XD540-T270",
-  "note": "解析结构化规格表（确定性程序，不经 AI）；2026-11-22 Claude 抽查 XM430-W350、XM540-W270、XC330-T181、XH540-W150 四个型号的网页规格表，各项与解析结果一致（经张国庆授权，ADR-0040）。参数取自 ROBOTIS e-Manual 规格表（src-robotis-emanual-dxl-x-info，ADR-0040、ADR-0117），力矩与转速是输出端、推荐电压下的值；堵转力矩不是连续额定（厂商没给连续额定，连续力矩校核为待确认）；舵盘与壳体安装孔位只在厂商图纸里，没有收录，整机装配时这两处接口判待确认；包络是保守外框。",
+  "note": "解析结构化规格表（确定性程序，不经 AI）；2026-11-22 Claude 抽查 XM430-W350、XM540-W270、XC330-T181、XH540-W150 四个型号的网页规格表，各项与解析结果一致（经张国庆授权，ADR-0040）。参数取自 ROBOTIS e-Manual 规格表（src-robotis-emanual-dxl-x-info，ADR-0040、ADR-0117），力矩与转速是输出端、推荐电压下的值；堵转力矩不是连续额定（厂商没给连续额定，连续力矩校核为待确认）；舵盘与壳体安装孔位、外形取自 X540 图纸与 STEP（ingest/robotis_x540.py）。",
   "params": {
     "backlash_arcmin": {
       "confidence": 1.0,
@@ -176,6 +258,386 @@
         }
       },
       "type": "signal.fieldbus"
+    },
+    {
+      "dir": "out",
+      "frame": {
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "origin_mm": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "id": "output_flange",
+      "motion": "rotating",
+      "note": "输出舵盘（舵盘 HN13-I101，Ø26）",
+      "spec": {
+        "hole_angle_offset_deg": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "输出舵盘：第一个孔在 +x 方向（孔在 0°、45°……）；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 0.0
+        },
+        "hole_count": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "输出舵盘：8 孔；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 8
+        },
+        "hole_kind": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "输出舵盘：TAP；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": "threaded"
+        },
+        "pcd_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "输出舵盘：8-M2.5 TAP DP2.5，P.C.D Ø22；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 22.0
+        },
+        "thread": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "输出舵盘：M2.5x.45；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": "M2.5"
+        }
+      },
+      "type": "mechanical.flange"
+    },
+    {
+      "dir": "bidir",
+      "frame": {
+        "axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "origin_mm": [
+          0.0,
+          0.0,
+          -49.0
+        ]
+      },
+      "id": "idler_flange",
+      "motion": "rotating",
+      "note": "背面惰轮舵盘（随输出同轴、不出力，铰接支撑用）（舵盘 HN13-I101，Ø26）",
+      "spec": {
+        "hole_angle_offset_deg": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "背面惰轮舵盘（随输出同轴、不出力，铰接支撑用）：第一个孔在 +x 方向（孔在 0°、45°……）；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 0.0
+        },
+        "hole_count": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "背面惰轮舵盘（随输出同轴、不出力，铰接支撑用）：8 孔；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 8
+        },
+        "hole_kind": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "背面惰轮舵盘（随输出同轴、不出力，铰接支撑用）：TAP；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": "threaded"
+        },
+        "pcd_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "背面惰轮舵盘（随输出同轴、不出力，铰接支撑用）：8-M2.5 TAP DP2.5，P.C.D Ø22；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 22.0
+        },
+        "thread": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "背面惰轮舵盘（随输出同轴、不出力，铰接支撑用）：M2.5x.45；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": "M2.5"
+        }
+      },
+      "type": "mechanical.flange"
+    },
+    {
+      "dir": "bidir",
+      "frame": {
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "origin_mm": [
+          16.75,
+          -22.0,
+          -24.5
+        ]
+      },
+      "id": "mount_side_r",
+      "motion": "stationary",
+      "note": "右侧面安装孔；pitch_x 沿输出轴方向",
+      "spec": {
+        "hole_count": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "右侧面安装孔：4 孔；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 4
+        },
+        "pattern": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "右侧面安装孔；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": "rect"
+        },
+        "pitch_x_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "右侧面安装孔：孔距 16（输出轴方向）；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 16.0
+        },
+        "pitch_y_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "右侧面安装孔：孔距 32；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 32.0
+        },
+        "thread": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "右侧面安装孔：4-M2.5x.45 TAP DP4.0；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": "M2.5"
+        }
+      },
+      "type": "mechanical.mount_face"
+    },
+    {
+      "dir": "bidir",
+      "frame": {
+        "axis": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "origin_mm": [
+          -16.75,
+          -22.0,
+          -24.5
+        ]
+      },
+      "id": "mount_side_l",
+      "motion": "stationary",
+      "note": "左侧面安装孔；pitch_x 沿输出轴方向",
+      "spec": {
+        "hole_count": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "左侧面安装孔：4 孔；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 4
+        },
+        "pattern": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "左侧面安装孔；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": "rect"
+        },
+        "pitch_x_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "左侧面安装孔：孔距 16（输出轴方向）；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 16.0
+        },
+        "pitch_y_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "左侧面安装孔：孔距 32；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 32.0
+        },
+        "thread": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "左侧面安装孔：4-M2.5x.45 TAP DP4.0；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": "M2.5"
+        }
+      },
+      "type": "mechanical.mount_face"
+    },
+    {
+      "dir": "bidir",
+      "frame": {
+        "axis": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "origin_mm": [
+          0.0,
+          -44.75,
+          -24.5
+        ]
+      },
+      "id": "mount_bottom",
+      "motion": "stationary",
+      "note": "底面安装孔；pitch_x 沿壳宽方向",
+      "spec": {
+        "hole_count": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "底面安装孔：4 孔；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 4
+        },
+        "pattern": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "底面安装孔；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": "rect"
+        },
+        "pitch_x_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "底面安装孔：孔距 20（壳宽方向）；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 20.0
+        },
+        "pitch_y_mm": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "底面安装孔：孔距 16；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": 16.0
+        },
+        "thread": {
+          "confidence": 1.0,
+          "method": "measured",
+          "reviewed": true,
+          "source": {
+            "doc": "src-robotis-x540-step",
+            "note": "底面安装孔：4-M2.5x.45 TAP DP4.0；FreeCAD 从 STEP 量得（几何精确值，容差 ±0.01 mm），与图纸标注核对一致（2026-11-22 Claude，经张国庆授权，ADR-0040）",
+            "page": 1
+          },
+          "value": "M2.5"
+        }
+      },
+      "type": "mechanical.mount_face"
     }
   ],
   "series": "DYNAMIXEL X",
