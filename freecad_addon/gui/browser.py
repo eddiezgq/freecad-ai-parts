@@ -9,6 +9,8 @@ import html
 
 from PySide import QtCore, QtWidgets
 
+from assist.i18n import lang
+from assist.i18n import tr as T
 from freecad_addon.core import browser as core
 from freecad_addon.gui.host import ToolsHost, get_host
 from kb import completeness
@@ -20,7 +22,7 @@ class LibraryBrowser(QtWidgets.QDockWidget):
     placed = QtCore.Signal(object)  # 后台线程中工具调用完成后，排队回到界面线程
 
     def __init__(self, parent: QtWidgets.QWidget | None = None, host: ToolsHost | None = None):
-        super().__init__("AI Parts 零件库", parent)
+        super().__init__(T("AI Parts 零件库"), parent)
         self.setObjectName("FapLibraryBrowser")
         self.host = host or get_host()
         self.instances: set[str] = set()  # 场景中已有的实例名（人或 AI 放入的都算）
@@ -28,18 +30,18 @@ class LibraryBrowser(QtWidgets.QDockWidget):
 
         body = QtWidgets.QWidget()
         lay = QtWidgets.QVBoxLayout(body)
-        self.header = QtWidgets.QLabel(self.host.note)
+        self.header = QtWidgets.QLabel(T(self.host.note))
         self.header.setWordWrap(True)
         self.category = QtWidgets.QComboBox()
-        self.category.addItem(ALL, None)
+        self.category.addItem(T(ALL), None)
         for key, name in core.CATEGORIES.items():
-            self.category.addItem(name, key)
+            self.category.addItem(T(name), key)
         self.text = QtWidgets.QLineEdit()
-        self.text.setPlaceholderText("型号或厂商，如 csf 25、sgm7j")
+        self.text.setPlaceholderText(T("型号或厂商，如 csf 25、sgm7j"))
         self.param = QtWidgets.QComboBox()
         self.lo, self.hi = QtWidgets.QLineEdit(), QtWidgets.QLineEdit()
-        self.lo.setPlaceholderText("最小")
-        self.hi.setPlaceholderText("最大")
+        self.lo.setPlaceholderText(T("最小"))
+        self.hi.setPlaceholderText(T("最大"))
         rng = QtWidgets.QHBoxLayout()
         for w in (self.param, self.lo, self.hi):
             rng.addWidget(w)
@@ -49,9 +51,9 @@ class LibraryBrowser(QtWidgets.QDockWidget):
         self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.table.verticalHeader().setVisible(False)
         self.detail = QtWidgets.QTextBrowser()
-        self.place_button = QtWidgets.QPushButton("放入布局")
-        self.report_button = QtWidgets.QPushButton("完整度报告…")
-        self.report_button.setToolTip("全库每个零件缺哪些数据、缺了哪些校验会待确认、先补哪个；导出 Excel（ADR-0099）")
+        self.place_button = QtWidgets.QPushButton(T("放入布局"))
+        self.report_button = QtWidgets.QPushButton(T("完整度报告…"))
+        self.report_button.setToolTip(T("全库每个零件缺哪些数据、缺了哪些校验会待确认、先补哪个；导出 Excel（ADR-0099）"))
         self.status = QtWidgets.QLabel("")
         self.status.setWordWrap(True)
         for w in (self.header, self.category, self.text):
@@ -83,10 +85,10 @@ class LibraryBrowser(QtWidgets.QDockWidget):
         cat = self.category.currentData()
         self.param.blockSignals(True)
         self.param.clear()
-        self.param.addItem("按参数范围（不限）", None)
+        self.param.addItem(T("按参数范围（不限）"), None)
         for label, path in core.KEY_FIELDS.get(cat or "", []):
             unit = core.unit_of(path)
-            self.param.addItem(f"{label}{f'（{unit}）' if unit else ''}", path)
+            self.param.addItem(f"{T(label)}{f' ({unit})' if unit and lang() != 'zh' else f'（{unit}）' if unit else ''}", path)
         self.param.blockSignals(False)
         self.refresh()
 
@@ -105,14 +107,14 @@ class LibraryBrowser(QtWidgets.QDockWidget):
         labels = [label for label, _ in core.KEY_FIELDS.get(cat or "", [])]
         heads = ["厂商", "型号"] + (labels if cat else ["品类"])
         self.table.setColumnCount(len(heads))
-        self.table.setHorizontalHeaderLabels(heads)
+        self.table.setHorizontalHeaderLabels([T(h) for h in heads])
         self.table.setRowCount(len(self._rows))
         for i, r in enumerate(self._rows):
             cells = [r.vendor, r.model] + ([v for _, v in r.key] if cat else [core.CATEGORIES.get(r.category, "")])
             for j, text in enumerate(cells):
-                self.table.setItem(i, j, QtWidgets.QTableWidgetItem(text))
+                self.table.setItem(i, j, QtWidgets.QTableWidgetItem(T(text)))
         self.table.resizeColumnsToContents()
-        self.status.setText(f"{len(self._rows)} 个组件")
+        self.status.setText(T(f"{len(self._rows)} 个组件"))
         self._show_detail()
 
     def selected(self) -> core.Row | None:
@@ -125,26 +127,26 @@ class LibraryBrowser(QtWidgets.QDockWidget):
         row = self.selected()
         self.place_button.setEnabled(row is not None)
         if row is None:
-            self.detail.setHtml("<p style='color:#666'>选一个组件查看参数出处与复核状态。</p>")
+            self.detail.setHtml(T("<p style='color:#666'>选一个组件查看参数出处与复核状态。</p>"))
             return
         lib = self.host.library()
         where = getattr(lib, "origin", lambda _cid: None)(row.id)
         head = {"enterprise": "<p><b>来自企业库</b>（企业自己补充或新建的数据）</p>",
                 "public": "<p style='color:#666'>来自公共库</p>"}.get(where, "")
         comp = lib.get(row.id)
-        self.detail.setHtml(head + render_detail(core.detail(comp)) + render_gaps(completeness.component_gaps(comp)))
+        self.detail.setHtml(T(head) + render_detail(core.detail(comp)) + render_gaps(completeness.component_gaps(comp)))
 
     # ------------------------------------------------------------ 完整度报告
 
     def export_report(self, path: str | None = None) -> str | None:
         """全库的完整度报告导出 Excel；path 不给时让人选保存位置"""
         if path is None:
-            path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "导出完整度报告", "零件库完整度.xlsx", "Excel (*.xlsx)")
+            path, _ = QtWidgets.QFileDialog.getSaveFileName(self, T("导出完整度报告"), T("零件库完整度.xlsx"), T("Excel (*.xlsx)"))
             if not path:
                 return None
         rep = completeness.report(self.host.library().all())
         completeness.to_excel(rep, path)
-        self.status.setText(f"完整度报告：{rep['count']} 个组件，{rep['complete']} 个数据齐全；已导出 {path}")
+        self.status.setText(T(f"完整度报告：{rep['count']} 个组件，{rep['complete']} 个数据齐全；已导出 {path}"))
         return path
 
     # ------------------------------------------------------------ 放入布局
@@ -160,7 +162,7 @@ class LibraryBrowser(QtWidgets.QDockWidget):
             return None
         inst = core.instance_name(row.category, self.instances)
         self.place_button.setEnabled(False)
-        self.status.setText(f"正在放入 {inst} …")
+        self.status.setText(T(f"正在放入 {inst} …"))
         self.host.call_in_background("place_component", {"instance": inst, "component_id": row.id},
                                      lambda out: self.placed.emit((inst, out)))
         return inst
@@ -170,9 +172,9 @@ class LibraryBrowser(QtWidgets.QDockWidget):
         self.place_button.setEnabled(self.selected() is not None)
         if isinstance(out, Exception) or out.is_error:
             text = str(out) if isinstance(out, Exception) else "；".join(out.texts)
-            self.status.setText(f"没有放入 {inst}：{text}")
+            self.status.setText(T(f"没有放入 {inst}：{text}"))
         else:
-            self.status.setText(f"已放入 {inst}（显示在 FapLayout 文档中）")
+            self.status.setText(T(f"已放入 {inst}（显示在 FapLayout 文档中）"))
 
     def closeEvent(self, event) -> None:
         if self._on_scene in self.host.listeners:
@@ -185,20 +187,21 @@ def render_detail(d: dict) -> str:
 
     def table(items: list[dict]) -> str:
         if not items:
-            return "<p style='color:#666'>（无）</p>"
+            return T("<p style='color:#666'>（无）</p>")
         rows = "".join(
-            f"<tr><td>{esc(i['name'])}</td><td><b>{esc(i['value'])}</b></td><td>{esc(i['condition'])}</td>"
-            f"<td>{esc(i['source'])}</td><td>{esc(i['review'])}</td></tr>" for i in items)
-        return ("<table cellspacing='0' cellpadding='3' border='1'>"
-                "<tr><th>项</th><th>值</th><th>工况</th><th>来源</th><th>复核</th></tr>" + rows + "</table>")
+            f"<tr><td>{esc(T(i['name']))}</td><td><b>{esc(T(i['value']))}</b></td><td>{esc(T(i['condition']))}</td>"
+            f"<td>{esc(T(i['source']))}</td><td>{esc(T(i['review']))}</td></tr>" for i in items)   # 工况：公共库里的中文说明在 en.json 有英文；企业资料原文翻不到的照原样
+        return (T("<table cellspacing='0' cellpadding='3' border='1'>"
+                  "<tr><th>项</th><th>值</th><th>工况</th><th>来源</th><th>复核</th></tr>") + rows + "</table>")
 
-    parts = [f"<h3>{esc(d['title'])}</h3>",
-             (f"<p>{esc(d['category'])} · <code>{esc(d['id'])}</code><br>"
-              f"来源：{esc('、'.join(d['docs']) or '—')} · 已复核 {esc(d['reviewed'])} · 许可 {esc(d['license'])}</p>"),
-             "<h4>参数</h4>", table(d["params"]), "<h4>端口</h4>"]
+    sep = "、" if lang() == "zh" else ", "
+    parts = [f"<h3>{esc(T(d['title']))}</h3>",
+             T(f"<p>{esc(T(d['category']))} · <code>{esc(d['id'])}</code><br>"
+               f"来源：{esc(sep.join(d['docs']) or '—')} · 已复核 {esc(d['reviewed'])} · 许可 {esc(d['license'])}</p>"),
+             T("<h4>参数</h4>"), table(d["params"]), T("<h4>端口</h4>")]
     for p in d["ports"]:
         extra = "，按配套件定制（厂商不规定）" if p["configurable"] else ""
-        parts.append(f"<p><b>{esc(p['id'])}</b> {esc(p['kind'])} · {esc(p['type'])} · {esc(p['dir'])}{esc(extra)}</p>")
+        parts.append(f"<p><b>{esc(p['id'])}</b> {esc(T(p['kind']))} · {esc(p['type'])} · {esc(p['dir'])}{esc(T(extra))}</p>")
         parts.append(table(p["spec"]))
     return "".join(parts)
 
@@ -207,12 +210,12 @@ def render_gaps(gaps: list[dict]) -> str:
     """选中组件缺的数据：缺什么、缺了哪些校验会待确认、去哪找"""
     esc = html.escape
     if not gaps:
-        return "<h4>缺的数据</h4><p style='color:#666'>校验用到的数据齐全。</p>"
+        return T("<h4>缺的数据</h4><p style='color:#666'>校验用到的数据齐全。</p>")
 
     def checks(g):
-        names = "、".join(f"{c} {completeness.CHECK_NAMES.get(c, '')}".strip() for c in g["checks"])
-        return names or ("关键参数，入库复核要" if g["key"] else "—")
+        names = ("、" if lang() == "zh" else ", ").join(f"{c} {T(completeness.CHECK_NAMES.get(c, ''))}".strip() for c in g["checks"])
+        return names or (T("关键参数，入库复核要") if g["key"] else "—")
 
-    rows = "".join(f"<tr><td>{esc(g['field'])}</td><td>{esc(checks(g))}</td><td>{esc(g['hint'])}</td></tr>" for g in gaps)
-    return ("<h4>缺的数据</h4><table cellspacing='0' cellpadding='3' border='1'>"
-            "<tr><th>字段</th><th>缺了会待确认的校验</th><th>去哪找</th></tr>" + rows + "</table>")
+    rows = "".join(f"<tr><td>{esc(T(g['field']))}</td><td>{esc(checks(g))}</td><td>{esc(T(g['hint']))}</td></tr>" for g in gaps)
+    return (T("<h4>缺的数据</h4><table cellspacing='0' cellpadding='3' border='1'>"
+              "<tr><th>字段</th><th>缺了会待确认的校验</th><th>去哪找</th></tr>") + rows + "</table>")

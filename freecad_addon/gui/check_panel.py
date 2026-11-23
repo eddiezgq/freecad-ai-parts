@@ -11,6 +11,7 @@ import html
 
 from PySide import QtCore, QtWidgets
 
+from assist.i18n import tr as T
 from freecad_addon.core import live_check, requirement_form
 from freecad_addon.gui.host import ToolsHost, get_host
 
@@ -22,7 +23,7 @@ class CheckPanel(QtWidgets.QDockWidget):
     proposal_changed = QtCore.Signal()  # 有新提案或提案被结算后，排队回到界面线程更新提案框
 
     def __init__(self, parent: QtWidgets.QWidget | None = None, host: ToolsHost | None = None):
-        super().__init__("AI Parts 校验", parent)
+        super().__init__(T("AI Parts 校验"), parent)
         self.setObjectName("FapCheckPanel")
         self.host = host or get_host()
         self.layout_state: dict = {"instances": [], "connections": []}
@@ -36,25 +37,25 @@ class CheckPanel(QtWidgets.QDockWidget):
         self.inputs: dict[str, QtWidgets.QLineEdit] = {}
         for key, label in REQ_FIELDS:
             edit = QtWidgets.QLineEdit()
-            edit.setPlaceholderText("可空")
-            form.addRow(label, edit)
+            edit.setPlaceholderText(T("可空"))
+            form.addRow(T(label), edit)
             self.inputs[key] = edit
-        self.req_note = QtWidgets.QLabel("没有需求：只校验接口（C1、C2、C3、C10）。填连续扭矩与输出转速后点“按需求校验”。")
+        self.req_note = QtWidgets.QLabel(T("没有需求：只校验接口（C1、C2、C3、C10）。填连续扭矩与输出转速后点“按需求校验”。"))
         self.req_note.setWordWrap(True)
-        self.apply_button = QtWidgets.QPushButton("按需求校验")
-        self.clear_button = QtWidgets.QPushButton("清除需求")
+        self.apply_button = QtWidgets.QPushButton(T("按需求校验"))
+        self.clear_button = QtWidgets.QPushButton(T("清除需求"))
         row = QtWidgets.QHBoxLayout()
         row.addWidget(self.apply_button)
         row.addWidget(self.clear_button)
         self.overall = QtWidgets.QLabel("")
         self.report = QtWidgets.QTextBrowser()
         # AI 改动提案（ADR-0049 第 4 条）
-        self.proposal_box = QtWidgets.QGroupBox("AI 改动提案")
+        self.proposal_box = QtWidgets.QGroupBox(T("AI 改动提案"))
         pl = QtWidgets.QVBoxLayout(self.proposal_box)
         self.proposal_text = QtWidgets.QLabel("")
         self.proposal_text.setWordWrap(True)
-        self.accept_button = QtWidgets.QPushButton("接受")
-        self.reject_button = QtWidgets.QPushButton("拒绝（恢复原状）")
+        self.accept_button = QtWidgets.QPushButton(T("接受"))
+        self.reject_button = QtWidgets.QPushButton(T("拒绝（恢复原状）"))
         prow = QtWidgets.QHBoxLayout()
         prow.addWidget(self.accept_button)
         prow.addWidget(self.reject_button)
@@ -109,6 +110,7 @@ class CheckPanel(QtWidgets.QDockWidget):
             (args.get("system") or {}).get("requirement") if name in ("verify_system", "export_system") else None)
         if isinstance(req, dict):
             self.requirement = dict(req)
+            self._req_from_tool = True  # 工具（选型查找、AI）给了新需求：表单整栏换成新值（#679：原先只补空格，旧值留在栏里）
             hit = True
         if hit:
             self.changed.emit()
@@ -116,7 +118,7 @@ class CheckPanel(QtWidgets.QDockWidget):
     def apply_form(self) -> bool:
         req, err = requirement_form.from_texts({k: e.text() for k, e in self.inputs.items()})
         if err:
-            self.req_note.setText(err)
+            self.req_note.setText(T(err))
             return False
         self.set_requirement(req)
         return True
@@ -127,11 +129,12 @@ class CheckPanel(QtWidgets.QDockWidget):
 
     def _show_requirement(self) -> None:
         req = self.requirement or {}
+        force, self._req_from_tool = getattr(self, "_req_from_tool", False), False
         for key, text in requirement_form.to_texts(req).items():
-            if text and self.inputs[key].text().strip() == "":
+            if force or (text and self.inputs[key].text().strip() == ""):
                 self.inputs[key].setText(text)
-        self.req_note.setText("按需求校验全部 11 项" if req else
-                              "没有需求：只校验接口（C1、C2、C3、C10）。填连续扭矩与输出转速后点“按需求校验”。")
+        self.req_note.setText(T("按需求校验全部 11 项" if req else
+                              "没有需求：只校验接口（C1、C2、C3、C10）。填连续扭矩与输出转速后点“按需求校验”。"))
 
     # ------------------------------------------------------------ 校验与显示
 
@@ -143,8 +146,8 @@ class CheckPanel(QtWidgets.QDockWidget):
             self.result = {"mode": "error", "overall": "unknown", "checks": [], "notes": [f"无法校验：{exc}"],
                            "ports": {}, "instances": {}}
         r = self.result
-        self.overall.setText(f"<b>结论：{live_check.STATUS_TEXT.get(r['overall'], r['overall'])}</b>"
-                             if r["mode"] != "empty" else "场景中还没有零件")
+        self.overall.setText(T(f"<b>结论：{live_check.STATUS_TEXT.get(r['overall'], r['overall'])}</b>"
+                             if r["mode"] != "empty" else "场景中还没有零件"))
         self.report.setHtml(render(r))
         self.swap.refresh_instances(self.layout_state, r)
         colorize(r)
@@ -232,7 +235,7 @@ class CheckPanel(QtWidgets.QDockWidget):
         p = self.host.pending
         if p is None:
             self.proposal_box.setVisible(bool(self.proposal_note))
-            self.proposal_text.setText(self.proposal_note)
+            self.proposal_text.setText(T(self.proposal_note))
             self.accept_button.setVisible(False)
             self.reject_button.setVisible(False)
             return
@@ -242,7 +245,7 @@ class CheckPanel(QtWidgets.QDockWidget):
         if expl:
             text += f"<br><span style='color:#555'>AI 说明：{html.escape(expl[:400])}</span>"
         text += "<br>结论见下方校验。接受才保留；拒绝就恢复到这一轮之前。"
-        self.proposal_text.setText(text)
+        self.proposal_text.setText(T(text))
         self.accept_button.setVisible(True)
         self.reject_button.setVisible(True)
         self.proposal_box.setVisible(True)
@@ -289,17 +292,17 @@ class CheckPanel(QtWidgets.QDockWidget):
 def render(r: dict) -> str:
     esc = html.escape
     color = {"pass": "#2a2", "warn": "#c90", "unknown": "#b90", "fail": "#c22", "not_applicable": "#888"}
-    parts = [f"<p style='color:#666'>{esc(n)}</p>" for n in r.get("notes", [])]
+    parts = [f"<p style='color:#666'>{esc(T(n))}</p>" for n in r.get("notes", [])]
     for c in r.get("checks", []):
         st = c["status"]
         name = live_check.CHECK_NAMES.get(c["check"], "")
-        parts.append(f"<p><b style='color:{color.get(st, '#000')}'>{esc(c['check'])} {esc(name)}："
-                     f"{esc(live_check.STATUS_TEXT.get(st, st))}</b><br>")
+        parts.append(f"<p><b style='color:{color.get(st, '#000')}'>{esc(c['check'])} {esc(T(name))}{T('：')}"
+                     f"{esc(T(live_check.STATUS_TEXT.get(st, st)))}</b><br>")
         finds = c.get("findings") or []
         if finds:
-            parts.append("<br>".join(f"&nbsp;&nbsp;· {esc(f['message'])}" for f in finds))
+            parts.append("<br>".join(f"&nbsp;&nbsp;· {esc(T(f['message']))}" for f in finds))
         else:
-            parts.append(f"&nbsp;&nbsp;{esc(c.get('message', ''))}")
+            parts.append(f"&nbsp;&nbsp;{esc(T(c.get('message', '')))}")
         parts.append("</p>")
     return "".join(parts)
 
@@ -362,13 +365,13 @@ class PortConnector(QtCore.QObject):
         import FreeCAD
 
         if isinstance(item, Exception):
-            self.last = str(item)
+            self.last = T(str(item))
         else:
             a, b, out = item
             if isinstance(out, Exception) or out.is_error:
                 text = str(out) if isinstance(out, Exception) else "；".join(out.texts)
-                self.last = f"没有连接 {a} ↔ {b}：{text}"
+                self.last = T(f"没有连接 {a} ↔ {b}：{text}")
             else:
-                self.last = f"已连接 {a} ↔ {b}"
-        FreeCAD.Console.PrintMessage(f"AI Parts：{self.last}\n")
+                self.last = T(f"已连接 {a} ↔ {b}")
+        FreeCAD.Console.PrintMessage(T(f"AI Parts：{self.last}\n"))
 

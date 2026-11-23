@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
+from assist.i18n import raw
+
 FIELDS = (("output_torque_cont_nm", "连续扭矩 N·m"), ("output_torque_peak_nm", "峰值扭矩 N·m"),
           ("output_speed_rpm", "输出转速 rpm"), ("ambient_temp_c", "环境温度 °C"),
           ("max_envelope_diameter_mm", "外径上限 mm"), ("voltage_v", "供电电压 V"), ("phases", "相数（0 直流、1、3）"))
@@ -69,13 +71,13 @@ def merge_parsed(parsed: Mapping) -> tuple[dict[str, str], dict, list[str]]:
         extra["statement"] = req["statement"]
     lines = []
     for field, quote in (parsed.get("basis") or {}).items():
-        lines.append(f"依据 · {FIELD_NAMES.get(field, field)}：“{quote}”")
+        lines.append(f"依据 · {FIELD_NAMES.get(field, field)}：“{raw(quote)}”")   # 原话照录，不翻（#679）
     lines += [f"默认 · {d}" for d in parsed.get("defaults") or []]
     for r in parsed.get("rejected") or []:
         name = FIELD_NAMES.get(r.get("field") or "", r.get("field") or "")
         lines.append(f"未采用 · {name + '：' if name else ''}{r.get('reason', '')}")
     lines += [f"请补充 · {q}" for q in parsed.get("questions") or []]
-    lines += [f"不清楚 · {u}" for u in parsed.get("unclear") or []]
+    lines += [f"不清楚 · {raw(u)}" for u in parsed.get("unclear") or []]      # AI 写的话照录
     return texts, extra, lines
 
 
