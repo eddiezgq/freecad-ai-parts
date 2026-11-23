@@ -2,7 +2,7 @@
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/cam-holder.schema.json",
  "title": "车刀刀杆库（cam-holder/1）",
- "description": "ADR-0112：问渠CAM 的车刀刀杆目录（厂商样本）。起草工艺时按刀片代号给没写刀杆的车刀配刀杆，整机仿真按刀杆外形查碰撞。长度 mm。缺的数据不写。",
+ "description": "ADR-0112、0118：问渠CAM 的车刀刀杆目录（厂商样本）。起草工艺时按刀片代号给没写刀杆的车刀配刀杆，整机仿真按刀杆外形查碰撞。长度 mm。缺的数据不写。",
  "type": "object",
  "properties": {
   "format": {
@@ -53,18 +53,19 @@
     "vendor_code": {
      "type": "string",
      "pattern": "^[A-Z0-9][A-Z0-9/._-]{1,63}$",
-     "description": "厂家自己的刀杆代号（不合 ISO 5608 / 6261 写法时用，如泰珂洛螺纹镗杆 SNR0016M16）；这时 l1_mm 必填（ADR-0115）"
+     "description": "厂家自己的刀杆代号（不合 ISO 5608 / 6261 写法时用，如泰珂洛螺纹镗杆 SNR0016M16、京瓷切槽刀杆 KGMR2525M-3）；这时 l1_mm 必填（ADR-0115、0118）"
     },
     "use": {
      "enum": [
       "external",
-      "internal"
+      "internal",
+      "groove"
      ],
-     "description": "外圆车刀杆 / 内孔镗杆（ADR-0114）"
+     "description": "外圆车刀杆 / 内孔镗杆（ADR-0114）/ 外圆切槽刀杆（ADR-0118）"
     },
     "insert": {
      "type": "object",
-     "description": "能装的刀片：ISO 1832 代号前两位（形状 + 法后角，可多个）与尺寸位（刃长 2 位 + 厚度 2 位）；或螺纹刀片尺寸位 thread_size（ADR-0115）",
+     "description": "能装的刀片：ISO 1832 代号前两位（形状 + 法后角，可多个）与尺寸位（刃长 2 位 + 厚度 2 位）；或螺纹刀片尺寸位 thread_size（ADR-0115）；或切槽刀片刃宽范围 groove_width_mm（ADR-0118）",
      "properties": {
       "codes": {
        "type": "array",
@@ -82,6 +83,25 @@
        "type": "string",
        "pattern": "^[0-9]{2}$",
        "description": "装螺纹刀片（平装式）的刀片尺寸位，如 16（16IR…）；ADR-0115"
+      },
+      "groove_width_mm": {
+       "type": "object",
+       "description": "能装的切槽刀片刃宽（样本 CW min ~ CW max）；ADR-0118",
+       "properties": {
+        "min": {
+         "type": "number",
+         "exclusiveMinimum": 0
+        },
+        "max": {
+         "type": "number",
+         "exclusiveMinimum": 0
+        }
+       },
+       "required": [
+        "min",
+        "max"
+       ],
+       "additionalProperties": false
       }
      },
      "additionalProperties": false,
@@ -95,6 +115,11 @@
       {
        "required": [
         "thread_size"
+       ]
+      },
+      {
+       "required": [
+        "groove_width_mm"
        ]
       }
      ]
@@ -136,6 +161,11 @@
      "type": "number",
      "exclusiveMinimum": 0,
      "description": "镗杆能进的最小孔径（样本 DMIN）；ADR-0114"
+    },
+    "max_depth_mm": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "description": "切槽刀杆能切的最大槽深（样本 CDX）；槽更深刀杆撞工件。ADR-0118"
     },
     "nose_radius_mm": {
      "type": "number",
@@ -218,6 +248,31 @@
         ]
        }
       ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "use": {
+        "const": "groove"
+       }
+      }
+     },
+     "then": {
+      "required": [
+       "vendor_code",
+       "l1_mm",
+       "h_mm",
+       "b_mm",
+       "max_depth_mm"
+      ],
+      "properties": {
+       "insert": {
+        "required": [
+         "groove_width_mm"
+        ]
+       }
+      }
      }
     }
    ]
