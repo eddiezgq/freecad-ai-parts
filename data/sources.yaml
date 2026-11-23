@@ -238,6 +238,22 @@ sources:
         version: 未印版本号，以 SHA-256 标识（2026-11-22 登记）
         url: https://tungaloy.com/wpdata/wp-content/uploads/SolidDrill_DSW-DSM.pdf
         sha256: "f0a00cf1d36cd4393d133372e6f8be01452b52b29d9307c1696615a245cbed1d"
+  - id: kyocera
+    vendor: 京瓷（KYOCERA Corporation）切削工具
+    url: https://global.kyocera.com/prdct/tool/
+    categories: [cutting_tool]
+    license: params-only
+    terms_checked: true
+    terms_note: >-
+      2026-11-22 按 ADR-0040 与项目负责人 2026-11-19 的决定（刀具样本是厂家为卖刀公开发放的资料，只收事实参数、注明页码）：
+      收录 G 分册（切槽）外圆切槽刀片 GMM / GMG 的刃宽、刀尖圆弧与 G143 推荐切削条件（切槽进给、切削速度范围），逐把注明样本页码；
+      不转存样本文档、图片与文字。所用 PDF 由京瓷巴西网站转载的英文版 G 分册，页码与印刷样本（G 页）一致。
+    documents:
+      - id: src-kyocera-g-grooving
+        title: KYOCERA Cutting Tools catalogue, section G Grooving（英文，150 页）
+        version: 未印版本号，以 SHA-256 标识（2026-11-22 登记）
+        url: https://www.kyocera-componentes.com.br/catalog/G_EN.pdf
+        sha256: "8dee13c09359c8bfd8867b6fbd085b41d250667138534420f993acbe53b0cd70"
   - id: golden-egret
     vendor: 厦门金鹭特种合金有限公司（Golden Egret）
     url: https://www.gesac.com.cn
