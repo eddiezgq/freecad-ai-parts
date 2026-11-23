@@ -628,6 +628,66 @@
   ],
   "overall": "pass"
  },
+ "links": {
+  "items": [
+   {
+    "item": "杆件 turret",
+    "bending_nm": 4.3164,
+    "torsion_nm": 0.0,
+    "sigma_eq_mpa": 0.286,
+    "safety_yield": 964.49,
+    "safety_fatigue": 337.22,
+    "status": "pass",
+    "note": "当量应力 0.29 MPa（含动载系数 1.03）；对屈服 964.5、对弯曲疲劳 337.2，要求 ≥ 1.2"
+   },
+   {
+    "item": "杆件 upper_arm",
+    "bending_nm": 4.3164,
+    "torsion_nm": 0.0,
+    "sigma_eq_mpa": 1.477,
+    "safety_yield": 186.91,
+    "safety_fatigue": 65.35,
+    "status": "pass",
+    "note": "当量应力 1.48 MPa（含动载系数 1.03）；对屈服 186.9、对弯曲疲劳 65.4，要求 ≥ 1.2"
+   },
+   {
+    "item": "杆件 forearm",
+    "bending_nm": 2.1995,
+    "torsion_nm": 0.0,
+    "sigma_eq_mpa": 1.084,
+    "safety_yield": 254.51,
+    "safety_fatigue": 88.99,
+    "status": "pass",
+    "note": "当量应力 1.08 MPa（含动载系数 1.03）；对屈服 254.5、对弯曲疲劳 89.0，要求 ≥ 1.2"
+   },
+   {
+    "item": "杆件 wrist",
+    "bending_nm": 0.691,
+    "torsion_nm": 0.0,
+    "sigma_eq_mpa": 0.454,
+    "safety_yield": 608.35,
+    "safety_fatigue": 212.7,
+    "status": "pass",
+    "note": "当量应力 0.45 MPa（含动载系数 1.03）；对屈服 608.4、对弯曲疲劳 212.7，要求 ≥ 1.2"
+   },
+   {
+    "item": "杆件 flange",
+    "bending_nm": 0.4086,
+    "torsion_nm": 0.0,
+    "sigma_eq_mpa": 0.268,
+    "safety_yield": 1029.0,
+    "safety_fatigue": 359.78,
+    "status": "pass",
+    "note": "当量应力 0.27 MPa（含动载系数 1.03）；对屈服 1029.0、对弯曲疲劳 359.8，要求 ≥ 1.2"
+   }
+  ],
+  "overall": "pass",
+  "tool_sag_mm": 0.055,
+  "dynamic_factor": 1.027,
+  "notes": [
+   "末端下垂只算杆件弯曲；关节模组的刚度厂商没给，不计"
+  ]
+ },
  "cost": {
   "status": "unknown",
   "note": "零件库没有价格数据；“外购件成本尽量低”要等登记了有价格的公开目录才判得了"

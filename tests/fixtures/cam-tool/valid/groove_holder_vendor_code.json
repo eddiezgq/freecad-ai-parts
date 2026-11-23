@@ -1,0 +1,35 @@
+{
+ "why": "切槽刀配厂家代号的方柄刀杆（ADR-0118）",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "测试",
+  "tools": [
+   {
+    "id": "KY-GMM3020-020MW",
+    "name": "京瓷 GMM3020-020MW",
+    "kind": "groove",
+    "number": 3,
+    "insert": {
+     "iso": "GMM3020-020MW",
+     "nose_radius_mm": 0.2,
+     "width_mm": 3
+    },
+    "holder": {
+     "id": "KY-KGMR2525M-3",
+     "vendor_code": "KGMR2525M-3",
+     "h_mm": 25,
+     "b_mm": 25,
+     "l1_mm": 150,
+     "f_mm": 23.8,
+     "head_mm": 27,
+     "max_depth_mm": 9
+    },
+    "source": {
+     "kind": "catalog",
+     "ref": "kyocera",
+     "page": "G048"
+    }
+   }
+  ]
+ }
+}

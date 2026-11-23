@@ -55,6 +55,8 @@ def parse6261(code: str) -> dict:
 def boxes(holder: dict) -> tuple[list[list[float]], list[str]]:
     """刀具库里的 holder（iso5608、f_mm）→ 刀尖坐标系里的长方体 [[x0, y0, z0, x1, y1, z1], …] 与说明（查不了的部分）。
     镗杆（iso6261，ADR-0114）：圆杆沿 +Z 从刀头到全长，轴线在刀尖往里 f 处，按外接方柱查"""
+    if holder.get("vendor_code") and holder.get("h_mm") and holder.get("b_mm") and not holder.get("bar_d_mm"):
+        return _square_vendor_boxes(holder)                      # 厂家代号的方柄刀杆（切槽刀杆，ADR-0118）
     if holder.get("iso6261") or holder.get("vendor_code"):
         if holder.get("iso6261"):
             p6 = parse6261(holder["iso6261"])
@@ -86,6 +88,33 @@ def boxes(holder: dict) -> tuple[list[list[float]], list[str]]:
         z0, z1 = -b / 2, b / 2
     notes.append(f"刀杆 {p['code']}：离刀尖 {head:g} mm 以内的刀头外形各家不同，没查")
     return [[head, -h, z0, l1, 0.0, z1]], notes
+
+
+def vendor_hand(code: str) -> str | None:
+    """厂家代号里的左右手：前三个字母后面的 R / L（京瓷 KGMR2525M-3 → R）；读不出返回 None"""
+    m = re.match(r"^[A-Z]{3}([RL])", (code or "").strip().upper())
+    return m.group(1) if m else None
+
+
+def _square_vendor_boxes(holder: dict) -> tuple[list[list[float]], list[str]]:
+    """方柄刀杆（厂家代号，ADR-0118）：同外圆刀杆，刀杆高 h、宽 b、全长 l1 照刀杆库，从刀头 LH 到全长；刀头一段报“未知”"""
+    code = holder["vendor_code"]
+    f = holder.get("f_mm")
+    if f is None:
+        return [], [f"刀杆 {code} 没写刀尖偏距 f（厂家样本里查），刀杆没查"]
+    if holder.get("l1_mm") is None:
+        return [], [f"刀杆 {code} 没写全长，刀杆没查"]
+    f, b, h, l1 = float(f), float(holder["b_mm"]), float(holder["h_mm"]), float(holder["l1_mm"])
+    head = float(holder.get("head_mm") or 0.0)
+    hand = vendor_hand(code)
+    if hand == "R":
+        z0, z1 = f - b, f
+    elif hand == "L":
+        z0, z1 = -f, -(f - b)
+    else:
+        z0, z1 = -b / 2, b / 2
+    return ([[head, -h, z0, l1, 0.0, z1]],
+            [f"刀杆 {code}：离刀尖 {head:g} mm 以内的刀头外形各家不同，没查（切槽深度按刀杆最大槽深另查）"])
 
 
 # ---------------------------------------------------------------- 刀杆库（cam-holder/1，ADR-0112）：起草时给车刀片配刀杆
@@ -139,8 +168,25 @@ def pick(insert_iso: str, hand: str = "R", cats: list[dict] | None = None, bore_
     return min(cands, key=lambda h: (code(h)[2] != want, abs(h.get("h_mm", 25) - 25) + abs(h.get("b_mm", 25) - 25), h["id"]))
 
 
+def pick_groove(width: float, depth: float | None = None, hand: str = "R", cats: list[dict] | None = None,
+                ref: str | None = None) -> dict | None:
+    """切槽刀、切断刀配切槽刀杆（ADR-0118）：刀片刃宽在刀杆的 CW 范围内、手向对上、最大槽深不小于要切的深度（给了的话）；
+    切槽刀片的刀座各家不通用，给了 ref（刀片的样本来源）就只挑同一家样本的刀杆；
+    截面优先 25×25，再取最大槽深小的（刀头短、刚性好），再按代号排序。没有对得上的返回 None"""
+    cands = [h for c in (catalogs() if cats is None else cats) for h in c["holders"]
+             if h.get("use") == "groove" and h["insert"]["groove_width_mm"]["min"] - 1e-9 <= width <= h["insert"]["groove_width_mm"]["max"] + 1e-9
+             and vendor_hand(h["vendor_code"]) == hand and (depth is None or h["max_depth_mm"] >= depth - 1e-9)
+             and (ref is None or (h.get("source") or {}).get("ref") == ref)]
+    if not cands:
+        return None
+    return min(cands, key=lambda h: (abs(h["h_mm"] - 25) + abs(h["b_mm"] - 25), h["max_depth_mm"], h["id"]))
+
+
 def as_tool_holder(h: dict) -> dict:
     """刀杆库的一条 → 刀具的 holder（cam-tool/1）"""
+    if h.get("use") == "groove":
+        return {"id": h["id"], "vendor_code": h["vendor_code"], "f_mm": h["f_mm"], "h_mm": h["h_mm"], "b_mm": h["b_mm"],
+                "l1_mm": h["l1_mm"], "max_depth_mm": h["max_depth_mm"], **({"head_mm": h["head_mm"]} if "head_mm" in h else {})}
     if h.get("use") == "internal" and h.get("vendor_code"):
         return {"id": h["id"], "vendor_code": h["vendor_code"], "f_mm": h["f_mm"], "bar_d_mm": h["bar_d_mm"], "l1_mm": h["l1_mm"],
                 "min_bore_mm": h["min_bore_mm"], **({"head_mm": h["head_mm"]} if "head_mm" in h else {})}
