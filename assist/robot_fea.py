@@ -26,6 +26,7 @@ import numpy as np
 
 G = 9.81
 TOL_MM = 0.02
+TIME_LIMIT_S = 1500             # 每次求解的时限（网格收敛核查最细一层要十几分钟）
 MESH_MM = 2.0                   # 板厚 4 mm：两层二阶单元；收敛核查在最大应力处再加密两层
 LIMITS = ["载荷取检验动作起点的静重乘动载系数，不是逐时刻的动载荷；起点是水平伸直，弯矩最大",
           "零件按点质量挂在重心上；螺钉按孔壁全固定（不计螺钉预紧、接触与孔边滑移），孔边应力的峰值已由收敛核查判断",
@@ -229,7 +230,7 @@ def study(part: Mapping, step: str | Path, load: Mapping, *, mesh_mm: float = ME
                        "force_n": load["force_n"], "vector_nm": load["moment_nm"]},
                       {"type": "gravity", "body": "b", "acceleration_m_s2": load["gravity_m_s2"]}],
             "steps": [{"id": "s1", "type": "static"}], "mesh": {"size_mm": mesh_mm},
-            "checks": {"convergence": convergence}}
+            "checks": {"convergence": convergence}, "time_limit_s": TIME_LIMIT_S}
 
 
 def judge(res: Mapping, material: str, required: float | None) -> dict:

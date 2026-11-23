@@ -28,6 +28,8 @@ DESIGN = {
     "bolt_hole_mm": 2.9,        # M2.5 通孔（ISO 273 中等级）
     "boss_hole_mm": 11.0,       # 舵盘中心凸台让位孔（凸台 Ø10）
     "foot_mm": 120.0,           # 基座底板边长
+    "base_plate_mm": 8.0,       # 基座立板厚：整条臂的倾覆力矩都压在它根部（4 mm 时有限元算出根部 95 MPa，弯曲疲劳不够）
+    "base_fillet_mm": 4.0,      # 基座立板与底板的内角
     "fillet_inner_mm": 2.0,     # U 形支架侧板与底板的内角、基座立板与底板的内角（侧板到模组壳体还有 2.5 mm）
     "fillet_socket_mm": 3.0,    # 套管外壁与板面的内角
     "plate_cb_mm": 6.0,         # 螺钉头在套管底下的板（舵盘法兰、壳体底座）：沉头孔深 3 + 压紧 3
@@ -58,7 +60,8 @@ def min_tube_od_mm() -> dict[str, float]:
     """螺钉从套管孔里装（头部沉在沉头孔里、扳手从管孔伸进去）要的最小圆管外径：壳体底座（底面 4 孔）、舵盘法兰（舵盘 8 孔）"""
     ra = DESIGN["cb_d_mm"] / 2
     rh = max(math.hypot(x, z) for x, z in BOTTOM_HOLES)
-    return {"housing": math.ceil(2 * (rh + ra) + 0.5), "flange": math.ceil(2 * (PCD_MM / 2 + ra) + 0.5)}
+    f = DESIGN["bore_fillet_mm"]                                 # 沉头孔还要让开套管孔底的圆角
+    return {"housing": math.ceil(2 * (rh + ra + f) + 0.5), "flange": math.ceil(2 * (PCD_MM / 2 + ra + f) + 0.5)}
 
 
 def _section(link: Mapping) -> dict:
@@ -309,7 +312,9 @@ def flange_plate_mm(sec: Mapping | None) -> float:
 
 def housing_plate_mm(sec: Mapping | None, table: bool = False) -> float:
     """壳体底座的板厚：外侧接套管时螺钉头沉在套管底下，用 plate_cb_mm；基座立板外侧敞开，用 plate_mm"""
-    return DESIGN["plate_cb_mm"] if (sec is not None and not table) else DESIGN["plate_mm"]
+    if table:
+        return DESIGN["base_plate_mm"]
+    return DESIGN["plate_cb_mm"] if sec is not None else DESIGN["plate_mm"]
 
 
 def flange(sec: Mapping | None, xdir: np.ndarray | None = None) -> tuple[int, dict]:
@@ -357,7 +362,7 @@ def housing_base(sec: Mapping | None, g: Mapping, *, table_z: float | None = Non
     body = _fuse(parts)
     if table_z is not None:
         body = _fillet(body, lambda P: bool(np.all(np.abs(P[:, 1] - (yb - t)) < 1e-3) and np.all(np.abs(P[:, 2] - (table_z + t)) < 1e-3)),
-                       DESIGN["fillet_inner_mm"])
+                       DESIGN["base_fillet_mm"])
     elif sec is not None:
         body = _fillet(body, lambda P: _on_socket_rim(P, sec, np.array([0.0, yb - t, zc]), np.array([0.0, -1.0, 0.0]), xd, wall),
                        DESIGN["fillet_socket_mm"])
@@ -444,7 +449,7 @@ def bolt_heads(parts: list[dict]) -> list[dict]:
                 tag = _cyl(np.asarray(b, float) + 0.01 * d, d * ACCESS_MM, ra - 0.01)
                 occ.synchronize()
                 v = _overlap(tag, p["tag"])
-                if v > 0.05:
+                if v > 0.05 or _too_close_to_bore(p, np.asarray(b, float), ra):
                     out.append({"part": p["name"], "hole": k + 1, "with": p["name"], "volume_mm3": round(v, 2), "access": True,
                                 "fix": _access_fix(p, np.asarray(b, float), d, ra)})
                 occ.remove([(3, tag)])
@@ -452,18 +457,37 @@ def bolt_heads(parts: list[dict]) -> list[dict]:
     return out
 
 
-def _access_fix(p: Mapping, b: np.ndarray, d: np.ndarray, ra: float) -> str:
-    """螺钉通道被套管挡住时的改法：套管孔（= 杆件外廓）要把螺钉头与沉头孔整个让出来"""
-    itf = p.get("interfaces") or {}
-    s = next((x for x in itf.values() if x and x.get("type") == "socket"), None)
-    if s is None:
-        return "螺钉头上方要留出拧螺钉的空间"
+def _socket_of(p: Mapping) -> Mapping | None:
+    return next((x for x in (p.get("interfaces") or {}).values() if x and x.get("type") == "socket"), None)
+
+
+def _radial(s: Mapping, b: np.ndarray) -> float:
     u = np.asarray(s["dir"], float)
     r = b - np.asarray(s["start"], float)
-    rad = float(np.linalg.norm(r - (r @ u) * u))
+    return float(np.linalg.norm(r - (r @ u) * u))
+
+
+def _too_close_to_bore(p: Mapping, b: np.ndarray, ra: float) -> bool:
+    """圆形套管：沉头孔在套管底下、却伸进了孔底圆角（剩下一条薄边，扳手也会刮到）"""
+    s = _socket_of(p)
+    if s is None or s["section"]["shape"] != "circle":
+        return False
+    rb = s["section"]["outer"] / 2
+    rad = _radial(s, b)
+    under = rad - ra < rb + DESIGN["socket_wall_mm"] + DESIGN["fillet_socket_mm"]
+    return bool(under and rad + ra + DESIGN["bore_fillet_mm"] > rb + 1e-6)
+
+
+def _access_fix(p: Mapping, b: np.ndarray, d: np.ndarray, ra: float) -> str:
+    """螺钉通道被套管挡住时的改法：套管孔（= 杆件外廓）要把螺钉头与沉头孔整个让出来"""
+    s = _socket_of(p)
+    if s is None:
+        return "螺钉头上方要留出拧螺钉的空间"
+    rad, f = _radial(s, b), DESIGN["bore_fillet_mm"]
     if s["section"]["shape"] == "circle":
-        return f"把这根杆的外径加大到至少 {math.ceil(2 * (rad + ra) + 0.5):g} mm（螺钉从管孔里装，头部和扳手都要在管孔里面）"
-    return f"把这根杆的截面加大，让离轴线 {rad + ra:.1f} mm 以内都在管孔里面（螺钉从管孔里装）"
+        return (f"把这根杆的外径加大到至少 {math.ceil(2 * (rad + ra + f) + 0.5):g} mm"
+                "（螺钉从管孔里装，头部、沉头孔和扳手都要在管孔里面，并让开孔底圆角）")
+    return f"把这根杆的截面加大，让离轴线 {rad + ra + f:.1f} mm 以内都在管孔里面（螺钉从管孔里装）"
 
 
 def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | Path | None = None) -> dict:

@@ -2,7 +2,7 @@
 
 标准题：直管质量 = [π/4·(D² − d²)·L − 两头倒圆（帕普斯定理）]·ρ；装配校核通过的整机生成后没有干涉；把 U 底板硬挪进壳体里能查出干涉；
 螺钉头（ISO 4762 M2.5）沉在套管底下的沉头孔里放得下，去掉沉头孔就查得出放不下；管子细了螺钉从管孔里装不进去，
-查得出并给出最小管径 2 ×（孔离管轴 √(10² + 8²) + 沉头孔半径 2.75）= 31.1 → 32 mm。
+查得出并给出最小管径 2 ×（孔离管轴 √(10² + 8²) + 沉头孔半径 2.75 + 孔底圆角 1）= 33.1 → 34 mm。
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ def _ok_arm():
     c["joints"][4]["axis"] = [1, 0, 0]
     c["end_effector"]["offset_mm"] = [60, 0, 0]
     c["links"][4]["length_mm"] = 60
-    c["links"][3]["section"] = {"od_mm": 32, "id_mm": 26}          # 接 j5 壳体底座：螺钉从管孔里装要 ≥ 32 mm
+    c["links"][3]["section"] = {"od_mm": 34, "id_mm": 28}          # 接 j5 壳体底座：螺钉从管孔里装要 ≥ 34 mm
     return c
 
 
@@ -93,10 +93,10 @@ def test_bolt_heads_under_sockets_need_counterbores(monkeypatch):
 
 def test_thin_tube_blocks_the_screwdriver_and_says_how_thick():
     c, comp = _ok_arm(), _comp()
-    c["links"][3]["section"] = {"od_mm": 30, "id_mm": 26}
+    c["links"][3]["section"] = {"od_mm": 32, "id_mm": 28}
     fr = fit.check(c, {j["id"]: comp for j in c["joints"]}, min_spare_mm=RC.min_spare_mm())
     r = RC.build(c, fr, comp)
     assert r["status"] == "fail"
     msg = next(p for p in r["problems"] if p.startswith("j5 壳体底座 的螺钉装不进去"))
-    assert "外径加大到至少 32 mm" in msg
-    assert RC.min_tube_od_mm() == {"housing": 32, "flange": 28}
+    assert "外径加大到至少 34 mm" in msg
+    assert RC.min_tube_od_mm() == {"housing": 34, "flange": 30}
