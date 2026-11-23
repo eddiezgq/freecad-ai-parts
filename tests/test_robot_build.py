@@ -134,6 +134,11 @@ def test_case_a_builds_from_the_requirement():
     assert s2["status"] == "unknown" and any("S2" in x for x in out["open_items"])
     r = out["repeatability"]
     assert r["status"] == "pass" and r["worst_mm"] <= cond["repeatability"] and "350" in r["pose"]
+    lk = out["links"]
+    assert lk["overall"] == "pass" and lk["dynamic_factor"] >= 1.0
+    st = out["rounds"][-1]["static"]["gravity_torque_nm"]
+    upper = next(i for i in lk["items"] if i["item"] == "杆件 upper_arm")
+    assert upper["bending_nm"] == pytest.approx(abs(st["j2"]), rel=1e-3)          # 杆件根部弯矩 = 多体动力学的肩部静重力矩
     assert out["cost"]["status"] == "unknown"
     assert all(r["qty"] == 5 for r in out["bom"]["purchased"]) and out["bom"]["notes"]
 

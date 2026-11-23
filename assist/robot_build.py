@@ -12,6 +12,7 @@
     两条链取装在臂上的质量轻的（伺服链的驱动器不在臂上，不计），另一条并列在报告里。
   5 模组质量回代到第 1 步，重复到选型不再变（最多 MAX_ROUNDS 轮）。
   6 重复定位精度：位置测量分辨率一项，在水平伸直姿态上逐关节最坏相加，与需求比（repeatability()）。
+  7 杆件：强度（对屈服与弯曲疲劳的安全系数，安全系数要求同选件）与末端下垂（只计杆件），analysis/robot/links.py。
 成本：零件库没有价格数据，“外购件成本尽量低”判不了，结论记待确认并写明缺什么。
 """
 
@@ -260,6 +261,7 @@ def build(concept: Mapping, payload_kg: float, *, base: Mapping | None = None, m
             "module_masses_kg": mods, "link_masses_kg": _link_masses(concept), "assumptions": [duty_text(move_s), *ASSUMPTIONS],
             "open_items": open_items, "bom": bom(lib, concept, picks),
             "repeatability": repeatability(lib, concept, dt, picks, repeatability_mm, points_mm),
+            "links": link_check(concept, dt, res, mods, payload_kg, float(base.get("safety_factor") or 1.0)),
             "cost": {"status": "unknown", "note": "零件库没有价格数据；“外购件成本尽量低”要等登记了有价格的公开目录才判得了"}}
 
 
@@ -328,6 +330,24 @@ def _resolution_error(lib, m, q: Mapping, picks: Mapping) -> dict:
             "backlash_lost_motion_mm": round(lost, 2) if lost else None}
 
 
+def dynamic_factor(res: Mapping) -> float:
+    """动载系数：各关节多体动力学峰值力矩 / 同一关节在检验动作起点的静重力矩，取最大（静重力矩小于最大值 5% 的关节不算）；至少 1"""
+    st = {k: abs(v) for k, v in ((res["data"].get("static") or {}).get("gravity_torque_nm") or {}).items()}
+    if not st or max(st.values()) <= 0:
+        return 1.0
+    big = max(st.values())
+    ks = [d["peak"] / st[d["joint"]] for d in res["data"]["drives"] if st.get(d["joint"], 0) > 0.05 * big]
+    return max([1.0, *ks])
+
+
+def link_check(concept: Mapping, dt: Mapping, res: Mapping, mods: Mapping, payload_kg: float, safety: float) -> dict:
+    """杆件强度与末端下垂（analysis/robot/links.py），在检验动作起点（水平伸直）算，静载乘动载系数"""
+    from analysis.robot import links
+
+    return links.check(concept, dt["initial"], module_masses_kg=mods, payload_kg=payload_kg,
+                       dynamic_factor=dynamic_factor(res), required_safety=safety)
+
+
 def _link_masses(concept: Mapping) -> dict:
     from analysis.robot import mjcf
 
@@ -372,6 +392,12 @@ def summary(out: Mapping) -> str:
         r = out.get("repeatability")
         if r:
             lines.append(f"重复定位精度：{r['status']}（{r['note']}）")
+        lk = out.get("links")
+        if lk:
+            lines.append(f"杆件强度：{lk['overall']}（动载系数 {lk['dynamic_factor']}；最小安全系数 "
+                         + "、".join(f"{i['item']} {min(i['safety_yield'], i['safety_fatigue']):.1f}" for i in lk["items"]
+                                    if i.get("safety_yield") is not None)
+                         + f"）；末端下垂（只计杆件）{lk['tool_sag_mm']:.3f} mm")
         lines += [f"待确认：{x}" for x in out.get("open_items", [])]
         lines.append(f"成本：{out['cost']['note']}")
     return "\n".join(lines)
