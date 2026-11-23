@@ -1,9 +1,9 @@
 {
   "model": "claude-sonnet-5-5",
-  "prompt_version": "robot-design/3",
-  "request_key": "b2a62306583d9dd589c571cc76eae1bd7b61ec0a02cee8ce65dc71d26f327d90",
+  "prompt_version": "robot-design/4",
+  "request_key": "2ec43549e796eed9be5cf84fd49ffcff05ac000d4acaff69157967cf059fb3b8",
   "response": {
-    "id": "msg_011ChLACuKDgcxeuwwtU8Ecb",
+    "id": "msg_011ChLMcMgeXwfbAoE1VpHdw",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -44,10 +44,11 @@
         "value": 0.5
       },
       "questions": [
-        "5 轴的具体构型（各轴是旋转还是其他、腕部如何布置）原话没有说明，是否有偏好？",
-        "末端执行器/夹爪的类型和自重是否计入 0.5 kg 负载？",
+        "5 轴的具体构型未说明（如腰转+肩+肘+腕俯仰+腕旋转？），是否有偏好？",
+        "末端执行器/夹爪是否包含在 0.5 kg 负载内，还是另计？",
+        "关节最高角速度 60°/s 是否要求所有关节都达到？",
         "“外购件成本尽量低”是否有具体预算上限？",
-        "是否有对整机重量、桌面安装方式（夹持/螺栓）的要求？"
+        "各关节的运动范围（行程）有无要求？"
       ],
       "reach": {
         "quote": "臂展 350 mm",
