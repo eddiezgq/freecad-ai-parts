@@ -108,6 +108,19 @@ def layout(concept: Mapping, fit_result: Mapping, comp: Mapping) -> dict:
     return {"joints": out, "geometry": g, "model": m, "T": T}
 
 
+def _link_xdir(lay: Mapping, jid: str) -> np.ndarray:
+    """关节 jid 带动的杆件，矩形截面第一边（宽）的方向（世界）：取本关节轴线；轴线沿杆向（轴转）时取下一关节的轴线。
+    两头套管和杆件都按它摆，矩形才对得上"""
+    J = lay["joints"][jid]
+    u = J["U"][:3, 1] if J["kind"] == "clevis" else J["U"][:3, 2]
+    cands = [J["axis"]] + [K_["axis"] for K_ in lay["joints"].values() if K_["parent"] == J["child"]] + [np.array([1.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0])]
+    for c in cands:
+        v = c - (c @ u) * u
+        if np.linalg.norm(v) > 1e-6:
+            return v / np.linalg.norm(v)
+    raise CadError("找不到矩形截面的摆向")
+
+
 # ---------------- 几何（gmsh OCC，单位 mm） ----------------
 
 def _occ():
@@ -183,8 +196,9 @@ def actuator_solid(comp: Mapping) -> int:
     return _fuse(tags)
 
 
-def clevis(d: float, sec: Mapping, g: Mapping) -> tuple[int, dict]:
+def clevis(d: float, sec: Mapping, g: Mapping, xdir: np.ndarray | None = None) -> tuple[int, dict]:
     """U 形支架（模组坐标系，随输出转）：返回 (实体, 套管口：离轴线的距离)"""
+    xd = np.array([1.0, 0.0, 0.0]) if xdir is None else np.asarray(xdir, float)
     t, wall, Ls = DESIGN["plate_mm"], DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
     span = 49.0                                                  # 前后舵盘端面距离（0 与 −49）
     so = (sec["outer"] + 2 * wall) if sec["shape"] == "circle" else max(sec["outer"]) + 2 * wall
@@ -194,27 +208,29 @@ def clevis(d: float, sec: Mapping, g: Mapping) -> tuple[int, dict]:
     zc = -span / 2
     zh = max(span / 2 + t, so / 2)                              # 底板沿轴向要盖住套管
     base = _box(-w / 2, w / 2, d, d + t, zc - zh, zc + zh)
-    sock = _prism(sec, np.array([0.0, d + t, zc]), np.array([0.0, 1.0, 0.0]), Ls, np.array([1.0, 0.0, 0.0]), grow=wall)
-    bore = _prism(sec, np.array([0.0, d + t, zc]), np.array([0.0, 1.0, 0.0]), Ls + 1, np.array([1.0, 0.0, 0.0]), hollow=False)
+    sock = _prism(sec, np.array([0.0, d + t, zc]), np.array([0.0, 1.0, 0.0]), Ls, xd, grow=wall)
+    bore = _prism(sec, np.array([0.0, d + t, zc]), np.array([0.0, 1.0, 0.0]), Ls + 1, xd, hollow=False)
     body = _cut(_fuse([a, b, base, sock]), [bore])
     return body, {"socket_end": d + t + Ls}
 
 
-def flange(sec: Mapping | None) -> tuple[int, dict]:
+def flange(sec: Mapping | None, xdir: np.ndarray | None = None) -> tuple[int, dict]:
     """舵盘法兰（模组坐标系）：圆盘 + 沿轴的套管"""
+    xd = np.array([1.0, 0.0, 0.0]) if xdir is None else np.asarray(xdir, float)
     t, wall, Ls = DESIGN["plate_mm"], DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
     so = 0.0 if sec is None else ((sec["outer"] if sec["shape"] == "circle" else math.hypot(*sec["outer"])) + 2 * wall)
     r = max(15.0, so / 2 + 2)
     disk = _cut(_cyl((0, 0, 0), (0, 0, t), r), _horn_holes(0.0, t))
     if sec is None:
         return disk, {"socket_end": t}
-    sock = _prism(sec, np.array([0.0, 0.0, t]), np.array([0.0, 0.0, 1.0]), Ls, np.array([1.0, 0.0, 0.0]), grow=wall)
-    bore = _prism(sec, np.array([0.0, 0.0, t]), np.array([0.0, 0.0, 1.0]), Ls + 1, np.array([1.0, 0.0, 0.0]), hollow=False)
+    sock = _prism(sec, np.array([0.0, 0.0, t]), np.array([0.0, 0.0, 1.0]), Ls, xd, grow=wall)
+    bore = _prism(sec, np.array([0.0, 0.0, t]), np.array([0.0, 0.0, 1.0]), Ls + 1, xd, hollow=False)
     return _cut(_fuse([disk, sock]), [bore]), {"socket_end": t + Ls}
 
 
-def housing_base(sec: Mapping | None, g: Mapping, *, table_z: float | None = None) -> int:
+def housing_base(sec: Mapping | None, g: Mapping, *, table_z: float | None = None, xdir: np.ndarray | None = None) -> int:
     """壳体底座（模组坐标系）：底面上的板（4 个 M2.5 孔），外侧套管接父杆；table_z 给出时做成落到安装面的立板加底板"""
+    xd = np.array([1.0, 0.0, 0.0]) if xdir is None else np.asarray(xdir, float)
     t, wall, Ls = DESIGN["plate_mm"], DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
     yb, zc = -g["axis_to_bottom"], -24.5
     so = 0.0 if sec is None else ((sec["outer"] if sec["shape"] == "circle" else max(sec["outer"])) + 2 * wall)
@@ -228,12 +244,12 @@ def housing_base(sec: Mapping | None, g: Mapping, *, table_z: float | None = Non
         f = DESIGN["foot_mm"]
         parts.append(_box(-f / 2, f / 2, yb - f, yb, table_z, table_z + t))
     elif sec is not None:
-        parts.append(_prism(sec, np.array([0.0, yb - t, zc]), np.array([0.0, -1.0, 0.0]), Ls, np.array([1.0, 0.0, 0.0]),
+        parts.append(_prism(sec, np.array([0.0, yb - t, zc]), np.array([0.0, -1.0, 0.0]), Ls, xd,
                             grow=wall))
     body = _cut(_fuse(parts), holes)
     if table_z is None and sec is not None:
         body = _cut(body, [_prism(sec, np.array([0.0, yb - t, zc]), np.array([0.0, -1.0, 0.0]), Ls + 1,
-                                  np.array([1.0, 0.0, 0.0]), hollow=False)])
+                                  xd, hollow=False)])
     return body
 
 
@@ -259,12 +275,13 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
             child_link = m.links[J["child"]]
             nxt = [c for c in m.joints if c.parent == J["child"]]
             sec = _section(child_link) if (nxt or J["kind"] == "flange") else None
+            xw = _link_xdir(lay, jid)
             if J["kind"] == "clevis":
                 d = J["d_mm"] + DESIGN["clearance_mm"]
-                tag, info = clevis(d, sec, g)
+                tag, info = clevis(d, sec, g, J["U"][:3, :3].T @ xw)
                 name = f"{jid} U 形支架"
             else:
-                tag, info = flange(sec)
+                tag, info = flange(sec, J["U"][:3, :3].T @ xw)
                 name = f"{jid} 舵盘法兰"
             _place(tag, J["U"])
             parts.append({"name": name, "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6"})
@@ -276,7 +293,8 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
                 parts.append({"name": f"{jid} 基座", "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6"})
             else:
                 psec = _section(m.links[J["parent"]])
-                tag = housing_base(psec, g)
+                pj = m.by_child[J["parent"]]
+                tag = housing_base(psec, g, xdir=J["H"][:3, :3].T @ _link_xdir(lay, pj.id))
                 _place(tag, A)
                 parts.append({"name": f"{jid} 壳体底座", "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6"})
         # 杆件：本关节的套管口到下一关节壳体底座的套管底
@@ -302,7 +320,7 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
             else:
                 length = float(link["length_mm"])
             sec = _section(link)
-            tag = _prism(sec, start, axis_dir, length, A[:3, 0])
+            tag = _prism(sec, start, axis_dir, length, _link_xdir(lay, jid))
             parts.append({"name": f"杆件 {link['id']}（{link['shape']}，长 {length:.1f} mm）", "kind": "link", "tag": tag,
                           "link": link["id"], "material": link.get("material") or "6061-T6", "length_mm": round(length, 1)})
         _occ().synchronize()
