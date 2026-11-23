@@ -183,26 +183,30 @@ def operating_points(res: Mapping, joints: list[str]) -> list[tuple[float, float
 
 
 def pick_smart(lib, req: Mapping, points=None):
-    """一体化关节模组：没有“不通过”里最轻的。返回 (校验结果或 None, 候选数)"""
+    """一体化关节模组：没有“不通过”、且有机械接口数据（舵盘孔位、安装孔、外形）的里面最轻的——
+    没有接口数据的装不装得下判不了，不选（ADR-0115 44.3 之二）。返回 (校验结果或 None, 候选数)"""
+    from analysis.robot import fit
     from engine import smart_actuator
 
-    cands = smart_actuator.candidates(req, lib.all(), top=40, points=points)
+    with_iface = [c for c in lib.all() if c.get("category") == "smart_actuator" and fit.housing_geometry(c) is not None]
+    cands = smart_actuator.candidates(req, with_iface, top=40, points=points)
     ok = [c for c in cands if c["mass_kg"] is not None]
     return (ok[0] if ok else None), len(cands)
 
 
 def smart_shortfall(lib, req: Mapping, points=None) -> str:
     """一体化模组一个都不行时，说清楚卡在哪：堵转力矩最大的那个没通过的项"""
+    from analysis.robot import fit
     from engine import smart_actuator
     from engine.values import nominal
 
-    comps = [c for c in lib.all() if c.get("category") == "smart_actuator"]
+    comps = [c for c in lib.all() if c.get("category") == "smart_actuator" and fit.housing_geometry(c) is not None]
     if not comps:
-        return "库里没有一体化关节模组"
+        return "库里没有带机械接口数据的一体化关节模组"
     top = max(comps, key=lambda c: nominal((c.get("params") or {}).get("stall_torque_nm")) or 0.0)
     r = smart_actuator.check(req, top, points)
     bad = [f"{x['check']} {x.get('message', '')}" for x in r["checks"] if x["status"] == "fail"]
-    return f"库里 {len(comps)} 个一体化模组都不通过；力矩最大的 {top['model']}：" + "；".join(bad)
+    return f"库里有接口数据的 {len(comps)} 个一体化模组都不通过；力矩最大的 {top['model']}：" + "；".join(bad)
 
 
 def choose(lib, req: Mapping, ratio: float | None, points=None) -> dict:
@@ -371,7 +375,7 @@ def build_check(concept: Mapping, cond: Mapping) -> dict:
 
             gm = fit.housing_geometry(comp)
             if gm:
-                txt += (f"：壳体宽 {2 * gm['half_width']:g} mm，输出轴离壳体顶面 {gm['top']:g}、离底面 {gm['axis_to_bottom']:g} mm；"
+                txt += (f"：壳体宽 {2 * gm['half_width']:g} mm，输出轴离壳体底面 {gm['axis_to_bottom']:g} mm（这一面最远）；"
                         "只有输出舵盘（与背面惰轮舵盘同轴）会转，能固定的面（底面、两侧面）都与输出轴平行")
         summ.append(txt)
     return {"ok": not items, "items": items, "summary": "；".join(summ), "result": out}
