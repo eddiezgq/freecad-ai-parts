@@ -2921,5 +2921,9 @@
 "（{}）": " ({})",
 "方案 {}：{}": "Design {}: {}",
 "企业库 {} 个组件（{}）叠加在 {}": "Company library, {} components ({}), layered over {}",
-"订阅零件库 {} 个组件（{}）叠加在 {}": "Subscription library, {} components ({}), layered over {}"
+"订阅零件库 {} 个组件（{}）叠加在 {}": "Subscription library, {} components ({}), layered over {}",
+"刀路至少要 2 个点": "A toolpath needs at least 2 points",
+"接触点和法向的个数要一样": "Contact points and normals must have the same count",
+"曲线点和法向的个数要一样": "Curve points and normals must have the same count",
+"走刀方向与曲面法向平行，定不了前倾、侧倾": "The feed direction is parallel to the surface normal; lead and tilt are undefined"
 }

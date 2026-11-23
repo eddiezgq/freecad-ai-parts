@@ -612,6 +612,26 @@
     "en": "5-axis: singular point warned, rotary flip refused"
    },
    "source": "|v × w| = sin θ < sin 1°; |ΔC| > 30°"
+  },
+  {
+   "id": "CAM-60",
+   "test": "tests/test_cam_fiveaxis_c3b.py::test_ball_surface_keeps_contact",
+   "category": "geom",
+   "title": {
+    "zh": "五轴联动：球头刀曲面精加工刀位与球面相切（前倾、侧倾）",
+    "en": "5-axis: ball-end surface finishing tool positions tangent to the sphere (lead, tilt)"
+   },
+   "source": "|c + R·n − O| = Rs + R"
+  },
+  {
+   "id": "CAM-61",
+   "test": "tests/test_cam_fiveaxis_c3b.py::test_sphere_cap_finish_dexel_no_overcut",
+   "category": "geom",
+   "title": {
+    "zh": "五轴联动：球冠多轴精加工 dexel 不过切",
+    "en": "5-axis: sphere cap multi-axis finishing dexel no overcut"
+   },
+   "source": "z_s = −Rs + √(Rs² − x² − y²)"
   }
  ]
 }

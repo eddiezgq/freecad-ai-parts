@@ -174,8 +174,11 @@ the slope first, then machine the pocket in it. Calculation, replay, 3D comparis
 # Simultaneous 5-axis
 
 On five-axis machining centres an operation can be simultaneous 5-axis (`simul5`): every move carries a tool axis, and the axis changes continuously
-along the cut. For now the swarf tool positions are available (`swarf` in `analysis/cam/fiveaxis.py`: give the bottom and top edges of a ruled surface as
-two polylines; the tool axis follows the rulings and the side of a flat end mill lies on the surface); picking faces in FreeCAD comes in a later version.
+along the cut. Three kinds of tool positions are available (`analysis/cam/fiveaxis.py`): swarf `swarf` (the tool axis follows the rulings and the side of a flat end
+mill lies on the surface); ball-end multi-axis surface finishing `ball_surface` (tool axis = surface normal plus lead and tilt angles; the ball stays tangent
+to the surface); curve following `curve_follow` (tool axis = surface normal). Functions that take rulings, contact points and normals from FreeCAD faces and
+edges are in `freecad_addon/fc/cam_5axis.py`; creating 5-axis operations by picking faces in the machining tree comes in a later version. Finishing
+with a lead angle runs one way with lifts between rows: in a zigzag the lead reverses at each row turn and the tool axis would swing through the normal.
 Programs use tool-tip control (RTCP): FANUC / Huazhong write `G43.4 H..` … `G49`, Siemens `TRAORI` … `TRAFOOF`, Heidenhain
 `FUNCTION TCPM F TCP AXIS POS PATHCTRL AXIS` … `FUNCTION RESET TCPM`; each block has the tool-tip work coordinates and the rotary angles. Rotary angles
 follow a continuous solution along the path (a continuous C axis keeps turning instead of wrapping). Machines without tool-tip control and GSK controls get
