@@ -254,8 +254,8 @@ def build(concept: Mapping, payload_kg: float, *, base: Mapping | None = None, m
             return {"status": "fail", "rounds": rounds, "picks": picks, "duty": dt,
                     "note": "有模组组两条链都选不出带质量数据的零件：" + "、".join(g for g, p in picks.items() if p["components"] is None)}
         new = {j: picks[g]["module_mass_kg"] for g, js in gs.items() for j in js}
-        if new == mods:
-            break
+        if new == mods and len(rounds) >= 2 and rounds[-1]["picks"] == rounds[-2]["picks"]:
+            break                                       # 质量与选型都不再变（同样重的型号会因载荷变化换来换去，要等它稳定）
         mods = new
     else:
         return {"status": "fail", "rounds": rounds, "picks": picks, "duty": dt,
