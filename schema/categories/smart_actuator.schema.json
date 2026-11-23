@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/smart_actuator.schema.json",
+  "title": "品类：一体化关节模组（smart_actuator）",
+  "description": "由 component.schema.json 按 category 引用（ADR-0117）。电机、减速器、驱动器、编码器做在一个壳里、总线控制的关节模组（如总线舵机）。力矩、转速是输出端的值，工况（电压）写在 condition。供电电压范围在 power_in 端口、总线协议在 bus 端口，不在参数表重复（ADR-0014）。连续额定力矩厂商给了才写；没给时连续力矩的校核为 unknown，堵转力矩不能当连续值用。 机械接口（输出法兰 output_flange：mechanical.flange、rotating；壳体安装面 mount：mechanical.mount_face、stationary）只在厂商的规格表或图纸文字里查得到时才写；这类模组的孔位多只在图纸里，查不到就不写端口（不估），整机装配时这两处的接口校核为 unknown。",
+  "x-key-fields": [
+    "stall_torque_nm",
+    "no_load_speed_rpm",
+    "mass_kg"
+  ],
+  "properties": {
+    "params": {
+      "type": "object",
+      "properties": {
+        "stall_torque_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "输出端堵转力矩（瞬时最大，不是连续额定）；condition 写电压"
+        },
+        "stall_current_a": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "堵转电流；condition 写电压"
+        },
+        "no_load_speed_rpm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "输出端空载转速；condition 写电压"
+        },
+        "rated_torque_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "输出端连续额定力矩（厂商明确给出才写）"
+        },
+        "mass_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number"
+        },
+        "gear_ratio": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "内置减速比"
+        },
+        "backlash_arcmin": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "输出端回差"
+        },
+        "resolution_counts_per_rev": {
+          "$ref": "../common/param-value.schema.json#/$defs/integer",
+          "description": "输出端每转的位置分辨率（计数）"
+        },
+        "position_range_deg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "位置控制的工作范围（范围值）"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ports": {
+      "allOf": [
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "power_in"
+              },
+              "type": {
+                "const": "electrical.power_supply"
+              },
+              "dir": {
+                "const": "in"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "dir"
+            ]
+          },
+          "description": "供电（电压范围在此）"
+        },
+        {
+          "contains": {
+            "properties": {
+              "id": {
+                "const": "bus"
+              },
+              "type": {
+                "const": "signal.fieldbus"
+              },
+              "dir": {
+                "const": "bidir"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "dir"
+            ]
+          },
+          "description": "总线（协议在此）"
+        }
+      ]
+    }
+  }
+}

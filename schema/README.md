@@ -16,7 +16,7 @@
 | `requirement.schema.json` | 需求：与 C4–C11 对应的需求值 | M1 issue #4 |
 | `system.schema.json` | 系统：需求、组件实例、端口连接 | M1 issue #4 |
 | `extraction.schema.json` | LLM 抽取结果：通过核对的抽取项、被拒提议、缺失关键字段；见 [ADR-0021](../docs/adr/0021-llm-extraction.md) | M2 issue #29 |
-| `categories/` | 8 个品类的参数与标准端口（伺服电机、减速器、驱动器、轴承、转接件；自制件、通用外购件、步进电机见 [ADR-0099](../docs/adr/0099-enterprise-library-quick-build.md)），由 `component.schema.json` 按 `category` 引用；见 [ADR-0014](../docs/adr/0014-interface-data-in-ports.md) | M1 issue #5；M41 |
+| `categories/` | 9 个品类的参数与标准端口（伺服电机、减速器、驱动器、轴承、转接件；自制件、通用外购件、步进电机见 [ADR-0099](../docs/adr/0099-enterprise-library-quick-build.md)；一体化关节模组见 [ADR-0117](../docs/adr/0117-smart-actuators.md)），由 `component.schema.json` 按 `category` 引用；见 [ADR-0014](../docs/adr/0014-interface-data-in-ports.md) | M1 issue #5；M41；M44 |
 | `analysis-result.schema.json` | 分析模块一次计算的结果外壳（设置、数据、核对、局限）；见 [ADR-0056](../docs/adr/0056-local-analysis-modules.md) | M10 |
 | `material.schema.json` | 分析模块用的材料性能（标准单位，每条注明出处） ；见 ADR-0056 | M10 |
 | `fea-study.schema.json` | 有限元算例：实体与材料、支承与载荷、分析步、网格、可信度核查、起草来源；见 [ADR-0093](../docs/adr/0093-fea-industrial.md) | M37 F1 |

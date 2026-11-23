@@ -14,7 +14,7 @@
         "type": "object",
         "properties": {
           "instance": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "实例名，系统内唯一，如 motor、reducer、bearing_2"},
-          "component": {"type": "string", "description": "组件 id，须为合法组件 id 格式", "pattern": "^(test\\.)?(servo_motor|reducer|drive|bearing|adapter|fastener|custom_part|purchased_part|stepper_motor)\\.[a-z0-9]+(-[a-z0-9]+)*\\.[a-z0-9]+([.-][a-z0-9]+)*$"}
+          "component": {"type": "string", "description": "组件 id，须为合法组件 id 格式", "pattern": "^(test\\.)?(servo_motor|reducer|drive|bearing|adapter|fastener|custom_part|purchased_part|stepper_motor|smart_actuator)\\.[a-z0-9]+(-[a-z0-9]+)*\\.[a-z0-9]+([.-][a-z0-9]+)*$"}
         },
         "required": ["instance", "component"],
         "additionalProperties": false
