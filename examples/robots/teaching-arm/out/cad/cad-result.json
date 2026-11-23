@@ -2,16 +2,16 @@
  "status": "pass",
  "parts": [
   {
-   "name": "j1 模组 XH540-W270",
+   "name": "j1 模组 XM540-W270",
    "kind": "actuator",
    "joint": "j1",
    "body": "base",
    "mass_kg": 0.165,
-   "component": "smart_actuator.robotis.xh540-w270",
+   "component": "smart_actuator.robotis.xm540-w270",
    "cog_mm": [
     -0.0,
     -0.0,
-    35.58
+    40.58
    ]
   },
   {
@@ -20,12 +20,12 @@
    "joint": "j1",
    "material": "6061-T6",
    "body": "turret",
-   "volume_mm3": 26888.3,
-   "mass_kg": 0.0726,
+   "volume_mm3": 13514.3,
+   "mass_kg": 0.0365,
    "cog_mm": [
     0.0,
-    -0.04,
-    67.33
+    -0.03,
+    73.57
    ]
   },
   {
@@ -34,25 +34,25 @@
    "joint": "j1",
    "material": "6061-T6",
    "body": "base",
-   "volume_mm3": 64667.1,
-   "mass_kg": 0.1746,
+   "volume_mm3": 65337.7,
+   "mass_kg": 0.1764,
    "cog_mm": [
-    -98.41,
+    -97.88,
     -0.0,
-    5.13
+    5.69
    ]
   },
   {
-   "name": "j2 模组 XH540-W270",
+   "name": "j2 模组 XM540-W270",
    "kind": "actuator",
    "joint": "j2",
    "body": "turret",
    "mass_kg": 0.165,
-   "component": "smart_actuator.robotis.xh540-w270",
+   "component": "smart_actuator.robotis.xm540-w270",
    "cog_mm": [
     -0.0,
     0.08,
-    160.0
+    165.0
    ]
   },
   {
@@ -61,12 +61,12 @@
    "joint": "j2",
    "material": "6061-T6",
    "body": "upper_arm",
-   "volume_mm3": 40191.6,
-   "mass_kg": 0.1085,
+   "volume_mm3": 29260.0,
+   "mass_kg": 0.079,
    "cog_mm": [
     0.0,
-    0.0,
-    196.11
+    -0.01,
+    201.36
    ]
   },
   {
@@ -75,25 +75,25 @@
    "joint": "j2",
    "material": "6061-T6",
    "body": "turret",
-   "volume_mm3": 29288.5,
-   "mass_kg": 0.0791,
+   "volume_mm3": 14696.5,
+   "mass_kg": 0.0397,
    "cog_mm": [
     0.0,
-    0.01,
-    108.35
+    0.0,
+    112.21
    ]
   },
   {
-   "name": "j3 模组 XH540-W270",
+   "name": "j3 模组 XM540-W270",
    "kind": "actuator",
    "joint": "j3",
    "body": "upper_arm",
    "mass_kg": 0.165,
-   "component": "smart_actuator.robotis.xh540-w270",
+   "component": "smart_actuator.robotis.xm540-w270",
    "cog_mm": [
     -0.0,
     0.08,
-    360.0
+    315.0
    ]
   },
   {
@@ -102,12 +102,12 @@
    "joint": "j3",
    "material": "6061-T6",
    "body": "forearm",
-   "volume_mm3": 38160.3,
-   "mass_kg": 0.103,
+   "volume_mm3": 28551.3,
+   "mass_kg": 0.0771,
    "cog_mm": [
     0.0,
-    -0.0,
-    398.94
+    -0.02,
+    351.12
    ]
   },
   {
@@ -116,25 +116,25 @@
    "joint": "j3",
    "material": "6061-T6",
    "body": "upper_arm",
-   "volume_mm3": 16528.0,
-   "mass_kg": 0.0446,
+   "volume_mm3": 11766.2,
+   "mass_kg": 0.0318,
    "cog_mm": [
-    0.0,
+    -0.0,
     0.01,
-    307.33
+    262.25
    ]
   },
   {
-   "name": "j4 模组 XH540-W270",
+   "name": "j4 模组 XM540-W270",
    "kind": "actuator",
    "joint": "j4",
    "body": "forearm",
    "mass_kg": 0.165,
-   "component": "smart_actuator.robotis.xh540-w270",
+   "component": "smart_actuator.robotis.xm540-w270",
    "cog_mm": [
     -0.0,
     0.08,
-    540.0
+    465.0
    ]
   },
   {
@@ -143,12 +143,12 @@
    "joint": "j4",
    "material": "6061-T6",
    "body": "wrist",
-   "volume_mm3": 35155.7,
-   "mass_kg": 0.0949,
+   "volume_mm3": 28171.3,
+   "mass_kg": 0.0761,
    "cog_mm": [
-    -35.14,
-    -0.0,
-    540.0
+    0.0,
+    -0.02,
+    500.76
    ]
   },
   {
@@ -157,25 +157,25 @@
    "joint": "j4",
    "material": "6061-T6",
    "body": "forearm",
-   "volume_mm3": 14696.5,
-   "mass_kg": 0.0397,
+   "volume_mm3": 11289.4,
+   "mass_kg": 0.0305,
    "cog_mm": [
+    -0.0,
     0.0,
-    0.0,
-    487.21
+    412.41
    ]
   },
   {
-   "name": "j5 模组 XH540-W270",
+   "name": "j5 模组 XM540-W270",
    "kind": "actuator",
    "joint": "j5",
    "body": "wrist",
    "mass_kg": 0.165,
-   "component": "smart_actuator.robotis.xh540-w270",
+   "component": "smart_actuator.robotis.xm540-w270",
    "cog_mm": [
-    -150.0,
+    0.08,
     0.0,
-    540.08
+    615.0
    ]
   },
   {
@@ -183,13 +183,13 @@
    "kind": "bracket",
    "joint": "j5",
    "material": "6061-T6",
-   "body": "hand",
-   "volume_mm3": 10740.6,
-   "mass_kg": 0.029,
+   "body": "tool_link",
+   "volume_mm3": 6623.8,
+   "mass_kg": 0.0179,
    "cog_mm": [
-    -150.0,
-    0.02,
-    573.49
+    34.4,
+    0.0,
+    615.0
    ]
   },
   {
@@ -198,12 +198,12 @@
    "joint": "j5",
    "material": "6061-T6",
    "body": "wrist",
-   "volume_mm3": 13284.7,
-   "mass_kg": 0.0359,
+   "volume_mm3": 10897.4,
+   "mass_kg": 0.0294,
    "cog_mm": [
-    -97.83,
-    -0.0,
-    540.0
+    0.0,
+    0.0,
+    562.62
    ]
   },
   {
@@ -213,82 +213,82 @@
    "material": "6061-T6",
    "length_mm": 47.2,
    "body": "turret",
-   "volume_mm3": 40821.1,
-   "mass_kg": 0.1102,
+   "volume_mm3": 14695.6,
+   "mass_kg": 0.0397,
    "cog_mm": [
-    -0.0,
     0.0,
-    87.62
+    0.0,
+    92.62
    ]
   },
   {
-   "name": "杆件 upper_arm（tube，长 98.4 mm）",
+   "name": "杆件 upper_arm（tube，长 48.4 mm）",
    "kind": "link",
    "link": "upper_arm",
    "material": "6061-T6",
-   "length_mm": 98.4,
+   "length_mm": 48.4,
    "body": "upper_arm",
-   "volume_mm3": 34331.2,
-   "mass_kg": 0.0927,
+   "volume_mm3": 7914.9,
+   "mass_kg": 0.0214,
    "cog_mm": [
     0.0,
     -0.0,
-    262.03
+    242.02
    ]
   },
   {
-   "name": "杆件 forearm（tube，长 73.6 mm）",
+   "name": "杆件 forearm（tube，长 48.4 mm）",
    "kind": "link",
    "link": "forearm",
    "material": "6061-T6",
-   "length_mm": 73.6,
+   "length_mm": 48.4,
    "body": "forearm",
-   "volume_mm3": 22906.5,
-   "mass_kg": 0.0618,
+   "volume_mm3": 7306.1,
+   "mass_kg": 0.0197,
    "cog_mm": [
-    0.0,
     -0.0,
-    454.42
+    -0.0,
+    392.02
    ]
   },
   {
-   "name": "杆件 wrist（plate，长 48.5 mm）",
+   "name": "杆件 wrist（tube，长 48.5 mm）",
    "kind": "link",
    "link": "wrist",
    "material": "6061-T6",
    "length_mm": 48.5,
    "body": "wrist",
-   "volume_mm3": 13953.6,
-   "mass_kg": 0.0377,
+   "volume_mm3": 6697.2,
+   "mass_kg": 0.0181,
    "cog_mm": [
-    -77.02,
     -0.0,
-    540.0
+    -0.0,
+    542.02
    ]
   },
   {
-   "name": "杆件 hand（tube，长 50.0 mm）",
+   "name": "杆件 tool_link（tube，长 60.0 mm）",
    "kind": "link",
-   "link": "hand",
+   "link": "tool_link",
    "material": "6061-T6",
-   "length_mm": 50.0,
-   "body": "hand",
-   "volume_mm3": 12723.5,
-   "mass_kg": 0.0344,
+   "length_mm": 60.0,
+   "body": "tool_link",
+   "volume_mm3": 9613.3,
+   "mass_kg": 0.026,
    "cog_mm": [
-    -150.0,
+    58.5,
     0.0,
-    593.5
+    615.0
    ]
   }
  ],
  "interferences": [],
  "problems": [],
- "mass_kg": 1.9437,
+ "mass_kg": 1.5443,
  "cog_mm": [
-  -31.5,
+  -9.8,
   0.0,
-  293.1
+  287.6
  ],
  "design": {
   "plate_mm": 4.0,
