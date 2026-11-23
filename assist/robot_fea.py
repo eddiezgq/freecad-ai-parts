@@ -183,7 +183,9 @@ def _on_socket(P: np.ndarray, s: Mapping) -> bool:
     if sec["shape"] == "circle":
         r = np.hypot(x, y)
         R = sec["outer"] / 2
-        return bool(np.all(bottom & (r <= R + TOL_MM)) or np.all(np.abs(r - R) < TOL_MM))
+        f = s.get("bottom_fillet_mm") or 0.0
+        on_fillet = f > 0 and bool(np.all(np.abs(np.hypot(r - (R - f), a - f) - f) < TOL_MM) and np.all(a <= f + TOL_MM))
+        return bool(np.all(bottom & (r <= R + TOL_MM)) or np.all(np.abs(r - R) < TOL_MM) or on_fillet)
     w, h = sec["outer"]
     inside = (np.abs(x) <= w / 2 + TOL_MM) & (np.abs(y) <= h / 2 + TOL_MM)
     wall = (np.abs(np.abs(x) - w / 2) < TOL_MM) | (np.abs(np.abs(y) - h / 2) < TOL_MM)

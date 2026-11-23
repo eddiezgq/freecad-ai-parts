@@ -361,7 +361,11 @@ def housing_base(sec: Mapping | None, g: Mapping, *, table_z: float | None = Non
                             grow=wall))
     body = _fuse(parts)
     if table_z is not None:
-        body = _fillet(body, lambda P: bool(np.all(np.abs(P[:, 1] - (yb - t)) < 1e-3) and np.all(np.abs(P[:, 2] - (table_z + t)) < 1e-3)),
+        # 立板根部的内角：正面一条、两侧各一条（只倒正面时两侧剩下尖的内角，有限元算出是奇异点）
+        body = _fillet(body, lambda P: bool(np.all(np.abs(P[:, 2] - (table_z + t)) < 1e-3)
+                                            and (np.all(np.abs(P[:, 1] - (yb - t)) < 1e-3)
+                                                 or (np.all(np.abs(np.abs(P[:, 0]) - hw) < 1e-3)
+                                                     and np.all((P[:, 1] >= yb - t - 1e-3) & (P[:, 1] <= yb + 1e-3))))),
                        DESIGN["base_fillet_mm"])
     elif sec is not None:
         body = _fillet(body, lambda P: _on_socket_rim(P, sec, np.array([0.0, yb - t, zc]), np.array([0.0, -1.0, 0.0]), xd, wall),
@@ -393,7 +397,8 @@ def _socket(A: np.ndarray, p0, d, sec: Mapping, xdir: np.ndarray) -> dict:
     """套管孔（世界坐标）：起点（孔底）、方向、深度、截面、矩形截面第一边的方向"""
     return {"type": "socket", "start": _r((A @ np.append(np.asarray(p0, float), 1.0))[:3]),
             "dir": _r(A[:3, :3] @ np.asarray(d, float)), "length_mm": DESIGN["socket_len_mm"],
-            "section": {"shape": sec["shape"], "outer": sec["outer"]}, "xdir": _r(A[:3, :3] @ xdir)}
+            "section": {"shape": sec["shape"], "outer": sec["outer"]}, "xdir": _r(A[:3, :3] @ xdir),
+            "bottom_fillet_mm": DESIGN["bore_fillet_mm"]}
 
 
 def _r(v) -> list[float]:
