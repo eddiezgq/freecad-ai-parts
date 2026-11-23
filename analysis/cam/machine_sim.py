@@ -248,13 +248,17 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
                 k = max(len(smp) - 1, math.ceil(FA.angle_deg(mv["axis"], mv["axis_b"]) / 2.0), 1)
                 a_, b_ = np.asarray(mv["a"], float), np.asarray(mv["b"], float)
                 pts = [(a_ + (b_ - a_) * (j / k), FA.slerp(mv["axis"], mv["axis_b"], j / k)) for j in range(k + 1)]
+                if mv.get("rot_a") is not None:          # 刀尖跟随：回转轴按程序里写的角度走（几组解里取程序那一组）
+                    ra, rb = mv["rot_a"], mv["rot_b"]
+                    rot_pref = [{kk: ra.get(kk, 0.0) + (rb.get(kk, 0.0) - ra.get(kk, 0.0)) * (j / k) for kk in rb} for j in range(k + 1)]
             else:
                 pts = [((np.array([p[0] / 2, 0.0, p[2]]) if lathe else p), w) for p in smp]
         d0 = np.asarray((mach_u.get("tool") or {}).get("direction", [0, 0, 1]), float)
-        for tip, axis in pts:
+        rp = rot_pref if (mv.get("rot_a") is not None and mv.get("axis_b") is not None and not live) else None
+        for jj, (tip, axis) in enumerate(pts):
             n += 1
             tip = tip + off
-            pref = prefer
+            pref = prefer if rp is None else {**prefer, **rp[jj]}
             if mv.get("mill") == "polar":            # 极坐标插补：转 C 把点转到 +X 一侧（Y 不动）；刀轴沿 C 轴是奇异点，C 取这个值
                 pref = {**prefer, "C": -math.degrees(math.atan2(tip[1] - off[1], tip[0] - off[0]))}
             elif lathe and not mv.get("mill") and any(a["id"] == "C" for a in machine["axes"]):

@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import itertools
 import math
 
 import numpy as np
@@ -160,24 +161,48 @@ def axis_from_rotary(machine: dict, rot: dict) -> np.ndarray:
     return K.forward(machine, q)[1]
 
 
-def rotary_path(machine: dict, axes, prefer: dict | None = None) -> list[dict]:
-    """只按刀轴逐点解回转轴（刀尖跟随时程序只要回转轴角度，直线轴由数控系统算）：每点取回转轴行程内、离上一点最近的解。
-    达不到或回转轴超程 → FiveAxisError（带第几个刀位）"""
-    pref = dict(prefer or {})
+def rotary_path(machine: dict, axes, prefer: dict | None = None, flip_deg: float = 30.0, breaks=()) -> list[dict]:
+    """只按刀轴逐点解回转轴（刀尖跟随时程序只要回转轴角度，直线轴由数控系统算）。
+    刀路按 breaks（快移的点的序号）分段；每段第一点的几组解都试：往下逐点取行程内、离上一点最近的解，
+    挑一步转超过 flip_deg 的次数最少、再离上一段末尾最近、再总转角最小的那一路（只看第一点挑“离 0 最近”的解，
+    走到半路回转轴撞行程头就得换一组解，一步甩 180°；换组放在快移里做）。
+    给了 prefer 就从离它最近的那组起步。达不到或回转轴超程 → FiveAxisError（带第几个刀位）"""
     rots = _rotaries(machine)
-    out = []
-    for i, w in enumerate(np.asarray(axes, float)):
+    W = [_unit(w) for w in np.asarray(axes, float)]
+
+    def cands(i, pref):
         try:
-            cands = K._rotary_solutions(machine, _unit(w), pref)
+            cs = K._rotary_solutions(machine, W[i], pref)
         except K.KinematicsError as exc:
             raise FiveAxisError(f"第 {i + 1} 个刀位的刀轴机床达不到：{exc}") from exc
-        ok = [c for c in cands if not K.in_limits({"axes": rots}, c)]
+        ok = [c for c in cs if not K.in_limits({"axes": rots}, c)]
         if not ok:
-            raise FiveAxisError(f"第 {i + 1} 个刀位回转轴超程：" + "；".join(K.in_limits({"axes": rots}, cands[0])) if cands
+            raise FiveAxisError(f"第 {i + 1} 个刀位回转轴超程：" + "；".join(K.in_limits({"axes": rots}, cs[0])) if cs
                                 else f"第 {i + 1} 个刀位的刀轴机床达不到")
-        q = min(ok, key=lambda c: sum(abs(c[k] - pref.get(k, 0.0)) for k in c))
-        out.append(q)
-        pref = q
+        return ok
+
+    def dist(a, b):
+        return sum(abs(a[k] - b.get(k, 0.0)) for k in a)
+
+    cuts = sorted({0, *[int(b) for b in breaks if 0 < int(b) < len(W)]}) + [len(W)]
+    out: list[dict] = []
+    for s0, s1 in itertools.pairwise(cuts):
+        prev = out[-1] if out else dict(prefer or {})
+        starts = cands(s0, prev)
+        if not out and prefer:
+            starts = [min(starts, key=lambda c: dist(c, prefer))]
+        best = None
+        for st in starts:
+            seg, flips, total = [st], 0, 0.0
+            for i in range(s0 + 1, s1):
+                q = min(cands(i, seg[-1]), key=lambda c: dist(c, seg[-1]))
+                flips += max(abs(q[k] - seg[-1][k]) for k in q) > flip_deg
+                total += dist(q, seg[-1])
+                seg.append(q)
+            key = (flips, dist(st, prev) if prev else 0.0, total)
+            if best is None or key < best[0]:
+                best = (key, seg)
+        out += best[1]
     return out
 
 
@@ -210,16 +235,17 @@ def _feed_dirs(pts):
     return d
 
 
-def ball_surface(contacts, normals, radius: float, lead: float = 0.0, tilt: float = 0.0) -> tuple[np.ndarray, np.ndarray]:
+def ball_surface(contacts, normals, radius: float, lead: float = 0.0, tilt: float = 0.0, lead_dir=None) -> tuple[np.ndarray, np.ndarray]:
     """球头刀曲面多轴精加工：接触点（曲面上）+ 曲面法向（指向刀具一侧）→ 刀位。
-    球心 = 接触点 + R·n（球面与曲面在接触点相切，跟刀轴怎么倒无关）；刀轴按前倾、侧倾倒；刀尖 = 球心 − R·刀轴"""
+    球心 = 接触点 + R·n（球面与曲面在接触点相切，跟刀轴怎么倒无关）；刀轴按前倾、侧倾倒；刀尖 = 球心 − R·刀轴。
+    lead_dir：给了就往这个固定方向前倾（不跟走刀方向，之字形来回走刀轴不变向，ADR-0106 C3c）"""
     c, nn = np.asarray(contacts, float), np.asarray(normals, float)
     if c.shape != nn.shape:
         raise FiveAxisError("接触点和法向的个数要一样")
     tips, axes = [], []
     for p, n, f in zip(c, nn, _feed_dirs(c)):
         n = _unit(n)
-        w = tilt_axis(n, f, lead, tilt)
+        w = tilt_axis(n, f if lead_dir is None else lead_dir, lead, tilt)
         ctr = p + radius * n
         tips.append(ctr - radius * w)
         axes.append(w)
@@ -272,3 +298,147 @@ def link_moves(segments, f: float, safe_dist: float = 5.0, link: str = "lift", c
             u1 = up(tips[-1], axes[-1])
             out.append(mv_("feed", u1, axes[-1], f=float(f)) if clear_z is not None else mv_("rapid", u1, axes[-1]))
     return out
+
+
+# ---------------------------------------------------------------- 刀轴控制（ADR-0106 C3c）
+def pole(machine: dict) -> np.ndarray | None:
+    """机床的极轴（刀轴贴着它就是奇异点）：工件一侧最外的回转轴，没有就刀具一侧最里的回转轴；方向在工件坐标里不随轴动。没有回转轴返回 None"""
+    work = [a for a in machine["axes"] if a["type"] == "rotary" and a["carrier"] == "workpiece"]
+    tool = [a for a in machine["axes"] if a["type"] == "rotary" and a["carrier"] == "tool"]
+    if work:
+        return _unit(work[-1]["direction"])
+    if tool:
+        return _unit(tool[0]["direction"])
+    return None
+
+
+def _horiz(a, pz):
+    return a - pz * float(np.dot(a, pz))
+
+
+def avoid_pole(axes, pz, min_deg: float = 3.0) -> tuple[np.ndarray, list[tuple[int, int]]]:
+    """刀轴离极轴 pz 不到 2·min_deg 的连续一段：往与这段刀轴水平走向垂直的侧向推，离极轴不到 min_deg 的推满（tan(min_deg)），
+    min_deg 到 2·min_deg 之间逐渐减到 0。返回 (新刀轴, 改过的段 [(起, 止)])。刀轴绕过极轴时回转轴在这一段里慢慢转过去，不再一步甩"""
+    A = np.array([_unit(a) for a in axes])
+    pz = _unit(pz)
+    ang = np.array([angle_deg(a, pz) for a in A])
+    near = ang < 2 * min_deg
+    runs, i = [], 0
+    while i < len(A):
+        if near[i]:
+            j = i
+            while j + 1 < len(A) and near[j + 1]:
+                j += 1
+            runs.append((i, j))
+            i = j + 1
+        else:
+            i += 1
+    lam0 = math.tan(math.radians(min_deg)) * 1.05
+    out = A.copy()
+    for i, j in runs:
+        h0, h1 = _horiz(A[max(i - 1, 0)], pz), _horiz(A[min(j + 1, len(A) - 1)], pz)
+        d = h1 - h0
+        if np.linalg.norm(d) < 1e-9:
+            hm = np.mean([_horiz(a, pz) for a in A[i:j + 1]], axis=0)
+            side = hm if np.linalg.norm(hm) > 1e-9 else _horiz(np.array([1.0, 0.0, 0.0]), pz)
+        else:
+            side = np.cross(pz, d)
+            if np.linalg.norm(side) < 1e-12:
+                side = _horiz(np.array([1.0, 0.0, 0.0]), pz)
+        side = _unit(side)
+        hm = np.mean([_horiz(a, pz) for a in A[i:j + 1]], axis=0)
+        if float(np.dot(hm, side)) < 0:              # 往这段本来就偏的那一侧推（反过来推会把偏移抵掉，反而贴到极轴上）
+            side = -side
+        for k in range(i, j + 1):
+            w = min(1.0, max(0.0, (2 * min_deg - ang[k]) / min_deg))
+            out[k] = _unit(A[k] + lam0 * w * side)
+    return out, runs
+
+
+def ball_reaxis(tips, axes, new_axes, radius: float) -> np.ndarray:
+    """球头刀换刀轴：球心不动（与曲面仍相切），刀尖 = 球心 − R·新刀轴"""
+    t, a, b = np.asarray(tips, float), np.asarray(axes, float), np.asarray(new_axes, float)
+    return t + radius * a - radius * b
+
+
+def _rotate_toward(a, u, deg):
+    a = _unit(a)
+    u = np.asarray(u, float) - a * float(np.dot(u, a))
+    if np.linalg.norm(u) < 1e-12:
+        return a
+    u = _unit(u)
+    t = math.radians(deg)
+    return _unit(math.cos(t) * a + math.sin(t) * u)
+
+
+def shank_clear(center, axis, parts, dist_fn, clearance: float) -> float:
+    """刀杆、刀柄（parts：[(离球心的起高, 止高, 半径)]）离零件最近还剩多少（mm，负数是碰了）"""
+    worst = math.inf
+    for z0, z1, r in parts:
+        n = max(2, math.ceil((z1 - z0) / max(r / 2, 0.5)) + 1)
+        pts = np.array([center + z * axis for z in np.linspace(z0, z1, n)])
+        worst = min(worst, float(np.min(dist_fn(pts))) - r - clearance)
+    return worst
+
+
+def avoid_collision(tips, axes, radius: float, parts, dist_fn, clearance: float = 1.0, max_tilt: float = 45.0,
+                    step: float = 2.0, dirs: int = 8) -> dict:
+    """球头刀：刀杆、刀柄碰零件的点，绕球心把刀轴往某个侧向加大倾角（每次 step 度，到 max_tilt 为止），刀轴连续。
+    dist_fn(点 k×3) → 到零件表面的距离（不带符号也行，刀杆不会在零件里面）。
+    同一段连着碰的点用同一个侧向（dirs 个方向里，让这段最大倾角最小的那个）；倾角沿刀路平滑（相邻点差不超过 step）。
+    返回 {"tips", "axes", "tilt": 每点加的倾角, "issues": [到 max_tilt 还碰的点]}"""
+    T, A = np.asarray(tips, float), np.array([_unit(a) for a in axes])
+    C = T + radius * A
+    n = len(A)
+    hit = np.array([shank_clear(C[k], A[k], parts, dist_fn, clearance) < 0 for k in range(n)])
+    tilt = np.zeros(n)
+    side = [None] * n
+    issues = []
+    k = 0
+    while k < n:
+        if not hit[k]:
+            k += 1
+            continue
+        j = k
+        while j + 1 < n and hit[j + 1]:
+            j += 1
+        best = None
+        for m in range(dirs):
+            th = 2 * math.pi * m / dirs
+            need = []
+            for i in range(k, j + 1):
+                a = A[i]
+                e1 = _unit(np.cross(a, [0.0, 0.0, 1.0])) if abs(a[2]) < 0.99 else _unit(np.cross(a, [1.0, 0.0, 0.0]))
+                e2 = np.cross(a, e1)
+                u = math.cos(th) * e1 + math.sin(th) * e2
+                g = step
+                while g <= max_tilt + 1e-9 and shank_clear(C[i], _rotate_toward(a, u, g), parts, dist_fn, clearance) < 0:
+                    g += step
+                need.append((g, u))
+            worst = max(g for g, _ in need)
+            if best is None or worst < best[0]:
+                best = (worst, need)
+        for i, (g, u) in zip(range(k, j + 1), best[1]):
+            tilt[i], side[i] = g, u
+            if g > max_tilt + 1e-9:
+                issues.append({"i": i, "level": "error",
+                               "text": f"第 {i + 1} 个刀位刀轴倒到 {max_tilt:g}° 刀杆、刀柄还碰零件：换更长、更细的刀，或改刀路"})
+        k = j + 1
+    # 平滑：倾角从碰撞段往两边每点减 step 延伸；没碰的点取前、后两个方向延伸过来的大的那个（连侧向一起），
+    # 两个碰撞段的延伸在中间相遇时倾角已经减到 0 或很小，刀轴不跳
+    fw_t, fw_s = tilt.copy(), list(side)
+    for i in range(1, n):
+        if fw_t[i - 1] - step > fw_t[i]:
+            fw_t[i], fw_s[i] = fw_t[i - 1] - step, (fw_s[i] if hit[i] else fw_s[i - 1])
+    bw_t, bw_s = tilt.copy(), list(side)
+    for i in range(n - 2, -1, -1):
+        if bw_t[i + 1] - step > bw_t[i]:
+            bw_t[i], bw_s[i] = bw_t[i + 1] - step, (bw_s[i] if hit[i] else bw_s[i + 1])
+    for i in range(n):
+        if hit[i]:                                   # 碰撞段里也限住相邻点的差（侧向是这段自己的）
+            tilt[i] = max(fw_t[i], bw_t[i])
+        else:
+            tilt[i], side[i] = (fw_t[i], fw_s[i]) if fw_t[i] >= bw_t[i] else (bw_t[i], bw_s[i])
+    newA = np.array([_rotate_toward(A[i], side[i], min(tilt[i], max_tilt)) if side[i] is not None and tilt[i] > 0 else A[i]
+                     for i in range(n)])
+    return {"tips": C - radius * newA, "axes": newA, "tilt": tilt, "issues": issues}
