@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from PySide import QtWidgets
 
+from assist.i18n import tr as T
 from freecad_addon.core import fill, library_choice
 
 NEW_DOC = "登记新资料…"
@@ -15,7 +16,7 @@ NEW_DOC = "登记新资料…"
 class FillDialog(QtWidgets.QDialog):
     def __init__(self, library, component_id: str, focus_ports=frozenset(), parent=None):
         super().__init__(parent)
-        self.setWindowTitle("补数据（写入企业库）")
+        self.setWindowTitle(T("补数据（写入企业库）"))
         self.library, self.component_id = library, component_id
         self.enterprise = getattr(library, "top", None)
         self.saved: dict | None = None
@@ -28,24 +29,24 @@ class FillDialog(QtWidgets.QDialog):
         form = QtWidgets.QFormLayout()
         self.field = QtWidgets.QComboBox()
         for r in self.rows:
-            self.field.addItem(r.title(), r.target)
+            self.field.addItem(T(r.title()), r.target)
         self.current = QtWidgets.QLabel("")
         self.value = QtWidgets.QLineEdit()
         self.tol_upper, self.tol_lower = QtWidgets.QLineEdit(), QtWidgets.QLineEdit()
         tol = QtWidgets.QHBoxLayout()
         for w, ph in ((self.tol_upper, "上偏差（可空）"), (self.tol_lower, "下偏差（可空）")):
-            w.setPlaceholderText(ph)
+            w.setPlaceholderText(T(ph))
             tol.addWidget(w)
         self.condition = QtWidgets.QLineEdit()
-        self.condition.setPlaceholderText("工况（规格书写了就填，如“额定、25 °C”）")
+        self.condition.setPlaceholderText(T("工况（规格书写了就填，如“额定、25 °C”）"))
         self.doc = QtWidgets.QComboBox()
         self.page = QtWidgets.QSpinBox()
         self.page.setRange(0, 9999)
         self.page.setSpecialValueText("（页码）")
         self.quote = QtWidgets.QLineEdit()
-        self.quote.setPlaceholderText("照抄规格书原文，如 “Pilot dia. 50 h7”")
+        self.quote.setPlaceholderText(T("照抄规格书原文，如 “Pilot dia. 50 h7”"))
         self.actor = QtWidgets.QLineEdit(library_choice.read_settings().get("actor", ""))
-        self.actor.setPlaceholderText("录入人姓名")
+        self.actor.setPlaceholderText(T("录入人姓名"))
         form.addRow("字段", self.field)
         form.addRow("当前值", self.current)
         form.addRow("值", self.value)
@@ -68,7 +69,7 @@ class FillDialog(QtWidgets.QDialog):
         self._load_docs()
         self._show_field()
         if self.enterprise is None:
-            self.status.setText("还没有企业库：请先在菜单“AI Parts → 企业库”中选择企业库文件夹，重启 FreeCAD 后再补数据。")
+            self.status.setText(T("还没有企业库：请先在菜单“AI Parts → 企业库”中选择企业库文件夹，重启 FreeCAD 后再补数据。"))
             buttons.button(QtWidgets.QDialogButtonBox.Save).setEnabled(False)
 
     def row(self) -> fill.FieldRow | None:
@@ -84,19 +85,19 @@ class FillDialog(QtWidgets.QDialog):
             note += "；此端口按配套件定制，填的是贵公司订货时确定的尺寸"
         if r.enum:
             note += f"；可选：{'、'.join(map(str, r.enum))}"
-        self.current.setText(note)
+        self.current.setText(T(note))
 
     def _load_docs(self, select: str | None = None) -> None:
         self.doc.clear()
         for d in (self.enterprise.documents() if self.enterprise is not None else []):
             self.doc.addItem(f"{d['title']}（{d['id']}）", d["id"])
-        self.doc.addItem(NEW_DOC, None)
+        self.doc.addItem(T(NEW_DOC), None)
         if select is not None:
             self.doc.setCurrentIndex(max(0, self.doc.findData(select)))
 
     def _doc_chosen(self) -> None:
         if self.doc.currentData() is None and self.enterprise is not None:
-            path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "选择规格书", "", "规格书 (*.pdf *.xlsx *.xls *.csv)")
+            path, _ = QtWidgets.QFileDialog.getOpenFileName(self, T("选择规格书"), "", T("规格书 (*.pdf *.xlsx *.xls *.csv)"))
             if path:
                 self.register(path)
 
@@ -105,12 +106,12 @@ class FillDialog(QtWidgets.QDialog):
 
         actor = self.actor.text().strip()
         if not actor:
-            self.status.setText("请先填录入人，再登记资料")
+            self.status.setText(T("请先填录入人，再登记资料"))
             return None
         try:
             d = self.enterprise.register_document(path, title or Path(path).stem, actor)
         except Exception as exc:  # noqa: BLE001 — 显示给用户
-            self.status.setText(f"不能登记：{exc}")
+            self.status.setText(T(f"不能登记：{exc}"))
             return None
         self._load_docs(d["id"])
         return d["id"]
@@ -126,7 +127,7 @@ class FillDialog(QtWidgets.QDialog):
             base = getattr(self.library, "base", self.library)
             self.enterprise.set_value(self.component_id, r.target, pv, self.actor.text().strip(), base.get)
         except Exception as exc:  # noqa: BLE001 — 显示给用户，不写
-            self.status.setText(f"没有写入：{exc}")
+            self.status.setText(T(f"没有写入：{exc}"))
             return False
         library_choice.write_setting("actor", self.actor.text().strip())
         self.saved = {"target": r.target, "value": pv}

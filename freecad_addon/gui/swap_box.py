@@ -11,6 +11,7 @@ import threading
 
 from PySide import QtCore, QtWidgets
 
+from assist.i18n import tr as T
 from freecad_addon.core import swap
 from freecad_addon.core.live_check import STATUS_TEXT
 from freecad_addon.gui.host import _parse
@@ -23,30 +24,30 @@ class SwapBox(QtWidgets.QGroupBox):
     swapped = QtCore.Signal(object)  # 后台线程中换上完成（None 或错误文字）
 
     def __init__(self, panel, parent: QtWidgets.QWidget | None = None):
-        super().__init__("换件建议", parent)
+        super().__init__(T("换件建议"), parent)
         self.panel = panel
         self.suggestions: list[dict] = []
         self.busy = False  # 正在计算建议或换上
         lay = QtWidgets.QVBoxLayout(self)
         row = QtWidgets.QHBoxLayout()
         self.instance = QtWidgets.QComboBox()
-        self.find_button = QtWidgets.QPushButton("换件建议")
-        row.addWidget(QtWidgets.QLabel("零件"))
+        self.find_button = QtWidgets.QPushButton(T("换件建议"))
+        row.addWidget(QtWidgets.QLabel(T("零件")))
         row.addWidget(self.instance, 1)
         row.addWidget(self.find_button)
-        self.fill_button = QtWidgets.QPushButton("补数据")  # M9：写入企业库
-        self.fill_button.setToolTip("为这个零件补一项数据（附规格书页码与原文），写入企业库")
+        self.fill_button = QtWidgets.QPushButton(T("补数据"))  # M9：写入企业库
+        self.fill_button.setToolTip(T("为这个零件补一项数据（附规格书页码与原文），写入企业库"))
         row.addWidget(self.fill_button)
-        self.import_button = QtWidgets.QPushButton("导入规格书")  # M9：AI 抽取、代码核对、逐项确认
-        self.import_button.setToolTip("选厂商 PDF 或 Excel，AI 抽取这个零件的参数，核对原文后逐项确认写入企业库")
+        self.import_button = QtWidgets.QPushButton(T("导入规格书"))  # M9：AI 抽取、代码核对、逐项确认
+        self.import_button.setToolTip(T("选厂商 PDF 或 Excel，AI 抽取这个零件的参数，核对原文后逐项确认写入企业库"))
         row.addWidget(self.import_button)
         self.list = QtWidgets.QListWidget()
         self.list.setMaximumHeight(110)
         self.detail = QtWidgets.QLabel("")
         self.detail.setWordWrap(True)
-        self.swap_button = QtWidgets.QPushButton("换上")
+        self.swap_button = QtWidgets.QPushButton(T("换上"))
         self.swap_button.setEnabled(False)
-        self.status = QtWidgets.QLabel("选一个零件（默认结论最差的），点“换件建议”。")
+        self.status = QtWidgets.QLabel(T("选一个零件（默认结论最差的），点“换件建议”。"))
         self.status.setWordWrap(True)
         lay.addLayout(row)
         for w in (self.list, self.detail, self.swap_button, self.status):
@@ -94,7 +95,7 @@ class SwapBox(QtWidgets.QGroupBox):
         dlg = self.fill_dialog()
         if dlg is None or not dlg.exec():
             return False
-        self.status.setText(f"已写入企业库：{dlg.saved['target']}；已重新校验")
+        self.status.setText(T(f"已写入企业库：{dlg.saved['target']}；已重新校验"))
         self.panel.recheck()
         return True
 
@@ -116,7 +117,7 @@ class SwapBox(QtWidgets.QGroupBox):
         dlg = self.import_dialog()
         if dlg is None or not dlg.exec():
             return False
-        self.status.setText(f"已从规格书写入企业库 {len(dlg.written)} 项；已重新校验")
+        self.status.setText(T(f"已从规格书写入企业库 {len(dlg.written)} 项；已重新校验"))
         self.panel.recheck()
         return True
 
@@ -132,7 +133,7 @@ class SwapBox(QtWidgets.QGroupBox):
         self.busy = True
         self.find_button.setEnabled(False)
         self.swap_button.setEnabled(False)
-        self.status.setText(f"正在为 {inst} 计算换件建议 …")
+        self.status.setText(T(f"正在为 {inst} 计算换件建议 …"))
         self.panel.host.call_in_background("suggest_replacements", args, self.found.emit)
         return True
 
@@ -142,18 +143,18 @@ class SwapBox(QtWidgets.QGroupBox):
         self.list.clear()
         if isinstance(out, Exception) or out.is_error:
             self.suggestions = []
-            self.status.setText(f"没有算出建议：{out if isinstance(out, Exception) else '；'.join(out.texts)}")
+            self.status.setText(T(f"没有算出建议：{out if isinstance(out, Exception) else '；'.join(out.texts)}"))
             self._show_detail()
             return
         data = _parse(out) or {}
         self.suggestions = data.get("suggestions", [])
         for s in self.suggestions:
             mass = "" if s.get("mass_kg") is None else f"，{s['mass_kg']:g} kg"
-            self.list.addItem(f"{s['overall_text']}：{s['model']}{mass}")
+            self.list.addItem(T(f"{s['overall_text']}：{s['model']}{mass}"))
         cur = data.get("current", {})
-        self.status.setText(f"{data.get('instance')} 当前结论：{STATUS_TEXT.get(cur.get('overall', ''), cur.get('overall', ''))}；"
+        self.status.setText(T(f"{data.get('instance')} 当前结论：{STATUS_TEXT.get(cur.get('overall', ''), cur.get('overall', ''))}；"
                             f"可替换 {data.get('total', 0)} 个（列出前 {len(self.suggestions)} 个）"
-                            if self.suggestions else "同品类中没有不至于不通过的替换件")
+                            if self.suggestions else "同品类中没有不至于不通过的替换件"))
         if self.suggestions:
             self.list.setCurrentRow(0)
         self._show_detail()
@@ -169,7 +170,7 @@ class SwapBox(QtWidgets.QGroupBox):
             self.detail.setText("")
             return
         changes = s.get("changes") or ["校验结论没有变化"]
-        self.detail.setText("<br>".join(html.escape(c) for c in changes))
+        self.detail.setText("<br>".join(html.escape(T(c)) for c in changes))
 
     # ------------------------------------------------------------ 换上
 
@@ -180,12 +181,12 @@ class SwapBox(QtWidgets.QGroupBox):
         try:
             calls = swap.swap_calls(self.panel.host.layout, inst, s["component_id"])
         except ValueError as exc:
-            self.status.setText(f"不能换上：{exc}")
+            self.status.setText(T(f"不能换上：{exc}"))
             return False
         self.busy = True
         self.find_button.setEnabled(False)
         self.swap_button.setEnabled(False)
-        self.status.setText(f"正在把 {inst} 换成 {s['model']} …")
+        self.status.setText(T(f"正在把 {inst} 换成 {s['model']} …"))
 
         def work() -> None:
             try:
@@ -206,4 +207,4 @@ class SwapBox(QtWidgets.QGroupBox):
         self.list.clear()
         self.suggestions = []
         self._show_detail()
-        self.status.setText(f"换件中断：{err}" if err else "已换上；结论见上方，BOM 随之更新")
+        self.status.setText(T(f"换件中断：{err}" if err else "已换上；结论见上方，BOM 随之更新"))
