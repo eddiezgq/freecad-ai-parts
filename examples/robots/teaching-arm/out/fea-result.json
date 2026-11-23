@@ -1,5 +1,5 @@
 {
- "status": "unknown",
+ "status": "pass",
  "items": [
   {
    "part": "j1 舵盘法兰",
@@ -180,8 +180,8 @@
    },
    "vm_max_mpa": 2.61,
    "u_max_mm": 0.001009,
-   "trust": "unknown",
-   "safety_yield": null,
+   "trust": "pass",
+   "safety_yield": 105.747,
    "safety_fatigue": 36.97,
    "balance": {
     "available": true,
@@ -198,8 +198,8 @@
     "force_error_ratio": 0.00021858907464373858,
     "moment_error_ratio": 7.623230289632424e-05
    },
-   "status": "unknown",
-   "note": "有限元可信度 unknown：网格收敛（最大应力）：加密后的变化不规则，估计不出网格误差"
+   "status": "pass",
+   "note": "最大当量应力 2.6 MPa；对屈服 105.7、对弯曲疲劳 37.0，要求 ≥ 1.2"
   },
   {
    "part": "j3 U 形支架",
@@ -330,8 +330,8 @@
    },
    "vm_max_mpa": 1.72,
    "u_max_mm": 0.002658,
-   "trust": "unknown",
-   "safety_yield": null,
+   "trust": "pass",
+   "safety_yield": 160.839,
    "safety_fatigue": 56.24,
    "balance": {
     "available": true,
@@ -348,8 +348,8 @@
     "force_error_ratio": 1.0033181419284314e-06,
     "moment_error_ratio": 6.207981521983911e-07
    },
-   "status": "unknown",
-   "note": "有限元可信度 unknown：网格收敛（最大应力）：加密后的变化不规则，估计不出网格误差"
+   "status": "pass",
+   "note": "最大当量应力 1.7 MPa；对屈服 160.8、对弯曲疲劳 56.2，要求 ≥ 1.2"
   },
   {
    "part": "j4 壳体底座",
