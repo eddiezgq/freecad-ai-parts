@@ -13,6 +13,7 @@
     说清楚要怎么改（让轴线偏开，或换带后端固定法兰的模组）。
   3 长度够不够：下一关节的壳体（底面朝着本关节装在本杆上）沿杆向离本关节轴线最近的点，要在本关节 U 底板（d_min）之外；
     侧摆、轴转（轴线偏开）两种下一关节都按壳体的八个角算。剩下的长度给支架板厚、杆套和管子，不足的判不通过。
+  4 装在基座上的关节：壳体要在安装面朝机器人的一侧（输出舵盘在关节原点、壳体在它后面——原点贴着安装面时壳体就钻到桌面下了）。
 板厚、管套长度等由支架设计（第 3 步之二）定，这里只给几何上必需的最小值。
 """
 
@@ -98,20 +99,41 @@ def housing_geometry(comp: Mapping) -> dict | None:
             "horn_diameter": horn["diameter_mm"]["value"] if horn else None}
 
 
-def _nearest(c: K.Joint, kind: str, g: Mapping, u: np.ndarray) -> float:
-    """下一关节 c 的壳体沿杆向 u 离本关节轴线（杆件坐标原点）最近的距离（mm）。
-    壳体朝向：底面朝着本关节（底面装在本杆上）；侧摆关节的原点在两舵盘中间（壳体沿轴 ±22），轴转关节的原点在输出舵盘端面（壳体在其后 2.5–46.5）"""
+def _corners(c: K.Joint, kind: str, g: Mapping, toward: np.ndarray) -> list[np.ndarray]:
+    """关节 c 的壳体八个角（父件坐标系）。壳体底面朝 toward 方向（垂直于 c 的轴的分量）；
+    侧摆关节的原点在两舵盘中间（壳体沿轴 ±22），轴转关节的原点在输出舵盘端面（壳体在其后 2.5–46.5）"""
     a = c.axis / np.linalg.norm(c.axis)
     o = np.asarray(c.origin, float)
-    back = -o - (-o @ a) * a                                   # 从 c 的轴线指向本关节的方向（垂直于 c 的轴）
+    back = toward - (toward @ a) * a
     if np.linalg.norm(back) < 1e-9:
-        back = -u - (-u @ a) * a
+        back = np.cross(a, [1.0, 0.0, 0.0]) if abs(a[0]) < 0.9 else np.cross(a, [0.0, 1.0, 0.0])
     bdir = back / np.linalg.norm(back)
     side = np.cross(a, bdir)
     zs = (-22.0, 22.0) if kind == "clevis" else (-46.5, -2.5)
-    pts = [o + z * a + t * bdir + w * side for z in zs for t in (-g["top"], g["axis_to_bottom"])
-           for w in (-g["half_width"], g["half_width"])]
-    return float(min(pt @ u for pt in pts))
+    return [o + z * a + t * bdir + w * side for z in zs for t in (-g["top"], g["axis_to_bottom"])
+            for w in (-g["half_width"], g["half_width"])]
+
+
+def base_clearance(c: K.Joint, kind: str, g: Mapping, mount: str) -> dict:
+    """装在基座上的关节：壳体要在安装面朝机器人的一侧（桌面、地面装：z ≥ 0；吊装：z ≤ 0）。返回 {"status", "note", ...}"""
+    if mount not in ("table", "floor", "ceiling"):
+        return {"status": "unknown", "note": f"安装方式 {mount}：安装面朝哪边方案里没写，判不了"}
+    sign = -1.0 if mount == "ceiling" else 1.0
+    pts = _corners(c, kind, g, -np.asarray(c.origin, float) if np.linalg.norm(c.origin) > 1e-9 else np.array([0, 0, -sign]))
+    low = min(sign * float(p[2]) for p in pts)
+    need = sign * float(c.origin[2]) - low
+    if low >= -1e-9:
+        return {"status": "pass", "clear_mm": round(low, 1), "note": f"{c.id} 的壳体在安装面以上 {low:.1f} mm 起"}
+    return {"status": "fail", "clear_mm": round(low, 1),
+            "note": (f"{c.id} 的模组壳体会伸到安装面另一侧 {-low:.1f} mm（输出舵盘在原点处，壳体在它后面）："
+                     f"把 {c.id} 的原点抬到离安装面至少 {need:.1f} mm（再加底座板厚），臂展点等按新的高度重算")}
+
+
+def _nearest(c: K.Joint, kind: str, g: Mapping, u: np.ndarray) -> float:
+    """下一关节 c 的壳体（底面朝本关节）沿杆向 u 离本关节轴线（杆件坐标原点）最近的距离（mm）"""
+    o = np.asarray(c.origin, float)
+    toward = -o if np.linalg.norm(o) > 1e-9 else -u
+    return float(min(pt @ u for pt in _corners(c, kind, g, toward)))
 
 
 def _tube_od(link: Mapping) -> float:
@@ -175,6 +197,12 @@ def check(concept: Mapping, actuators: Mapping[str, Mapping]) -> dict:
                 row.update(status="pass", note="子杆接在输出舵盘法兰上；壳体底面装在父件上（轴线与父件偏开）")
         else:
             row.update(status="unknown", note="子杆与关节轴既不垂直也不平行：支架型式这一步不处理")
+        if j.parent == "base" and row.get("status") == "pass":
+            bc = base_clearance(j, kind[j.id], g, concept["base"]["mount"])
+            if bc["status"] != "pass":
+                row.update(status=bc["status"], note=row["note"] + "；" + bc["note"])
+            else:
+                row["base_clear_mm"] = bc["clear_mm"]
         out_j.append(row)
     for j in m.joints:
         nxt = [c for c in m.joints if c.parent == j.child]

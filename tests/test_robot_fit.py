@@ -98,3 +98,19 @@ def test_short_link_fails_and_missing_interfaces_unknown():
     assert {x["link"]: x for x in r["links"]}["upper"]["status"] == "fail"
     r = fit.check(c, {j["id"]: _comp("xm430-w350") for j in c["joints"]})      # 430 没有接口数据
     assert all(x["status"] == "unknown" for x in r["joints"])
+
+
+def test_base_mounted_housing_must_stay_above_the_table():
+    """j1 的输出舵盘在原点（贴着桌面）时，壳体在它后面 2.5–46.5 mm，钻到桌面下；抬高 j1 原点就过；吊装方向相反"""
+    c = _arm()
+    r = fit.check(c, {j["id"]: _comp() for j in c["joints"]})
+    j1 = {x["joint"]: x for x in r["joints"]}["j1"]
+    assert j1["status"] == "fail" and "46.5" in j1["note"]
+    c["joints"][0]["origin_mm"] = [0, 0, 50]
+    j1 = {x["joint"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["joints"]}["j1"]
+    assert j1["status"] == "pass" and j1["base_clear_mm"] == pytest.approx(3.5)
+    c["base"]["mount"] = "ceiling"                                   # 吊装：安装面在上，壳体要在下面——抬高 50 就错了
+    j1 = {x["joint"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["joints"]}["j1"]
+    assert j1["status"] == "fail"
+    c["base"]["mount"] = "wall"
+    assert {x["joint"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["joints"]}["j1"]["status"] == "unknown"
