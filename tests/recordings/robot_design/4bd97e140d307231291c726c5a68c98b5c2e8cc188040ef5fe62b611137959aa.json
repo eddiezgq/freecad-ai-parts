@@ -1,0 +1,241 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/2",
+  "request_key": "4bd97e140d307231291c726c5a68c98b5c2e8cc188040ef5fe62b611137959aa",
+  "response": {
+    "id": "msg_011ChKzjj1J9XhXFWAzhr9hn",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "candidates": [
+        {
+          "base": {
+            "height_mm": 0,
+            "mount": "table"
+          },
+          "end_effector": {
+            "offset_mm": [
+              70,
+              0,
+              0
+            ],
+            "parent": "tool",
+            "type": "gripper"
+          },
+          "format": "robot-concept/1",
+          "joints": [
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "turret",
+              "id": "j1",
+              "module_group": "m540",
+              "origin_mm": [
+                0,
+                0,
+                60
+              ],
+              "parent": "base",
+              "range_deg": [
+                -170,
+                170
+              ],
+              "transmission": "direct",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "upper_arm",
+              "id": "j2",
+              "module_group": "m540",
+              "origin_mm": [
+                0,
+                24.5,
+                70
+              ],
+              "parent": "turret",
+              "range_deg": [
+                -90,
+                90
+              ],
+              "transmission": "direct",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                -1,
+                0
+              ],
+              "child": "forearm",
+              "id": "j3",
+              "module_group": "m540",
+              "origin_mm": [
+                0,
+                -24.5,
+                150
+              ],
+              "parent": "upper_arm",
+              "range_deg": [
+                -150,
+                150
+              ],
+              "transmission": "direct",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                -1,
+                0
+              ],
+              "child": "wrist",
+              "id": "j4",
+              "module_group": "m540",
+              "origin_mm": [
+                0,
+                -24.5,
+                150
+              ],
+              "parent": "forearm",
+              "range_deg": [
+                -120,
+                120
+              ],
+              "transmission": "direct",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                1,
+                0,
+                0
+              ],
+              "child": "tool",
+              "id": "j5",
+              "module_group": "m540",
+              "origin_mm": [
+                24.5,
+                24.5,
+                80
+              ],
+              "parent": "wrist",
+              "range_deg": [
+                -170,
+                170
+              ],
+              "transmission": "direct",
+              "type": "revolute"
+            }
+          ],
+          "kind": "serial_arm",
+          "links": [
+            {
+              "id": "turret",
+              "length_mm": 70,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 23,
+                "od_mm": 26
+              },
+              "shape": "tube"
+            },
+            {
+              "id": "upper_arm",
+              "length_mm": 150,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 15,
+                "od_mm": 18
+              },
+              "shape": "tube"
+            },
+            {
+              "id": "forearm",
+              "length_mm": 150,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 15,
+                "od_mm": 18
+              },
+              "shape": "tube"
+            },
+            {
+              "id": "wrist",
+              "length_mm": 80,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 13.5,
+                "od_mm": 16
+              },
+              "shape": "tube"
+            },
+            {
+              "id": "tool",
+              "length_mm": 70,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 12,
+                "od_mm": 14
+              },
+              "shape": "tube"
+            }
+          ],
+          "name": "5R 同模组桌面臂(薄壁轻量版)",
+          "reason": "偏航+三俯仰+腕滚转的5自由度布局,5个关节同一种540系列模组、直驱。几何与上一轮已通过初筛的版本一致,只把各杆管壁和外径再减薄减轻,降低肩肘力矩,使带接口数据的XM540/XH540/XD540系列模组都能扛住。",
+          "tasks": [
+            {
+              "dwell_s": 0.5,
+              "from": {
+                "j1": 0,
+                "j2": 55,
+                "j3": -77,
+                "j4": 42,
+                "j5": 0
+              },
+              "move_s": 3,
+              "name": "取放",
+              "to": {
+                "j1": 60,
+                "j2": 55,
+                "j3": -77,
+                "j4": 42,
+                "j5": 90
+              },
+              "type": "joint_move"
+            }
+          ],
+          "workspace": {
+            "points_mm": [
+              [
+                250,
+                0,
+                60
+              ],
+              [
+                200,
+                150,
+                80
+              ],
+              [
+                220,
+                -120,
+                50
+              ]
+            ]
+          }
+        }
+      ],
+      "reason": "我只提一个构型。5自由度、350 mm臂展、桌面安装、5个关节同一种模组,基本只有\"偏航+三俯仰+腕滚转\"这一种合理布局。这一轮几何不动,因为上一轮已通过初筛;只把各杆外径和壁厚再减薄(上臂、前臂外径18、壁1.5,腕杆、工具杆更细),进一步减轻自重。力矩只是粗估:0.5 kg负载在0.35 m处约1.7 N·m,加上三个模组和管件自重,肩部约3 N·m。这低于任何一种带接口数据模组的堵转力矩除以1.2(最弱的XH540-V150约5.3 N·m),所以应该不依赖具体型号。装配没通过是因为选件停在了没有接口数据的模组,不是力矩不够。我请程序在m540组里只从带接口数据的XM540/XH540/XD540系列里选,首选XM540-W270。转速只要10 rpm,大扭矩低转速型号够用。重复定位精度±1 mm要选件后按编码器分辨率和回差判断,我这里判不了。成本和装拆方面,外购件只有一种模组,自制件只有6061直管和连接板,普通车床、铣床都能加工,学生也能自己装拆。",
+      "recommend": 0
+    }
+  }
+}
