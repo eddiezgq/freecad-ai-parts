@@ -3,7 +3,7 @@
   "prompt_version": "robot-design/1",
   "request_key": "52db520b841aa635f1e5d192ab4f69affed924cd763118a6bcc9ef20a236e86c",
   "response": {
-    "id": "msg_011ChKtToGPZeoaUgiKC9Vz3",
+    "id": "msg_011ChKvBnHtK7YZDrTQhKGiV",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
@@ -43,11 +43,11 @@
         "value": 0.5
       },
       "questions": [
-        "“5 轴”中是否包含夹爪/末端执行器的开合轴？",
-        "重复定位精度 ±1 mm 是否指在 0.5 kg 额定负载下？",
-        "“外购件成本尽量低”有无具体预算上限？",
-        "关节最高角速度 60°/s 是否要求每个关节都达到？",
-        "桌面安装方式（螺栓固定、夹具夹持等）及桌面厚度有无限制？"
+        "“5 轴”是否指5个旋转关节（不含夹爪/末端工具的自由度）？",
+        "关节模组“同一种”是否要求5个关节完全相同规格（含尺寸、扭矩），还是同一系列即可？",
+        "外购件成本“尽量低”有无具体预算上限？",
+        "末端负载0.5 kg是否包含夹爪/工具自重？",
+        "关节最高角速度60°/s是否对所有关节均适用？"
       ],
       "reach": {
         "quote": "臂展 350 mm",
