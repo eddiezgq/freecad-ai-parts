@@ -33,7 +33,16 @@ MODULES = sorted([*ROOT.glob("analysis/fea/*.py"), ROOT / "assist/fea_report.py"
                   ROOT / "freecad_addon/gui/cam_tree_panels.py", ROOT / "freecad_addon/fc/cam_objects.py",
                   ROOT / "freecad_addon/gui/cam_brand.py", ROOT / "freecad_addon/gui/cam_replay.py",
                   ROOT / "freecad_addon/fc/cam_deviation.py", ROOT / "freecad_addon/gui/cam_library.py",
-                  ROOT / "freecad_addon/fc/cam_surface_eval.py", ROOT / "freecad_addon/core/cam_feedback.py"])
+                  ROOT / "freecad_addon/fc/cam_surface_eval.py", ROOT / "freecad_addon/core/cam_feedback.py",
+                  # AI Parts 选型、校验、BOM、零件库面板（#679，问渠 CAD 0.3.4）
+                  *[ROOT / f"freecad_addon/gui/{n}.py" for n in ("selection_panel", "check_panel", "bom_panel", "browser",
+                                                                  "swap_box", "fill_dialog", "import_dialog", "host", "workbench")],
+                  *[ROOT / f"freecad_addon/core/{n}.py" for n in ("requirement_form", "selection", "live_check", "bom_view", "browser",
+                                                                   "swap", "fill", "library_choice", "new_part", "spec_import", "project")],
+                  *[ROOT / f"engine/{n}.py" for n in ("checks_electrical", "checks_interface", "checks_performance", "efficiency", "link",
+                                                       "system", "requirement_parse", "smart_actuator", "geometry", "adapters", "explain",
+                                                       "result", "custom")],
+                  ROOT / "kb/completeness.py"])
 
 EXTRA = {"零件的温度场、热应力（本机 CalculiX）；按 FEM 分析的计算结果和载荷谱算疲劳寿命。强度、固有频率请在 FEM 工作台里“一句话起草 / 计算并核查 / 出报告”"}
 # 工作台其他命令不属于问渠有限元，只收“热分析 · 疲劳”这一条的说明
