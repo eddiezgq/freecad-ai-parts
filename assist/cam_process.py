@@ -130,8 +130,12 @@ def operations(part: dict, lib: dict) -> list[dict]:
                             "cands": _cands(lib, {"flat_endmill"}, lambda t, w=w: abs(t.get("diameter_mm", -1) - w) < 1e-9)})
             elif k == "holes":
                 d = float(f["d"])
-                ops.append({"id": f"f{i}", "kind": "holes", "title": f"钻孔 Ø{d:g}", "geom": {"d": d, "feature": i - 1},
-                            "cands": _cands(lib, {"drill"}, lambda t, d=d: abs(t.get("diameter_mm", -1) - d) < 1e-9)})
+                dep = float(f.get("depth") or 0.0)
+                same = _cands(lib, {"drill"}, lambda t, d=d: abs(t.get("diameter_mm", -1) - d) < 1e-9)
+                # 刃长够孔深的才要（没写刃长的不筛）；都不够就留着，算的时候报
+                deep = [t for t in same if t.get("flute_length_mm", 1e9) >= dep - 1e-9]
+                ops.append({"id": f"f{i}", "kind": "holes", "title": f"钻孔 Ø{d:g}", "geom": {"d": d, "feature": i - 1, "depth": dep},
+                            "cands": deep or same})
             else:
                 raise ProcessError(f"第 {i} 个特征类型 {k!r} 不认识")
     else:
@@ -158,7 +162,10 @@ def _rule_pick(op):
     if not c:
         return None
     if op["kind"] in ("pocket", "contour", "drill"):
-        return max(c, key=lambda t: t.get("diameter_mm", 0))
+        dmax = max(t.get("diameter_mm", 0) for t in c)
+        return min((t for t in c if t.get("diameter_mm", 0) == dmax), key=lambda t: (t.get("flute_length_mm", 0.0), t["id"]))
+    if op["kind"] == "holes":                          # 同一直径挑刃长最短的（刚性好；刃长不够的已经筛掉）
+        return min(c, key=lambda t: (t.get("flute_length_mm", 0.0), t["id"]))
     if op["kind"] == "rough":
         # 先挑样本最大切深大的（粗车断屑槽），再取刀尖圆弧 ≤ 0.8 里最大的（通用粗车；太大的车端面过中心要多走 2r，小车床 X 负向行程不够）
         def ap_max(t):
@@ -166,6 +173,14 @@ def _rule_pick(op):
         return max(c, key=lambda t: (ap_max(t), _nose(t) <= 0.8 + 1e-9, _nose(t) if _nose(t) <= 0.8 + 1e-9 else -_nose(t)))
     if op["kind"] == "finish":
         return min(c, key=_nose)
+    if op["kind"] in ("groove", "face_groove", "part"):
+        # 切槽：不超过槽宽里最宽的（走刀次数少）；切断：最窄的（省料、切削力小）。全圆弧刀片（RE = 刃宽/2）槽底是圆的，
+        # 有别的就不挑；同宽取刀尖圆弧最小的（槽底清角）
+        def w(t):
+            return (t.get("insert") or {}).get("width_mm", 0.0)
+        sq = [t for t in c if not (w(t) > 0 and abs(2 * _nose(t) - w(t)) < 1e-9)] or c
+        best = (min if op["kind"] == "part" else max)(w(t) for t in sq)
+        return min((t for t in sq if w(t) == best), key=lambda t: (_nose(t), t["id"]))
     return c[0]
 
 

@@ -26,6 +26,11 @@ ISO 6261 代号（R/L 拆开）、杆径 DCONMS、最小孔径 DMIN、刀尖到�
 螺纹镗杆（ADR-0115，E 部分）：表头带 DMIN DCONMS WF LF LH 的页里“代号 DMIN DCONMS WF LF LH … nnIR…”的行，代号是厂家写法（vendor_code，R/L 拆开），
 按螺纹刀片尺寸位（行尾 nnIR 的 nn）配。
 
+整体硬质合金钻头（ADR-0106 Q4b 第九批）：钻削样本 2023–2024（J 部分）SolidDrill DSW-DE3 / DE5 / DI5 / DI8 的尺寸表（J044–J047：DC、柄径 DCONMS、
+有效长 LU、刃长 LCF、全长 OAL，顶角 140°）；切削条件照 SolidDrill DSW/DSM 样本的“标准切削条件”（外冷 DE、内冷 DI 两张表，按直径段 ø3–6、6–10、10–12/16）：
+P 取碳钢（C > 0.3，C45）一行，M 不锈钢，K 灰铸铁，N 铝合金，S 钛合金与耐热合金两行的合集，H 高硬钢（~40HRC）。
+直径正好在段界（6、10）的取相邻两段的合集。刃数样本没印，不写。
+
 命令：python -m ingest.cam_tungaloy data/raw/cam/tungaloy --out analysis/cam/libraries/tungaloy.json \
       --holders-out analysis/cam/libraries/tungaloy-holders.json
 """
@@ -77,6 +82,27 @@ BAR_ROW = re.compile(r"\b([A-Z]\d{2}[A-Z])-([A-Z]{4})(R/L|R|L)(\d{2}(?:\d{2})?(?
 
 
 TBAR_ROW = re.compile(r"\b([A-Z]{2,5})(R/L|R|L)(\d{3,4}[A-Z]\d{2}[A-Z0-9-]*)\s+" + r"\s+".join([_N] * 5) + r"[^\n]*?\s(\d{2})I[RL]")
+
+
+DRILL_PDF = "GC_2023-2024_CN_Drilling-1.pdf"
+DSW_PDF = "SolidDrill_DSW-DSM.pdf"
+DRILL_ROW = re.compile(r"\b(DSW\d{3}-\d{3}-\d{2}D([EI])(\d))\s+(\d+(?:\.\d+)?)\s+\S+\s+(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)\s+"
+                       r"(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)")
+# DSW 标准切削条件（SolidDrill DSW/DSM 样本）：{冷却: {材料组: [(直径段下, 上, vc 下, vc 上, f 下, f 上), …]}}；S 是钛合金、耐热合金两行合集
+_DSW = {
+    "E": {"P": [(3, 6, 40, 90, 0.15, 0.3), (6, 10, 50, 120, 0.15, 0.35), (10, 12, 60, 130, 0.2, 0.4)],
+          "M": [(3, 6, 20, 40, 0.05, 0.2), (6, 10, 30, 50, 0.1, 0.25), (10, 12, 30, 60, 0.1, 0.3)],
+          "K": [(3, 6, 40, 90, 0.15, 0.3), (6, 10, 50, 95, 0.2, 0.4), (10, 12, 50, 100, 0.2, 0.5)],
+          "N": [(3, 6, 40, 90, 0.15, 0.3), (6, 10, 50, 100, 0.2, 0.4), (10, 12, 50, 100, 0.2, 0.5)],
+          "S": [(3, 6, 10, 40, 0.03, 0.2), (6, 10, 10, 40, 0.05, 0.25), (10, 12, 10, 40, 0.07, 0.4)],
+          "H": [(3, 6, 20, 40, 0.05, 0.15), (6, 10, 20, 40, 0.05, 0.15), (10, 12, 20, 40, 0.05, 0.2)]},
+    "I": {"P": [(3, 6, 50, 130, 0.15, 0.3), (6, 10, 70, 160, 0.15, 0.35), (10, 12, 80, 170, 0.2, 0.4)],
+          "M": [(3, 6, 25, 75, 0.05, 0.2), (6, 10, 50, 100, 0.1, 0.25), (10, 12, 50, 120, 0.1, 0.3)],
+          "K": [(3, 6, 80, 140, 0.15, 0.3), (6, 10, 100, 160, 0.2, 0.4), (10, 12, 100, 180, 0.2, 0.5)],
+          "N": [(3, 6, 60, 200, 0.15, 0.3), (6, 10, 60, 200, 0.2, 0.4), (10, 12, 60, 200, 0.2, 0.5)],
+          "S": [(3, 6, 10, 60, 0.03, 0.2), (6, 10, 10, 80, 0.05, 0.25), (10, 12, 10, 80, 0.07, 0.4)],
+          "H": [(3, 6, 20, 50, 0.05, 0.15), (6, 10, 30, 60, 0.05, 0.15), (10, 12, 30, 60, 0.05, 0.2)]},
+}
 
 
 class TungaloyError(ValueError):
@@ -170,7 +196,8 @@ def build(raw: Path) -> dict:
         raise TungaloyError("尺寸表读不出来")
     if (raw / THREAD_PDF).exists():
         tools += build_threads(raw)
-    return {"format": "cam-tool/1", "name": "泰珂洛 车刀片、螺纹刀片（样本参数）", "tools": tools}
+    tools += build_drills(raw)
+    return {"format": "cam-tool/1", "name": "泰珂洛 车刀片、螺纹刀片、整体钻头（样本参数）", "tools": tools}
 
 
 def holder_rows(text: str) -> list[dict]:
@@ -253,6 +280,42 @@ def build_thread_bars(raw: Path) -> list[dict]:
                 out.append({"id": "TG-" + code, "name": f"泰珂洛 {code} 螺纹镗杆", "vendor_code": code, "use": "internal",
                             "insert": {"thread_size": r["ts"]}, "f_mm": r["wf"], "l1_mm": r["lf"], "head_mm": r["lh"],
                             "bar_d_mm": r["dcon"], "min_bore_mm": r["dmin"], "source": {"kind": "catalog", "ref": SOURCE, "page": f"E{page:03d}"}})
+    return out
+
+
+def drill_rows(text: str) -> list[dict]:
+    return [{"code": g[0], "cool": g[1], "ld": int(g[2]), "dc": float(g[3]), "dcon": float(g[4]), "lu": float(g[5]), "lcf": float(g[6]),
+             "oal": float(g[7])} for g in DRILL_ROW.findall(text)]
+
+
+def drill_cutting(cool: str, dc: float) -> list[dict]:
+    """DSW 切削条件：按冷却方式和直径段；直径正好在段界的取相邻两段合集"""
+    out = []
+    for g, rows in _DSW[cool].items():
+        hit = [r for r in rows if r[0] - 1e-9 <= dc <= r[1] + 1e-9]
+        if not hit:
+            continue
+        out.append({"iso_group": g, "vc_m_min": {"min": float(min(r[2] for r in hit)), "max": float(max(r[3] for r in hit))},
+                    "f_mm_rev": {"min": min(r[4] for r in hit), "max": max(r[5] for r in hit)}})
+    return out
+
+
+def build_drills(raw: Path) -> list[dict]:
+    pdf = raw / DRILL_PDF
+    if not pdf.exists() or not (raw / DSW_PDF).exists():
+        return []
+    out, seen = [], set()
+    for page in range(1, page_count(pdf) + 1):
+        for r in drill_rows(page_text(pdf, page)):
+            if r["code"] in seen:
+                continue
+            seen.add(r["code"])
+            cool = "外冷" if r["cool"] == "E" else "内冷"
+            out.append({"id": "TG-" + r["code"], "name": f"泰珂洛 {r['code']} 整体硬质合金钻头（{cool}，L/D = {r['ld']}）", "kind": "drill",
+                        "diameter_mm": r["dc"], "tip_angle_deg": 140, "flute_length_mm": r["lcf"], "overall_length_mm": r["oal"],
+                        "shank_diameter_mm": r["dcon"], "tool_material": "carbide", "cutting": drill_cutting(r["cool"], r["dc"]),
+                        "source": {"kind": "catalog", "ref": SOURCE,
+                                   "page": f"尺寸 J{page - 8:03d}（钻削样本 2023–2024）；切削条件 SolidDrill DSW/DSM 样本“标准切削条件”（{cool}）"}})
     return out
 
 
