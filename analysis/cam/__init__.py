@@ -561,6 +561,7 @@ def groove_depths(setup, mach) -> dict:
 
 def groove_holder_checks(setup, sc, stock_d) -> list[dict]:
     """切槽刀（T3）、切断刀（T8）的刀杆最大槽深（样本 CDX，ADR-0118）：槽比它深 → 错误（刀杆撞工件）；
+    两刃刀片且刀杆另注了两刃最大切深的按它查，刃数没写而深度超过它 → unknown（ADR-0119）；
     厂家代号的方柄刀杆没写最大槽深 → unknown"""
     lib = _lib_tools(setup)
     given = (setup.get("machine_sim") or {}).get("tools") or {}
@@ -575,7 +576,13 @@ def groove_holder_checks(setup, sc, stock_d) -> list[dict]:
         hd = (given.get(str(n)) or {}).get("holder") or (t or {}).get("holder") or {}
         code = hd.get("vendor_code") or hd.get("iso5608") or hd.get("id") or ""
         if hd.get("max_depth_mm") is not None:
-            mx = float(hd["max_depth_mm"])
+            edges = ((t or {}).get("insert") or {}).get("edges")
+            two = hd.get("max_depth_two_edge_mm")
+            mx = float(two) if two is not None and edges == 2 else float(hd["max_depth_mm"])
+            if two is not None and edges is None and float(two) + 1e-9 < depth <= float(hd["max_depth_mm"]) + 1e-9:
+                out.append({"line": None, "level": "unknown", "text":
+                            f"T{n} 的刀杆 {code} 装两刃刀片最深 {float(two):g} mm，要切 {depth:.3f} mm；刀片刃数没写，够不够没查"})
+                continue
             if depth > mx + 1e-9:
                 out.append({"line": None, "level": "error", "text": (
                     f"T{n} 的刀杆 {code} 最大槽深 {mx:g} mm，切断要切到毛坯中心（{depth:.3f} mm）切不到（刀杆撞工件），换切断刀杆" if parting else
@@ -852,6 +859,17 @@ def _program(setup, mach):
             raise SetupError(f"第 {k} 道工序要写刀号 tool.n 和刀径 tool.d")
         if not (op.get("spindle") or {}).get("rpm"):
             raise SetupError(f"第 {k} 道工序没有转速")
+        if op.get("simul5"):                          # 五轴联动（ADR-0106 C3a）：机床要有回转轴；走刀点都要带刀轴；不和倾斜面混用
+            if not mach.get("rotary"):
+                raise SetupError(f"{mach['name']} 没有回转轴，做不了五轴联动（第 {k} 道工序）")
+            if op.get("frame"):
+                raise SetupError(f"第 {k} 道工序同时写了倾斜面 frame 和五轴联动 simul5，只能选一个")
+            for mv in op.get("moves") or []:
+                if mv.get("t") not in ("rapid", "feed"):
+                    raise SetupError(f"第 {k} 道工序（五轴联动）只能有 rapid、feed 走刀，不能有 {mv.get('t')!r}")
+                ax = mv.get("axis")
+                if not ax or len(ax) != 3 or sum(float(v) ** 2 for v in ax) < 1e-12:
+                    raise SetupError(f"第 {k} 道工序（五轴联动）的每个走刀点都要带刀轴 axis = [i, j, k]")
         for mv in op.get("moves") or []:
             need = MOVE_KEYS.get(mv.get("t"))
             if need is None:
@@ -865,7 +883,12 @@ def _program(setup, mach):
         raise SetupError("要给毛坯 stock.box = [x0, y0, x1, y1]（上表面 Z0）")
     box = [float(v) for v in stock["box"]]
     top = float(stock.get("top", 0.0))                # 毛坯顶面（程序 Z0 在零件顶面；有面铣余量时毛坯高出 Z0）
-    g = _sim_gcode(prog, mach, setup)
+    from analysis.cam import fiveaxis as _FA
+
+    try:
+        g = _sim_gcode(prog, mach, setup)
+    except _FA.FiveAxisError as exc:                  # 五轴联动：刀轴机床达不到、回转轴超程
+        raise SetupError(f"五轴联动刀路：{exc}") from exc
     parsed = sim.parse(g, mach)
     checks = sim.machine_checks(parsed, mach)
     tm = sim.timing(parsed, mach)
@@ -879,6 +902,11 @@ def _program(setup, mach):
         hook, extra = _msim_hook(setup, mach, parsed)
         s = sim.simulate_mill(parsed, {"box": box, "top": top, **({"height": float(stock["height"])} if stock.get("height") else {})},
                               tools, on_move=hook)
+    fa_err = [c for c in checks if c.get("simul5") and c["level"] == "error"]   # 五轴联动的突变、没开 RTCP：经整机仿真结论扣下程序
+    extra += fa_err
+    checks = [c for c in checks if c not in fa_err]
+    if fa_err and not setup.get("machine_sim"):
+        checks += fa_err
     checks += s["issues"]
     # 每段切深、切宽按刀具样本核对（外来刀路也查；超出 ap 是错误，经整机仿真结论扣下程序）
     limits = {int(op["tool"]["n"]): {"name": op["tool"].get("name"), **{k: float(op["tool"][k]) for k in ("ap_max", "ae_max") if op["tool"].get(k)}}
@@ -930,7 +958,7 @@ def _dexel_mill(parsed, box, top, stock, tools):
     r = DX.simulate(parsed, st, specs)
     issues = list(r["issues"])
     issues.append({"line": None, "level": "unknown",
-                   "text": f"倾斜面程序按三向 dexel（网格 {h:.2f} mm）算材料去除：每段切深、切宽没量，刀杆、刀柄与剩余材料的碰撞没查"})
+                   "text": f"倾斜面 / 五轴联动程序按三向 dexel（网格 {h:.2f} mm）算材料去除：每段切深、切宽没量，刀杆、刀柄与剩余材料的碰撞没查"})
     return {"issues": issues, "ap_max": 0.0, "h": h, "removed_mm3": r["removed"], "ae": {}}
 
 

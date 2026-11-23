@@ -82,13 +82,17 @@ def test_collinear_wrist_roll_cannot_be_mounted():
 def test_offset_wrist_roll_too_close_to_the_wrist_pitch():
     """腕部轴转偏开 50 mm 但只往前 40 mm：j5 的壳体伸进 j4 的 U 形支架转动范围（真实 AI 第二轮的改法，ADR-0115）"""
     c = _arm(wrist=[50, 0, 40])                                   # j5 轴仍沿杆（z），轴线沿 x 偏开 50 mm
+    c["joints"][3]["range_deg"] = [-20, 20]                       # 零位时腕杆已斜出去：j4 行程收小，免得先在转角上不通过
     r = fit.check(c, {j["id"]: _comp() for j in c["joints"]})
     w = {x["link"]: x for x in r["links"]}["wrist"]
     assert {x["joint"]: x for x in r["joints"]}["j5"]["status"] == "pass"
     assert w["status"] == "fail" and "伸进" in w["note"]
-    c["joints"][4]["origin_mm"] = [50, 0, 160]                    # 往前推到 U 底板之外
+    c["joints"][4]["origin_mm"] = [24.5, 0, 160]                  # 横置滚转、往前推到 U 底板之外，壳体中心落在杆轴上
+    c["joints"][4]["axis"] = [1, 0, 0]
+    c["end_effector"]["offset_mm"] = [0, 0, 0]
+    c["links"][3]["length_mm"] = 160
     w = {x["link"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["links"]}["wrist"]
-    assert w["status"] == "pass"
+    assert w["status"] == "pass", w["note"]
 
 
 def test_short_link_fails_and_missing_interfaces_unknown():
@@ -98,3 +102,67 @@ def test_short_link_fails_and_missing_interfaces_unknown():
     assert {x["link"]: x for x in r["links"]}["upper"]["status"] == "fail"
     r = fit.check(c, {j["id"]: _comp("xm430-w350") for j in c["joints"]})      # 430 没有接口数据
     assert all(x["status"] == "unknown" for x in r["joints"])
+
+
+def test_base_mounted_housing_must_stay_above_the_table():
+    """j1 的输出舵盘在原点（贴着桌面）时，壳体在它后面 2.5–46.5 mm，钻到桌面下；抬高 j1 原点就过；吊装方向相反"""
+    c = _arm()
+    r = fit.check(c, {j["id"]: _comp() for j in c["joints"]})
+    j1 = {x["joint"]: x for x in r["joints"]}["j1"]
+    assert j1["status"] == "fail" and "46.5" in j1["note"]
+    c["joints"][0]["origin_mm"] = [0, 0, 50]
+    j1 = {x["joint"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["joints"]}["j1"]
+    assert j1["status"] == "pass" and j1["base_clear_mm"] == pytest.approx(3.5)
+    c["base"]["mount"] = "ceiling"                                   # 吊装：安装面在上，壳体要在下面——抬高 50 就错了
+    j1 = {x["joint"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["joints"]}["j1"]
+    assert j1["status"] == "fail"
+    c["base"]["mount"] = "wall"
+    assert {x["joint"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["joints"]}["j1"]["status"] == "unknown"
+
+
+def test_links_are_straight_tubes():
+    """下一关节的壳体底面要正对本杆：轴转关节的轴线斜着（偏开又沿杆向）就接不上直管；轴线垂直于杆、壳体中心落在杆轴上才行"""
+    c = _arm(wrist=[0, 0, 40])
+    c["joints"][0]["origin_mm"] = [0, 0, 50]
+    c["joints"][4]["origin_mm"] = [-45, 0, 100]                  # 真实 AI 一轮的改法：偏开 45 mm、轴线仍沿 z（与腕杆斜交）
+    r = fit.check(c, {j["id"]: _comp() for j in c["joints"]})
+    w = {x["link"]: x for x in r["links"]}["wrist"]
+    assert w["status"] == "fail" and "不垂直" in w["note"]
+    c["joints"][4]["axis"] = [1, 0, 0]                           # 横置滚转：轴线沿 x，垂直于腕杆（z）
+    c["joints"][4]["origin_mm"] = [0, 0, 100]                    # 原点在舵盘端面，壳体中心在它后面 24.5：偏出杆轴
+    c["end_effector"]["offset_mm"] = [0, 0, 0]
+    c["links"][4]["length_mm"] = 60
+    w = {x["link"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["links"]}["wrist"]
+    assert w["status"] == "fail" and "24.5" in w["note"]           # 壳体中心偏出杆轴：杆向斜了
+    c["joints"][4]["origin_mm"] = [24.5, 0, 100]                 # 壳体中心回到杆轴上
+    w = {x["link"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["links"]}["wrist"]
+    assert w["status"] == "pass", w["note"]
+
+
+def test_zero_pose_offset_counts_in_the_joint_range():
+    """零位时子杆已经横着（相对伸直 −90°）：行程 ±120° 相对伸直就是 [−210°, 30°]，转不到；改成 [−60°, 120°] 就是 [−150°, 30°]"""
+    c = _arm()
+    c["joints"][0]["origin_mm"] = [0, 0, 50]
+    c["joints"][4]["origin_mm"] = [-105, 0, 24.5]                # 腕部滚转在腕关节的 −x 一侧（壳体中心 (−105, 0, 0)）
+    r = {x["joint"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["joints"]}
+    assert r["j4"]["status"] == "fail" and r["j4"]["zero_offset_deg"] == pytest.approx(-90.0) and "−90" not in r["j4"]["note"]
+    assert "-210" in r["j4"]["note"]
+    c["joints"][3]["range_deg"] = [-60, 120]
+    r = {x["joint"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["joints"]}
+    assert r["j4"]["status"] == "pass" and r["j4"]["required_deg"] == pytest.approx(150)
+
+
+def test_min_spare_for_brackets():
+    c = _arm()
+    c["joints"][0]["origin_mm"] = [0, 0, 50]
+    links = {x["link"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]}, min_spare_mm=200)["links"]}
+    assert links["upper"]["status"] == "fail" and "放不下" in links["upper"]["note"]
+
+
+def test_child_origin_offset_along_the_axis_is_a_design_error():
+    """侧摆关节的下一关节原点沿本关节轴线偏了（AI 把轴转关节的 24.5 mm 用到了侧摆关节上）：做不了，判不通过并说明改法"""
+    c = _arm()
+    c["joints"][0]["origin_mm"] = [0, 0, 50]
+    c["joints"][2]["origin_mm"] = [0, 24.5, 170]                # j3 原点沿 j2 的轴线（y）偏 24.5
+    j2 = {x["joint"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["joints"]}["j2"]
+    assert j2["status"] == "fail" and "24.5" in j2["note"] and "沿轴偏移为 0" in j2["note"]

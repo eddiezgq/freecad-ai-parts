@@ -1,0 +1,399 @@
+"""整机三维装配（ADR-0115 44.3 之二第 3 步之二、第 4 步）：按整机方案、选定的一体化关节模组和装配校核结果，
+生成自制件（U 形支架、舵盘法兰、壳体底座、基座、直管杆件），在零位装起来，查干涉、算质量与重心，写 STEP 与零件表。
+
+自制件的形状由接口与装配校核决定，尺寸按下面的设计值（DESIGN，第一版的起点；之后由 AI 按载荷与工艺改，代码校核）：
+  U 形支架：两块侧板分别用 8 个 M2.5 螺钉装在输出舵盘与背面惰轮舵盘上（孔在 Ø22 分度圆上），中心让开舵盘凸台；
+            底板离轴线 d = 装配校核的最小值 + 间隙；底板外侧是套管，杆件插在里面。
+  舵盘法兰：圆盘，8 个 M2.5 螺钉装在输出舵盘上；外侧是套管（子杆沿轴线时）。
+  壳体底座：一块板用 4 个 M2.5 螺钉装在模组底面（孔距 20 × 16）；外侧是套管，接父杆。
+  基座：j1 这样装在基座上的模组，壳体底座做成立板，下接一块底板落在安装面上。
+  杆件：直管（截面按方案：圆管、方管或板），两端插进套管。
+模组外形用零件库的包络（保守），所以干涉检查偏保守。
+"""
+
+from __future__ import annotations
+
+import json
+import math
+from collections.abc import Mapping
+from pathlib import Path
+
+import numpy as np
+
+DESIGN = {
+    "plate_mm": 4.0,            # 支架板厚
+    "socket_wall_mm": 3.0,      # 套管壁厚
+    "socket_len_mm": 20.0,      # 套管长（杆件插入深度）
+    "clearance_mm": 1.0,        # U 底板在装配校核最小值之外再留的间隙
+    "bolt_hole_mm": 2.9,        # M2.5 通孔（ISO 273 中等级）
+    "boss_hole_mm": 11.0,       # 舵盘中心凸台让位孔（凸台 Ø10）
+    "foot_mm": 120.0,           # 基座底板边长
+}
+DENSITY_KG_MM3 = {"6061-T6": 2.70e-6}
+PCD_MM, HORN_HOLES = 22.0, 8
+BOTTOM_HOLES = ((-10.0, -8.0), (-10.0, 8.0), (10.0, -8.0), (10.0, 8.0))   # 底面孔：x，z 相对壳体中段
+
+
+class CadError(ValueError):
+    pass
+
+
+def min_spare_mm() -> float:
+    """每根杆在本关节 U 底板（或法兰）与下一壳体之间至少要留的长度：间隙 + 两块板 + 两头套管（管子插满两头）"""
+    return DESIGN["clearance_mm"] + 2 * (DESIGN["plate_mm"] + DESIGN["socket_len_mm"])
+
+
+def _section(link: Mapping) -> dict:
+    """杆件截面：{"shape": "circle"|"rect", "outer": (宽, 高) 或 直径, "inner": ...}"""
+    s, shape = link.get("section") or {}, link.get("shape")
+    if shape == "tube":
+        return {"shape": "circle", "outer": s["od_mm"], "inner": s.get("id_mm") or 0.0}
+    if shape == "box":
+        w, h, t = s["width_mm"], s["height_mm"], s.get("wall_mm")
+        return {"shape": "rect", "outer": (w, h), "inner": (w - 2 * t, h - 2 * t) if t else None}
+    if shape == "plate":
+        return {"shape": "rect", "outer": (s["width_mm"], s["thickness_mm"]), "inner": None}
+    raise CadError(f"杆件 {link['id']} 的截面 {shape} 这一步不生成（型材要看样本）")
+
+
+def _frame(z: np.ndarray, y: np.ndarray, o: np.ndarray) -> np.ndarray:
+    z = z / np.linalg.norm(z)
+    y = y - (y @ z) * z
+    y = y / np.linalg.norm(y)
+    x = np.cross(y, z)
+    T = np.eye(4)
+    T[:3, 0], T[:3, 1], T[:3, 2], T[:3, 3] = x, y, z, o
+    return T
+
+
+def layout(concept: Mapping, fit_result: Mapping, comp: Mapping) -> dict:
+    """零位下每个关节的两个坐标系（世界）：H——模组壳体（z 沿输出轴，y 背离父件、底面朝父件，原点在输出舵盘端面中心）；
+    U——随输出转的支架（侧摆关节：y 指向下一壳体中心；轴转关节同 H）"""
+    from analysis.robot import fit
+    from analysis.robot import kinematics as K
+
+    m = K.build(concept)
+    T = K.fk(m)
+    g = fit.housing_geometry(comp)
+    if g is None:
+        raise CadError("模组没有机械接口数据，装不了")
+    kinds = {r["joint"]: ("clevis" if r.get("type", "").startswith("侧摆") else "flange") for r in fit_result["joints"]}
+    dmin = {r["joint"]: r["d_min_mm"] for r in fit_result["joints"] if r.get("d_min_mm")}
+    world = {}
+    for j in m.joints:
+        Tp = T[j.parent]
+        world[j.id] = ((Tp @ np.append(j.origin, 1.0))[:3], Tp[:3, :3] @ j.axis)
+    centre = {jid: (o if kinds.get(jid) == "clevis" else o - 24.5 * a) for jid, (o, a) in world.items()}
+    out = {}
+    for j in m.joints:
+        o_j, a = world[j.id]
+        kind = kinds.get(j.id)
+        if kind is None:
+            raise CadError(f"关节 {j.id} 的装法没定")
+        pj = m.by_child.get(j.parent)
+        away = (o_j - world[pj.id][0]) if pj is not None else np.array([0.0, 0.0, 1.0])   # 背离父件
+        if kind == "clevis":
+            H = _frame(a, away, o_j + 24.5 * a)
+            nxt = [c for c in m.joints if c.parent == j.child]
+            tgt = (centre[nxt[0].id] - o_j) if nxt else (T[j.child][:3, :3] @ np.array([0.0, 0.0, 1.0]))
+            U = _frame(a, tgt, o_j + 24.5 * a)
+        else:
+            y = away - (away @ a) * a
+            if np.linalg.norm(y) < 1e-9:                            # 基座上的竖轴：壳体底面朝 −x
+                y = np.array([1.0, 0.0, 0.0]) - a[0] * a
+            H = _frame(a, y, o_j)
+            U = H
+        out[j.id] = {"H": H, "U": U, "kind": kind, "d_mm": dmin.get(j.id), "parent": j.parent, "child": j.child,
+                     "origin": o_j, "axis": a}
+    return {"joints": out, "geometry": g, "model": m, "T": T}
+
+
+def _link_xdir(lay: Mapping, jid: str) -> np.ndarray:
+    """关节 jid 带动的杆件，矩形截面第一边（宽）的方向（世界）：取本关节轴线；轴线沿杆向（轴转）时取下一关节的轴线。
+    两头套管和杆件都按它摆，矩形才对得上"""
+    J = lay["joints"][jid]
+    u = J["U"][:3, 1] if J["kind"] == "clevis" else J["U"][:3, 2]
+    cands = [J["axis"]] + [K_["axis"] for K_ in lay["joints"].values() if K_["parent"] == J["child"]] + [np.array([1.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0])]
+    for c in cands:
+        v = c - (c @ u) * u
+        if np.linalg.norm(v) > 1e-6:
+            return v / np.linalg.norm(v)
+    raise CadError("找不到矩形截面的摆向")
+
+
+# ---------------- 几何（gmsh OCC，单位 mm） ----------------
+
+def _occ():
+    from analysis.fea.geometry import _gmsh
+
+    return _gmsh().model.occ
+
+
+def _box(x0, x1, y0, y1, z0, z1) -> int:
+    return _occ().addBox(x0, y0, z0, x1 - x0, y1 - y0, z1 - z0)
+
+
+def _cyl(p, d, r) -> int:
+    return _occ().addCylinder(p[0], p[1], p[2], d[0], d[1], d[2], r)
+
+
+def _cut(obj: int, tools: list[int]) -> int:
+    if not tools:
+        return obj
+    out = _occ().cut([(3, obj)], [(3, t) for t in tools])[0]
+    if len(out) != 1:
+        raise CadError("布尔运算后不是一个实体")
+    return out[0][1]
+
+
+def _fuse(tags: list[int]) -> int:
+    if len(tags) == 1:
+        return tags[0]
+    out = _occ().fuse([(3, tags[0])], [(3, t) for t in tags[1:]])[0]
+    if len(out) != 1:
+        raise CadError("合并后不是一个实体")
+    return out[0][1]
+
+
+def _prism(sec: Mapping, p0: np.ndarray, axis: np.ndarray, length: float, xdir: np.ndarray, grow: float = 0.0,
+           hollow: bool = True) -> int:
+    """沿 axis 的截面柱体（世界坐标）：圆或矩形；grow 向外加厚；hollow 按截面内孔掏空"""
+    if sec["shape"] == "circle":
+        outer = _cyl(p0, axis * length, sec["outer"] / 2 + grow)
+        if hollow and sec["inner"] and not grow:
+            return _cut(outer, [_cyl(p0, axis * length, sec["inner"] / 2)])
+        return outer
+    w, h = sec["outer"]
+    T = _frame(axis, np.cross(axis, xdir), p0)
+    tag = _box(-w / 2 - grow, w / 2 + grow, -h / 2 - grow, h / 2 + grow, 0.0, length)
+    if hollow and sec["inner"] and not grow:
+        iw, ih = sec["inner"]
+        tag = _cut(tag, [_box(-iw / 2, iw / 2, -ih / 2, ih / 2, -1.0, length + 1.0)])
+    _place(tag, T)
+    return tag
+
+
+def _place(tag: int, A: np.ndarray) -> None:
+    _occ().affineTransform([(3, tag)], list(A[:3, :].reshape(-1)))
+
+
+def _horn_holes(z0: float, z1: float) -> list[int]:
+    hs = [_cyl((PCD_MM / 2 * math.cos(2 * math.pi * k / HORN_HOLES), PCD_MM / 2 * math.sin(2 * math.pi * k / HORN_HOLES), z0 - 1),
+               (0, 0, z1 - z0 + 2), DESIGN["bolt_hole_mm"] / 2) for k in range(HORN_HOLES)]
+    return hs + [_cyl((0, 0, z0 - 1), (0, 0, z1 - z0 + 2), DESIGN["boss_hole_mm"] / 2)]
+
+
+def actuator_solid(comp: Mapping) -> int:
+    """模组外形（组件坐标系）：零件库包络的各段（长方体、圆柱）合成"""
+    tags = []
+    for p in comp["envelope"]["parts"]:
+        z0, L = p["z_start_mm"], p["length_mm"]["value"]
+        if p["shape"] == "box":
+            w, h = p["width_mm"]["value"], p["height_mm"]["value"]
+            tags.append(_box(-w / 2, w / 2, -h / 2, h / 2, z0, z0 + L))
+        elif p["shape"] == "cylinder":
+            tags.append(_cyl((0, 0, z0), (0, 0, L), p["diameter_mm"]["value"] / 2))
+    return _fuse(tags)
+
+
+def clevis(d: float, sec: Mapping, g: Mapping, xdir: np.ndarray | None = None) -> tuple[int, dict]:
+    """U 形支架（模组坐标系，随输出转）：返回 (实体, 套管口：离轴线的距离)"""
+    xd = np.array([1.0, 0.0, 0.0]) if xdir is None else np.asarray(xdir, float)
+    t, wall, Ls = DESIGN["plate_mm"], DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
+    span = 49.0                                                  # 前后舵盘端面距离（0 与 −49）
+    so = (sec["outer"] + 2 * wall) if sec["shape"] == "circle" else max(sec["outer"]) + 2 * wall
+    w = max(2 * g["half_width"], so)
+    a = _cut(_box(-w / 2, w / 2, -13.0, d + t, 0.0, t), _horn_holes(0.0, t))
+    b = _cut(_box(-w / 2, w / 2, -13.0, d + t, -span - t, -span), _horn_holes(-span - t, -span))
+    zc = -span / 2
+    zh = max(span / 2 + t, so / 2)                              # 底板沿轴向要盖住套管
+    base = _box(-w / 2, w / 2, d, d + t, zc - zh, zc + zh)
+    sock = _prism(sec, np.array([0.0, d + t, zc]), np.array([0.0, 1.0, 0.0]), Ls, xd, grow=wall)
+    bore = _prism(sec, np.array([0.0, d + t, zc]), np.array([0.0, 1.0, 0.0]), Ls + 1, xd, hollow=False)
+    body = _cut(_fuse([a, b, base, sock]), [bore])
+    return body, {"socket_end": d + t + Ls}
+
+
+def flange(sec: Mapping | None, xdir: np.ndarray | None = None) -> tuple[int, dict]:
+    """舵盘法兰（模组坐标系）：圆盘 + 沿轴的套管"""
+    xd = np.array([1.0, 0.0, 0.0]) if xdir is None else np.asarray(xdir, float)
+    t, wall, Ls = DESIGN["plate_mm"], DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
+    so = 0.0 if sec is None else ((sec["outer"] if sec["shape"] == "circle" else math.hypot(*sec["outer"])) + 2 * wall)
+    r = max(15.0, so / 2 + 2)
+    disk = _cut(_cyl((0, 0, 0), (0, 0, t), r), _horn_holes(0.0, t))
+    if sec is None:
+        return disk, {"socket_end": t}
+    sock = _prism(sec, np.array([0.0, 0.0, t]), np.array([0.0, 0.0, 1.0]), Ls, xd, grow=wall)
+    bore = _prism(sec, np.array([0.0, 0.0, t]), np.array([0.0, 0.0, 1.0]), Ls + 1, xd, hollow=False)
+    return _cut(_fuse([disk, sock]), [bore]), {"socket_end": t + Ls}
+
+
+def housing_base(sec: Mapping | None, g: Mapping, *, table_z: float | None = None, xdir: np.ndarray | None = None) -> int:
+    """壳体底座（模组坐标系）：底面上的板（4 个 M2.5 孔），外侧套管接父杆；table_z 给出时做成落到安装面的立板加底板"""
+    xd = np.array([1.0, 0.0, 0.0]) if xdir is None else np.asarray(xdir, float)
+    t, wall, Ls = DESIGN["plate_mm"], DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
+    yb, zc = -g["axis_to_bottom"], -24.5
+    so = 0.0 if sec is None else ((sec["outer"] if sec["shape"] == "circle" else max(sec["outer"])) + 2 * wall)
+    hw = max(g["half_width"], so / 2)                           # 板要盖住套管
+    zh = max(22.0, so / 2)
+    z_lo = zc - zh if table_z is None else table_z
+    plate = _box(-hw, hw, yb - t, yb, z_lo, zc + zh)
+    holes = [_cyl((x, yb - t - 1, zc + z), (0, t + 2, 0), DESIGN["bolt_hole_mm"] / 2) for x, z in BOTTOM_HOLES]
+    parts = [plate]
+    if table_z is not None:
+        f = DESIGN["foot_mm"]
+        parts.append(_box(-f / 2, f / 2, yb - f, yb, table_z, table_z + t))
+    elif sec is not None:
+        parts.append(_prism(sec, np.array([0.0, yb - t, zc]), np.array([0.0, -1.0, 0.0]), Ls, xd,
+                            grow=wall))
+    body = _cut(_fuse(parts), holes)
+    if table_z is None and sec is not None:
+        body = _cut(body, [_prism(sec, np.array([0.0, yb - t, zc]), np.array([0.0, -1.0, 0.0]), Ls + 1,
+                                  xd, hollow=False)])
+    return body
+
+
+def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | Path | None = None) -> dict:
+    """生成并装配；返回 {"parts": [...], "interferences": [...], "mass_kg", "cog_mm", "status", "step"}"""
+    from analysis.fea.geometry import _LOCK, _gmsh
+
+    if fit_result.get("overall") == "fail":
+        raise CadError("装配校核没通过，不生成")
+    lay = layout(concept, fit_result, comp)
+    g, m = lay["geometry"], lay["model"]
+    parts: list[dict] = []
+    with _LOCK:
+        gm = _gmsh()
+        gm.clear()
+        gm.model.add("robot")
+        for jid, J in lay["joints"].items():
+            A = J["H"]
+            tag = actuator_solid(comp)
+            _place(tag, A)
+            parts.append({"name": f"{jid} 模组 {comp.get('model')}", "kind": "actuator", "tag": tag, "joint": jid, "body": J["parent"],
+                          "mass_kg": (comp["params"].get("mass_kg") or {}).get("value"), "component": comp["id"]})
+            child_link = m.links[J["child"]]
+            nxt = [c for c in m.joints if c.parent == J["child"]]
+            sec = _section(child_link) if (nxt or J["kind"] == "flange") else None
+            xw = _link_xdir(lay, jid)
+            if J["kind"] == "clevis":
+                d = J["d_mm"] + DESIGN["clearance_mm"]
+                tag, info = clevis(d, sec, g, J["U"][:3, :3].T @ xw)
+                name = f"{jid} U 形支架"
+            else:
+                tag, info = flange(sec, J["U"][:3, :3].T @ xw)
+                name = f"{jid} 舵盘法兰"
+            _place(tag, J["U"])
+            parts.append({"name": name, "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6", "body": J["child"]})
+            J["socket_end"] = info["socket_end"]
+            if J["parent"] == "base":
+                table_z = -float(J["origin"][2])                       # 安装面在模组坐标系里的 z（竖轴）
+                tag = housing_base(None, g, table_z=table_z)
+                _place(tag, A)
+                parts.append({"name": f"{jid} 基座", "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6",
+                              "body": "base"})
+            else:
+                psec = _section(m.links[J["parent"]])
+                pj = m.by_child[J["parent"]]
+                tag = housing_base(psec, g, xdir=J["H"][:3, :3].T @ _link_xdir(lay, pj.id))
+                _place(tag, A)
+                parts.append({"name": f"{jid} 壳体底座", "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6",
+                              "body": J["parent"]})
+        # 杆件：本关节的套管口到下一关节壳体底座的套管底
+        t, Ls = DESIGN["plate_mm"], DESIGN["socket_len_mm"]
+        problems = []
+        for jid, J in lay["joints"].items():
+            link = m.links[J["child"]]
+            nxt = [c for c in m.joints if c.parent == J["child"]]
+            A = J["U"]
+            axis_dir = A[:3, 1] if J["kind"] == "clevis" else A[:3, 2]
+            if J["kind"] == "clevis":                                   # U 坐标系里 z = −24.5 是两舵盘的中面
+                start = (A @ np.array([0.0, J["socket_end"] - Ls, -24.5, 1.0]))[:3]
+            else:
+                start = (A @ np.array([0.0, 0.0, J["socket_end"] - Ls, 1.0]))[:3]
+            if nxt:
+                K_ = lay["joints"][nxt[0].id]
+                yb = -g["axis_to_bottom"]
+                end = (K_["H"] @ np.array([0.0, yb - t, -24.5, 1.0]))[:3]
+                length = float((end - start) @ axis_dir)
+                if length < 2 * Ls:
+                    problems.append(f"杆件 {link['id']}：两端套管之间没有空隙（长 {length:.1f} mm < {2 * Ls:g}）")
+                    continue
+            else:
+                length = float(link["length_mm"])
+            sec = _section(link)
+            tag = _prism(sec, start, axis_dir, length, _link_xdir(lay, jid))
+            parts.append({"name": f"杆件 {link['id']}（{link['shape']}，长 {length:.1f} mm）", "kind": "link", "tag": tag,
+                          "link": link["id"], "material": link.get("material") or "6061-T6", "length_mm": round(length, 1),
+                          "body": link["id"]})
+        _occ().synchronize()
+        for p in parts:
+            if p["kind"] != "actuator":
+                vol = _occ().getMass(3, p["tag"])
+                p["volume_mm3"] = round(vol, 1)
+                p["mass_kg"] = round(vol * DENSITY_KG_MM3.get(p["material"], DENSITY_KG_MM3["6061-T6"]), 4)
+            p["cog_mm"] = [round(v, 2) for v in _occ().getCenterOfMass(3, p["tag"])]
+        hits = []
+        for i in range(len(parts)):
+            for k in range(i + 1, len(parts)):
+                a, b = parts[i], parts[k]
+                bb1, bb2 = _occ().getBoundingBox(3, a["tag"]), _occ().getBoundingBox(3, b["tag"])
+                if any(bb1[q] > bb2[q + 3] or bb2[q] > bb1[q + 3] for q in range(3)):
+                    continue
+                res, _ = _occ().intersect([(3, a["tag"])], [(3, b["tag"])], removeObject=False, removeTool=False)
+                _occ().synchronize()
+                vol = sum(_occ().getMass(3, t_) for d_, t_ in res if d_ == 3)
+                if res:
+                    _occ().remove(res, recursive=True)
+                    _occ().synchronize()
+                if vol > 1.0:
+                    hits.append({"a": a["name"], "b": b["name"], "volume_mm3": round(vol, 1)})
+        step = None
+        if out_dir is not None:
+            out_dir = Path(out_dir)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            step = out_dir / "assembly.step"
+            gm.write(str(step))
+        gm.clear()
+    total = sum(p["mass_kg"] for p in parts if p.get("mass_kg") is not None)
+    cog = np.sum([np.array(p["cog_mm"]) * p["mass_kg"] for p in parts if p.get("mass_kg")], axis=0) / total
+    for p in parts:
+        p.pop("tag", None)
+    status = "fail" if hits or problems else "pass"
+    return {"status": status, "parts": parts, "interferences": hits, "problems": problems,
+            "mass_kg": round(total, 4), "cog_mm": [round(float(v), 1) for v in cog], "design": DESIGN,
+            "step": None if step is None else step.name,
+            "notes": ["模组外形用零件库的保守包络，干涉检查偏保守", "支架、套管尺寸是第一版设计值（DESIGN），之后由 AI 按载荷与工艺改"]}
+
+
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+
+    from analysis.robot import fit
+    from kb.library import JsonLibrary
+
+    ap = argparse.ArgumentParser(prog="python -m assist.robot_cad", description="整机三维装配（ADR-0115 44.3）")
+    ap.add_argument("concept_result", type=Path)
+    ap.add_argument("build_result", type=Path)
+    ap.add_argument("-o", "--out", type=Path, required=True, help="输出目录（assembly.step、cad-result.json）")
+    a = ap.parse_args(argv)
+    cr = json.loads(a.concept_result.read_text(encoding="utf-8"))
+    br = json.loads(a.build_result.read_text(encoding="utf-8"))
+    lib = JsonLibrary(Path(__file__).resolve().parents[1] / "data" / "library")
+    picks = br["picks"]
+    if len(picks) != 1 or next(iter(picks.values()))["chain"] != "smart":
+        raise CadError("这一步只做“全部关节同一种一体化模组”的整机")
+    comp = lib.get(next(iter(picks.values()))["components"][0])
+    concept = cr["chosen"]
+    fr = fit.check(concept, {j["id"]: comp for j in concept["joints"]})
+    res = build(concept, fr, comp, a.out)
+    (a.out / "cad-result.json").write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print(f"{res['status']}：{len(res['parts'])} 个零件，整机 {res['mass_kg']} kg，重心 {res['cog_mm']}；"
+          f"干涉 {len(res['interferences'])} 处；{'；'.join(res['problems'])}")
+    for h in res["interferences"]:
+        print(f"  干涉：{h['a']} × {h['b']}：{h['volume_mm3']} mm³")
+    return 0 if res["status"] == "pass" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

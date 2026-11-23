@@ -1,0 +1,37 @@
+{
+ "why": "切断专用刀片、两刃，刀杆带两刃最大切深（ADR-0119）",
+ "instance": {
+  "format": "cam-tool/1",
+  "name": "测试",
+  "tools": [
+   {
+    "id": "KY-GDM3020N-025PM",
+    "name": "京瓷 GDM3020N-025PM",
+    "kind": "groove",
+    "number": 8,
+    "insert": {
+     "iso": "GDM3020N-025PM",
+     "nose_radius_mm": 0.25,
+     "width_mm": 3,
+     "edges": 2,
+     "cutoff_only": true
+    },
+    "holder": {
+     "id": "KY-KGDR2525M-3T20",
+     "vendor_code": "KGDR2525M-3T20",
+     "h_mm": 25,
+     "b_mm": 25,
+     "l1_mm": 150,
+     "f_mm": 23.8,
+     "max_depth_mm": 20,
+     "max_depth_two_edge_mm": 18
+    },
+    "source": {
+     "kind": "catalog",
+     "ref": "kyocera",
+     "page": "H033"
+    }
+   }
+  ]
+ }
+}

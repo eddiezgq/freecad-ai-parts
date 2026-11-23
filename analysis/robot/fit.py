@@ -13,6 +13,8 @@
     说清楚要怎么改（让轴线偏开，或换带后端固定法兰的模组）。
   3 长度够不够：下一关节的壳体（底面朝着本关节装在本杆上）沿杆向离本关节轴线最近的点，要在本关节 U 底板（d_min）之外；
     侧摆、轴转（轴线偏开）两种下一关节都按壳体的八个角算。剩下的长度给支架板厚、杆套和管子，不足的判不通过。
+  5 直管：下一关节壳体底面要正对本杆、管子落在底面以内（杆件都做直管，弯的、异形的连接件这一步不做）。
+  4 装在基座上的关节：壳体要在安装面朝机器人的一侧（输出舵盘在关节原点、壳体在它后面——原点贴着安装面时壳体就钻到桌面下了）。
 板厚、管套长度等由支架设计（第 3 步之二）定，这里只给几何上必需的最小值。
 """
 
@@ -98,20 +100,92 @@ def housing_geometry(comp: Mapping) -> dict | None:
             "horn_diameter": horn["diameter_mm"]["value"] if horn else None}
 
 
-def _nearest(c: K.Joint, kind: str, g: Mapping, u: np.ndarray) -> float:
-    """下一关节 c 的壳体沿杆向 u 离本关节轴线（杆件坐标原点）最近的距离（mm）。
-    壳体朝向：底面朝着本关节（底面装在本杆上）；侧摆关节的原点在两舵盘中间（壳体沿轴 ±22），轴转关节的原点在输出舵盘端面（壳体在其后 2.5–46.5）"""
+def _corners(c: K.Joint, kind: str, g: Mapping, toward: np.ndarray) -> list[np.ndarray]:
+    """关节 c 的壳体八个角（父件坐标系）。壳体底面朝 toward 方向（垂直于 c 的轴的分量）；
+    侧摆关节的原点在两舵盘中间（壳体沿轴 ±22），轴转关节的原点在输出舵盘端面（壳体在其后 2.5–46.5）"""
     a = c.axis / np.linalg.norm(c.axis)
     o = np.asarray(c.origin, float)
-    back = -o - (-o @ a) * a                                   # 从 c 的轴线指向本关节的方向（垂直于 c 的轴）
+    back = toward - (toward @ a) * a
     if np.linalg.norm(back) < 1e-9:
-        back = -u - (-u @ a) * a
+        back = np.cross(a, [1.0, 0.0, 0.0]) if abs(a[0]) < 0.9 else np.cross(a, [0.0, 1.0, 0.0])
     bdir = back / np.linalg.norm(back)
     side = np.cross(a, bdir)
     zs = (-22.0, 22.0) if kind == "clevis" else (-46.5, -2.5)
-    pts = [o + z * a + t * bdir + w * side for z in zs for t in (-g["top"], g["axis_to_bottom"])
-           for w in (-g["half_width"], g["half_width"])]
-    return float(min(pt @ u for pt in pts))
+    return [o + z * a + t * bdir + w * side for z in zs for t in (-g["top"], g["axis_to_bottom"])
+            for w in (-g["half_width"], g["half_width"])]
+
+
+def base_clearance(c: K.Joint, kind: str, g: Mapping, mount: str) -> dict:
+    """装在基座上的关节：壳体要在安装面朝机器人的一侧（桌面、地面装：z ≥ 0；吊装：z ≤ 0）。返回 {"status", "note", ...}"""
+    if mount not in ("table", "floor", "ceiling"):
+        return {"status": "unknown", "note": f"安装方式 {mount}：安装面朝哪边方案里没写，判不了"}
+    sign = -1.0 if mount == "ceiling" else 1.0
+    pts = _corners(c, kind, g, -np.asarray(c.origin, float) if np.linalg.norm(c.origin) > 1e-9 else np.array([0, 0, -sign]))
+    low = min(sign * float(p[2]) for p in pts)
+    need = sign * float(c.origin[2]) - low
+    if low >= -1e-9:
+        return {"status": "pass", "clear_mm": round(low, 1), "note": f"{c.id} 的壳体在安装面以上 {low:.1f} mm 起"}
+    return {"status": "fail", "clear_mm": round(low, 1),
+            "note": (f"{c.id} 的模组壳体会伸到安装面另一侧 {-low:.1f} mm（输出舵盘在原点处，壳体在它后面）："
+                     f"把 {c.id} 的原点抬到离安装面至少 {need:.1f} mm（再加底座板厚），臂展点等按新的高度重算")}
+
+
+def _nearest(c: K.Joint, kind: str, g: Mapping, u: np.ndarray) -> float:
+    """下一关节 c 的壳体（底面朝本关节）沿杆向 u 离本关节轴线（杆件坐标原点）最近的距离（mm）"""
+    o = np.asarray(c.origin, float)
+    toward = -o if np.linalg.norm(o) > 1e-9 else -u
+    return float(min(pt @ u for pt in _corners(c, kind, g, toward)))
+
+
+def _straight(c: K.Joint, kind: str, g: Mapping, u: np.ndarray) -> str:
+    """杆件是直管：下一关节壳体的底面要正对本杆（底面法线沿杆向、朝着本关节），管子的轴线要穿过底面（支架板可以比底面大，
+    管子粗些没关系；轴线落在底面以外，支架就成了悬臂，不做）。
+    通过返回空串，否则返回原因与改法"""
+    a = c.axis / np.linalg.norm(c.axis)
+    zmid = 0.0 if kind == "clevis" else -24.5
+    centre = np.asarray(c.origin, float) + zmid * a          # 壳体中心（轴转关节的原点在舵盘端面，中心在它后面 24.5）
+    if np.linalg.norm(centre) > 1e-9:
+        u = centre / np.linalg.norm(centre)                 # 直管沿本关节到下一壳体中心
+    if abs(float(a @ u)) > math.sin(math.radians(1.0)):
+        ang = math.degrees(math.asin(min(1.0, abs(float(a @ u)))))
+        return (f"{c.id} 的轴线与本杆（本关节到 {c.id} 壳体中心）不垂直（偏 {ang:.0f}°）：模组的底面与轴线平行，底面朝不了杆向，直管接不上。"
+                f"改法：让 {c.id} 的轴线垂直于本杆（轴转关节就让它的子杆垂直于本杆伸出"
+                + ("；轴转关节的原点在输出舵盘端面、壳体中心在它后面 24.5 mm，原点要沿它的轴线前移 24.5 mm，壳体中心才落在杆轴上"
+                   if kind == "flange" else "") + "）")
+    lat = centre - (centre @ u) * u
+    side = np.cross(a, -u)
+    ea, es = abs(float(lat @ a)), abs(float(lat @ side))
+    lim_a, lim_s = 22.0, g["half_width"]
+    if ea <= lim_a + 1e-9 and es <= lim_s + 1e-9:
+        return ""
+    hint = (f"轴转关节的原点在输出舵盘端面，壳体中心在它后面 24.5 mm：把 {c.id} 的原点沿它的轴线挪到让壳体中心落在本杆轴线上"
+            if kind == "flange" else f"把 {c.id} 的原点放在本杆轴线上")
+    return (f"本杆的管子要接在 {c.id} 壳体底面上，管轴离底面中心沿 {c.id} 轴向 {ea:.1f} mm、侧向 {es:.1f} mm，"
+            f"落在底面以外（底面半长 {lim_a:g}、半宽 {lim_s:g} mm）。改法：{hint}")
+
+
+def zero_offset_deg(j: K.Joint, child_end: np.ndarray) -> float:
+    """零位时子杆相对“伸直”（顺着父杆方向）绕关节轴已经转过的角（°，右手）。父杆方向取父件坐标原点到本关节原点；
+    基座上的关节按竖直向上算。转角校核用“相对伸直”的角：行程 [lo, hi] 加上它"""
+    a = j.axis / np.linalg.norm(j.axis)
+    p = np.asarray(j.origin, float)
+    p = p if np.linalg.norm(p) > 1e-9 else np.array([0.0, 0.0, 1.0])
+    p = p - (p @ a) * a
+    c = child_end - (child_end @ a) * a
+    if np.linalg.norm(p) < 1e-9 or np.linalg.norm(c) < 1e-9:
+        return 0.0
+    p, c = p / np.linalg.norm(p), c / np.linalg.norm(c)
+    return math.degrees(math.atan2(float(np.cross(p, c) @ a), float(p @ c)))
+
+
+def _target(m: K.Model, j: K.Joint, rough: Mapping[str, str], end: np.ndarray) -> np.ndarray:
+    """本关节子杆指向的点：下一关节壳体的中心（轴转关节的原点在舵盘端面，中心在它后面 24.5）；没有下一关节就用杆件末端"""
+    nxt = [c for c in m.joints if c.parent == j.child]
+    if not nxt:
+        return end
+    c = nxt[0]
+    a = c.axis / np.linalg.norm(c.axis)
+    return np.asarray(c.origin, float) + (0.0 if rough[c.id] == "clevis" else -24.5) * a
 
 
 def _tube_od(link: Mapping) -> float:
@@ -119,13 +193,19 @@ def _tube_od(link: Mapping) -> float:
     return float(s.get("od_mm") or max(s.get("width_mm") or 0, s.get("height_mm") or 0) or 0.0)
 
 
-def check(concept: Mapping, actuators: Mapping[str, Mapping]) -> dict:
-    """actuators：{关节 id: 模组组件}。返回 {"joints": [...], "links": [...], "overall"}"""
+def check(concept: Mapping, actuators: Mapping[str, Mapping], *, min_spare_mm: float = 0.0) -> dict:
+    """actuators：{关节 id: 模组组件}。min_spare_mm：每根杆在 U 底板与下一壳体之间至少要留的长度（支架板厚、两头套管、间隙，
+    由支架设计给）。返回 {"joints": [...], "links": [...], "overall"}"""
     m = K.build(concept)
     out_j, out_l = [], []
     kind: dict[str, str] = {}
     need: dict[str, float] = {}
     geo: dict[str, dict] = {}
+    rough = {}                                                       # 先按几何粗分两类，用来找下一壳体的中心
+    for j in m.joints:
+        e = mjcf._segment(m, j.child)
+        n = float(np.linalg.norm(e))
+        rough[j.id] = "flange" if n < 1e-6 or abs(float(np.dot(e / n, j.axis))) > 1 - 1e-6 else "clevis"
     for j in m.joints:
         comp = actuators.get(j.id)
         g = housing_geometry(comp) if comp else None
@@ -147,13 +227,18 @@ def check(concept: Mapping, actuators: Mapping[str, Mapping]) -> dict:
             kind[j.id] = "clevis"
             parent = m.links.get(j.parent)
             pw = max(2 * g["half_width"], _tube_od(parent) if parent else 0.0)
-            req = max(abs(j.lo or 0.0), abs(j.hi or 0.0))
+            off = zero_offset_deg(j, _target(m, j, rough, end))
+            req = max(abs((j.lo or 0.0) + off), abs((j.hi or 0.0) + off))
             plate_w = max(2 * g["half_width"], g["horn_diameter"] or 0.0, _tube_od(m.links[j.child]))
             dm = d_min(req, plate_w, g, pw)
-            row.update(type="侧摆（U 形支架）", required_deg=req, parent_width_mm=pw, plate_width_mm=plate_w)
+            row.update(type="侧摆（U 形支架）", required_deg=req, parent_width_mm=pw, plate_width_mm=plate_w,
+                       zero_offset_deg=round(off, 2))
             if dm is None:
                 cap = clevis_reach(D_MAX_MM, plate_w, g, pw)
-                row.update(status="fail", note=f"行程 ±{req:g}° 超出几何上限（U 底板再远也只能转 {cap:g}°，会碰到自己的壳体或下面的父杆）")
+                rel = "" if abs(off) < 1e-6 else (f"零位时子杆已经偏离“顺着父杆伸直”{off:.0f}°，行程 [{j.lo:g}, {j.hi:g}] 相对伸直是 "
+                                                    f"[{(j.lo or 0) + off:.0f}, {(j.hi or 0) + off:.0f}]；")
+                row.update(status="fail", note=(f"{rel}要转到离伸直 {req:.0f}°，超出几何上限（U 底板再远也只能转 {cap:g}°，"
+                                                "会碰到自己的壳体或下面的父杆）。改法：收小行程，或改零位让子杆顺着父杆"))
             else:
                 need[j.id] = dm
                 row.update(status="pass", d_min_mm=dm, note=f"U 底板离轴线至少 {dm:g} mm 才能转到 ±{req:g}°")
@@ -174,7 +259,16 @@ def check(concept: Mapping, actuators: Mapping[str, Mapping]) -> dict:
             else:
                 row.update(status="pass", note="子杆接在输出舵盘法兰上；壳体底面装在父件上（轴线与父件偏开）")
         else:
-            row.update(status="unknown", note="子杆与关节轴既不垂直也不平行：支架型式这一步不处理")
+            ax = float(np.dot(end, j.axis))
+            row.update(status="fail", note=(f"子杆方向与关节轴斜交（下一关节的原点沿 {j.id} 的轴线偏了 {ax:.1f} mm）：U 形支架和舵盘法兰都做不了。"
+                                            f"改法：侧摆关节的原点就在壳体中心（前后两舵盘中间），子杆上下一关节的原点放在垂直于 {j.id} 轴线、"
+                                            f"过 {j.id} 原点的平面里（沿轴偏移为 0）；轴转关节则让子杆完全沿轴线"))
+        if j.parent == "base" and row.get("status") == "pass":
+            bc = base_clearance(j, kind[j.id], g, concept["base"]["mount"])
+            if bc["status"] != "pass":
+                row.update(status=bc["status"], note=row["note"] + "；" + bc["note"])
+            else:
+                row["base_clear_mm"] = bc["clear_mm"]
         out_j.append(row)
     for j in m.joints:
         nxt = [c for c in m.joints if c.parent == j.child]
@@ -192,11 +286,18 @@ def check(concept: Mapping, actuators: Mapping[str, Mapping]) -> dict:
             prox = need.get(j.id, 0.0) if kind[j.id] == "clevis" else 0.0
             near = _nearest(c, kind[c.id], geo[c.id], u)
             spare = near - prox
+            ok = spare > 0 and spare >= min_spare_mm
             row.update(min_mm=round(prox, 1), body_near_mm=round(near, 1), spare_mm=round(spare, 1),
-                       status="pass" if spare > 0 else "fail",
+                       status="pass" if ok else "fail",
                        note=(f"{c.id} 的壳体离 {j.id} 最近 {near:.1f} mm（沿杆向），{j.id} 的 U 底板要 {prox:g} mm；"
-                             + (f"余 {spare:.1f} mm 给支架板厚、杆套与管子" if spare > 0
-                                else f"差 {-spare:.1f} mm：{c.id} 的壳体伸进了 {j.id} 的 U 形支架转动范围")))
+                             + (f"余 {spare:.1f} mm 给支架板厚、杆套与管子" if ok
+                                else f"差 {-spare:.1f} mm：{c.id} 的壳体伸进了 {j.id} 的 U 形支架转动范围" if spare <= 0
+                                else f"只余 {spare:.1f} mm，放不下两头的支架板、套管与管子（至少 {min_spare_mm:g} mm）；"
+                                     f"改法：把这根杆加长 {min_spare_mm - spare:.0f} mm 以上，或收小 {j.id} 的行程让 U 底板近一些")))
+            straight = _straight(c, kind[c.id], geo[c.id], u)
+            if straight:
+                row["status"] = "fail"
+                row["note"] += "；" + straight
             out_l.append(row)
     st = {r["status"] for r in out_j + out_l}
     overall = "fail" if "fail" in st else "unknown" if "unknown" in st else "pass"

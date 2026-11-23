@@ -23,9 +23,9 @@ from analysis.robot import kinematics as K
 from analysis.robot import screen
 from assist.fea_draft import _in_statement, _value_with_unit
 
-PROMPT_VERSION = "robot-design/1"
+PROMPT_VERSION = "robot-design/2"            # /2：提示里给出一体化模组的装配要点（ADR-0115 44.3 之二）
 DEFAULT_MODEL = "claude-sonnet-5-5"
-MAX_ROUNDS = 4
+MAX_ROUNDS = 6                                  # 初筛与选件、装配、复核共用（ADR-0115 44.3 之二）
 MAX_CANDIDATES = 3
 ROOT = Path(__file__).resolve().parents[1]
 RECORDINGS_DIR = ROOT / "tests" / "recordings" / "robot_design"
@@ -163,8 +163,44 @@ def proposal_request(cond: dict, history: list[dict], *, model: str = DEFAULT_MO
         prev = (f"\n\n第 {len(history)} 轮你的构型：\n{json.dumps(last['proposal'], ensure_ascii=False, sort_keys=True)}\n"
                 f"程序初筛的结论（每个构型没通过和待确认的项）：\n{last['feedback']}")
     return {"model": model, "prompt_version": PROMPT_VERSION, "system": SYSTEM_PROPOSAL,
-            "user": f"设计条件（已核对，标准单位）：\n{_cond_text(cond)}\n\n杆件材料只能从材料库里选（写 id）：\n{_materials()}{prev}",
+            "user": (f"设计条件（已核对，标准单位）：\n{_cond_text(cond)}\n\n杆件材料只能从材料库里选（写 id）：\n{_materials()}"
+                     f"\n\n{actuator_notes()}{prev}"),
             "tool": PROPOSAL_TOOL}
+
+
+def actuator_notes() -> str:
+    """零件库里有安装接口数据的一体化关节模组的装配要点（由库里的数据生成，给 AI 在第一轮就避开装不上的构型）"""
+    from analysis.robot import fit
+    from assist.robot_cad import min_spare_mm
+    from engine.values import nominal
+    from kb.library import JsonLibrary
+
+    lib = JsonLibrary(Path(__file__).resolve().parents[1] / "data" / "library")
+    comps = [c for c in lib.all() if c.get("category") == "smart_actuator" and fit.housing_geometry(c) is not None]
+    if not comps:
+        return "零件库里没有带安装接口数据的一体化关节模组。"
+    g = fit.housing_geometry(comps[0])
+    back = -min(pt["z_start_mm"] for pt in comps[0]["envelope"]["parts"])
+    corner = (g["half_width"] ** 2 + g["axis_to_bottom"] ** 2) ** 0.5            # 壳体离轴线最远的角
+    reach = fit.clevis_reach(fit.D_MAX_MM, 2 * g["half_width"], g, 2 * g["half_width"])
+    rows = []
+    for c in sorted(comps, key=lambda c: c["id"]):
+        pp = c["params"]
+        ts, n0, m = (nominal(pp.get(k)) for k in ("stall_torque_nm", "no_load_speed_rpm", "mass_kg"))
+        rows.append(f"{c['model']}（堵转 {ts:g} N·m、空载 {n0:g} rpm、{m:g} kg）")
+    return ("选件之后程序还会：按所选模组校核装不装得下、生成三维装配查干涉、按真实零件质量重算力矩与转速；不通过的项会交回给你。\n"
+            f"零件库里有安装接口数据的一体化关节模组：{'；'.join(rows)}。力矩越大转速越低（直线关系），校核按安全系数 1.2。\n"
+            f"它们外形相同：宽 {2 * g['half_width']:g} mm，输出轴离壳体底面 {g['axis_to_bottom']:g} mm；只有输出舵盘（和背面同轴的惰轮舵盘）会转，"
+            "能固定的面（底面、两侧面）都与输出轴平行。所以：\n"
+            f"1. 装在基座上的关节：输出舵盘在关节原点，壳体在它后面 {back:g} mm，原点要离安装面至少这么高（再加底座板厚）。\n"
+            "2. 子杆沿关节轴转（轴转）时，父杆不能也沿这个轴（共线装不上）；要让壳体底面装在父杆上，轴线偏开。\n"
+            f"3. 子杆垂直于关节轴（侧摆）时，子杆由跨在前后舵盘上的 U 形支架带动：U 底板离轴线至少 {corner:.0f} mm（行程越大越远），"
+            f"杆件在 U 底板和下一壳体之间至少要留 {min_spare_mm():g} mm 放支架板、套管与管子。\n"
+            "4. 杆件都做直管：下一关节的轴线要垂直于“本关节到它壳体中心”的连线。侧摆关节的原点就是壳体中心（前后两舵盘中间），"
+            "子杆上下一关节的原点要在垂直于本关节轴线、过本关节原点的平面里（沿本关节轴线不要偏）；"
+            "轴转关节的原点在输出舵盘端面，壳体中心在它后面 24.5 mm（只有轴转关节有这个偏移）。\n"
+            f"5. 侧摆关节零位时子杆最好顺着父杆伸直；转角按“相对伸直”算，伸直位往两边最多约 {reach:.0f}°（父杆不比壳体宽时）。\n"
+            "6. 肩、肘的重力力矩决定能不能选上：杆件越短越轻、重的东西越靠近肩部越好。")
 
 
 def _item(name, status, value=None, limit=None, note=""):
