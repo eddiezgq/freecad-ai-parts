@@ -132,6 +132,21 @@ sources:
         version: ROBOTIS-GIT/emanual 提交 0807b1b5f7472bbbbb2c9751f1d3406678e86d37（2026-08-10），以 SHA-256 标识（2026-11-22 登记）
         url: https://raw.githubusercontent.com/ROBOTIS-GIT/emanual/0807b1b5f7472bbbbb2c9751f1d3406678e86d37/_data/dxl_x_info.yml
         sha256: "440121eb2577fca1b9954965dc74727b1ce3ba3332438952c8c20ee29ae6ebc0"
+      - id: src-robotis-x540-drawing
+        title: ROBOTIS XM540/XH540/XD540 (HINGE) 外形图（XM,H,D-540.N101.I101.pdf，2019-03-18，For reference only）
+        version: 以 SHA-256 标识（项目负责人 2026-11-22 从 e-Manual Drawings 一节下载）
+        url: https://www.robotis.com/service/download.php?no=2083
+        sha256: "7580d96cb2c03ee256d52b89d0bfc3f5b9fe45fbbe5aa090dcb2c9e1e0d62b31"
+      - id: src-robotis-x540-step
+        title: ROBOTIS XM540/XH540/XD540 三维模型（XM,H,D-540.N101.I101.STP）；只由代码量孔位与外形，不转存
+        version: 以 SHA-256 标识（项目负责人 2026-11-22 下载）
+        url: https://www.robotis.com/service/download.php?no=2084
+        sha256: "6e0df65638b3a23b12c7ee1114d4d06f5ec2de9e84e3ffddd7e115e8f8faf39f"
+      - id: src-robotis-x540-inertia
+        title: ROBOTIS XM540/XH540 Moment of Inertia（reference only，2023-02）
+        version: 以 SHA-256 标识（项目负责人 2026-11-22 下载）；坐标系图上没有标明，暂不采用
+        url: https://www.robotis.com/service/download.php?no=718
+        sha256: "5d71a6f462fedb5e8529ad8c62c9e82b8ed123ea3a2a4b40df63b2ea337cbaa7"
   - id: leaderdrive
     vendor: 苏州绿的谐波传动科技股份有限公司（Leaderdrive）
     url: https://www.leaderdrive.com

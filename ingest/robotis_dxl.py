@@ -29,6 +29,7 @@ import re
 import sys
 from pathlib import Path
 
+from ingest import robotis_x540
 from ingest.units import to_standard
 
 SOURCE_DOC = "src-robotis-emanual-dxl-x-info"
@@ -143,12 +144,18 @@ def component(ref: str, row: dict) -> tuple[dict | None, list[str]]:
                       "length_mm": _pv(a, note, ref, method="computed", formula=f),
                       "width_mm": _pv(2 * a, note, ref, method="computed", formula=f),
                       "height_mm": _pv(2 * a, note, ref, method="computed", formula=f)}]}
+    mech = ""
+    if ref in robotis_x540.MODELS:                  # X540 壳体：图纸与 STEP 给了机械接口与实际外形（ADR-0115 44.3 之二）
+        ports += robotis_x540.ports()
+        env = robotis_x540.envelope()
+        mech = "；舵盘与壳体安装孔位、外形取自 X540 图纸与 STEP（ingest/robotis_x540.py）"
     comp = {"id": f"smart_actuator.robotis.{ref}", "category": "smart_actuator", "vendor": VENDOR, "model": model,
             "series": "DYNAMIXEL X", "status": "active", "license": "params-only", "params": params, "ports": ports,
             "envelope": env,
             "note": (f"{REVIEW}。参数取自 ROBOTIS e-Manual 规格表（{SOURCE_DOC}，ADR-0040、ADR-0117），力矩与转速是输出端、推荐电压下的值；"
                      "堵转力矩不是连续额定（厂商没给连续额定，连续力矩校核为待确认）；"
-                     "舵盘与壳体安装孔位只在厂商图纸里，没有收录，整机装配时这两处接口判待确认；包络是保守外框。")}
+                     + ("舵盘与壳体安装孔位只在厂商图纸里，没有收录，整机装配时这两处接口判待确认；包络是保守外框。" if not mech
+                        else mech.lstrip("；") + "。"))}
     return comp, gaps
 
 
