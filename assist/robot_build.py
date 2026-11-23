@@ -332,6 +332,51 @@ def _resolution_error(lib, m, q: Mapping, picks: Mapping) -> dict:
             "backlash_lost_motion_mm": round(lost, 2) if lost else None}
 
 
+def build_check(concept: Mapping, cond: Mapping) -> dict:
+    """构型循环用（assist/robot_design.design 的 after_screen）：按条件选件并校核装配、杆件、精度。
+    返回 {"ok", "items"（没通过的项，给 AI 看）, "summary"（选中的模组与外形，给 AI 改构型用）, "result"}"""
+    payload = cond.get("payload")
+    if not isinstance(payload, (int, float)) or isinstance(payload, bool):
+        return {"ok": True, "items": [], "summary": "需求里没有末端负载：选件不做"}
+    sp = cond.get("joint_speed")
+    move_s = move_s_for(sp) if isinstance(sp, (int, float)) and not isinstance(sp, bool) and sp > 0 else MOVE_S
+    pts = [[cond["reach"], 0.0, 0.0]] if isinstance(cond.get("reach"), (int, float)) else []
+    pts += list(((concept.get("workspace") or {}).get("points_mm")) or [])
+    rep = cond.get("repeatability")
+    try:
+        out = build(copy.deepcopy(dict(concept)), float(payload), move_s=move_s, points_mm=pts,
+                    repeatability_mm=float(rep) if isinstance(rep, (int, float)) and not isinstance(rep, bool) else None)
+    except (BuildError, ValueError) as ex:
+        return {"ok": False, "items": [f"选件算不了：{ex}"], "summary": ""}
+    items = []
+    if out["status"] != "pass":
+        items.append(f"选件：{out.get('note', '')}")
+    for key, name in (("fit", "装配"), ("links", "杆件强度")):
+        part = out.get(key) or {}
+        rows = (part.get("joints") or []) + (part.get("links") or []) if key == "fit" else part.get("items") or []
+        items += [f"{name}：{r.get('joint') or r.get('link') or r.get('item')} {r.get('note', '')}" for r in rows
+                  if r.get("status") == "fail"]
+    r = out.get("repeatability") or {}
+    if r.get("status") == "fail":
+        items.append(f"重复定位精度：{r.get('note', '')}")
+    lib = _library()
+    summ = []
+    for g, p in (out.get("picks") or {}).items():
+        if not p.get("components"):
+            continue
+        comp = lib.get(p["components"][0])
+        txt = f"模组组 {g}（关节 {'、'.join(p['joints'])}）选 {comp.get('model')}"
+        if p.get("chain") == "smart":
+            from analysis.robot import fit
+
+            gm = fit.housing_geometry(comp)
+            if gm:
+                txt += (f"：壳体宽 {2 * gm['half_width']:g} mm，输出轴离壳体顶面 {gm['top']:g}、离底面 {gm['axis_to_bottom']:g} mm；"
+                        "只有输出舵盘（与背面惰轮舵盘同轴）会转，能固定的面（底面、两侧面）都与输出轴平行")
+        summ.append(txt)
+    return {"ok": not items, "items": items, "summary": "；".join(summ), "result": out}
+
+
 def fit_check(lib, concept: Mapping, picks: Mapping) -> dict:
     """装不装得下（analysis/robot/fit.py）：一体化模组按它的机械接口算；伺服链没有整体外形与接口，判不了"""
     from analysis.robot import fit

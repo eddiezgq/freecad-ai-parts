@@ -131,3 +131,31 @@ def test_teaching_arm_recording_replays_to_pass():
     saved = json.loads((Path(__file__).parents[1] / "examples" / "robots" / "teaching-arm" / "out"
                         / "concept-result.json").read_text(encoding="utf-8"))
     assert saved["chosen"] == c
+
+
+def test_build_check_failure_goes_back_to_ai():
+    """初筛通过、但选件与装配校核没通过：不采用，没通过的项与模组外形交回 AI，下一轮通过才采用（ADR-0115 44.3 之二）"""
+    calls = []
+
+    def after(concept, cond):
+        calls.append(concept["name"])
+        if len(calls) == 1:
+            return {"ok": False, "items": ["装配：j5 共线装不上"], "summary": "选 XM540-W270：壳体宽 33.5 mm"}
+        return {"ok": True, "items": [], "summary": ""}
+
+    ai = Script([{"candidates": [arm()], "recommend": 0, "reason": "第一版"}, {"candidates": [arm()], "recommend": 0, "reason": "改腕部"}])
+    res = RD.design(TEXT, ai, after_screen=after)
+    assert res["status"] == "pass" and res["chosen_round"] == 2 and len(calls) == 2
+    assert res["rounds"][0]["build"]["ok"] is False and res["rounds"][1]["build"]["ok"] is True
+    second = ai.requests[2]["user"]
+    assert "选件、装配后没通过" in second and "j5 共线装不上" in second and "壳体宽 33.5 mm" in second
+
+
+def test_build_check_on_case_a_reports_the_wrist():
+    from assist.robot_build import build_check
+
+    res = json.loads((Path(__file__).parents[1] / "examples" / "robots" / "teaching-arm" / "out" / "concept-result.json")
+                     .read_text(encoding="utf-8"))
+    bc = build_check(res["chosen"], res["conditions"])
+    assert bc["ok"] is False and any("j5" in x and "共线" in x for x in bc["items"])
+    assert "XM540-W270" in bc["summary"] and "能固定的面" in bc["summary"]
