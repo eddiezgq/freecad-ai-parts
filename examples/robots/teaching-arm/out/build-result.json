@@ -170,13 +170,13 @@
   "jm": {
    "chain": "smart",
    "components": [
-    "smart_actuator.robotis.xh540-w270"
+    "smart_actuator.robotis.xm540-w270"
    ],
    "roles": {
-    "smart_actuator.robotis.xh540-w270": "actuator"
+    "smart_actuator.robotis.xm540-w270": "actuator"
    },
    "report": {
-    "component": "smart_actuator.robotis.xh540-w270",
+    "component": "smart_actuator.robotis.xm540-w270",
     "overall": "unknown",
     "checks": [
      {
@@ -233,10 +233,10 @@
     "smart": {
      "chain": "smart",
      "components": [
-      "smart_actuator.robotis.xh540-w270"
+      "smart_actuator.robotis.xm540-w270"
      ],
      "roles": {
-      "smart_actuator.robotis.xh540-w270": "actuator"
+      "smart_actuator.robotis.xm540-w270": "actuator"
      },
      "overall": "unknown",
      "module_mass_kg": 0.165,
@@ -352,9 +352,9 @@
  "bom": {
   "purchased": [
    {
-    "component": "smart_actuator.robotis.xh540-w270",
+    "component": "smart_actuator.robotis.xm540-w270",
     "role": "actuator",
-    "model": "XH540-W270",
+    "model": "XM540-W270",
     "vendor": "ROBOTIS",
     "qty": 5,
     "joints": [
@@ -376,7 +376,7 @@
      "id_mm": 60,
      "od_mm": 70
     },
-    "length_mm": 30,
+    "length_mm": 70,
     "material": "6061-T6",
     "mass_kg": 0.193
    },
@@ -536,7 +536,7 @@
   "joints": [
    {
     "joint": "j1",
-    "actuator": "smart_actuator.robotis.xh540-w270",
+    "actuator": "smart_actuator.robotis.xm540-w270",
     "type": "轴转（法兰）",
     "status": "pass",
     "note": "子杆接在输出舵盘法兰上；壳体底面装在父件上（轴线与父件偏开）",
@@ -544,7 +544,7 @@
    },
    {
     "joint": "j2",
-    "actuator": "smart_actuator.robotis.xh540-w270",
+    "actuator": "smart_actuator.robotis.xm540-w270",
     "type": "侧摆（U 形支架）",
     "required_deg": 150,
     "parent_width_mm": 70.0,
@@ -555,7 +555,7 @@
    },
    {
     "joint": "j3",
-    "actuator": "smart_actuator.robotis.xh540-w270",
+    "actuator": "smart_actuator.robotis.xm540-w270",
     "type": "侧摆（U 形支架）",
     "required_deg": 150,
     "parent_width_mm": 40.0,
@@ -566,18 +566,18 @@
    },
    {
     "joint": "j4",
-    "actuator": "smart_actuator.robotis.xh540-w270",
+    "actuator": "smart_actuator.robotis.xm540-w270",
     "type": "侧摆（U 形支架）",
     "required_deg": 120,
     "parent_width_mm": 38.0,
     "plate_width_mm": 40.0,
     "status": "pass",
     "d_min_mm": 47.8,
-    "note": "U 底板离轴线至少 47.8 mm 才能转到 ±110°"
+    "note": "U 底板离轴线至少 47.8 mm 才能转到 ±120°"
    },
    {
     "joint": "j5",
-    "actuator": "smart_actuator.robotis.xh540-w270",
+    "actuator": "smart_actuator.robotis.xm540-w270",
     "type": "轴转（法兰）",
     "status": "pass",
     "note": "子杆接在输出舵盘法兰上；壳体底面装在父件上（轴线与父件偏开）"
