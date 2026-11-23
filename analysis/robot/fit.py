@@ -259,7 +259,10 @@ def check(concept: Mapping, actuators: Mapping[str, Mapping], *, min_spare_mm: f
             else:
                 row.update(status="pass", note="子杆接在输出舵盘法兰上；壳体底面装在父件上（轴线与父件偏开）")
         else:
-            row.update(status="unknown", note="子杆与关节轴既不垂直也不平行：支架型式这一步不处理")
+            ax = float(np.dot(end, j.axis))
+            row.update(status="fail", note=(f"子杆方向与关节轴斜交（下一关节的原点沿 {j.id} 的轴线偏了 {ax:.1f} mm）：U 形支架和舵盘法兰都做不了。"
+                                            f"改法：侧摆关节的原点就在壳体中心（前后两舵盘中间），子杆上下一关节的原点放在垂直于 {j.id} 轴线、"
+                                            f"过 {j.id} 原点的平面里（沿轴偏移为 0）；轴转关节则让子杆完全沿轴线"))
         if j.parent == "base" and row.get("status") == "pass":
             bc = base_clearance(j, kind[j.id], g, concept["base"]["mount"])
             if bc["status"] != "pass":

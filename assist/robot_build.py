@@ -356,10 +356,15 @@ def build_check(concept: Mapping, cond: Mapping) -> dict:
     if out["status"] != "pass":
         items.append(f"选件：{out.get('note', '')}")
     if out["status"] == "pass" and (out.get("fit") or {}).get("overall") == "unknown":
-        why = "；".join(f"模组组 {g} 选了{'伺服三件套' if p.get('chain') == 'servo' else '没有接口数据的模组'}"
-                       for g, p in out["picks"].items()) + "；" + smart_gap(concept, float(payload), out)
-        items.append("装配：选中的模组没有整套安装接口数据，装不装得下判不了，不能采用。" + why
-                     + "。改法：减轻负载力矩（缩短杆件、减小杆件截面），让有接口数据的一体化模组扛得住")
+        ft = out["fit"]
+        servo = [g for g, p in out["picks"].items() if p.get("chain") != "smart"]
+        if servo:
+            items.append("装配：选中的模组没有整套安装接口数据，装不装得下判不了，不能采用。"
+                         + "；".join(f"模组组 {g} 选了伺服三件套" for g in servo) + "；" + smart_gap(concept, float(payload), out)
+                         + "。改法：减轻负载力矩（缩短杆件、减小杆件截面），让有接口数据的一体化模组扛得住")
+        rows = [r for r in ft["joints"] + ft["links"] if r["status"] == "unknown" and "装法没定" not in r.get("note", "")]
+        items += [f"装配（判不了，不能采用）：{r.get('joint') or r.get('link')} {r.get('note', '')}" for r in rows
+                  if not (servo and "没有机械接口数据" in r.get("note", ""))]
     for key, name in (("fit", "装配"), ("links", "杆件强度")):
         part = out.get(key) or {}
         rows = (part.get("joints") or []) + (part.get("links") or []) if key == "fit" else part.get("items") or []
