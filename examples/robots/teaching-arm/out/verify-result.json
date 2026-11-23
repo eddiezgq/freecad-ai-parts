@@ -1,0 +1,152 @@
+{
+ "status": "fail",
+ "compare": [
+  {
+   "joint": "j1",
+   "peak_est_nm": 0.604,
+   "peak_nm": 0.634,
+   "rms_est_nm": 0.3,
+   "rms_nm": 0.314,
+   "change": 0.049
+  },
+  {
+   "joint": "j2",
+   "peak_est_nm": 6.194,
+   "peak_nm": 6.657,
+   "rms_est_nm": 4.713,
+   "rms_nm": 5.043,
+   "change": 0.075
+  },
+  {
+   "joint": "j3",
+   "peak_est_nm": 3.312,
+   "peak_nm": 3.49,
+   "rms_est_nm": 2.876,
+   "rms_nm": 3.018,
+   "change": 0.054
+  },
+  {
+   "joint": "j4",
+   "peak_est_nm": 1.334,
+   "peak_nm": 1.349,
+   "rms_est_nm": 1.035,
+   "rms_nm": 1.028,
+   "change": 0.012
+  },
+  {
+   "joint": "j5",
+   "peak_est_nm": 0.0,
+   "peak_nm": 0.0,
+   "rms_est_nm": 0.0,
+   "rms_nm": 0.0,
+   "change": -0.515
+  }
+ ],
+ "checks": {
+  "mod_a": {
+   "requirement": {
+    "output_torque_cont_nm": 5.043,
+    "output_torque_peak_nm": 6.657,
+    "output_speed_rpm": 10.002
+   },
+   "overall": "fail",
+   "checks": [
+    {
+     "check": "S1",
+     "status": "pass",
+     "message": "峰值力矩 × 安全系数 ≤ 堵转力矩：需要 7.99 N·m，能力 9.9 N·m",
+     "measured": 7.9883999999999995,
+     "limit": 9.9,
+     "unit": "N·m",
+     "margin_ratio": 0.19309090909090917
+    },
+    {
+     "check": "S2",
+     "status": "unknown",
+     "message": "厂商没给连续额定力矩（堵转力矩不能当连续值用），连续力矩判待确认；连续需求 × 安全系数 6.05 N·m，是堵转力矩的 61%"
+    },
+    {
+     "check": "S3",
+     "status": "fail",
+     "message": "动作过程 2405 个工作点里最紧的一点（6.52 N·m）：转速 ≤ n₀(1 − T·SF/Tₛ)：需要 9.9 rpm，能力 8.19 rpm",
+     "measured": 9.902006751154909,
+     "limit": 8.188986868249941,
+     "unit": "rpm",
+     "margin_ratio": -0.20918581388213356
+    },
+    {
+     "check": "S4",
+     "status": "not_applicable",
+     "message": "回差 15 arcmin（只报数，整机合成重复定位精度）"
+    }
+   ]
+  }
+ },
+ "moving_mass_kg": 1.6041,
+ "static": {
+  "gravity_torque_nm": {
+   "j1": -0.0,
+   "j2": -6.287352707118708,
+   "j3": -3.2834964394883466,
+   "j4": -1.2631495251273512,
+   "j5": 3.3246165398123006e-06
+  }
+ },
+ "duty": {
+  "initial": {
+   "j1": 0.0,
+   "j2": 89.2872,
+   "j3": 2.4098,
+   "j4": 52.5486,
+   "j5": 0.0
+  },
+  "drives": [
+   {
+    "joint": "j1",
+    "kind": "move",
+    "to": 90.0,
+    "t0_s": 0.2,
+    "t1_s": 2.1999999999999993,
+    "accel_ratio": 0.25
+   },
+   {
+    "joint": "j2",
+    "kind": "move",
+    "to": -0.7128,
+    "t0_s": 0.2,
+    "t1_s": 2.1999999999999993,
+    "accel_ratio": 0.25
+   },
+   {
+    "joint": "j3",
+    "kind": "move",
+    "to": 92.4098,
+    "t0_s": 0.2,
+    "t1_s": 2.1999999999999993,
+    "accel_ratio": 0.25
+   },
+   {
+    "joint": "j4",
+    "kind": "move",
+    "to": 0,
+    "t0_s": 0.2,
+    "t1_s": 2.1999999999999993,
+    "accel_ratio": 0.25
+   },
+   {
+    "joint": "j5",
+    "kind": "move",
+    "to": 90.0,
+    "t0_s": 0.2,
+    "t1_s": 2.1999999999999993,
+    "accel_ratio": 0.25
+   }
+  ],
+  "pose_mm": [
+   562.744140625,
+   0.0,
+   160.0
+  ],
+  "move_s": 1.9999999999999993
+ }
+}
