@@ -13,6 +13,7 @@
     说清楚要怎么改（让轴线偏开，或换带后端固定法兰的模组）。
   3 长度够不够：下一关节的壳体（底面朝着本关节装在本杆上）沿杆向离本关节轴线最近的点，要在本关节 U 底板（d_min）之外；
     侧摆、轴转（轴线偏开）两种下一关节都按壳体的八个角算。剩下的长度给支架板厚、杆套和管子，不足的判不通过。
+  5 直管：下一关节壳体底面要正对本杆、管子落在底面以内（杆件都做直管，弯的、异形的连接件这一步不做）。
   4 装在基座上的关节：壳体要在安装面朝机器人的一侧（输出舵盘在关节原点、壳体在它后面——原点贴着安装面时壳体就钻到桌面下了）。
 板厚、管套长度等由支架设计（第 3 步之二）定，这里只给几何上必需的最小值。
 """
@@ -136,6 +137,33 @@ def _nearest(c: K.Joint, kind: str, g: Mapping, u: np.ndarray) -> float:
     return float(min(pt @ u for pt in _corners(c, kind, g, toward)))
 
 
+def _straight(c: K.Joint, kind: str, g: Mapping, u: np.ndarray) -> str:
+    """杆件是直管：下一关节壳体的底面要正对本杆（底面法线沿杆向、朝着本关节），管子的轴线要穿过底面（支架板可以比底面大，
+    管子粗些没关系；轴线落在底面以外，支架就成了悬臂，不做）。
+    通过返回空串，否则返回原因与改法"""
+    a = c.axis / np.linalg.norm(c.axis)
+    zmid = 0.0 if kind == "clevis" else -24.5
+    centre = np.asarray(c.origin, float) + zmid * a          # 壳体中心（轴转关节的原点在舵盘端面，中心在它后面 24.5）
+    if np.linalg.norm(centre) > 1e-9:
+        u = centre / np.linalg.norm(centre)                 # 直管沿本关节到下一壳体中心
+    if abs(float(a @ u)) > math.sin(math.radians(1.0)):
+        ang = math.degrees(math.asin(min(1.0, abs(float(a @ u)))))
+        return (f"{c.id} 的轴线与本杆（本关节到 {c.id} 壳体中心）不垂直（偏 {ang:.0f}°）：模组的底面与轴线平行，底面朝不了杆向，直管接不上。"
+                f"改法：让 {c.id} 的轴线垂直于本杆（轴转关节就让它的子杆垂直于本杆伸出"
+                + ("；轴转关节的原点在输出舵盘端面、壳体中心在它后面 24.5 mm，原点要沿它的轴线前移 24.5 mm，壳体中心才落在杆轴上"
+                   if kind == "flange" else "") + "）")
+    lat = centre - (centre @ u) * u
+    side = np.cross(a, -u)
+    ea, es = abs(float(lat @ a)), abs(float(lat @ side))
+    lim_a, lim_s = 22.0, g["half_width"]
+    if ea <= lim_a + 1e-9 and es <= lim_s + 1e-9:
+        return ""
+    hint = (f"轴转关节的原点在输出舵盘端面，壳体中心在它后面 24.5 mm：把 {c.id} 的原点沿它的轴线挪到让壳体中心落在本杆轴线上"
+            if kind == "flange" else f"把 {c.id} 的原点放在本杆轴线上")
+    return (f"本杆的管子要接在 {c.id} 壳体底面上，管轴离底面中心沿 {c.id} 轴向 {ea:.1f} mm、侧向 {es:.1f} mm，"
+            f"落在底面以外（底面半长 {lim_a:g}、半宽 {lim_s:g} mm）。改法：{hint}")
+
+
 def _tube_od(link: Mapping) -> float:
     s = link.get("section") or {}
     return float(s.get("od_mm") or max(s.get("width_mm") or 0, s.get("height_mm") or 0) or 0.0)
@@ -225,6 +253,10 @@ def check(concept: Mapping, actuators: Mapping[str, Mapping]) -> dict:
                        note=(f"{c.id} 的壳体离 {j.id} 最近 {near:.1f} mm（沿杆向），{j.id} 的 U 底板要 {prox:g} mm；"
                              + (f"余 {spare:.1f} mm 给支架板厚、杆套与管子" if spare > 0
                                 else f"差 {-spare:.1f} mm：{c.id} 的壳体伸进了 {j.id} 的 U 形支架转动范围")))
+            straight = _straight(c, kind[c.id], geo[c.id], u)
+            if straight:
+                row["status"] = "fail"
+                row["note"] += "；" + straight
             out_l.append(row)
     st = {r["status"] for r in out_j + out_l}
     overall = "fail" if "fail" in st else "unknown" if "unknown" in st else "pass"
