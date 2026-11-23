@@ -1,0 +1,222 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/4",
+  "request_key": "c8e0ee285b0b65e0e1daada3aeb556f0216bdd074a0410c1b84adc43cbf267d4",
+  "response": {
+    "id": "msg_011ChLMcj9UoM7bpePo3qYnM",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "candidates": [
+        {
+          "base": {
+            "height_mm": 60,
+            "mount": "table"
+          },
+          "end_effector": {
+            "offset_mm": [
+              70,
+              0,
+              0
+            ],
+            "parent": "tool_post",
+            "type": "gripper"
+          },
+          "format": "robot-concept/1",
+          "joints": [
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "turret",
+              "id": "j1",
+              "module_group": "xm",
+              "origin_mm": [
+                0,
+                0,
+                60
+              ],
+              "parent": "base",
+              "range_deg": [
+                -170,
+                170
+              ],
+              "transmission": "direct",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "upper_arm",
+              "id": "j2",
+              "module_group": "xm",
+              "origin_mm": [
+                0,
+                0,
+                70
+              ],
+              "parent": "turret",
+              "range_deg": [
+                -90,
+                90
+              ],
+              "transmission": "direct",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "forearm",
+              "id": "j3",
+              "module_group": "xm",
+              "origin_mm": [
+                0,
+                0,
+                150
+              ],
+              "parent": "upper_arm",
+              "range_deg": [
+                -120,
+                120
+              ],
+              "transmission": "direct",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "wrist",
+              "id": "j4",
+              "module_group": "xm",
+              "origin_mm": [
+                0,
+                0,
+                150
+              ],
+              "parent": "forearm",
+              "range_deg": [
+                -100,
+                100
+              ],
+              "transmission": "direct",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                1,
+                0,
+                0
+              ],
+              "child": "tool_post",
+              "id": "j5",
+              "module_group": "xm",
+              "origin_mm": [
+                24.5,
+                0,
+                110
+              ],
+              "parent": "wrist",
+              "range_deg": [
+                -170,
+                170
+              ],
+              "transmission": "direct",
+              "type": "revolute"
+            }
+          ],
+          "kind": "serial_arm",
+          "links": [
+            {
+              "id": "turret",
+              "length_mm": 70,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 32,
+                "od_mm": 36
+              },
+              "shape": "tube"
+            },
+            {
+              "id": "upper_arm",
+              "length_mm": 150,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 32,
+                "od_mm": 36
+              },
+              "shape": "tube"
+            },
+            {
+              "id": "forearm",
+              "length_mm": 150,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 32,
+                "od_mm": 36
+              },
+              "shape": "tube"
+            },
+            {
+              "id": "wrist",
+              "length_mm": 110,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 32,
+                "od_mm": 36
+              },
+              "shape": "tube"
+            },
+            {
+              "id": "tool_post",
+              "length_mm": 50,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 28,
+                "od_mm": 32
+              },
+              "shape": "tube"
+            }
+          ],
+          "name": "table_5dof_pitch_chain_arm",
+          "reason": "底座偏转 + 肩/肘/腕三个同向俯仰 + 末端工具轴转。五个关节全用同一种关节模组，直接驱动，不用外加减速。杆件都是 6061 铝合金直管，只需锯切、车端面、铣孔，学生可以自己装拆。腕俯仰关节后面的末端轴转关节，转轴垂直于腕杆，所以腕杆不会与轴转关节共线。三个俯仰关节零位时杆件全部伸直向上。",
+          "tasks": [
+            {
+              "dwell_s": 0.5,
+              "from": {
+                "j1": -60,
+                "j2": 62,
+                "j3": 72,
+                "j4": -44,
+                "j5": 0
+              },
+              "move_s": 3,
+              "name": "pick_to_place",
+              "to": {
+                "j1": 60,
+                "j2": 62,
+                "j3": 72,
+                "j4": -44,
+                "j5": 90
+              },
+              "type": "joint_move"
+            }
+          ]
+        }
+      ],
+      "reason": "只提一个构型。条件是 5 自由度、臂展 350 mm、负载 0.5 kg、全部关节用同一种模组，这几条把方案基本定死了。取舍：(1) 肩、肘、腕三个俯仰关节全用侧摆形式，U 形支架距离和杆长都满足；杆件直管、同一截面，学生好装拆，数控车铣能做。(2) 肩高取 130 mm：底座原点 60 mm，加 70 mm 的立柱，立柱不小于 53 mm。这样臂展点（350,0,0）能由工具朝下、腕杆水平的姿态够到，估算关节角约为 j2 62°、j3 72°、j4 −44°，肘部明显弯曲，不在伸直奇异位置。(3) 上臂、前臂各 150 mm，使肩部力矩较小。肩的静力矩估算约 4 N·m，包括 0.5 kg 负载和三个模组，低于大力矩模组堵转力矩 ÷1.2。(4) 腕杆取 110 mm，是满足 U 形支架加 51 mm 的最短值。(5) 末端轴转关节 j5 的转轴垂直于腕杆，原点沿轴偏 24.5 mm，使它的壳体中心落在腕杆轴线上，满足直管连线垂直条件。(6) 模组型号待程序按力矩选件，建议在大力矩系列里选，因 10 rpm 的转速要求很低。(7) 重复精度 ±1 mm 靠直接驱动，没有外加传动间隙；缺点是 j4、j5 离肩较远，重量靠后，所以杆件壁厚取 2 mm 减重。",
+      "recommend": 0
+    }
+  }
+}
