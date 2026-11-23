@@ -4,34 +4,34 @@
   {
    "joint": "j1",
    "peak_est_nm": 0.388,
-   "peak_nm": 0.414,
+   "peak_nm": 0.42,
    "rms_est_nm": 0.193,
-   "rms_nm": 0.206,
-   "change": 0.067
+   "rms_nm": 0.209,
+   "change": 0.082
   },
   {
    "joint": "j2",
    "peak_est_nm": 4.533,
-   "peak_nm": 4.957,
+   "peak_nm": 5.042,
    "rms_est_nm": 3.306,
-   "rms_nm": 3.664,
-   "change": 0.093
+   "rms_nm": 3.738,
+   "change": 0.112
   },
   {
    "joint": "j3",
    "peak_est_nm": 2.717,
-   "peak_nm": 2.891,
+   "peak_nm": 2.922,
    "rms_est_nm": 2.163,
-   "rms_nm": 2.363,
-   "change": 0.064
+   "rms_nm": 2.399,
+   "change": 0.076
   },
   {
    "joint": "j4",
    "peak_est_nm": 1.241,
-   "peak_nm": 1.263,
+   "peak_nm": 1.269,
    "rms_est_nm": 0.84,
-   "rms_nm": 0.882,
-   "change": 0.018
+   "rms_nm": 0.89,
+   "change": 0.022
   },
   {
    "joint": "j5",
@@ -45,8 +45,8 @@
  "checks": {
   "m540": {
    "requirement": {
-    "output_torque_cont_nm": 3.664,
-    "output_torque_peak_nm": 4.957,
+    "output_torque_cont_nm": 3.738,
+    "output_torque_peak_nm": 5.042,
     "output_speed_rpm": 10.002
    },
    "overall": "unknown",
@@ -54,25 +54,25 @@
     {
      "check": "S1",
      "status": "pass",
-     "message": "峰值力矩 × 安全系数 ≤ 堵转力矩：需要 5.95 N·m，能力 10.6 N·m",
-     "measured": 5.9483999999999995,
+     "message": "峰值力矩 × 安全系数 ≤ 堵转力矩：需要 6.05 N·m，能力 10.6 N·m",
+     "measured": 6.0504,
      "limit": 10.6,
      "unit": "N·m",
-     "margin_ratio": 0.43883018867924534
+     "margin_ratio": 0.4292075471698113
     },
     {
      "check": "S2",
      "status": "unknown",
-     "message": "厂商没给连续额定力矩（堵转力矩不能当连续值用），连续力矩判待确认；连续需求 × 安全系数 4.4 N·m，是堵转力矩的 41%"
+     "message": "厂商没给连续额定力矩（堵转力矩不能当连续值用），连续力矩判待确认；连续需求 × 安全系数 4.49 N·m，是堵转力矩的 42%"
     },
     {
      "check": "S3",
      "status": "pass",
-     "message": "动作过程 2405 个工作点里最紧的一点（4.63 N·m）：转速 ≤ n₀(1 − T·SF/Tₛ)：需要 10 rpm，能力 14.3 rpm",
-     "measured": 10.002012786241497,
-     "limit": 14.27560178908321,
+     "message": "动作过程 2405 个工作点里最紧的一点（4.72 N·m）：转速 ≤ n₀(1 − T·SF/Tₛ)：需要 10 rpm，能力 14 rpm",
+     "measured": 10.002012446106587,
+     "limit": 13.955179841871491,
      "unit": "rpm",
-     "margin_ratio": 0.29936314181233303
+     "margin_ratio": 0.2832759907474439
     },
     {
      "check": "S4",
@@ -82,14 +82,14 @@
    ]
   }
  },
- "moving_mass_kg": 1.2029,
+ "moving_mass_kg": 1.2677,
  "static": {
   "gravity_torque_nm": {
    "j1": -0.0,
-   "j2": -4.686617484499446,
-   "j3": -2.7153870217898577,
-   "j4": -1.1789484924887785,
-   "j5": -0.0
+   "j2": -4.78099133076355,
+   "j3": -2.753299134187576,
+   "j4": -1.1873898693304783,
+   "j5": -5.3520551319513e-07
   }
  },
  "duty": {
