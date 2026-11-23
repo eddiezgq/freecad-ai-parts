@@ -8,8 +8,6 @@
 
 from __future__ import annotations
 
-import copy
-import json
 import math
 from pathlib import Path
 
@@ -47,31 +45,56 @@ def test_d_min_is_monotone_and_none_beyond_limit():
     assert fit.d_min(179, 33.5, H, 40) is None
 
 
-def _case_a():
-    cr = json.loads((ROOT / "examples" / "robots" / "teaching-arm" / "out" / "concept-result.json").read_text(encoding="utf-8"))
-    comp = JsonLibrary(ROOT / "data" / "library").get("smart_actuator.robotis.xm540-w270")
-    return cr["chosen"], comp
+def _arm(wrist=None):
+    """竖直零位的五轴臂（上一版案例 A 的几何）：j2、j3、j4 侧摆，j5 在腕杆末端绕杆轴转（共线）"""
+    tube = {"shape": "tube", "material": "6061-T6"}
+    c = {"format": "robot-concept/1", "name": "五轴臂", "kind": "serial_arm", "base": {"mount": "table"},
+         "links": [dict(tube, id="turret", length_mm=80, section={"od_mm": 70, "id_mm": 60}),
+                   dict(tube, id="upper", length_mm=170, section={"od_mm": 40, "id_mm": 34}),
+                   dict(tube, id="fore", length_mm=160, section={"od_mm": 34, "id_mm": 28}),
+                   dict(tube, id="wrist", length_mm=40, section={"od_mm": 30, "id_mm": 24}),
+                   dict(tube, id="flange", length_mm=60, section={"od_mm": 30, "id_mm": 24})],
+         "joints": [{"id": "j1", "type": "revolute", "parent": "base", "child": "turret", "origin_mm": [0, 0, 0], "axis": [0, 0, 1], "range_deg": [-170, 170]},
+                    {"id": "j2", "type": "revolute", "parent": "turret", "child": "upper", "origin_mm": [0, 0, 80], "axis": [0, 1, 0], "range_deg": [-60, 120]},
+                    {"id": "j3", "type": "revolute", "parent": "upper", "child": "fore", "origin_mm": [0, 0, 170], "axis": [0, 1, 0], "range_deg": [-20, 140]},
+                    {"id": "j4", "type": "revolute", "parent": "fore", "child": "wrist", "origin_mm": [0, 0, 160], "axis": [0, 1, 0], "range_deg": [-120, 120]},
+                    {"id": "j5", "type": "revolute", "parent": "wrist", "child": "flange", "origin_mm": wrist or [0, 0, 40], "axis": [0, 0, 1], "range_deg": [-180, 180]}],
+         "end_effector": {"type": "gripper", "parent": "flange", "offset_mm": [0, 0, 80]}}
+    return c
 
 
-def test_case_a_collinear_wrist_roll_cannot_be_mounted():
-    c, comp = _case_a()
+def _comp(ref="xm540-w270"):
+    return JsonLibrary(ROOT / "data" / "library").get(f"smart_actuator.robotis.{ref}")
+
+
+def test_collinear_wrist_roll_cannot_be_mounted():
+    c, comp = _arm(), _comp()
     r = fit.check(c, {j["id"]: comp for j in c["joints"]})
     j = {x["joint"]: x for x in r["joints"]}
     assert j["j5"]["status"] == "fail" and "共线" in j["j5"]["note"]
     assert j["j2"]["status"] == "pass" and j["j2"]["d_min_mm"] > H["axis_to_bottom"]
     links = {x["link"]: x for x in r["links"]}
-    assert links["upper_arm"]["status"] == "pass"
-    assert links["upper_arm"]["min_mm"] == pytest.approx(j["j2"]["d_min_mm"] + 44.75, abs=0.1)
-    assert r["overall"] == "fail"
+    assert links["upper"]["status"] == "pass"
+    assert links["upper"]["spare_mm"] == pytest.approx(170 - 44.75 - j["j2"]["d_min_mm"], abs=0.1)   # 上臂长 − 轴线到底面 − d_min
+    assert links["wrist"]["status"] == "unknown" and r["overall"] == "fail"
+
+
+def test_offset_wrist_roll_too_close_to_the_wrist_pitch():
+    """腕部轴转偏开 50 mm 但只往前 40 mm：j5 的壳体伸进 j4 的 U 形支架转动范围（真实 AI 第二轮的改法，ADR-0115）"""
+    c = _arm(wrist=[50, 0, 40])                                   # j5 轴仍沿杆（z），轴线沿 x 偏开 50 mm
+    r = fit.check(c, {j["id"]: _comp() for j in c["joints"]})
+    w = {x["link"]: x for x in r["links"]}["wrist"]
+    assert {x["joint"]: x for x in r["joints"]}["j5"]["status"] == "pass"
+    assert w["status"] == "fail" and "伸进" in w["note"]
+    c["joints"][4]["origin_mm"] = [50, 0, 160]                    # 往前推到 U 底板之外
+    w = {x["link"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]})["links"]}["wrist"]
+    assert w["status"] == "pass"
 
 
 def test_short_link_fails_and_missing_interfaces_unknown():
-    c, comp = _case_a()
-    c = copy.deepcopy(c)
-    up = next(x for x in c["joints"] if x["id"] == "j3")
-    up["origin_mm"] = [0, 0, 60]                                             # 上臂只有 60 mm：放不下 U 底板与下一个壳体
-    r = fit.check(c, {j["id"]: comp for j in c["joints"]})
-    assert {x["link"]: x for x in r["links"]}["upper_arm"]["status"] == "fail"
-    small = JsonLibrary(ROOT / "data" / "library").get("smart_actuator.robotis.xm430-w350")   # 430 没有接口数据
-    r = fit.check(c, {j["id"]: small for j in c["joints"]})
+    c = _arm()
+    c["joints"][2]["origin_mm"] = [0, 0, 60]                    # 上臂只有 60 mm：放不下 U 底板与下一个壳体
+    r = fit.check(c, {j["id"]: _comp() for j in c["joints"]})
+    assert {x["link"]: x for x in r["links"]}["upper"]["status"] == "fail"
+    r = fit.check(c, {j["id"]: _comp("xm430-w350") for j in c["joints"]})      # 430 没有接口数据
     assert all(x["status"] == "unknown" for x in r["joints"])
