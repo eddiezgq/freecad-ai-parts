@@ -50,6 +50,24 @@ def test_convergence_verdicts():
     assert T.convergence([1.0, 2.0], 1.6)["verdict"] == T.UNKNOWN
 
 
+
+def test_convergence_when_observed_order_is_unreliable():
+    # 实测（M44 支架）：最后一次加密完全没变 → 求不出 p；按理论阶 2、安全系数 3 用前一个差值保守估计
+    flat = T.convergence([1.683, 1.716, 1.716], 1.6, 0.05, hs=[1.2782, 0.7601, 0.5987])
+    assert flat["verdict"] == T.PASS
+    assert flat["gci_conservative_ratio"] == pytest.approx(3 * 0.033 / 1.716 / ((1.2782 / 0.7601) ** 2 - 1))
+    # 实测：单调收敛但观察阶 6.9 偏高 → 同样保守估计
+    high = T.convergence([2.495, 2.604, 2.61], 1.6, 0.05, hs=[1.4545, 0.9546, 0.647])
+    assert high["order_p"] > 6 and high["verdict"] == T.PASS
+    assert high["gci_conservative_ratio"] == pytest.approx(3 * 0.006 / 2.61 / ((0.9546 / 0.647) ** 2 - 1))
+    # 前一步大跳、最后不变：保守估计超限 → 仍是未知，不放行
+    jump = T.convergence([1.0, 2.0, 2.0], 1.6, 0.05)
+    assert jump["verdict"] == T.UNKNOWN and jump["gci_conservative_ratio"] > 0.05
+    # 观察阶偏低（收敛慢）不套理论阶——那样会低估误差
+    slow = T.convergence([100 + 20 * h ** 0.4 for h in (1.0, 0.6, 0.36)], 1 / 0.6, 0.05, hs=[1.0, 0.6, 0.36])
+    assert slow["verdict"] == T.UNKNOWN and "gci_conservative_ratio" not in slow
+
+
 def test_balance_and_quality_and_overall_verdict():
     assert T.balance({"available": True, "force_error_ratio": 1e-6, "moment_error_ratio": 2e-6})["verdict"] == T.PASS
     assert T.balance({"available": True, "force_error_ratio": 0.02, "moment_error_ratio": 0.0})["verdict"] == T.FAIL
