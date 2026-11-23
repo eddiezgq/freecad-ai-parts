@@ -530,6 +530,98 @@
    "末端下垂只算杆件弯曲；关节模组的刚度厂商没给，不计"
   ]
  },
+ "fit": {
+  "joints": [
+   {
+    "joint": "j1",
+    "actuator": "smart_actuator.robotis.xm540-w270",
+    "type": "轴转（法兰）",
+    "status": "pass",
+    "note": "子杆接在输出舵盘法兰上；壳体底面装在父件上（轴线与父件偏开）"
+   },
+   {
+    "joint": "j2",
+    "actuator": "smart_actuator.robotis.xm540-w270",
+    "type": "侧摆（U 形支架）",
+    "required_deg": 120,
+    "parent_width_mm": 70.0,
+    "plate_width_mm": 40.0,
+    "status": "pass",
+    "d_min_mm": 47.8,
+    "note": "U 底板离轴线至少 47.8 mm 才能转到 ±120°"
+   },
+   {
+    "joint": "j3",
+    "actuator": "smart_actuator.robotis.xm540-w270",
+    "type": "侧摆（U 形支架）",
+    "required_deg": 140,
+    "parent_width_mm": 40.0,
+    "plate_width_mm": 34.0,
+    "status": "pass",
+    "d_min_mm": 51.4,
+    "note": "U 底板离轴线至少 51.4 mm 才能转到 ±140°"
+   },
+   {
+    "joint": "j4",
+    "actuator": "smart_actuator.robotis.xm540-w270",
+    "type": "侧摆（U 形支架）",
+    "required_deg": 120,
+    "parent_width_mm": 34.0,
+    "plate_width_mm": 33.5,
+    "status": "pass",
+    "d_min_mm": 47.8,
+    "note": "U 底板离轴线至少 47.8 mm 才能转到 ±120°"
+   },
+   {
+    "joint": "j5",
+    "actuator": "smart_actuator.robotis.xm540-w270",
+    "type": "轴转（法兰）",
+    "status": "fail",
+    "note": "父杆与子杆都沿这个关节的轴线（共线轴转）：模组能固定的面（底面、侧面）都与输出轴平行，背面是会转的惰轮舵盘，共线装不上。改法：让轴线相对父杆偏开至少 44.75 mm（壳体底面装在父杆上），或换带后端固定法兰的模组"
+   }
+  ],
+  "links": [
+   {
+    "link": "turret",
+    "from": "j1",
+    "to": "j2",
+    "length_mm": 80.0,
+    "min_mm": 44.8,
+    "spare_mm": 35.2,
+    "status": "pass",
+    "note": "近端 0 + 远端壳体（轴线到底面）44.75 = 44.8 mm；余 35.2 mm 给支架板厚、杆套与管子"
+   },
+   {
+    "link": "upper_arm",
+    "from": "j2",
+    "to": "j3",
+    "length_mm": 170.0,
+    "min_mm": 92.5,
+    "spare_mm": 77.5,
+    "status": "pass",
+    "note": "近端 47.8 + 远端壳体（轴线到底面）44.75 = 92.5 mm；余 77.5 mm 给支架板厚、杆套与管子"
+   },
+   {
+    "link": "forearm",
+    "from": "j3",
+    "to": "j4",
+    "length_mm": 160.0,
+    "min_mm": 96.2,
+    "spare_mm": 63.8,
+    "status": "pass",
+    "note": "近端 51.4 + 远端壳体（轴线到底面）44.75 = 96.2 mm；余 63.8 mm 给支架板厚、杆套与管子"
+   },
+   {
+    "link": "wrist",
+    "from": "j4",
+    "to": "j5",
+    "length_mm": 40.0,
+    "status": "unknown",
+    "note": "两端有一端装法没定（见关节一栏），长度判不了"
+   }
+  ],
+  "overall": "fail"
+ },
  "cost": {
   "status": "unknown",
   "note": "零件库没有价格数据；“外购件成本尽量低”要等登记了有价格的公开目录才判得了"

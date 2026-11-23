@@ -139,6 +139,8 @@ def test_case_a_builds_from_the_requirement():
     st = out["rounds"][-1]["static"]["gravity_torque_nm"]
     upper = next(i for i in lk["items"] if i["item"] == "杆件 upper_arm")
     assert upper["bending_nm"] == pytest.approx(abs(st["j2"]), rel=1e-3)          # 杆件根部弯矩 = 多体动力学的肩部静重力矩
+    ft = out["fit"]                                                    # 腕部共线轴转用 X540 装不上（ADR-0115 44.3 之二第 3 步）
+    assert ft["overall"] == "fail" and {x["joint"]: x for x in ft["joints"]}["j5"]["status"] == "fail"
     assert out["cost"]["status"] == "unknown"
     assert all(r["qty"] == 5 for r in out["bom"]["purchased"]) and out["bom"]["notes"]
 
