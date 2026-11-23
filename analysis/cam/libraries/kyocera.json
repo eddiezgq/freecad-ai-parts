@@ -1,6 +1,6 @@
 {
  "format": "cam-tool/1",
- "name": "京瓷 外圆切槽刀片 GMM / GMG（样本参数）",
+ "name": "京瓷 切槽刀片 GMM / GMG、切断刀片 GDM / GDMS（样本参数）",
  "tools": [
   {
    "id": "KY-GMM2420-020MW",
@@ -9,7 +9,8 @@
    "insert": {
     "iso": "GMM2420-020MW",
     "nose_radius_mm": 0.2,
-    "width_mm": 2.4
+    "width_mm": 2.4,
+    "edges": 2
    },
    "cutting": [
     {
@@ -70,7 +71,8 @@
    "insert": {
     "iso": "GMM3020-020MW",
     "nose_radius_mm": 0.2,
-    "width_mm": 3.0
+    "width_mm": 3.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -131,7 +133,8 @@
    "insert": {
     "iso": "GMM3020-040MW",
     "nose_radius_mm": 0.4,
-    "width_mm": 3.0
+    "width_mm": 3.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -192,7 +195,8 @@
    "insert": {
     "iso": "GMM4020-020MW",
     "nose_radius_mm": 0.2,
-    "width_mm": 4.0
+    "width_mm": 4.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -253,7 +257,8 @@
    "insert": {
     "iso": "GMM4020-040MW",
     "nose_radius_mm": 0.4,
-    "width_mm": 4.0
+    "width_mm": 4.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -314,7 +319,8 @@
    "insert": {
     "iso": "GMM4020-080MW",
     "nose_radius_mm": 0.8,
-    "width_mm": 4.0
+    "width_mm": 4.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -375,7 +381,8 @@
    "insert": {
     "iso": "GMM5020-040MW",
     "nose_radius_mm": 0.4,
-    "width_mm": 5.0
+    "width_mm": 5.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -436,7 +443,8 @@
    "insert": {
     "iso": "GMM5020-080MW",
     "nose_radius_mm": 0.8,
-    "width_mm": 5.0
+    "width_mm": 5.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -497,7 +505,8 @@
    "insert": {
     "iso": "GMM6020-040MW",
     "nose_radius_mm": 0.4,
-    "width_mm": 6.0
+    "width_mm": 6.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -558,7 +567,8 @@
    "insert": {
     "iso": "GMM6020-080MW",
     "nose_radius_mm": 0.8,
-    "width_mm": 6.0
+    "width_mm": 6.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -619,7 +629,8 @@
    "insert": {
     "iso": "GMM8030-080MW",
     "nose_radius_mm": 0.8,
-    "width_mm": 8.0
+    "width_mm": 8.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -680,7 +691,8 @@
    "insert": {
     "iso": "GMM3020-020MS",
     "nose_radius_mm": 0.2,
-    "width_mm": 3.0
+    "width_mm": 3.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -741,7 +753,8 @@
    "insert": {
     "iso": "GMM3020-040MS",
     "nose_radius_mm": 0.4,
-    "width_mm": 3.0
+    "width_mm": 3.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -802,7 +815,8 @@
    "insert": {
     "iso": "GMM4020-040MS",
     "nose_radius_mm": 0.4,
-    "width_mm": 4.0
+    "width_mm": 4.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -863,7 +877,8 @@
    "insert": {
     "iso": "GMM5020-040MS",
     "nose_radius_mm": 0.4,
-    "width_mm": 5.0
+    "width_mm": 5.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -924,7 +939,8 @@
    "insert": {
     "iso": "GMM6020-040MS",
     "nose_radius_mm": 0.4,
-    "width_mm": 6.0
+    "width_mm": 6.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -985,7 +1001,8 @@
    "insert": {
     "iso": "GMG3020-000MS",
     "nose_radius_mm": 0.0,
-    "width_mm": 3.0
+    "width_mm": 3.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1046,7 +1063,8 @@
    "insert": {
     "iso": "GMG3020-020MS",
     "nose_radius_mm": 0.2,
-    "width_mm": 3.0
+    "width_mm": 3.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1107,7 +1125,8 @@
    "insert": {
     "iso": "GMG3020-040MS",
     "nose_radius_mm": 0.4,
-    "width_mm": 3.0
+    "width_mm": 3.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1168,7 +1187,8 @@
    "insert": {
     "iso": "GMG4020-020MS",
     "nose_radius_mm": 0.2,
-    "width_mm": 4.0
+    "width_mm": 4.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1229,7 +1249,8 @@
    "insert": {
     "iso": "GMG4020-040MS",
     "nose_radius_mm": 0.4,
-    "width_mm": 4.0
+    "width_mm": 4.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1290,7 +1311,8 @@
    "insert": {
     "iso": "GMG4020-080MS",
     "nose_radius_mm": 0.8,
-    "width_mm": 4.0
+    "width_mm": 4.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1351,7 +1373,8 @@
    "insert": {
     "iso": "GMG5020-040MS",
     "nose_radius_mm": 0.4,
-    "width_mm": 5.0
+    "width_mm": 5.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1412,7 +1435,8 @@
    "insert": {
     "iso": "GMG5020-080MS",
     "nose_radius_mm": 0.8,
-    "width_mm": 5.0
+    "width_mm": 5.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1473,7 +1497,8 @@
    "insert": {
     "iso": "GMG6020-080MS",
     "nose_radius_mm": 0.8,
-    "width_mm": 6.0
+    "width_mm": 6.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1534,7 +1559,8 @@
    "insert": {
     "iso": "GMG2520-030MG",
     "nose_radius_mm": 0.3,
-    "width_mm": 2.5
+    "width_mm": 2.5,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1595,7 +1621,8 @@
    "insert": {
     "iso": "GMG3020-030MG",
     "nose_radius_mm": 0.3,
-    "width_mm": 3.0
+    "width_mm": 3.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1656,7 +1683,8 @@
    "insert": {
     "iso": "GMG3520-030MG",
     "nose_radius_mm": 0.3,
-    "width_mm": 3.5
+    "width_mm": 3.5,
+    "edges": 2
    },
    "source": {
     "kind": "catalog",
@@ -1671,7 +1699,8 @@
    "insert": {
     "iso": "GMG4020-040MG",
     "nose_radius_mm": 0.4,
-    "width_mm": 4.0
+    "width_mm": 4.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1732,7 +1761,8 @@
    "insert": {
     "iso": "GMG5020-040MG",
     "nose_radius_mm": 0.4,
-    "width_mm": 5.0
+    "width_mm": 5.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1793,7 +1823,8 @@
    "insert": {
     "iso": "GMG6020-040MG",
     "nose_radius_mm": 0.4,
-    "width_mm": 6.0
+    "width_mm": 6.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1854,7 +1885,8 @@
    "insert": {
     "iso": "GMG8030-050MG",
     "nose_radius_mm": 0.5,
-    "width_mm": 8.0
+    "width_mm": 8.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1915,7 +1947,8 @@
    "insert": {
     "iso": "GMM3020-150R",
     "nose_radius_mm": 1.5,
-    "width_mm": 3.0
+    "width_mm": 3.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -1976,7 +2009,8 @@
    "insert": {
     "iso": "GMM4020-200R",
     "nose_radius_mm": 2.0,
-    "width_mm": 4.0
+    "width_mm": 4.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -2037,7 +2071,8 @@
    "insert": {
     "iso": "GMM5020-250R",
     "nose_radius_mm": 2.5,
-    "width_mm": 5.0
+    "width_mm": 5.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -2098,7 +2133,8 @@
    "insert": {
     "iso": "GMM6020-300R",
     "nose_radius_mm": 3.0,
-    "width_mm": 6.0
+    "width_mm": 6.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -2159,7 +2195,8 @@
    "insert": {
     "iso": "GMG3020-150R",
     "nose_radius_mm": 1.5,
-    "width_mm": 3.0
+    "width_mm": 3.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -2220,7 +2257,8 @@
    "insert": {
     "iso": "GMG4020-200R",
     "nose_radius_mm": 2.0,
-    "width_mm": 4.0
+    "width_mm": 4.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -2281,7 +2319,8 @@
    "insert": {
     "iso": "GMG5020-250R",
     "nose_radius_mm": 2.5,
-    "width_mm": 5.0
+    "width_mm": 5.0,
+    "edges": 2
    },
    "cutting": [
     {
@@ -2333,6 +2372,988 @@
     "kind": "catalog",
     "ref": "kyocera",
     "page": "尺寸 G049；切削条件 G143（切槽一栏，刃宽档 5.0；切削速度为各牌号合集，具体牌号按样本另选）"
+   }
+  },
+  {
+   "id": "KY-GDM2020N-020PM",
+   "name": "京瓷 GDM2020N-020PM 切断刀片（刃宽 2，两刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDM2020N-020PM",
+    "nose_radius_mm": 0.2,
+    "width_mm": 2.0,
+    "edges": 2,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDM2520N-020PM",
+   "name": "京瓷 GDM2520N-020PM 切断刀片（刃宽 2.5，两刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDM2520N-020PM",
+    "nose_radius_mm": 0.2,
+    "width_mm": 2.5,
+    "edges": 2,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDM3020N-025PM",
+   "name": "京瓷 GDM3020N-025PM 切断刀片（刃宽 3，两刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDM3020N-025PM",
+    "nose_radius_mm": 0.25,
+    "width_mm": 3.0,
+    "edges": 2,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDM4020N-030PM",
+   "name": "京瓷 GDM4020N-030PM 切断刀片（刃宽 4，两刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDM4020N-030PM",
+    "nose_radius_mm": 0.3,
+    "width_mm": 4.0,
+    "edges": 2,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDM2020R-020PM-6D",
+   "name": "京瓷 GDM2020R-020PM-6D 切断刀片（刃宽 2，两刃，6° 导角）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDM2020R-020PM-6D",
+    "nose_radius_mm": 0.2,
+    "width_mm": 2.0,
+    "edges": 2,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDM2520R-020PM-6D",
+   "name": "京瓷 GDM2520R-020PM-6D 切断刀片（刃宽 2.5，两刃，6° 导角）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDM2520R-020PM-6D",
+    "nose_radius_mm": 0.2,
+    "width_mm": 2.5,
+    "edges": 2,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDM3020R-025PM-6D",
+   "name": "京瓷 GDM3020R-025PM-6D 切断刀片（刃宽 3，两刃，6° 导角）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDM3020R-025PM-6D",
+    "nose_radius_mm": 0.25,
+    "width_mm": 3.0,
+    "edges": 2,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDMS2020N-020PM",
+   "name": "京瓷 GDMS2020N-020PM 切断刀片（刃宽 2，单刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDMS2020N-020PM",
+    "nose_radius_mm": 0.2,
+    "width_mm": 2.0,
+    "edges": 1,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDMS3020N-025PM",
+   "name": "京瓷 GDMS3020N-025PM 切断刀片（刃宽 3，单刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDMS3020N-025PM",
+    "nose_radius_mm": 0.25,
+    "width_mm": 3.0,
+    "edges": 1,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDMS4020N-030PM",
+   "name": "京瓷 GDMS4020N-030PM 切断刀片（刃宽 4，单刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDMS4020N-030PM",
+    "nose_radius_mm": 0.3,
+    "width_mm": 4.0,
+    "edges": 1,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDMS2020R-020PM-6D",
+   "name": "京瓷 GDMS2020R-020PM-6D 切断刀片（刃宽 2，单刃，6° 导角）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDMS2020R-020PM-6D",
+    "nose_radius_mm": 0.2,
+    "width_mm": 2.0,
+    "edges": 1,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDMS3020R-025PM-6D",
+   "name": "京瓷 GDMS3020R-025PM-6D 切断刀片（刃宽 3，单刃，6° 导角）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDMS3020R-025PM-6D",
+    "nose_radius_mm": 0.25,
+    "width_mm": 3.0,
+    "edges": 1,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDMS4020R-030PM-6D",
+   "name": "京瓷 GDMS4020R-030PM-6D 切断刀片（刃宽 4，单刃，6° 导角）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDMS4020R-030PM-6D",
+    "nose_radius_mm": 0.3,
+    "width_mm": 4.0,
+    "edges": 1,
+    "cutoff_only": true
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.06,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.18
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PM，刃宽 2~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDM2020N-020PH",
+   "name": "京瓷 GDM2020N-020PH 切槽兼切断刀片（刃宽 2，两刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDM2020N-020PH",
+    "nose_radius_mm": 0.2,
+    "width_mm": 2.0,
+    "edges": 2
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PH，刃宽 2；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDM3020N-030PH",
+   "name": "京瓷 GDM3020N-030PH 切槽兼切断刀片（刃宽 3，两刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDM3020N-030PH",
+    "nose_radius_mm": 0.3,
+    "width_mm": 3.0,
+    "edges": 2
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.28
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.28
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PH，刃宽 3~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDM4020N-030PH",
+   "name": "京瓷 GDM4020N-030PH 切槽兼切断刀片（刃宽 4，两刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDM4020N-030PH",
+    "nose_radius_mm": 0.3,
+    "width_mm": 4.0,
+    "edges": 2
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.28
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.28
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PH，刃宽 3~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDMS2020N-020PH",
+   "name": "京瓷 GDMS2020N-020PH 切槽兼切断刀片（刃宽 2，单刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDMS2020N-020PH",
+    "nose_radius_mm": 0.2,
+    "width_mm": 2.0,
+    "edges": 1
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.05,
+      "max": 0.12
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.1,
+      "max": 0.25
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PH，刃宽 2；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDMS3020N-030PH",
+   "name": "京瓷 GDMS3020N-030PH 切槽兼切断刀片（刃宽 3，单刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDMS3020N-030PH",
+    "nose_radius_mm": 0.3,
+    "width_mm": 3.0,
+    "edges": 1
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.28
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.28
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PH，刃宽 3~4；切削速度为各牌号合集）"
+   }
+  },
+  {
+   "id": "KY-GDMS4020N-030PH",
+   "name": "京瓷 GDMS4020N-030PH 切槽兼切断刀片（刃宽 4，单刃）",
+   "kind": "groove",
+   "insert": {
+    "iso": "GDMS4020N-030PH",
+    "nose_radius_mm": 0.3,
+    "width_mm": 4.0,
+    "edges": 1
+   },
+   "cutting": [
+    {
+     "iso_group": "P",
+     "vc_m_min": {
+      "min": 70.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.28
+     }
+    },
+    {
+     "iso_group": "M",
+     "vc_m_min": {
+      "min": 60.0,
+      "max": 150.0
+     },
+     "f_mm_rev": {
+      "min": 0.08,
+      "max": 0.15
+     }
+    },
+    {
+     "iso_group": "K",
+     "vc_m_min": {
+      "min": 100.0,
+      "max": 200.0
+     },
+     "f_mm_rev": {
+      "min": 0.15,
+      "max": 0.28
+     }
+    }
+   ],
+   "source": {
+    "kind": "catalog",
+    "ref": "kyocera",
+    "page": "尺寸 H033；切削条件 H045（PH，刃宽 3~4；切削速度为各牌号合集）"
    }
   }
  ]

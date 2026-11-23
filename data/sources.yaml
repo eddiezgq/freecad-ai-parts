@@ -281,7 +281,7 @@ sources:
     terms_checked: true
     terms_note: >-
       2026-11-22 按 ADR-0040 与项目负责人 2026-11-19 的决定（刀具样本是厂家为卖刀公开发放的资料，只收事实参数、注明页码）：
-      收录 G 分册（切槽）外圆切槽刀片 GMM / GMG 的刃宽、刀尖圆弧与 G143 推荐切削条件（切槽进给、切削速度范围），G056 外圆切槽刀杆 KGM 的尺寸、最大槽深与可装刃宽，逐把注明样本页码；
+      收录 G 分册（切槽）外圆切槽刀片 GMM / GMG 的刃宽、刀尖圆弧与 G143 推荐切削条件（切槽进给、切削速度范围），G056 外圆切槽刀杆 KGM 的尺寸、最大槽深与可装刃宽；H 分册（切断）H033 切断刀片 GDM / GDMS、H040 方柄切断刀杆 KGD、H045 切削条件；逐把注明样本页码；
       不转存样本文档、图片与文字。所用 PDF 由京瓷巴西网站转载的英文版 G 分册，页码与印刷样本（G 页）一致。
     documents:
       - id: src-kyocera-g-grooving
@@ -289,6 +289,11 @@ sources:
         version: 未印版本号，以 SHA-256 标识（2026-11-22 登记）
         url: https://www.kyocera-componentes.com.br/catalog/G_EN.pdf
         sha256: "8dee13c09359c8bfd8867b6fbd085b41d250667138534420f993acbe53b0cd70"
+      - id: src-kyocera-h-cutoff
+        title: KYOCERA Cutting Tools catalogue, section H Cut-Off（英文，74 页）
+        version: 未印版本号，以 SHA-256 标识（2026-11-23 登记）
+        url: https://www.kyocera-componentes.com.br/catalog/H_EN.pdf
+        sha256: "102b281b94a3da8cea580eeeeae7d87063fb238ebc8748b46aefe97ff22a0237"
   - id: golden-egret
     vendor: 厦门金鹭特种合金有限公司（Golden Egret）
     url: https://www.gesac.com.cn

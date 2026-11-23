@@ -2180,5 +2180,6 @@
 "T{} 的刀杆 {} 没写最大槽深，要切 {} mm 够不够没查": "T{}: holder {} has no maximum grooving depth; whether it reaches {} mm was not checked",
 "刀杆 {} 没写全长，刀杆没查": "Holder {} has no overall length; holder not checked",
 "刀杆 {}：离刀尖 {} mm 以内的刀头外形各家不同，没查（切槽深度按刀杆最大槽深另查）": "Holder {}: the head within {} mm of the tip differs by vendor and was not checked (grooving depth is checked against the holder's maximum depth)",
-"T{}（{}）：刀杆库里装得上刃宽 {} 的切槽刀杆最大槽深都不到 {} mm，刀杆没配（ADR-0118）": "T{} ({}): grooving holders in the library that take a {} mm insert all reach less than {} mm deep; no holder paired (ADR-0118)"
+"T{}（{}）：刀杆库里装得上刃宽 {} 的切槽刀杆最大槽深都不到 {} mm，刀杆没配（ADR-0118）": "T{} ({}): grooving holders in the library that take a {} mm insert all reach less than {} mm deep; no holder paired (ADR-0118)",
+"T{} 的刀杆 {} 装两刃刀片最深 {} mm，要切 {} mm；刀片刃数没写，够不够没查": "T{}: holder {} reaches at most {} mm with a two-edge insert and {} mm must be cut; the insert's edge count is not given, so this was not checked"
 }
