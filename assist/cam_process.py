@@ -358,9 +358,9 @@ def draft(part: dict, iso: str, lib: dict | None = None, client=None, *, note: s
     return {"setup": setup, "card": card, "notes": notes, "by": by, "explanation": explanation, "iso_group": iso}
 
 
-def turn_holder(tool, bore_d=None) -> dict | None:
-    """车刀没写刀杆：按刀片代号从刀杆库配一把——外圆车刀配外圆刀杆（ADR-0112）；内孔刀（镗刀种类或 internal）给了孔径就配镗杆（ADR-0114）。
-    切槽刀、螺纹刀、铣刀不配"""
+def turn_holder(tool, bore_d=None, depth=None) -> dict | None:
+    """车刀没写刀杆：按刀片代号从刀杆库配一把——外圆车刀配外圆刀杆（ADR-0112）；内孔刀（镗刀种类或 internal）给了孔径就配镗杆（ADR-0114）；
+    外圆切槽刀给了槽深就按刃宽和槽深配切槽刀杆（ADR-0118）。外螺纹刀、铣刀不配"""
     from analysis.cam import holders as HD
 
     h0 = tool.get("holder") or {}
@@ -374,9 +374,25 @@ def turn_holder(tool, bore_d=None) -> dict | None:
         h = HD.pick(iso, bore_d=float(bore_d))
     elif not inner and tool.get("kind") == "turn":
         h = HD.pick(iso)
+    elif not inner and tool.get("kind") == "groove" and (tool.get("insert") or {}).get("width_mm") and depth is not None:
+        # 不知道槽深（如 FreeCAD 面板里按刀号配）不配：配错了槽深不够的刀杆反而报错
+        h = HD.pick_groove(float(tool["insert"]["width_mm"]), depth)
     else:
         return None
     return HD.as_tool_holder(h) if h else None
+
+
+def _groove_depths(part) -> dict:
+    """槽深、切断深度（配切槽刀杆用，ADR-0118）；零件设置有毛病算不出来时不给（计算时会报出来）"""
+    from analysis import cam as C
+    from analysis.cam import machines
+
+    if not (part.get("grooves") or part.get("parting")):
+        return {}
+    try:
+        return C.groove_depths(part, machines.get(part["machine"]))
+    except Exception:  # noqa: BLE001
+        return {}
 
 
 def _setup(part, by_op, lengths, notes):
@@ -384,20 +400,27 @@ def _setup(part, by_op, lengths, notes):
     ms = s.setdefault("machine_sim", {})
     mtools = ms.setdefault("tools", {})
 
-    def T(n, tool, bore_d=None):
+    def T(n, tool, bore_d=None, depth=None):
         e = {"tool": tool["id"]}
         if tool["id"] in lengths:
             e["length_mm"] = float(lengths[tool["id"]])
-        hd = turn_holder(tool, bore_d)
+        hd = turn_holder(tool, bore_d, depth)
         if hd:
             e["holder"] = hd
             notes.append(f"T{n}（{tool['id']}）没写刀杆，按刀片配 {hd.get('iso5608') or hd.get('iso6261') or hd.get('vendor_code')}"
                          "（刀杆库，起草配的，ADR-0112）")
         elif bore_d and not (tool.get("holder") or {}) and (tool.get("insert") or {}).get("iso"):
             notes.append(f"T{n}（{tool['id']}）：刀杆库里没有能进 Ø{float(bore_d):g} 孔的镗杆，镗杆没配（ADR-0114）")
+        elif depth is not None and tool.get("kind") == "groove" and not (tool.get("holder") or {}) and not tool.get("internal"):
+            from analysis.cam import holders as HD
+
+            w = (tool.get("insert") or {}).get("width_mm")
+            if w and HD.pick_groove(float(w)) is not None:          # 有装得上的刀杆，只是槽深都不够
+                notes.append(f"T{n}（{tool['id']}）：刀杆库里装得上刃宽 {float(w):g} 的切槽刀杆最大槽深都不到 {depth:.3f} mm，刀杆没配（ADR-0118）")
         mtools[str(n)] = e
 
     if part["mode"] == "turn":
+        gdepth = _groove_depths(part)
         r, f = by_op["rough"], by_op["finish"]
         s["cut"] = {"rough": {k: r["params"][k] for k in ("vc", "f", "ap")}, "finish": {k: f["params"][k] for k in ("vc", "f")}}
         T(1, r["tool"])
@@ -406,7 +429,7 @@ def _setup(part, by_op, lengths, notes):
             v = by_op[f"groove{i}"]
             g["cut"] = {k: v["params"][k] for k in ("vc", "f")}
             g["tool_w"] = float((v["tool"].get("insert") or {}).get("width_mm", g["width"]))
-            T(3, v["tool"])
+            T(3, v["tool"], depth=gdepth.get("groove"))
         for i, th in enumerate(s.get("threads") or [], 1):
             v = by_op[f"thread{i}"]
             th["cut"] = {"vc": v["params"]["vc"]}
@@ -421,7 +444,7 @@ def _setup(part, by_op, lengths, notes):
             v = by_op["part"]
             s["parting"]["cut"] = {k: v["params"][k] for k in ("vc", "f")}
             s["parting"].setdefault("tool_w", float((v["tool"].get("insert") or {}).get("width_mm", 3.0)))
-            T(8, v["tool"])
+            T(8, v["tool"], depth=gdepth.get("part"))
         if s.get("bore"):
             d, b = by_op["drill"], by_op["bore"]
             s["bore"]["drill_d"] = float(d["tool"]["diameter_mm"])
