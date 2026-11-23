@@ -2204,5 +2204,9 @@
 "回转轴和直线轴同一段、没开刀尖跟随（G43.4）：非 RTCP 的五轴程序还读不了（ADR-0106 C3c）": "Rotary and linear axes in one block without tool-tip control (G43.4): non-RTCP 5-axis programs cannot be read yet (ADR-0106 C3c)",
 "第 {} 行刀轴离回转轴 {} 只有 {}°（奇异点附近）：{} 转多少刀轴都差不多，机床可能在这里猛转；刀轴别贴着回转轴": "Line {}: the tool axis is near rotary axis {}, only {}° away (near a singularity): turning {} barely changes the tool axis, the machine may swing hard here; keep the tool axis away from the rotary axis",
 "第 {} 行回转轴 {} 一步转了 {}°（切削中超过 {}°）：多半是过了奇异点或回转轴到了行程头换了一组解，刀尖会在工件上乱走；改刀轴或装夹位置": "Line {}: rotary axis {} turns {}° in one move while cutting (more than {}°): most likely a singularity was crossed or the axis hit its travel limit and switched solution branch, the tool tip will wander over the work; change the tool axis or the setup position",
-"第 {} 行起回转轴 {} 要转 {}°/分，超过机床能力 {}°/分：数控系统会降进给，实际时间比算的长": "From line {} rotary axis {} needs {}°/min, more than the machine's {}°/min: the control will slow the feed, the real time is longer than calculated"
+"第 {} 行起回转轴 {} 要转 {}°/分，超过机床能力 {}°/分：数控系统会降进给，实际时间比算的长": "From line {} rotary axis {} needs {}°/min, more than the machine's {}°/min: the control will slow the feed, the real time is longer than calculated",
+"刀路至少要 2 个点": "A toolpath needs at least 2 points",
+"接触点和法向的个数要一样": "Contact points and normals must have the same count",
+"曲线点和法向的个数要一样": "Curve points and normals must have the same count",
+"走刀方向与曲面法向平行，定不了前倾、侧倾": "The feed direction is parallel to the surface normal; lead and tilt are undefined"
 }
