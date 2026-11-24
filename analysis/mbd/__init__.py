@@ -31,6 +31,8 @@ MODULE = {
     "description": "机构与机械臂在给定运动下的关节力矩、转速、功率；结果可直接生成选型需求",
     "python": ["mujoco", "numpy"], "solvers": [], "install": '安装：pip install -e ".[mbd]"（FreeCAD 中用 FreeCAD 自带的 Python 安装）',
 }
+COUPLING_DEV_MM = 1.0      # 传动比约束（丝杠等移动输出）允许的最大偏差
+COUPLING_DEV_DEG = 1.0     # 转动输出（齿轮、蜗轮、带轮）允许的最大偏差
 LIMITATIONS = ["刚体动力学：构件不变形，关节无间隙", "给定运动的驱动按理想伺服（跟踪误差见 tracking_error）",
                "机械臂模型为参数化串联臂：杆为均布质量，关节模组为集中质量；质量由使用者给出"]
 RPM = 60 / (2 * math.pi)
@@ -170,6 +172,22 @@ def run(setup: dict) -> dict:
                      "drive": _downsample(ch["drive." + j])}
     data = {"drives": drives, "series": series, "tracking_error": summ["tracking_error_max"],
             "timestep_s": summ["timestep_s"]}
+    # 传动比耦合的实际偏差（问渠 CAD 0.3.6 细则 C2）：从动 − k × 主动，全程最大值；超限就不给结果——约束没守住时力矩看着对、位置是错的
+    over = []
+    if mid is not None:
+        devs = []
+        for out, inp, k in mechanisms.ratio_couplings(mid, mechanisms.params(mid, (setup.get("model") or {}).get("params"))):
+            v = float(abs(ch["q." + out] - k * ch["q." + inp]).max())
+            slide = out in slides
+            val, unit, lim = (v * 1000, "mm", COUPLING_DEV_MM) if slide else (math.degrees(v), "°", COUPLING_DEV_DEG)
+            devs.append({"follower": out, "driver": inp, "ratio": k, "max_dev": round(val, 6), "unit": unit, "limit": lim})
+            if val > lim:
+                over.append(f"{out} 与 {inp} 的传动比约束最大偏差 {val:.3g} {unit}，超过 {lim:g} {unit}")
+        if devs:
+            data["coupling_max_dev"] = devs
+    if over:
+        return result.failed("mbd", MODULE["version"], setup,
+                             "传动比约束没守住，结果不可信：" + "；".join(over) + "。可减小负载、加密时间步，或改用 DAE 内核（model 格式）")
     try:
         import mujoco
         import numpy as np

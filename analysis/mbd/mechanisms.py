@@ -137,6 +137,31 @@ def couplings(mid, p):
     return []
 
 
+def ratio_couplings(mid, p):
+    """传动比耦合：[(从动关节, 主动关节, k)]，从动 = k × 主动（关节零位都是 0）。齿轮系、减速器、蜗杆、带、丝杠用。"""
+    if mid in ("C-GER-TRAIN", "C-RED-WQR105"):
+        return [("shaft2", "shaft1", -p["z1"] / p["z2"]), ("shaft3", "shaft2", -p["z3"] / p["z4"])]
+    if mid == "C-WRM-WORM":
+        return [("wheel", "worm", p["worm_starts"] / p["wheel_teeth"])]
+    if mid == "C-BLT-BELT":
+        return [("pulley2", "pulley1", p["d1_m"] / p["d2_m"])]
+    if mid == "C-SCN-LEAD":
+        return [("nut", "screw", p["lead_mm"] / 1000 / (2 * math.pi))]
+    return []
+
+
+def _ratio_tendons(mid, p):
+    """传动比耦合写成固定肌腱 + 肌腱等式（肌腱长 = 从动 − k × 主动，保持为 0）。
+    原来用关节等式 <joint polycoef>：MuJoCo 估它的正则项时按两个关节各自的逆权重相加、不乘传动比的平方，
+    丝杠（k ≈ 6e-4 m/rad）受 200 N 时螺母偏离 954 mm、蜗轮受 30 N·m 落后 15°，结果仍报正常——
+    《多体动力学》书第 24 章线索第 37 条（问渠 CAD 0.3.6 细则 C2）。肌腱等式的正则项按肌腱的有效逆惯量算，偏差回到亚毫米。"""
+    ten, eq = [], []
+    for n, (out, inp, k) in enumerate(ratio_couplings(mid, p)):
+        ten.append(f'<fixed name="ratio{n}"><joint joint="{out}" coef="1"/><joint joint="{inp}" coef="{-k!r}"/></fixed>')
+        eq.append(f'<tendon tendon1="ratio{n}" {EQ}/>')
+    return ten, eq
+
+
 # ---------------------------------------------------------------- MJCF
 HINGE_Y = 'type="hinge" axis="0 -1 0"'
 
@@ -191,27 +216,22 @@ def mjcf(mid, given=None):
         body.append(f'<body name="shaft1"><joint name="shaft1" {HINGE_Y}/>{_disc(m1 * z1 / 2, b1, BLUE)}</body>')
         body.append(f'<body name="shaft2" pos="{a1} 0 0"><joint name="shaft2" {HINGE_Y}/>{_disc(m1 * z2 / 2, b1, GREY)}<body pos="0 {y2} 0">{_disc(m2 * z3 / 2, b2, BLUE)}</body></body>')
         body.append(f'<body name="shaft3" pos="{a1 + a2} {y2} 0"><joint name="shaft3" {HINGE_Y}/>{_disc(m2 * z4 / 2, b2, GREY)}</body>')
-        eq.append(f'<joint joint1="shaft2" joint2="shaft1" polycoef="0 {-z1 / z2} 0 0 0" {EQ}/>')
-        eq.append(f'<joint joint1="shaft3" joint2="shaft2" polycoef="0 {-z3 / z4} 0 0 0" {EQ}/>')
     elif mid == "C-WRM-WORM":
         m, z1, z2, q = p["module_mm"] / 1000, p["worm_starts"], p["wheel_teeth"], p["diameter_factor"]
         d1, d2 = m * q, m * z2
         body.append(f'<body name="worm" pos="0 0 {(d1 + d2) / 2}"><joint name="worm" type="hinge" axis="1 0 0"/>'
                     f'<geom type="cylinder" euler="0 90 0" size="{d1 / 2} {3 * math.pi * m}" density="{RHO}" rgba="{BLUE}"/></body>')
         body.append('<body name="wheel"><joint name="wheel" {h}/>{g}</body>'.format(h=HINGE_Y, g=_disc(d2 / 2, p["wheel_face_mm"] / 1000, GREY)))
-        eq.append(f'<joint joint1="wheel" joint2="worm" polycoef="0 {z1 / z2} 0 0 0" {EQ}/>')
     elif mid == "C-BLT-BELT":
         D1, D2, a, w = p["d1_m"], p["d2_m"], p["center_m"], p["width_m"]
         body.append(f'<body name="pulley1"><joint name="pulley1" {HINGE_Y}/>{_disc(D1 / 2, w, BLUE)}</body>')
         body.append(f'<body name="pulley2" pos="{a} 0 0"><joint name="pulley2" {HINGE_Y}/>{_disc(D2 / 2, w, GREY)}</body>')
-        eq.append(f'<joint joint1="pulley2" joint2="pulley1" polycoef="0 {D1 / D2} 0 0 0" {EQ}/>')
     elif mid == "C-SCN-LEAD":
-        d, Ph, Ls, Ln = p["diameter_mm"] / 1000, p["lead_mm"] / 1000, p["screw_length_m"], p["nut_length_m"]
+        d, Ls, Ln = p["diameter_mm"] / 1000, p["screw_length_m"], p["nut_length_m"]
         body.append('<body name="screw"><joint name="screw" type="hinge" axis="1 0 0"/>'
                     f'<geom type="cylinder" euler="0 90 0" size="{d / 2} {Ls / 2}" density="{RHO}" rgba="{GREY}"/></body>')
         body.append('<body name="nut"><joint name="nut" type="slide" axis="1 0 0"/>'
                     f'<geom type="box" size="{Ln / 2} {d} {d}" density="{RHO}" rgba="{BLUE}"/></body>')
-        eq.append(f'<joint joint1="nut" joint2="screw" polycoef="0 {Ph / (2 * math.pi)} 0 0 0" {EQ}/>')
     elif mid == "C-GNV-GENEVA":
         n, R, t = int(p["slots"]), p["crank_m"], p["thickness_m"]
         C = R / math.sin(math.pi / n)
@@ -226,8 +246,11 @@ def mjcf(mid, given=None):
         body.append(f'<body name="wheel"><joint name="wheel" {HINGE_Y}/>{_disc(R, t, BLUE)}</body>')
     else:
         raise ValueError(f"零件库里没有可做动力学的机构“{mid}”")
+    ten, teq = _ratio_tendons(mid, p)
+    eq += teq
     return ('<mujoco model="{m}"><compiler angle="degree" autolimits="true"/><option timestep="0.0002"/>'
-            '<worldbody>{b}</worldbody><equality>{e}</equality></mujoco>').format(m=mid, b="".join(body), e="".join(eq))
+            '<worldbody>{b}</worldbody>{t}<equality>{e}</equality></mujoco>').format(
+        m=mid, b="".join(body), t=f"<tendon>{''.join(ten)}</tendon>" if ten else "", e="".join(eq))
 
 
 def initial(mid, given, q_driver):
