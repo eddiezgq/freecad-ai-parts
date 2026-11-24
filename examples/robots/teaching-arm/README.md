@@ -19,4 +19,6 @@ python -m assist.robot_case examples/robots/teaching-arm --replay tests/recordin
 | `out/fea-result.json` | 10 个自制支架的有限元：载荷、可信度核查、对屈服与疲劳的安全系数 |
 | `out/timing.json` | 各步实测用时与本机配置 |
 
+三维模型：跑完后在问渠 CAD（或 FreeCAD）里用“文件 → 打开”选 `out/cad/assembly.step`。
+
 只重出报告与 BOM（不重算）：`python -m assist.robot_report examples/robots/teaching-arm/out`。
