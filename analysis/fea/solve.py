@@ -1298,10 +1298,10 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
              "u_max_mm": round(float(umag.max()), 6), "u_max_at": [round(float(x), 3) for x in pos[jmax]],
              "applied_force_n": [round(float(x), 3) for x in sum(forces.values(), np.zeros(3))]}
     if not ok[ia] and allvm[ia] > 1.1 * allvm[ie]:
+        over = 100 * (allvm[ia] / allvm[ie] - 1)
         stats["vm_peak_excluded_note"] = (
-            "全部节点的最大应力 {:.4g} MPa 在支承面附近（评估时排除的区域，见 vm_peak_all_at），比评估最大应力 {:.4g} MPa 大 {:.0f}%；"
-            "支承处的应力受边界条件影响，评估不计，但真实结构在那里怎么受力要单独确认".format(
-                allvm[ia], allvm[ie], 100 * (allvm[ia] / allvm[ie] - 1)))
+            f"全部节点的最大应力 {allvm[ia]:.4g} MPa 在支承面附近（评估时排除的区域，见 vm_peak_all_at），比评估最大应力 "
+            f"{allvm[ie]:.4g} MPa 大 {over:.0f}%；支承处的应力受边界条件影响，评估不计，但真实结构在那里怎么受力要单独确认")
     if len(Bs) > 1:
         stats["vm_max_body"] = Bs[int(node_body[ie])]["id"]
     if nonlin:
