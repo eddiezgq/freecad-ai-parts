@@ -240,12 +240,6 @@ def run_model(model: dict, base_dir=None):
                          "redundant": len(info.get("redundant", [])),
                          "status": PASS if info["dof"] == dof_g + len(info.get("redundant", [])) else UNKNOWN,
                          "note": "雅可比秩算出的自由度 = Grübler 自由度 + 冗余约束数时通过；不等说明有奇异位形，请检查模型"})
-    if stab is not None:
-        verification.append(stab)
-        if stab["status"] == FAIL:
-            messages.append("静平衡不稳定：平衡位置有 {} 个特征值实部为正（最大 {:.3g} 1/s），一碰就会离开；"
-                            "这是结论，不是计算错误。要找稳定平衡可换初始位置，或用 static_then_dynamic 加扰动和阻尼".format(
-                                stab["value"], stab["max_real"]))
     data = {"model": model["name"], "analysis": typ, "dof": info["dof"], "redundant_constraints": info.get("redundant", []),
             "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas,
             "contacts": cont, "flex": flex, "actuators": act, "energy": energy,
@@ -254,6 +248,12 @@ def run_model(model: dict, base_dir=None):
                                                        "newton_fail", "error_fail", "h_min", "h_max")
                        if k in info} | {"integrator": method, "rtol": rtol,
                                                                                                "atol": atol}}
+    if stab is not None:
+        verification.append(stab)
+        if stab["status"] == FAIL:
+            messages.append("静平衡不稳定：平衡位置有 {} 个特征值实部为正（最大 {:.3g} 1/s），一碰就会离开；"
+                            "这是结论，不是计算错误。要找稳定平衡可换初始位置，或用 static_then_dynamic 加扰动和阻尼".format(
+                                stab["value"], stab["max_real"]))
     return data, messages
 
 
