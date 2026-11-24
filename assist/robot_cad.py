@@ -28,6 +28,17 @@ DESIGN = {
     "bolt_hole_mm": 2.9,        # M2.5 通孔（ISO 273 中等级）
     "boss_hole_mm": 11.0,       # 舵盘中心凸台让位孔（凸台 Ø10）
     "foot_mm": 120.0,           # 基座底板边长
+    "base_plate_mm": 8.0,       # 基座立板厚：整条臂的倾覆力矩都压在它根部（4 mm 时有限元算出根部 95 MPa，弯曲疲劳不够）
+    "base_fillet_mm": 4.0,      # 基座立板与底板的内角
+    "fillet_inner_mm": 2.0,     # U 形支架侧板与底板的内角、基座立板与底板的内角（侧板到模组壳体还有 2.5 mm）
+    "fillet_socket_mm": 3.0,    # 套管外壁与板面的内角
+    "plate_cb_mm": 6.0,         # 螺钉头在套管底下的板（舵盘法兰、壳体底座）：沉头孔深 3 + 压紧 3
+    "head_d_mm": 4.5,           # M2.5 内六角圆柱头螺钉头部直径、高度（ISO 4762 的最大值 dk、k）
+    "head_k_mm": 2.5,
+    "cb_d_mm": 5.5,             # 沉头孔：头部直径 + 1 mm、头高 + 0.5 mm，螺钉头沉到板面以下，管子才能插到底
+    "cb_depth_mm": 3.0,
+    "bore_fillet_mm": 1.0,      # 套管孔底的内角（铣刀刀尖圆角）
+    "tube_end_round_mm": 1.5,   # 管端外棱倒圆（大于孔底圆角，管子才插得到底）
 }
 DENSITY_KG_MM3 = {"6061-T6": 2.70e-6}
 PCD_MM, HORN_HOLES = 22.0, 8
@@ -38,9 +49,19 @@ class CadError(ValueError):
     pass
 
 
-def min_spare_mm() -> float:
-    """每根杆在本关节 U 底板（或法兰）与下一壳体之间至少要留的长度：间隙 + 两块板 + 两头套管（管子插满两头）"""
-    return DESIGN["clearance_mm"] + 2 * (DESIGN["plate_mm"] + DESIGN["socket_len_mm"])
+def min_spare_mm() -> dict[str, float]:
+    """每根杆在本关节 U 底板（或舵盘法兰）与下一壳体之间至少要留的长度，按本关节的装法：
+    间隙 + 起点的板（U 底板 plate_mm；法兰 plate_cb_mm）+ 终点壳体底座的板（plate_cb_mm）+ 两头套管（管子插满两头）"""
+    rest = DESIGN["clearance_mm"] + DESIGN["plate_cb_mm"] + 2 * DESIGN["socket_len_mm"]
+    return {"clevis": rest + DESIGN["plate_mm"], "flange": rest + DESIGN["plate_cb_mm"]}
+
+
+def min_tube_od_mm() -> dict[str, float]:
+    """螺钉从套管孔里装（头部沉在沉头孔里、扳手从管孔伸进去）要的最小圆管外径：壳体底座（底面 4 孔）、舵盘法兰（舵盘 8 孔）"""
+    ra = DESIGN["cb_d_mm"] / 2
+    rh = max(math.hypot(x, z) for x, z in BOTTOM_HOLES)
+    f = DESIGN["bore_fillet_mm"]                                 # 沉头孔还要让开套管孔底的圆角
+    return {"housing": math.ceil(2 * (rh + ra + f) + 0.5), "flange": math.ceil(2 * (PCD_MM / 2 + ra + f) + 0.5)}
 
 
 def _section(link: Mapping) -> dict:
@@ -155,6 +176,66 @@ def _fuse(tags: list[int]) -> int:
     return out[0][1]
 
 
+def _rim() -> float:
+    """套管外壁到板边至少留的宽度：倒圆之外再留 1 mm 平面"""
+    return DESIGN["fillet_socket_mm"] + 1.0
+
+
+def _fillet(vol: int, on_edge, r: float) -> int:
+    """给实体上满足 on_edge(点阵) 的边倒圆（内角去掉尖角处的应力集中，加工时铣刀本来就留圆角）；找不到边就原样返回"""
+    import gmsh
+
+    occ = _occ()
+    occ.synchronize()
+    faces = gmsh.model.getBoundary([(3, vol)], combined=False, oriented=False)
+    curves = sorted({abs(t) for _d, t in gmsh.model.getBoundary(faces, combined=False, oriented=False)})
+    pick = []
+    for c in curves:
+        lo, hi = gmsh.model.getParametrizationBounds(1, c)
+        ts = np.linspace(lo[0], hi[0], 7)
+        P = np.asarray(gmsh.model.getValue(1, c, list(ts)), float).reshape(-1, 3)
+        if on_edge(P):
+            pick.append(c)
+    if not pick:
+        return vol
+    out = occ.fillet([vol], pick, [r], removeVolume=True)
+    if len(out) != 1:
+        raise CadError("倒圆后不是一个实体")
+    return out[0][1]
+
+
+def _bore(body: int, bore: int, sec: Mapping, c: np.ndarray, axis: np.ndarray, xd: np.ndarray) -> int:
+    """掏出套管孔，孔底内角倒圆（铣刀刀尖圆角；尖角在管端顶住处是应力奇异点）"""
+    body = _cut(body, [bore])
+    return _fillet(body, lambda P: _on_socket_rim(P, sec, c, axis, xd, 0.0), DESIGN["bore_fillet_mm"])
+
+
+def _round_ends(tag: int, sec: Mapping, start: np.ndarray, axis: np.ndarray, length: float | None, xl: np.ndarray) -> int:
+    """杆件插进套管的端头外棱倒圆（大于套管孔底的内圆角，管子才插得到底）；薄壁管的圆角不超过壁厚的 0.9。length 为 None 时只倒起点一头"""
+    wall = None
+    if sec.get("inner"):
+        wall = ((sec["outer"] - sec["inner"]) / 2 if sec["shape"] == "circle"
+                else min(sec["outer"][0] - sec["inner"][0], sec["outer"][1] - sec["inner"][1]) / 2)
+    r = DESIGN["tube_end_round_mm"] if wall is None else min(DESIGN["tube_end_round_mm"], 0.9 * wall)
+    ends = [start] + ([start + axis * length] if length is not None else [])
+    return _fillet(tag, lambda P: any(_on_socket_rim(P, sec, c, axis, xl, 0.0) for c in ends), r)
+
+
+def _on_socket_rim(P: np.ndarray, sec: Mapping, c: np.ndarray, axis: np.ndarray, xdir: np.ndarray, grow: float) -> bool:
+    """点阵是否都在套管外壁与板面的交线上：在过 c、法向为 axis 的平面上，且在截面外廓（加厚 grow）上"""
+    D = P - c
+    if np.any(np.abs(D @ axis) > 1e-3):
+        return False
+    xd = xdir - (xdir @ axis) * axis
+    xd = xd / np.linalg.norm(xd)
+    x, y = D @ xd, D @ np.cross(axis, xd)
+    if sec["shape"] == "circle":
+        return bool(np.all(np.abs(np.hypot(x, y) - (sec["outer"] / 2 + grow)) < 1e-3))
+    w, h = sec["outer"][0] / 2 + grow, sec["outer"][1] / 2 + grow
+    on = ((np.abs(np.abs(x) - w) < 1e-3) & (np.abs(y) <= h + 1e-3)) | ((np.abs(np.abs(y) - h) < 1e-3) & (np.abs(x) <= w + 1e-3))
+    return bool(np.all(on))
+
+
 def _prism(sec: Mapping, p0: np.ndarray, axis: np.ndarray, length: float, xdir: np.ndarray, grow: float = 0.0,
            hollow: bool = True) -> int:
     """沿 axis 的截面柱体（世界坐标）：圆或矩形；grow 向外加厚；hollow 按截面内孔掏空"""
@@ -177,9 +258,14 @@ def _place(tag: int, A: np.ndarray) -> None:
     _occ().affineTransform([(3, tag)], list(A[:3, :].reshape(-1)))
 
 
-def _horn_holes(z0: float, z1: float) -> list[int]:
-    hs = [_cyl((PCD_MM / 2 * math.cos(2 * math.pi * k / HORN_HOLES), PCD_MM / 2 * math.sin(2 * math.pi * k / HORN_HOLES), z0 - 1),
-               (0, 0, z1 - z0 + 2), DESIGN["bolt_hole_mm"] / 2) for k in range(HORN_HOLES)]
+def _horn_holes(z0: float, z1: float, cb_top: bool = False) -> list[int]:
+    """舵盘的 8 个螺钉孔与中心让位孔；cb_top：螺钉头在 z1 一侧、沉下去（沉头孔）"""
+    pts = [(PCD_MM / 2 * math.cos(2 * math.pi * k / HORN_HOLES), PCD_MM / 2 * math.sin(2 * math.pi * k / HORN_HOLES))
+           for k in range(HORN_HOLES)]
+    hs = [_cyl((x, y, z0 - 1), (0, 0, z1 - z0 + 2), DESIGN["bolt_hole_mm"] / 2) for x, y in pts]
+    if cb_top:
+        cb = DESIGN["cb_depth_mm"]
+        hs += [_cyl((x, y, z1 - cb), (0, 0, cb + 1), DESIGN["cb_d_mm"] / 2) for x, y in pts]
     return hs + [_cyl((0, 0, z0 - 1), (0, 0, z1 - z0 + 2), DESIGN["boss_hole_mm"] / 2)]
 
 
@@ -202,43 +288,70 @@ def clevis(d: float, sec: Mapping, g: Mapping, xdir: np.ndarray | None = None) -
     t, wall, Ls = DESIGN["plate_mm"], DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
     span = 49.0                                                  # 前后舵盘端面距离（0 与 −49）
     so = (sec["outer"] + 2 * wall) if sec["shape"] == "circle" else max(sec["outer"]) + 2 * wall
-    w = max(2 * g["half_width"], so)
+    w = max(2 * g["half_width"], so + 2 * _rim())   # 套管四周留出倒圆的地方（相切会生出碎面）
     a = _cut(_box(-w / 2, w / 2, -13.0, d + t, 0.0, t), _horn_holes(0.0, t))
     b = _cut(_box(-w / 2, w / 2, -13.0, d + t, -span - t, -span), _horn_holes(-span - t, -span))
     zc = -span / 2
-    zh = max(span / 2 + t, so / 2)                              # 底板沿轴向要盖住套管
+    zh = max(span / 2 + t, so / 2 + _rim())  # 底板沿轴向要盖住套管
     base = _box(-w / 2, w / 2, d, d + t, zc - zh, zc + zh)
     sock = _prism(sec, np.array([0.0, d + t, zc]), np.array([0.0, 1.0, 0.0]), Ls, xd, grow=wall)
     bore = _prism(sec, np.array([0.0, d + t, zc]), np.array([0.0, 1.0, 0.0]), Ls + 1, xd, hollow=False)
-    body = _cut(_fuse([a, b, base, sock]), [bore])
+    body = _fuse([a, b, base, sock])
+    fi, fo = DESIGN["fillet_inner_mm"], DESIGN["fillet_socket_mm"]
+    body = _fillet(body, lambda P: bool(np.all(np.abs(P[:, 1] - d) < 1e-3) and (np.all(np.abs(P[:, 2]) < 1e-3)
+                                                                                  or np.all(np.abs(P[:, 2] + span) < 1e-3))), fi)
+    body = _fillet(body, lambda P: _on_socket_rim(P, sec, np.array([0.0, d + t, zc]), np.array([0.0, 1.0, 0.0]), xd, wall), fo)
+    body = _bore(body, bore, sec, np.array([0.0, d + t, zc]), np.array([0.0, 1.0, 0.0]), xd)
     return body, {"socket_end": d + t + Ls}
+
+
+def flange_plate_mm(sec: Mapping | None) -> float:
+    """舵盘法兰的盘厚：上面接套管时螺钉头要沉在套管底下（沉头孔），用 plate_cb_mm"""
+    return DESIGN["plate_mm"] if sec is None else DESIGN["plate_cb_mm"]
+
+
+def housing_plate_mm(sec: Mapping | None, table: bool = False) -> float:
+    """壳体底座的板厚：外侧接套管时螺钉头沉在套管底下，用 plate_cb_mm；基座立板外侧敞开，用 plate_mm"""
+    if table:
+        return DESIGN["base_plate_mm"]
+    return DESIGN["plate_cb_mm"] if sec is not None else DESIGN["plate_mm"]
 
 
 def flange(sec: Mapping | None, xdir: np.ndarray | None = None) -> tuple[int, dict]:
     """舵盘法兰（模组坐标系）：圆盘 + 沿轴的套管"""
     xd = np.array([1.0, 0.0, 0.0]) if xdir is None else np.asarray(xdir, float)
-    t, wall, Ls = DESIGN["plate_mm"], DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
+    wall, Ls = DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
+    t = flange_plate_mm(sec)
     so = 0.0 if sec is None else ((sec["outer"] if sec["shape"] == "circle" else math.hypot(*sec["outer"])) + 2 * wall)
-    r = max(15.0, so / 2 + 2)
-    disk = _cut(_cyl((0, 0, 0), (0, 0, t), r), _horn_holes(0.0, t))
+    r = max(15.0, so / 2 + _rim())
+    disk = _cyl((0, 0, 0), (0, 0, t), r)
     if sec is None:
-        return disk, {"socket_end": t}
+        return _cut(disk, _horn_holes(0.0, t)), {"socket_end": t}
     sock = _prism(sec, np.array([0.0, 0.0, t]), np.array([0.0, 0.0, 1.0]), Ls, xd, grow=wall)
     bore = _prism(sec, np.array([0.0, 0.0, t]), np.array([0.0, 0.0, 1.0]), Ls + 1, xd, hollow=False)
-    return _cut(_fuse([disk, sock]), [bore]), {"socket_end": t + Ls}
+    body = _fuse([disk, sock])
+    body = _fillet(body, lambda P: _on_socket_rim(P, sec, np.array([0.0, 0.0, t]), np.array([0.0, 0.0, 1.0]), xd, wall),
+                   DESIGN["fillet_socket_mm"])
+    body = _bore(body, bore, sec, np.array([0.0, 0.0, t]), np.array([0.0, 0.0, 1.0]), xd)
+    return _cut(body, _horn_holes(0.0, t, cb_top=True)), {"socket_end": t + Ls}
 
 
 def housing_base(sec: Mapping | None, g: Mapping, *, table_z: float | None = None, xdir: np.ndarray | None = None) -> int:
     """壳体底座（模组坐标系）：底面上的板（4 个 M2.5 孔），外侧套管接父杆；table_z 给出时做成落到安装面的立板加底板"""
     xd = np.array([1.0, 0.0, 0.0]) if xdir is None else np.asarray(xdir, float)
-    t, wall, Ls = DESIGN["plate_mm"], DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
+    wall, Ls = DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
+    t = housing_plate_mm(sec, table_z is not None)
     yb, zc = -g["axis_to_bottom"], -24.5
     so = 0.0 if sec is None else ((sec["outer"] if sec["shape"] == "circle" else max(sec["outer"])) + 2 * wall)
-    hw = max(g["half_width"], so / 2)                           # 板要盖住套管
-    zh = max(22.0, so / 2)
+    fo = _rim() if sec is not None else 0.0
+    hw = max(g["half_width"], so / 2 + fo)                      # 板要盖住套管，四周留出倒圆的地方
+    zh = max(22.0, so / 2 + fo)
     z_lo = zc - zh if table_z is None else table_z
     plate = _box(-hw, hw, yb - t, yb, z_lo, zc + zh)
     holes = [_cyl((x, yb - t - 1, zc + z), (0, t + 2, 0), DESIGN["bolt_hole_mm"] / 2) for x, z in BOTTOM_HOLES]
+    if t > DESIGN["plate_mm"]:                                   # 螺钉头沉下去（外侧是套管）
+        cb = DESIGN["cb_depth_mm"]
+        holes += [_cyl((x, yb - t - 1, zc + z), (0, cb + 1, 0), DESIGN["cb_d_mm"] / 2) for x, z in BOTTOM_HOLES]
     parts = [plate]
     if table_z is not None:
         f = DESIGN["foot_mm"]
@@ -246,11 +359,140 @@ def housing_base(sec: Mapping | None, g: Mapping, *, table_z: float | None = Non
     elif sec is not None:
         parts.append(_prism(sec, np.array([0.0, yb - t, zc]), np.array([0.0, -1.0, 0.0]), Ls, xd,
                             grow=wall))
-    body = _cut(_fuse(parts), holes)
+    body = _fuse(parts)
+    if table_z is not None:
+        # 立板根部的内角：正面一条、两侧各一条（只倒正面时两侧剩下尖的内角，有限元算出是奇异点）
+        body = _fillet(body, lambda P: bool(np.all(np.abs(P[:, 2] - (table_z + t)) < 1e-3)
+                                            and (np.all(np.abs(P[:, 1] - (yb - t)) < 1e-3)
+                                                 or (np.all(np.abs(np.abs(P[:, 0]) - hw) < 1e-3)
+                                                     and np.all((P[:, 1] >= yb - t - 1e-3) & (P[:, 1] <= yb + 1e-3))))),
+                       DESIGN["base_fillet_mm"])
+    elif sec is not None:
+        body = _fillet(body, lambda P: _on_socket_rim(P, sec, np.array([0.0, yb - t, zc]), np.array([0.0, -1.0, 0.0]), xd, wall),
+                       DESIGN["fillet_socket_mm"])
     if table_z is None and sec is not None:
-        body = _cut(body, [_prism(sec, np.array([0.0, yb - t, zc]), np.array([0.0, -1.0, 0.0]), Ls + 1,
-                                  xd, hollow=False)])
-    return body
+        body = _bore(body, _prism(sec, np.array([0.0, yb - t, zc]), np.array([0.0, -1.0, 0.0]), Ls + 1, xd, hollow=False),
+                     sec, np.array([0.0, yb - t, zc]), np.array([0.0, -1.0, 0.0]), xd)
+    return _cut(body, holes)
+
+
+def _hole_set(A: np.ndarray, holes, t: float, cb: float = 0.0, seat=None) -> dict:
+    """一组螺钉孔（世界坐标）。holes：[(孔在贴合面上的点, 指向螺钉头一侧的方向), ...]（组件坐标）；t 板厚，cb 沉头孔深。
+    记各孔通孔段的中点与长度（强度分析选孔壁）、螺钉头底面的位置与朝向（查螺钉头干涉）；seat：贴着对方零件的面（点、外法向）"""
+    R = A[:3, :3]
+    cs, heads, dirs = [], [], []
+    for p, d in holes:
+        p, d = np.asarray(p, float), np.asarray(d, float)
+        cs.append(_r((A @ np.append(p + d * (t - cb) / 2, 1.0))[:3]))
+        heads.append(_r((A @ np.append(p + d * (t - cb), 1.0))[:3]))
+        dirs.append(_r(R @ d))
+    out = {"type": "holes", "radius_mm": DESIGN["bolt_hole_mm"] / 2, "length_mm": t - cb, "axis": dirs[0], "centers": cs,
+           "heads": heads, "head_dirs": dirs, "counterbore_mm": cb}
+    if seat is not None:
+        out["seat"] = {"point": _r((A @ np.append(np.asarray(seat[0], float), 1.0))[:3]), "normal": _r(R @ np.asarray(seat[1], float))}
+    return out
+
+
+def _socket(A: np.ndarray, p0, d, sec: Mapping, xdir: np.ndarray) -> dict:
+    """套管孔（世界坐标）：起点（孔底）、方向、深度、截面、矩形截面第一边的方向"""
+    return {"type": "socket", "start": _r((A @ np.append(np.asarray(p0, float), 1.0))[:3]),
+            "dir": _r(A[:3, :3] @ np.asarray(d, float)), "length_mm": DESIGN["socket_len_mm"],
+            "section": {"shape": sec["shape"], "outer": sec["outer"]}, "xdir": _r(A[:3, :3] @ xdir),
+            "bottom_fillet_mm": DESIGN["bore_fillet_mm"]}
+
+
+def _r(v) -> list[float]:
+    return [round(float(x), 4) for x in v]
+
+
+def _horn_pts(z: float) -> list:
+    return [(PCD_MM / 2 * math.cos(2 * math.pi * k / HORN_HOLES), PCD_MM / 2 * math.sin(2 * math.pi * k / HORN_HOLES), z)
+            for k in range(HORN_HOLES)]
+
+
+def _overlap(a: int, b: int) -> float:
+    """两个实体相交的体积（不改动两者）"""
+    occ = _occ()
+    bb1, bb2 = occ.getBoundingBox(3, a), occ.getBoundingBox(3, b)
+    if any(bb1[q] > bb2[q + 3] or bb2[q] > bb1[q + 3] for q in range(3)):
+        return 0.0
+    res, _ = occ.intersect([(3, a)], [(3, b)], removeObject=False, removeTool=False)
+    occ.synchronize()
+    vol = sum(occ.getMass(3, t_) for d_, t_ in res if d_ == 3)
+    if res:
+        occ.remove(res, recursive=True)
+        occ.synchronize()
+    return vol
+
+
+ACCESS_MM = 40.0                # 拧螺钉的通道查到螺钉头外这么远（套管长 20 + 余量）
+
+
+def bolt_heads(parts: list[dict]) -> list[dict]:
+    """螺钉头能不能放下：每个螺钉孔按 M2.5 内六角圆柱头（ISO 4762）的头部做一个圆柱，查它与全部零件（含本零件）是否相交。
+    螺钉头压在套管底下、伸进管子或套管壁时，管子插不到底、螺钉也拧不上"""
+    occ = _occ()
+    hd, hk = DESIGN["head_d_mm"], DESIGN["head_k_mm"]
+    out = []
+    for p in parts:
+        for side in ("fixed", "load"):
+            h = (p.get("interfaces") or {}).get(side)
+            if not h or h.get("type") != "holes":
+                continue
+            for k, (b, d) in enumerate(zip(h["heads"], h["head_dirs"])):
+                d = np.asarray(d, float)
+                # 头部底面略抬 0.01 mm：贴着支承面算接触，不算干涉
+                tag = _cyl(np.asarray(b, float) + 0.01 * d, d * hk, hd / 2)
+                occ.synchronize()
+                for q in parts:
+                    v = _overlap(tag, q["tag"])
+                    if v > 0.05:
+                        out.append({"part": p["name"], "hole": k + 1, "with": q["name"], "volume_mm3": round(v, 2)})
+                occ.remove([(3, tag)])
+                # 拧螺钉的通道：头部（有沉头孔时按沉头孔直径）沿装入方向退出去的路上不能被本零件挡住（套管壁、套管口）
+                ra = (DESIGN["cb_d_mm"] if h.get("counterbore_mm") else hd) / 2
+                tag = _cyl(np.asarray(b, float) + 0.01 * d, d * ACCESS_MM, ra - 0.01)
+                occ.synchronize()
+                v = _overlap(tag, p["tag"])
+                if v > 0.05 or _too_close_to_bore(p, np.asarray(b, float), ra):
+                    out.append({"part": p["name"], "hole": k + 1, "with": p["name"], "volume_mm3": round(v, 2), "access": True,
+                                "fix": _access_fix(p, np.asarray(b, float), d, ra)})
+                occ.remove([(3, tag)])
+                occ.synchronize()
+    return out
+
+
+def _socket_of(p: Mapping) -> Mapping | None:
+    return next((x for x in (p.get("interfaces") or {}).values() if x and x.get("type") == "socket"), None)
+
+
+def _radial(s: Mapping, b: np.ndarray) -> float:
+    u = np.asarray(s["dir"], float)
+    r = b - np.asarray(s["start"], float)
+    return float(np.linalg.norm(r - (r @ u) * u))
+
+
+def _too_close_to_bore(p: Mapping, b: np.ndarray, ra: float) -> bool:
+    """圆形套管：沉头孔在套管底下、却伸进了孔底圆角（剩下一条薄边，扳手也会刮到）"""
+    s = _socket_of(p)
+    if s is None or s["section"]["shape"] != "circle":
+        return False
+    rb = s["section"]["outer"] / 2
+    rad = _radial(s, b)
+    under = rad - ra < rb + DESIGN["socket_wall_mm"] + DESIGN["fillet_socket_mm"]
+    return bool(under and rad + ra + DESIGN["bore_fillet_mm"] > rb + 1e-6)
+
+
+def _access_fix(p: Mapping, b: np.ndarray, d: np.ndarray, ra: float) -> str:
+    """螺钉通道被套管挡住时的改法：套管孔（= 杆件外廓）要把螺钉头与沉头孔整个让出来"""
+    s = _socket_of(p)
+    if s is None:
+        return "螺钉头上方要留出拧螺钉的空间"
+    rad, f = _radial(s, b), DESIGN["bore_fillet_mm"]
+    if s["section"]["shape"] == "circle":
+        return (f"把这根杆的外径加大到至少 {math.ceil(2 * (rad + ra + f) + 0.5):g} mm"
+                "（螺钉从管孔里装，头部、沉头孔和扳手都要在管孔里面，并让开孔底圆角）")
+    return f"把这根杆的截面加大，让离轴线 {rad + ra + f:.1f} mm 以内都在管孔里面（螺钉从管孔里装）"
 
 
 def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | Path | None = None) -> dict:
@@ -276,29 +518,48 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
             nxt = [c for c in m.joints if c.parent == J["child"]]
             sec = _section(child_link) if (nxt or J["kind"] == "flange") else None
             xw = _link_xdir(lay, jid)
+            t = DESIGN["plate_mm"]
+            U = J["U"]
             if J["kind"] == "clevis":
                 d = J["d_mm"] + DESIGN["clearance_mm"]
-                tag, info = clevis(d, sec, g, J["U"][:3, :3].T @ xw)
+                tag, info = clevis(d, sec, g, U[:3, :3].T @ xw)
                 name = f"{jid} U 形支架"
+                fixed = _hole_set(U, [(p, (0, 0, 1)) for p in _horn_pts(0.0)] + [(p, (0, 0, -1)) for p in _horn_pts(-49.0)], t)
+                load = None if sec is None else _socket(U, (0.0, d + t, -24.5), (0, 1, 0), sec, U[:3, :3].T @ xw)
             else:
-                tag, info = flange(sec, J["U"][:3, :3].T @ xw)
+                tag, info = flange(sec, U[:3, :3].T @ xw)
                 name = f"{jid} 舵盘法兰"
-            _place(tag, J["U"])
-            parts.append({"name": name, "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6", "body": J["child"]})
+                tf = flange_plate_mm(sec)
+                fixed = _hole_set(U, [(p, (0, 0, 1)) for p in _horn_pts(0.0)], tf, DESIGN["cb_depth_mm"] if sec is not None else 0.0)
+                load = None if sec is None else _socket(U, (0.0, 0.0, tf), (0, 0, 1), sec, U[:3, :3].T @ xw)
+            _place(tag, U)
+            parts.append({"name": name, "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6", "body": J["child"],
+                          "role": "output", "interfaces": {"fixed": fixed, "load": load}})
             J["socket_end"] = info["socket_end"]
             if J["parent"] == "base":
                 table_z = -float(J["origin"][2])                       # 安装面在模组坐标系里的 z（竖轴）
                 tag = housing_base(None, g, table_z=table_z)
                 _place(tag, A)
+                yb = -g["axis_to_bottom"]
+                holes = _hole_set(A, [((x, yb, -24.5 + z), (0, -1, 0)) for x, z in BOTTOM_HOLES], housing_plate_mm(None, True),
+                                  seat=((0.0, yb, -24.5), (0, 1, 0)))
+                foot = {"type": "plane", "point": _r((A @ np.array([0.0, yb - DESIGN["foot_mm"] / 2, table_z, 1.0]))[:3]),
+                        "normal": _r(-A[:3, 2])}
                 parts.append({"name": f"{jid} 基座", "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6",
-                              "body": "base"})
+                              "body": "base", "role": "housing", "interfaces": {"fixed": foot, "load": holes}})
             else:
                 psec = _section(m.links[J["parent"]])
                 pj = m.by_child[J["parent"]]
-                tag = housing_base(psec, g, xdir=J["H"][:3, :3].T @ _link_xdir(lay, pj.id))
+                hx = J["H"][:3, :3].T @ _link_xdir(lay, pj.id)
+                tag = housing_base(psec, g, xdir=hx)
                 _place(tag, A)
+                yb = -g["axis_to_bottom"]
+                th = housing_plate_mm(psec)
+                holes = _hole_set(A, [((x, yb, -24.5 + z), (0, -1, 0)) for x, z in BOTTOM_HOLES], th,
+                                  DESIGN["cb_depth_mm"] if th > DESIGN["plate_mm"] else 0.0, seat=((0.0, yb, -24.5), (0, 1, 0)))
                 parts.append({"name": f"{jid} 壳体底座", "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6",
-                              "body": J["parent"]})
+                              "body": J["parent"], "role": "housing",
+                              "interfaces": {"fixed": _socket(A, (0.0, yb - th, -24.5), (0, -1, 0), psec, hx), "load": holes}})
         # 杆件：本关节的套管口到下一关节壳体底座的套管底
         t, Ls = DESIGN["plate_mm"], DESIGN["socket_len_mm"]
         problems = []
@@ -314,7 +575,7 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
             if nxt:
                 K_ = lay["joints"][nxt[0].id]
                 yb = -g["axis_to_bottom"]
-                end = (K_["H"] @ np.array([0.0, yb - t, -24.5, 1.0]))[:3]
+                end = (K_["H"] @ np.array([0.0, yb - housing_plate_mm(_section(link)), -24.5, 1.0]))[:3]
                 length = float((end - start) @ axis_dir)
                 if length < 2 * Ls:
                     problems.append(f"杆件 {link['id']}：两端套管之间没有空隙（长 {length:.1f} mm < {2 * Ls:g}）")
@@ -322,9 +583,11 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
             else:
                 length = float(link["length_mm"])
             sec = _section(link)
-            tag = _prism(sec, start, axis_dir, length, _link_xdir(lay, jid))
+            xl = _link_xdir(lay, jid)
+            tag = _prism(sec, start, axis_dir, length, xl)
+            tag = _round_ends(tag, sec, start, axis_dir, length if nxt else None, xl)
             parts.append({"name": f"杆件 {link['id']}（{link['shape']}，长 {length:.1f} mm）", "kind": "link", "tag": tag,
-                          "link": link["id"], "material": link.get("material") or "6061-T6", "length_mm": round(length, 1),
+                          "link": link["id"], "material": link.get("material") or "6061-T6", "length_mm": round(length, 3),
                           "body": link["id"]})
         _occ().synchronize()
         for p in parts:
@@ -348,6 +611,7 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
                     _occ().synchronize()
                 if vol > 1.0:
                     hits.append({"a": a["name"], "b": b["name"], "volume_mm3": round(vol, 1)})
+        heads = bolt_heads(parts)
         step = None
         if out_dir is not None:
             out_dir = Path(out_dir)
@@ -359,6 +623,12 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
     cog = np.sum([np.array(p["cog_mm"]) * p["mass_kg"] for p in parts if p.get("mass_kg")], axis=0) / total
     for p in parts:
         p.pop("tag", None)
+    seen = set()
+    for h in heads:
+        if (h["part"], h["with"], h.get("access")) not in seen:
+            seen.add((h["part"], h["with"], h.get("access")))
+            problems.append(f"{h['part']} 的螺钉装不进去：螺钉头的通道被 {h['with']} 的套管挡住（第 {h['hole']} 孔等）；改法：{h['fix']}"
+                            if h.get("access") else f"{h['part']} 的螺钉头放不下：与 {h['with']} 相交（第 {h['hole']} 孔等）")
     status = "fail" if hits or problems else "pass"
     return {"status": status, "parts": parts, "interferences": hits, "problems": problems,
             "mass_kg": round(total, 4), "cog_mm": [round(float(v), 1) for v in cog], "design": DESIGN,

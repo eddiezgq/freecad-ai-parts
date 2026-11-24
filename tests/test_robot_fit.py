@@ -157,6 +157,13 @@ def test_min_spare_for_brackets():
     c["joints"][0]["origin_mm"] = [0, 0, 50]
     links = {x["link"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]}, min_spare_mm=200)["links"]}
     assert links["upper"]["status"] == "fail" and "放不下" in links["upper"]["note"]
+    spare = links["upper"]["spare_mm"]
+    by_kind = {x["link"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]},
+                                               min_spare_mm={"clevis": spare + 1, "flange": 0.0})["links"]}
+    assert by_kind["upper"]["status"] == "fail" and f"至少 {spare + 1:g} mm" in by_kind["upper"]["note"]   # upper 从侧摆关节 j2 起
+    by_kind = {x["link"]: x for x in fit.check(c, {j["id"]: _comp() for j in c["joints"]},
+                                               min_spare_mm={"clevis": spare - 0.1, "flange": 1e6})["links"]}
+    assert by_kind["upper"]["status"] == "pass"
 
 
 def test_child_origin_offset_along_the_axis_is_a_design_error():

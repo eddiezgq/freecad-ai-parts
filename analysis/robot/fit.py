@@ -193,9 +193,9 @@ def _tube_od(link: Mapping) -> float:
     return float(s.get("od_mm") or max(s.get("width_mm") or 0, s.get("height_mm") or 0) or 0.0)
 
 
-def check(concept: Mapping, actuators: Mapping[str, Mapping], *, min_spare_mm: float = 0.0) -> dict:
-    """actuators：{关节 id: 模组组件}。min_spare_mm：每根杆在 U 底板与下一壳体之间至少要留的长度（支架板厚、两头套管、间隙，
-    由支架设计给）。返回 {"joints": [...], "links": [...], "overall"}"""
+def check(concept: Mapping, actuators: Mapping[str, Mapping], *, min_spare_mm: float | Mapping[str, float] = 0.0) -> dict:
+    """actuators：{关节 id: 模组组件}。min_spare_mm：每根杆在 U 底板（或舵盘法兰）与下一壳体之间至少要留的长度（支架板厚、两头套管、
+    间隙，由支架设计给）；可按杆件起点关节的装法分别给（{"clevis": .., "flange": ..}）。返回 {"joints": [...], "links": [...], "overall"}"""
     m = K.build(concept)
     out_j, out_l = [], []
     kind: dict[str, str] = {}
@@ -286,14 +286,15 @@ def check(concept: Mapping, actuators: Mapping[str, Mapping], *, min_spare_mm: f
             prox = need.get(j.id, 0.0) if kind[j.id] == "clevis" else 0.0
             near = _nearest(c, kind[c.id], geo[c.id], u)
             spare = near - prox
-            ok = spare > 0 and spare >= min_spare_mm
+            need_mm = float(min_spare_mm.get(kind[j.id], 0.0) if isinstance(min_spare_mm, Mapping) else min_spare_mm)
+            ok = spare > 0 and spare >= need_mm
             row.update(min_mm=round(prox, 1), body_near_mm=round(near, 1), spare_mm=round(spare, 1),
                        status="pass" if ok else "fail",
                        note=(f"{c.id} 的壳体离 {j.id} 最近 {near:.1f} mm（沿杆向），{j.id} 的 U 底板要 {prox:g} mm；"
                              + (f"余 {spare:.1f} mm 给支架板厚、杆套与管子" if ok
                                 else f"差 {-spare:.1f} mm：{c.id} 的壳体伸进了 {j.id} 的 U 形支架转动范围" if spare <= 0
-                                else f"只余 {spare:.1f} mm，放不下两头的支架板、套管与管子（至少 {min_spare_mm:g} mm）；"
-                                     f"改法：把这根杆加长 {min_spare_mm - spare:.0f} mm 以上，或收小 {j.id} 的行程让 U 底板近一些")))
+                                else f"只余 {spare:.1f} mm，放不下两头的支架板、套管与管子（至少 {need_mm:g} mm）；"
+                                     f"改法：把这根杆加长 {need_mm - spare:.0f} mm 以上，或收小 {j.id} 的行程让 U 底板近一些")))
             straight = _straight(c, kind[c.id], geo[c.id], u)
             if straight:
                 row["status"] = "fail"

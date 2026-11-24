@@ -23,7 +23,7 @@ from analysis.robot import kinematics as K
 from analysis.robot import screen
 from assist.fea_draft import _in_statement, _value_with_unit
 
-PROMPT_VERSION = "robot-design/2"            # /2：提示里给出一体化模组的装配要点（ADR-0115 44.3 之二）
+PROMPT_VERSION = "robot-design/4"            # /2：提示里给出一体化模组的装配要点（ADR-0115 44.3 之二）；/3：按装法分开的留长（沉头孔后的板厚）；/4：螺钉从管孔里装要的最小管径
 DEFAULT_MODEL = "claude-sonnet-5-5"
 MAX_ROUNDS = 6                                  # 初筛与选件、装配、复核共用（ADR-0115 44.3 之二）
 MAX_CANDIDATES = 3
@@ -171,7 +171,7 @@ def proposal_request(cond: dict, history: list[dict], *, model: str = DEFAULT_MO
 def actuator_notes() -> str:
     """零件库里有安装接口数据的一体化关节模组的装配要点（由库里的数据生成，给 AI 在第一轮就避开装不上的构型）"""
     from analysis.robot import fit
-    from assist.robot_cad import min_spare_mm
+    from assist.robot_cad import min_spare_mm, min_tube_od_mm
     from engine.values import nominal
     from kb.library import JsonLibrary
 
@@ -183,6 +183,8 @@ def actuator_notes() -> str:
     back = -min(pt["z_start_mm"] for pt in comps[0]["envelope"]["parts"])
     corner = (g["half_width"] ** 2 + g["axis_to_bottom"] ** 2) ** 0.5            # 壳体离轴线最远的角
     reach = fit.clevis_reach(fit.D_MAX_MM, 2 * g["half_width"], g, 2 * g["half_width"])
+    sp = min_spare_mm()
+    od = min_tube_od_mm()
     rows = []
     for c in sorted(comps, key=lambda c: c["id"]):
         pp = c["params"]
@@ -195,12 +197,16 @@ def actuator_notes() -> str:
             f"1. 装在基座上的关节：输出舵盘在关节原点，壳体在它后面 {back:g} mm，原点要离安装面至少这么高（再加底座板厚）。\n"
             "2. 子杆沿关节轴转（轴转）时，父杆不能也沿这个轴（共线装不上）；要让壳体底面装在父杆上，轴线偏开。\n"
             f"3. 子杆垂直于关节轴（侧摆）时，子杆由跨在前后舵盘上的 U 形支架带动：U 底板离轴线至少 {corner:.0f} mm（行程越大越远），"
-            f"杆件在 U 底板和下一壳体之间至少要留 {min_spare_mm():g} mm 放支架板、套管与管子。\n"
+            f"杆件在 U 底板和下一壳体之间至少要留 {sp['clevis']:g} mm 放支架板、套管与管子"
+            f"（轴转关节的舵盘法兰与下一壳体之间至少 {sp['flange']:g} mm）。\n"
             "4. 杆件都做直管：下一关节的轴线要垂直于“本关节到它壳体中心”的连线。侧摆关节的原点就是壳体中心（前后两舵盘中间），"
             "子杆上下一关节的原点要在垂直于本关节轴线、过本关节原点的平面里（沿本关节轴线不要偏）；"
             "轴转关节的原点在输出舵盘端面，壳体中心在它后面 24.5 mm（只有轴转关节有这个偏移）。\n"
             f"5. 侧摆关节零位时子杆最好顺着父杆伸直；转角按“相对伸直”算，伸直位往两边最多约 {reach:.0f}°（父杆不比壳体宽时）。\n"
-            "6. 肩、肘的重力力矩决定能不能选上：杆件越短越轻、重的东西越靠近肩部越好。")
+            "6. 肩、肘的重力力矩决定能不能选上：杆件越短越轻、重的东西越靠近肩部越好。\n"
+            f"7. 杆件两头插在套管里，套管底下的板用螺钉装在模组上，螺钉要从管孔里装进去：接壳体底座的一头（每根杆通到下一关节的那头）"
+            f"圆管外径至少 {od['housing']:g} mm，接舵盘法兰的杆外径至少 {od['flange']:g} mm（方管、板条的截面同样要把螺钉头整个让出来）；"
+            "管壁可以薄，减重靠壁厚。")
 
 
 def _item(name, status, value=None, limit=None, note=""):
