@@ -762,6 +762,46 @@
     "en": "Twin spindle: mirrored machine for back working matches hand calculation"
    },
    "source": "Z -> -Z: travel [-max, -min], components and points z negated"
+  },
+  {
+   "id": "CAM-75",
+   "test": "tests/test_cam_channels_c4c.py::test_channel_view_by_hand",
+   "category": "kin",
+   "title": {
+    "zh": "两个刀架：下刀架单独看的机床与手算一致",
+    "en": "Two turrets: lower-turret view of the machine matches hand calculation"
+   },
+   "source": "ADR-0122 channels; X axis toward -X: whole machine rotated 180 deg about Z"
+  },
+  {
+   "id": "CAM-76",
+   "test": "tests/test_cam_channels_c4c.py::test_two_programs_waits_paired",
+   "category": "post",
+   "title": {
+    "zh": "两个刀架：两条程序等待号成对、顺序对、回读一致",
+    "en": "Two turrets: two programs, waits paired and in order, read-back matches"
+   },
+   "source": "ADR-0122 channels.wait / wait_first"
+  },
+  {
+   "id": "CAM-77",
+   "test": "tests/test_cam_channels_c4c.py::test_cycle_time_by_hand",
+   "category": "time",
+   "title": {
+    "zh": "两个刀架：节拍 = 两边较长的 + 交接，与手算一致",
+    "en": "Two turrets: cycle time = longer side + transfer, matches hand calculation"
+   },
+   "source": "sub-spindle move 433/20000 + 2/500 + 435/20000 min"
+  },
+  {
+   "id": "CAM-78",
+   "test": "tests/test_cam_channels_c4c.py::test_turret_clash_on_timeline",
+   "category": "must",
+   "title": {
+    "zh": "两个刀架：时间线查出下刀架碰主主轴一侧",
+    "en": "Two turrets: timeline finds lower turret hitting the main-spindle side"
+   },
+   "source": "0.05 s steps, both turrets in machine coordinates"
   }
  ]
 }

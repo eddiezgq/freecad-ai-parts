@@ -217,12 +217,19 @@ def _twin_lines(op, sie):
     tw = _fmt().get("twin") or {}
     cm = _semi if sie else _paren
     g0, g1 = ("G0", "G1") if sie else ("G00", "G01")
+    if op["twin"] in ("wait", "head"):              # 多通道（ADR-0106 C4c、ADR-0122）：等待指令、通道程序开头的行
+        return list(op["lines"])
     ax = op["axis"]
     if op["twin"] == "in":
         return [cm("SUB SPINDLE PICK-UP"), *tw["sync_on"], f"{g0} {ax}{num(op['approach'])}",
                 *(["G94"] if sie else ["G98"]), f"{g1} {ax}{num(op['grip'])} F{fnum(op['f'], 1)}", *(["G95"] if sie else ["G99"]), *tw["sub_clamp"]]
     if op["twin"] == "out":
         return [f"{g0} {ax}{num(op['home'])}", *tw["sync_off"]]
+    if op["twin"] == "sub2":
+        return [cm(f"CHANNEL {op['ch']} SUB SPINDLE BACK WORKING Z = -Z PART  SUB OFFSET Z0 AT B{num(op['home'])}: MACHINE Z{num(op['z0'])}"),
+                *tw["sub_offset"]]
+    if op["twin"] == "eject":
+        return [*tw["sub_unclamp"]]
     if op["twin"] == "sub":
         return [cm(f"SUB SPINDLE BACK WORKING Z = -Z PART  SUB OFFSET Z0 AT B{num(op['home'])}: MACHINE Z{num(op['z0'])}"),
                 *tw["sub_select"], *tw["sub_offset"]]
@@ -253,6 +260,61 @@ def render_twin(prog_r: dict, prog_l: dict, twin: dict, machine: dict, controlle
     ops = [*ops_r, {"twin": "in", **common, "approach": twin["approach"], "grip": twin["grip"], "f": twin["f"]}, *part,
            {"twin": "out", **common}, {"twin": "sub", **common, "z0": twin["z0"]}, *ops_l, {"twin": "main", **common}]
     return render({**prog_r, "ops": ops, "cycles": prog_r.get("cycles")}, machine, controller, sim_res)
+
+
+CH_TWIN_KEYS = ("sync_on", "sync_off", "sub_clamp", "sub_unclamp", "sub_offset")
+
+
+def render_channels(prog_r: dict, prog_l: dict, twin: dict, mach1: dict, mach2: dict, controller: str, sim_res: dict | None) -> list[dict]:
+    """双主轴两个刀架（ADR-0106 C4c）：两条程序。通道 1：右端各工序 → 等待 w → 接料 → 切断 → 副主轴退回 → 等待 w+1；
+    通道 2：副主轴工件坐标 → 等待 w → 等待 w+1 → 背面各工序（Z 反向、不用固定循环） → 松开副主轴卡盘（卸件）。
+    程序循环跑：通道 2 车第 n 件的背面时，通道 1 车第 n+1 件的右端；第一件开机时通道 2 在等待 w 空等。
+    等待号从后处理配置 channels.wait_first 起。配置没写 channels、twin 缺项、不是 FANUC / 西门子 → ReleaseError"""
+    post = posts().get(controller)
+    if post is None:
+        raise ReleaseError(f"没有 {controller!r} 的后处理")
+    cfg = postcfg.resolved(post["cfg"])
+    if cfg["family"] not in ("fanuc", "siemens"):
+        raise ReleaseError("两个刀架的程序只出 FANUC、西门子（ADR-0106 C4c）")
+    chc = cfg.get("channels")
+    if not chc:
+        raise ReleaseError("后处理配置没写 channels（两个通道之间等待指令的写法各家不同，按机床说明书填，ADR-0122），两个刀架的程序不出")
+    tw = cfg.get("twin") or {}
+    miss = [k for k in CH_TWIN_KEYS if not tw.get(k)]
+    if miss:
+        raise ReleaseError(f"后处理配置 twin 没写 {'、'.join(miss)}（主副主轴同步、夹紧的写法各家不同，按机床说明书填，ADR-0121），两个刀架的程序不出")
+    if any(op.get("cycles") for op in prog_l["ops"]):
+        raise ReleaseError("副主轴一侧不用固定循环")
+    w = int(chc["wait_first"])
+    heads = chc.get("heads") or []
+
+    def wait(n):
+        return {"twin": "wait", "lines": [chc["wait"].replace("{n}", str(n))]}
+
+    def head(i):
+        return [{"twin": "head", "lines": heads[i]}] if i < len(heads) and heads[i] else []
+
+    ops_r = [op for op in prog_r["ops"] if not op.get("part")]
+    part = [op for op in prog_r["ops"] if op.get("part")]
+    home2 = mach2.get("home") or (mach2.get("model") or mach2).get("lathe_home_mm")
+    common = {"axis": twin["axis"], "home": twin["home"]}
+    ops_l = [{**op, "home_xz": (home2[0], -home2[1]), "moves": [{**mv, "z": -mv["z"]} if "z" in mv else mv for mv in op["moves"]]}
+             for op in prog_l["ops"]]
+    ops1 = [*head(0), *ops_r, wait(w), {"twin": "in", **common, "approach": twin["approach"], "grip": twin["grip"], "f": twin["f"]},
+            *part, {"twin": "out", **common}, wait(w + 1)]
+    ops2 = [*head(1), {"twin": "sub2", "ch": 2, **common, "z0": twin["z0"]}, wait(w), wait(w + 1), *ops_l, {"twin": "eject", **common}]
+    return [render({**prog_r, "ops": ops1, "cycles": prog_r.get("cycles")}, mach1, controller, sim_res),
+            render({**prog_l, "ops": ops2, "cycles": False}, mach2, controller, sim_res)]
+
+
+def strip_waits(text: str, controller: str) -> str:
+    """回读前去掉等待指令行（多通道，ADR-0122；不动刀）"""
+    post = posts().get(controller)
+    chc = postcfg.resolved(post["cfg"]).get("channels") if post else None
+    if not chc:
+        return text
+    pat = re.compile(re.escape(chc["wait"]).replace(re.escape("{n}"), r"\d+"))
+    return "\n".join(ln for ln in text.split("\n") if not pat.fullmatch(ln.strip()))
 
 
 def _blocks_key(seg):

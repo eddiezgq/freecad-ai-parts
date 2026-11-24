@@ -1,0 +1,289 @@
+{
+ "format": "cam-machine/1",
+ "id": "EX-MT-TT",
+ "name": "示例双主轴双刀架车铣中心（虚构）",
+ "example": true,
+ "source": "虚构示例",
+ "kind": "mill_turn",
+ "controller": {
+  "family": "fanuc",
+  "model": "0i-TF Plus"
+ },
+ "features": {
+  "polar_interpolation": true,
+  "cylindrical_interpolation": true
+ },
+ "spindle": {
+  "max_rpm": 5000,
+  "power_kw": 15.0,
+  "efficiency": 0.8
+ },
+ "axes": [
+  {
+   "id": "X",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    1,
+    0,
+    0
+   ],
+   "min": -5.0,
+   "max": 400.0,
+   "rapid": 24000.0,
+   "diameter_mode": true
+  },
+  {
+   "id": "Y",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    1,
+    0
+   ],
+   "min": -50.0,
+   "max": 50.0,
+   "rapid": 10000.0
+  },
+  {
+   "id": "Z",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "min": -500.0,
+   "max": 700.0,
+   "rapid": 30000.0
+  },
+  {
+   "id": "X2",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    -1,
+    0,
+    0
+   ],
+   "min": -5.0,
+   "max": 400.0,
+   "rapid": 24000.0,
+   "diameter_mode": true
+  },
+  {
+   "id": "Z2",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "min": -500.0,
+   "max": 700.0,
+   "rapid": 30000.0
+  },
+  {
+   "id": "B",
+   "type": "linear",
+   "carrier": "workpiece",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "min": -480.0,
+   "max": 0.0,
+   "rapid": 20000.0
+  },
+  {
+   "id": "C",
+   "type": "rotary",
+   "carrier": "workpiece",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "point_mm": [
+    0,
+    0,
+    0
+   ],
+   "continuous": true,
+   "rapid": 36000.0
+  }
+ ],
+ "tool": {
+  "direction": [
+   1,
+   0,
+   0
+  ],
+  "gauge_point_mm": [
+   0,
+   0,
+   0
+  ]
+ },
+ "live_tools": {
+  "axial": {
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "gauge_point_mm": [
+    0,
+    0,
+    0
+   ]
+  },
+  "radial": {
+   "direction": [
+    1,
+    0,
+    0
+   ],
+   "gauge_point_mm": [
+    0,
+    0,
+    0
+   ]
+  }
+ },
+ "lathe_home_mm": [
+  250.0,
+  150.0
+ ],
+ "tool_change_s": 1.0,
+ "components": [
+  {
+   "id": "chuck",
+   "name": "卡盘",
+   "attached_to": "C",
+   "cylinder_mm": {
+    "p0": [
+     0,
+     0,
+     -80
+    ],
+    "p1": [
+     0,
+     0,
+     0
+    ],
+    "r": 105
+   }
+  },
+  {
+   "id": "sub_chuck",
+   "name": "副主轴卡盘",
+   "attached_to": "B",
+   "cylinder_mm": {
+    "p0": [
+     0,
+     0,
+     500
+    ],
+    "p1": [
+     0,
+     0,
+     580
+    ],
+    "r": 80
+   }
+  },
+  {
+   "id": "turret1",
+   "name": "上刀架",
+   "attached_to": "Z",
+   "box_mm": [
+    120,
+    -60,
+    -60,
+    260,
+    60,
+    60
+   ]
+  },
+  {
+   "id": "turret2",
+   "name": "下刀架",
+   "attached_to": "Z2",
+   "box_mm": [
+    -260,
+    -60,
+    -60,
+    -120,
+    60,
+    60
+   ]
+  }
+ ],
+ "sub_spindle": {
+  "max_rpm": 5000,
+  "power_kw": 11.0,
+  "efficiency": 0.8,
+  "axis": "B",
+  "face_z_mm": 500.0,
+  "grip_mm": [
+   10.0,
+   30.0
+  ]
+ },
+ "channels": [
+  {
+   "id": 1,
+   "axes": [
+    "X",
+    "Y",
+    "Z"
+   ],
+   "tool": {
+    "direction": [
+     1,
+     0,
+     0
+    ],
+    "gauge_point_mm": [
+     0,
+     0,
+     0
+    ]
+   },
+   "lathe_home_mm": [
+    250.0,
+    150.0
+   ],
+   "spindle": "main"
+  },
+  {
+   "id": 2,
+   "axes": [
+    "X2",
+    "Z2"
+   ],
+   "tool": {
+    "direction": [
+     -1,
+     0,
+     0
+    ],
+    "gauge_point_mm": [
+     0,
+     0,
+     0
+    ]
+   },
+   "lathe_home_mm": [
+    250.0,
+    150.0
+   ],
+   "spindle": "sub"
+  }
+ ]
+}

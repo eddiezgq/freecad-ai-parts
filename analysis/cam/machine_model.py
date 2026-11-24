@@ -189,8 +189,83 @@ def mirror_z(model: dict) -> dict:
     return out
 
 
+def channels(model: dict) -> list | None:
+    """多通道（两个刀架，ADR-0106 C4c、ADR-0122）：按编号排的通道；单通道返回 None"""
+    ch = model.get("channels")
+    return sorted(ch, key=lambda c: c["id"]) if ch else None
+
+
+def _rot_z180(model: dict) -> dict:
+    """整台机床绕 Z 轴转 180°（x、y 取反）：下刀架（X 朝 −X）看起来就是普通的上刀架；回转体（卡盘、工件）不变"""
+    def f(v):
+        return [-v[0], -v[1], v[2]]
+
+    axes = [{**a, "direction": f(a["direction"]), **({"point_mm": f(a["point_mm"])} if "point_mm" in a else {})} for a in model["axes"]]
+    comps = []
+    for c in model.get("components") or []:
+        if "mesh" in c:
+            raise MachineError(f"部件 {c['id']} 是网格，下刀架的视图还不支持（ADR-0106 C4c-2）")
+        c = dict(c)
+        if "box_mm" in c:
+            b = c["box_mm"]
+            c["box_mm"] = [-b[3], -b[4], b[2], -b[0], -b[1], b[5]]
+        if "cylinder_mm" in c:
+            c["cylinder_mm"] = {**c["cylinder_mm"], "p0": f(c["cylinder_mm"]["p0"]), "p1": f(c["cylinder_mm"]["p1"])}
+        comps.append(c)
+    out = {**model, "axes": axes, "components": comps}
+    if model.get("tool"):
+        out["tool"] = {"direction": f(model["tool"]["direction"]), "gauge_point_mm": f(model["tool"]["gauge_point_mm"])}
+    if model.get("live_tools"):
+        out["live_tools"] = {k: {"direction": f(v["direction"]), "gauge_point_mm": f(v["gauge_point_mm"])} for k, v in model["live_tools"].items()}
+    return out
+
+
+def channel_model(model: dict, cid: int = 1) -> dict:
+    """一个通道（刀架）单独看的机床（ADR-0106 C4c-2）：只留这个刀架的直线轴（按方向改名 X / Y / Z）和工件一侧的轴，
+    刀具朝向、换刀点换成这个通道的；别的刀架连同跟着它的部件拿掉（两个刀架之间的碰撞由时间线查）。
+    刀架的 X 轴朝 −X（下刀架）时整台机床绕 Z 转 180°。这个通道干副主轴时，主轴参数换成副主轴的。单通道的机床原样返回"""
+    chs = channels(model)
+    if not chs:
+        return model
+    ch = next((c for c in chs if c["id"] == cid), None)
+    if ch is None:
+        raise MachineError(f"机床 {model['id']} 没有通道 {cid}")
+    known = {a["id"]: a for a in model["axes"]}
+    for c in chs:
+        for a in c["axes"]:
+            if a not in known or known[a]["type"] != "linear" or known[a]["carrier"] != "tool":
+                raise MachineError(f"机床 {model['id']} 通道 {c['id']} 的轴 {a} 要是刀具一侧的直线轴（ADR-0122）")
+    other = {a for c in chs if c["id"] != cid for a in c["axes"]}
+    names = {}
+    for a in ch["axes"]:
+        d = known[a]["direction"]
+        k = max(range(3), key=lambda i: abs(d[i]))
+        names[a] = "XYZ"[k]
+    if len(set(names.values())) != len(names):
+        raise MachineError(f"机床 {model['id']} 通道 {cid} 有两根同方向的轴")
+    axes = []
+    for a in model["axes"]:
+        if a["id"] in other or (a["carrier"] == "tool" and a["type"] == "linear" and a["id"] not in names):
+            continue
+        axes.append({**a, "id": names.get(a["id"], a["id"])})
+    comps = [{**c, "attached_to": names.get(c["attached_to"], c["attached_to"])} for c in model.get("components") or []
+             if c.get("attached_to") not in other]
+    out = {k: v for k, v in model.items() if k != "channels"}
+    out.update({"axes": axes, "components": comps, "tool": ch["tool"], "lathe_home_mm": list(ch["lathe_home_mm"]), "channel": cid})
+    if ch["spindle"] == "sub":
+        sp = model.get("sub_spindle")
+        if not sp:
+            raise MachineError(f"机床 {model['id']} 通道 {cid} 干副主轴，但机床文件没写 sub_spindle")
+        out["spindle"] = {k: sp[k] for k in ("max_rpm", "power_kw", "efficiency") if k in sp}
+    xa = next((a for a in axes if a["id"] == "X" and a["id"] in names.values()), None)
+    if xa is not None and xa["direction"][0] < 0:
+        out = _rot_z180(out)
+    return out
+
+
 def is_mill_turn(model: dict) -> bool:
     """车铣中心：X、Z（可带 Y）直线轴 + C 轴（ADR-0106 C2b）；B 轴车铣中心再加刀具一侧一根摆动轴（C4a）；副主轴的轴不算（C4b）"""
+    model = channel_model(model, 1)          # 多通道：按通道 1 看（ADR-0106 C4c）
     t = [a["type"] for a in model["axes"] if a["id"] not in sub_axes(model)]
     nr = t.count("rotary")
     return model["kind"] == "mill_turn" and t.count("linear") in (2, 3) and (nr == 1 or (nr == 2 and b_axis(model) is not None))
@@ -198,7 +273,7 @@ def is_mill_turn(model: dict) -> bool:
 
 def legacy_view(model: dict) -> dict:
     """旧代码用的字段；行程按工件坐标（刀具相对工件）给，带工件一侧的直线轴把方向翻过来"""
-    model = main_model(model)                 # 双主轴：主主轴上加工时副主轴停在零位（ADR-0106 C4b-1）
+    model = main_model(channel_model(model, 1))   # 多通道：通道 1（ADR-0106 C4c）；双主轴：主主轴上加工时副主轴停在零位（ADR-0106 C4b-1）
     v = {"id": model["id"], "name": model["name"], "kind": model["kind"], "max_rpm": float(model["spindle"]["max_rpm"]),
          "rapid": {}, "model": model, "example": bool(model.get("example"))}
     sp = model["spindle"]
