@@ -70,6 +70,9 @@ def run(ngc: str, exe: Path | None = None, g28: tuple | None = None) -> list[dic
         raise RuntimeError("没有 rs274（scripts/fetch_rs274.sh）")
     root = exe.parent.parent
     env = {**os.environ, "LD_LIBRARY_PATH": f"{root / 'lib'}:{root / 'lib' / 'x86_64-linux-gnu'}"}
+    if (root / "lib" / "python3.13").is_dir():       # rs274 内嵌 Python 3.13：用一起解包的标准库，不靠系统装没装
+        env["PYTHONHOME"] = str(root)
+        env.pop("PYTHONPATH", None)
     with tempfile.TemporaryDirectory() as d:
         dp = Path(d)
         (dp / "p.ngc").write_text(ngc, encoding="ascii")

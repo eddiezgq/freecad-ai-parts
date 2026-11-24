@@ -10,7 +10,10 @@ PKGS=(
   "l/linuxcnc/linuxcnc-uspace_2.9.4-2%2Bdeb13u1_amd64.deb b4b8bbefab20e7d3cc797cd3285091eb15a63e0982cca3135d1d4325ce0f8c88"
   "b/boost1.83/libboost-python1.83.0_1.83.0-4.2_amd64.deb 97043d6b48d768cf01e35cfe1db4df1b2d7be2d961e365ef2a318e75e3993d33"
   "p/python3.13/libpython3.13_3.13.5-2%2Bdeb13u5_amd64.deb aa4cdb7e15f5f445ab268160d428518a4daf2a086ee3e6ea30f6082785236dea"
+  "p/python3.13/libpython3.13-stdlib_3.13.5-2%2Bdeb13u5_amd64.deb db161322a3481d2c0c3b9a3b9a03c3ab0e2b1718f54b88755fb4a3f939165b84"
+  "p/python3.13/libpython3.13-minimal_3.13.5-2%2Bdeb13u5_amd64.deb a4aa6a9a8c77f87bfe545e1d14ec42c001d189ace90e3aa75deec882b39dee49"
 )
+# rs274 内嵌 Python 3.13：标准库一起解包，运行时 PYTHONHOME 指到这里（analysis/cam/rs274.py）
 DEST="${1:-$HOME/.freecad-ai-parts/rs274}"
 
 mkdir -p "$DEST/debs"
