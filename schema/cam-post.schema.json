@@ -431,6 +431,43 @@
       ],
       "additionalProperties": false
      }
+    },
+    "codes": {
+     "type": "object",
+     "description": "这家数控系统手册里列出的 G、M 代码（ADR-0125）：正式程序里出现不在表里的代码就不出；按手册的代码表原样填",
+     "properties": {
+      "g": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "pattern": "^\\d{1,3}(\\.\\d)?$"
+       },
+       "minItems": 1,
+       "description": "G 代码号，例如 \"00\"、\"12.1\"、\"112\""
+      },
+      "m": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "pattern": "^\\d{1,3}$"
+       },
+       "minItems": 1,
+       "description": "M 代码号，例如 \"03\"、\"133\""
+      }
+     },
+     "required": [
+      "g",
+      "m"
+     ],
+     "additionalProperties": false
+    },
+    "rigid_tap": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],#]*(\\{[a-z]+\\}[A-Z0-9 .=+\\-()\\[\\],#]*)*$"
+     },
+     "description": "刚性攻丝 G84 前面的程序行（{s} 转速），FANUC 是 [\"M29 S{s}\"]；不要这一行的写 []（例如哈斯铣床 M29 是别的功能，ADR-0125）"
     }
    },
    "required": [
