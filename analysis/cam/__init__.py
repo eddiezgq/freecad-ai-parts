@@ -713,10 +713,15 @@ def nose_radii(setup) -> dict:
     return out
 
 
-def _twin_back_machine(setup, mach, twin):
+def _raw(mach, cid=1):
+    """机床文件原样（带副主轴的轴、各通道），多通道时按通道 cid 看（ADR-0106 C4c）"""
+    return MM.channel_model(M.model(mach["id"]), cid)
+
+
+def _twin_back_machine(setup, mach, twin, cid=1):
     """背面整机仿真（ADR-0106 C4b-2）：整台机床沿 Z 镜像，副主轴卡盘停在退回位置；工件零点 = −（副主轴工件零点的机床 Z）。
     程序是左端的仿真刀路（调头坐标 z′），镜像后与主主轴上的加工一样算。主主轴调头的卡爪不加（夹工件的是副主轴卡盘）"""
-    raw = M.model(mach["id"])
+    raw = _raw(mach, cid)
     mb = {**mach, "model": MM.mirror_z(MM.main_model(raw, twin["home"]))}
     ms = {k: v for k, v in (setup.get("machine_sim") or {}).items() if k not in ("chuck", "fixtures")}
     ms["work_offset_mm"] = [0.0, 0.0, -float(twin["z0"])]
@@ -729,7 +734,7 @@ def _twin_transfer_checks(setup, mach, twin, prog_r, parsed, setup_r, out):
     cfg = setup_r.get("machine_sim")
     if not cfg:
         return
-    raw = M.model(mach["id"])
+    raw = _raw(mach)
     home = mach.get("home") or mach["model"].get("lathe_home_mm")
     ops = [op for op in prog_r["ops"] if not op.get("twin")]
     part_n = next((op["tool"]["n"] for op in ops if op.get("part")), None)
@@ -846,6 +851,105 @@ def _twin_finish(setup, mach, twin, progs_in, outs):
         r["checks"].append({"line": None, "level": "warn", "text": f"{rel['post']} 后处理还没在实机上验证过：首件空运行、单段试切确认"})
 
 
+def _channel_fixed(raw, twin, ctx, stock):
+    """时间线里不动的东西（机床坐标）：通道 1 会碰到的（副主轴停在退回位置的部件、副主轴上的工件），
+    通道 2 会碰到的（主主轴一侧的部件、主主轴上的棒料）"""
+    import numpy as np
+
+    from analysis.cam import collide as CL
+
+    ax = MM.sub_spindle(MM.main_model(raw))["axis_def"]
+    off = np.eye(4)
+    off[:3, 3] = np.asarray(ax["direction"], float) * float(twin["home"])
+    sx = MM.sub_axes(raw)
+    chax = {a for c in MM.channels(raw) for a in c["axes"]}
+    fixed1, fixed2 = [], []
+    for c in raw.get("components") or []:
+        if c.get("attached_to") in chax:
+            continue
+        s_ = CL.shape(c)
+        if s_ is None:
+            continue
+        if c.get("attached_to") in sx:
+            fixed1.append((f"副主轴的{c.get('name', c['id'])}", s_.moved(off)))
+        else:
+            fixed2.append((f"主主轴一侧的{c.get('name', c['id'])}", s_))
+    zwo, z0 = float(twin["zwo"]), float(twin["z0"])
+    fixed1.append(("副主轴上的工件", CL.Cylinder(np.array([0.0, 0.0, z0]), np.array([0.0, 0.0, z0 + ctx["total"]]),
+                                              max(d for _t, d in ctx["prof"]) / 2.0)))
+    fixed2.append(("主主轴上的棒料", CL.Cylinder(np.array([0.0, 0.0, zwo + stock["z_left"]]), np.array([0.0, 0.0, zwo + stock["z_right"]]),
+                                              stock["d"] / 2.0)))
+    return fixed1, fixed2
+
+
+def _channels_finish(setup, mach, mach2, twin, ctx, progs_in, outs, parsed_lr):
+    """双主轴两个刀架（ADR-0106 C4c-2）：时间线查两个刀架同时干时的碰撞、算节拍；两条程序，各自回读与各自的仿真刀路一致才出"""
+    import numpy as np
+
+    from analysis.cam import channels as CH
+
+    (pr, pl), (r, lf), (par_r, par_l) = progs_in, outs, parsed_lr
+    r["twin"] = {k: twin[k] for k in ("axis", "d", "grip_len", "grip", "approach", "home", "z0")}
+    lf["twin_of"] = r["number"]
+    r["channel"], lf["channel"] = 1, 2
+    lf["release"] = None
+    raw = M.model(mach["id"])
+    cfg = setup.get("machine_sim") or {}
+    part_n = next((op["tool"]["n"] for op in pr["ops"] if op.get("part")), None)
+    zwo, z0 = float(twin["zwo"]), float(twin["z0"])
+
+    def tip1(x, z):
+        return np.array([x / 2.0, 0.0, z + zwo])
+
+    def tip2(x, z):                       # 背面程序是调头坐标：机床 Z = z0 − z′；下刀架在 −X 一侧
+        return np.array([-x / 2.0, 0.0, z0 - z])
+
+    mv_r = [m_ for m_ in par_r["moves"] if m_["tool"] != part_n]
+    t1 = CH.track(mv_r, mach, tip1)
+    tp = CH.track([m_ for m_ in par_r["moves"] if m_["tool"] == part_n], mach, tip1)
+    t2 = CH.track(par_l["moves"], mach2, tip2)
+    ax = MM.sub_spindle(MM.main_model(raw))["axis_def"]
+    rb = float(ax["rapid"])
+    tb = 60.0 * (abs(twin["approach"] - twin["home"]) / rb + abs(twin["grip"] - twin["approach"]) / twin["f"]
+                 + abs(twin["grip"] - twin["home"]) / rb)
+    r["channels"] = CH.report(t1, tp, tb, t2)
+    found: list = []
+    if cfg:
+        fixed1, fixed2 = _channel_fixed(raw, twin, ctx, r["replay_in"]["stock"])
+        asm1 = CH.assembly(raw, 1, cfg, {"moves": mv_r, "tools": []})
+        asm2 = CH.assembly(raw, 2, cfg, par_l)
+        found = CH.clashes(t1, t2, asm1, asm2, fixed1, fixed2, float(cfg.get("clearance_mm", 1.0)))
+        r["checks"] += found
+        if found and r.get("machine_sim"):
+            r["machine_sim"]["status"] = "error"
+    ctl = setup.get("post")
+    if not ctl:
+        return
+    r["release"] = None
+    if any(c["level"] == "error" and "back_tools" in c["text"] for c in lf["checks"]):
+        r["checks"].append({"line": None, "level": "error", "text": "正式程序没有输出：背面加工的刀没换成下刀架上的刀（back_tools）"})
+        return
+    st = [o.get("machine_sim") or {} for o in (r, lf)]
+    sim_res = None if not all(st) else {"status": "error" if any(x["status"] == "error" for x in st) else
+                                        ("unknown" if any(x["status"] == "unknown" for x in st) else "pass"),
+                                        "fingerprint": "+".join(x["fingerprint"] for x in st)}
+    try:
+        rels = postproc.render_channels(pr, pl, twin, mach, mach2, ctl, sim_res)
+        for rel, g, m_, what in ((rels[0], r["gcode"], mach, "通道 1"), (rels[1], _mirror_z(lf["gcode"]), mach2, "通道 2")):
+            back = [x for x in sim.parse(postproc.to_fanuc(postproc.strip_waits(rel["text"], ctl), ctl, True), m_)["moves"] if not x.get("home")]
+            want = [x for x in sim.parse(g, m_)["moves"] if not x.get("home")]
+            if len(back) != len(want) or any(x["t"] != y["t"] or max(abs(u - v) for u, v in zip(x["b"], y["b"], strict=True)) >= 1e-3
+                                              for x, y in zip(back, want, strict=True)):
+                raise postproc.ReleaseError(f"{what}的程序回读后与仿真刀路不一致，不输出")
+        r["twin"]["readback"] = "ok"
+    except postproc.ReleaseError as exc:
+        r["checks"].append({"line": None, "level": "error", "text": f"正式程序没有输出：{exc}"})
+        return
+    r["release"], lf["release"] = rels
+    if not rels[0]["verified"]:
+        r["checks"].append({"line": None, "level": "warn", "text": f"{rels[0]['post']} 后处理还没在实机上验证过：首件空运行、单段试切确认"})
+
+
 def _turn(setup, mach):
     """setup 可另给 ops：{"right" | "left": [{"kind", "i"?, "cut": {...}}, ...]}——按给的顺序和参数出这次装夹的工序（加工树里的工序，ADR-0106 Q1）；
     不给时按缺省顺序，参数取 setup 的 cut 与各项自带的 cut"""
@@ -853,15 +957,25 @@ def _turn(setup, mach):
     stock_d, e, total = ctx["stock_d"], ctx["e"], ctx["total"]
     given = setup.get("ops") or {}
     progs = []
-    twin, twin_progs = None, []
+    twin, twin_progs, twin_parsed, mach2 = None, [], [], None
     sub = MM.sub_spindle(mach["model"])
     if sub and setup.get("parting") and len(ctx["sides"]) == 2:     # 双主轴：副主轴接料、背面加工（ADR-0106 C4b）
         if (setup.get("live_ops") or {}).get("left") or (setup.get("live_ops") or {}).get("right"):
             raise SetupError("双主轴接料带动力刀工序还没做（ADR-0106 C4b）")
         twin = twin_grip(ctx, mach, setup)
         ctx["sides"][1]["title"] = "左端（副主轴背面加工）"
+        chs = MM.channels(M.model(mach["id"]))
+        if chs:                                   # 两个刀架（ADR-0106 C4c）：背面由干副主轴的那个通道做
+            c_sub = next((c["id"] for c in chs if c["spindle"] == "sub"), None)
+            if c_sub is None or not any(c["spindle"] == "main" for c in chs):
+                raise SetupError("双主轴两个刀架：机床文件 channels 里要有一个干主主轴（main）、一个干副主轴（sub）的通道")
+            mach2 = MM.legacy_view(_raw(mach, c_sub))
+            ctx["sides"][1]["title"] = f"左端（副主轴背面加工，通道 {c_sub}）"
+            ctx["sides"][0]["title"] = "右端（主主轴，通道 1）"
+    mach0 = mach
     for sc in ctx["sides"]:
         side, k, tgt, reach, title = sc["side"], sc["k"], sc["tgt"], sc["reach"], sc["title"]
+        mach = mach2 if (mach2 is not None and side == "left") else mach0      # 两个刀架：背面按通道 2 的刀架算
         specs = given.get(side) if side in given else turn_op_specs(sc)
         cyc = bool(setup.get("cycles")) and not (twin and side == "left")      # 副主轴一侧 Z 反向，不用固定循环
         prog = {"number": 1001 + k, "title": f"{setup.get('item') or '阶梯轴'} 车削 {title}", "cycles": cyc,
@@ -973,7 +1087,7 @@ def _turn(setup, mach):
                     checks.append({"line": None, "level": "error",
                                    "text": f"背面加工要用刀片朝副主轴的刀：设置里写 back_tools（原刀号对应朝副主轴的刀号），缺 {miss}（ADR-0106 C4b-2）"})
                 else:
-                    mb, sb = _twin_back_machine(setup, mach, twin)
+                    mb, sb = _twin_back_machine(setup, mach, twin, mach["model"].get("channel", 1))
                     _msim(sb, mb, parsed, g, stock, [], out, withhold=True)
             else:
                 _msim(_with_chuck(setup, total + e, reach, checks, stock_d, clamp, mach), mach, parsed, g, stock, [], out, withhold=True)
@@ -981,12 +1095,16 @@ def _turn(setup, mach):
                 _twin_transfer_checks(setup, mach, twin, prog, parsed, _with_chuck(setup, total + e, reach, [], stock_d, None, mach), out)
             if twin:
                 twin_progs.append(prog)
+                twin_parsed.append(parsed)
             else:
                 _release(setup, mach, prog, out)
         if clamp:
             out["clamp"] = clamp
         progs.append(out)
-    if twin:
+    mach = mach0
+    if twin and mach2 is not None:
+        _channels_finish(setup, mach, mach2, twin, ctx, twin_progs, progs, twin_parsed)
+    elif twin:
         _twin_finish(setup, mach, twin, twin_progs, progs)
     return progs, {"profile": [[float(t), float(d)] for t, d in ctx["prof"]], "stock_d_mm": stock_d, "length_mm": total}
 

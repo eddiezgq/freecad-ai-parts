@@ -223,6 +223,13 @@ the sub-spindle: set `back_tools` in the setup (e.g. {"1": 11, "2": 12}: T11 for
 Machine simulation also checks three things: whether the sub-spindle sweeps into the tool waiting at the tool-change point when it moves in and when it retracts with the part;
 whether the sub-spindle chuck is in the way of the parting tool (the parting tool moves along Z at the tool-change X first, then down, and retracts in X first);
 and back working, simulated by mirroring the whole machine in Z (sub-spindle chuck and turret travel converted). The release program is output only when all pass and it reads back correctly.
+**Two turrets** (e.g. the example EX-MT-TT, whose machine file has `channels`): the upper turret (channel 1) turns the right end on the main spindle while the lower turret (channel 2)
+turns the back of the previous part on the sub-spindle; the transfer happens only when both are done (wait points). Two programs are output; the wait instructions come from the post
+configuration `channels` (e.g. FANUC `M{n}`, Siemens `WAITM({n},1,2)`, numbered from `wait_first`; without it no programs are output). The channel 2 program waits for the transfer first,
+then turns the back and finally unclamps the sub-spindle chuck to unload, so on the first part after start-up channel 2 just waits. The period when both turrets work is checked in 0.05 s steps:
+turret against turret, the lower turret against the main-spindle chuck and bar, the upper turret against the sub-spindle chuck and part; any hit and neither program is output.
+The result gives the cycle time: cutting, rapid, tool-change and waiting time for each channel, the transfer time (parting + sub-spindle moves), the cycle time = the longer side + transfer,
+and how long one turret alone would take for the same part.
 **Slopes a turning tool can reach** (all lathes): the approach angle comes from the holder style and the corner angle from the insert shape (Tungaloy catalogue C004),
 trailing edge angle = 180° − approach − corner angle; a down slope steeper than the trailing edge angle minus 2°, or a shoulder steeper than the approach angle, is an error.
 Unknown holders or inserts give "unknown".
