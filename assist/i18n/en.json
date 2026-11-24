@@ -1939,6 +1939,7 @@
 "保存刀具库": "Save tool library",
 "倒角刀": "Chamfer mill",
 "全部种类": "All kinds",
+"全部节点的最大应力 {} MPa 在支承面附近（评估时排除的区域，见 vm_peak_all_at），比评估最大应力 {} MPa 大 {}%；支承处的应力受边界条件影响，评估不计，但真实结构在那里怎么受力要单独确认": "The peak stress over all nodes, {} MPa, lies next to a support face (excluded from evaluation, see vm_peak_all_at); it is above the evaluated maximum of {} MPa by {}%. Stresses at supports depend on the boundary conditions and are not evaluated, but how the real structure carries load there must be checked separately",
 "关闭": "Close",
 "出处": "Reference",
 "刀具库…": "Tool library…",
