@@ -119,7 +119,7 @@ def test_unknown_link_material_fails():
 
 
 def test_teaching_arm_recording_replays_to_pass():
-    """案例 A 的真实 AI 录制（design-eval run 45192126945，2 轮）：重放得同一结论；不调用真实模型。
+    """案例 A 的真实 AI 录制（design-eval run 45240728940，2 轮）：重放得同一结论；不调用真实模型。
     选件与装配校核每轮约半分钟，这里按保存的结果逐轮回放（真正重算采用构型的在 test_case_a_loop_fixed_the_wrist_with_build_feedback）"""
     from analysis.robot import screen
     from ingest.llm_extract import RecordedClient

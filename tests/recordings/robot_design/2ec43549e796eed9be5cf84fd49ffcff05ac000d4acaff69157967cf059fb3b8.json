@@ -1,15 +1,16 @@
 {
   "model": "claude-sonnet-5-5",
-  "prompt_version": "robot-design/2",
-  "request_key": "50d6f8846e209332ae5885929634a063c50b498a8c94397bd05ee885f42a8efa",
+  "prompt_version": "robot-design/4",
+  "request_key": "2ec43549e796eed9be5cf84fd49ffcff05ac000d4acaff69157967cf059fb3b8",
   "response": {
-    "id": "msg_011ChL1DT6sBWtDXiEgnRM82",
+    "id": "msg_011ChLMcMgeXwfbAoE1VpHdw",
     "model": "claude-sonnet-5-5",
     "provider": "claude",
     "simulated": false,
     "tool_input": {
       "dof": {
         "quote": "5 轴",
+        "unit": "轴",
         "value": 5
       },
       "for_people": [
@@ -43,10 +44,11 @@
         "value": 0.5
       },
       "questions": [
-        "5 轴的具体构型（各轴是旋转还是其他，轴线如何排布）原话没说，是否有偏好？",
-        "“外购件成本尽量低”没有给出具体预算上限，是否有目标价格？",
-        "0.5 kg 负载是否包含末端夹具/工具自重？",
-        "关节最高角速度 60°/s 是否对所有关节都适用？"
+        "5 轴的具体构型未说明（如腰转+肩+肘+腕俯仰+腕旋转？），是否有偏好？",
+        "末端执行器/夹爪是否包含在 0.5 kg 负载内，还是另计？",
+        "关节最高角速度 60°/s 是否要求所有关节都达到？",
+        "“外购件成本尽量低”是否有具体预算上限？",
+        "各关节的运动范围（行程）有无要求？"
       ],
       "reach": {
         "quote": "臂展 350 mm",
