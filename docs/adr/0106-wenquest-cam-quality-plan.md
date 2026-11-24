@@ -1335,3 +1335,5 @@ G83 啄钻退回后快速下到离上次深度多远是数控系统参数（FANU
   等 Eddie 的电脑连上后接着做。每台机床合并前给 Eddie 一张对照表（每个数、出处、页码）抽查。
 - 标准题 `tests/test_cam_machines_e2.py`（CAM-84、85）、`tests/test_fc_cam_library.py::test_real_machine_fill_home_and_tool_change`；
   `test_cam_machine_kinematics.py` 里“内置机床都是虚构的”改成只管 EX- 开头的示例机床，真实机床另查“不是示例、写了出处”。
+- 补记（同日）：Eddie 的电脑连上后，用浏览器直接读了哈斯 ST-10Y 官方规格页的原文（不经转述），行程、快移、转速、功率、扭矩与机床文件逐项一致。
+  以后每台机床都这样从官方页面原文核对，核对结果写进 PR。
