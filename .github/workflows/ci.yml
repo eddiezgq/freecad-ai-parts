@@ -65,6 +65,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-dejavu-core fonts-wqy-zenhei calculix-ccx libglu1-mesa libxcursor1 libxft2 libxinerama1 libgomp1 openfoam openmpi-bin
       - name: 安装依赖
         run: pip install -e ".[dev,mbd,fea,optimize,report]"
+      - name: 独立的 RS274NGC 解释器（LinuxCNC rs274，问渠CAM 正式程序核对，ADR-0106 E1）
+        run: echo "FAP_RS274=$(scripts/fetch_rs274.sh "$RUNNER_TEMP/rs274")" >> "$GITHUB_ENV"
       - name: 代码检查
         run: python -m ruff check .
       - name: schema 校验、单元测试与数据库测试
