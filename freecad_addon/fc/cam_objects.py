@@ -1043,10 +1043,15 @@ def regenerate_five(op) -> None:
     lead_dir = {"x": [1.0, 0.0, 0.0], "y": [0.0, 1.0, 0.0]}.get((op.LeadDir or "").strip().lower())
     segs, note = [], ""
     if op.OpKind == "swarf5":
+        left = 0.0
         for s_ in subs:
             b, tp, nr = C5.ruled_rails(shape.getElement(s_), max(8, math.ceil(shape.getElement(s_).Length / 4)))
             tips, axes = FA.swarf(b + shift, tp + shift, R, below=op.Below, normals=nr)
+            tips, axes, chk = FA.swarf_clear(b + shift, tp + shift, tips, axes, R)     # 扭曲直纹面：啃进去的刀位推出来（ADR-0106 C3e）
+            left = max(left, chk["leftover_mm"])
             segs.append((tips, axes))
+        if left >= 0.01:
+            note += f"；面是扭曲的直纹面，圆柱侧刃贴不严：刀位已推出不过切，那里最多剩料 {left:.2f} mm（留给后面清根或换球头多轴精加工）"
     elif op.OpKind == "surface5":
         face = shape.getElement(subs[0])
         rows = C5.raster_rows(face, max(0.05, (op.StepOver or 0.1) * d), max(0.2, d / 6))
