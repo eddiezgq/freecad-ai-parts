@@ -72,6 +72,8 @@ def _header_items(prog, machine, sim_res, post):
              ("SIM FINGERPRINT", "整机仿真指纹", sim_res["fingerprint"]),
              ("SIM RESULT", "整机仿真结论", {"pass": "PASS", "unknown": "PASS WITH UNKNOWN ITEMS"}[sim_res["status"]]),
              ("", "", FIRST_PART_EN)]
+    for c in (post.get("cfg") or {}).get("checks") or []:      # 实机之前核对到哪一级（ADR-0124）
+        items.append(("CHECKED", "已核对", f"{c['level']} {c['tool']} {c['date']}"))
     if not post["verified"]:
         items.append(("", "", "POST NOT VERIFIED ON A REAL MACHINE"))
     if machine.get("example") or m.get("example"):
@@ -717,6 +719,8 @@ def to_fanuc(text: str, controller: str, lathe: bool, *, tags: bool = False) -> 
         text = "\n".join(f"{ln} {tag(i)}" if ln.strip() else ln for i, ln in enumerate(text.split("\n"), 1))
     if post:
         text = postcfg.expand(text, postcfg.resolved(post["cfg"]))
+        if fam in postcfg.ISO:                       # 这家的写法换回 FANUC 写法（ADR-0124）
+            text = postcfg.undo_dialect(text, post["cfg"], lathe)
     elif fam in postcfg.ISO:
         text = postcfg.expand(text, postcfg.resolved({"family": fam}))
     if fam in postcfg.ISO:

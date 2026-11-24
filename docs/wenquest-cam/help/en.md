@@ -147,6 +147,11 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
   machine simulation. Whatever the configuration, no program is output without simulation or when the read-back differs from the simulated path,
   and the header still carries "first part: dry run" and "not verified on a real machine" — also with comments set to none. Configurations with
   errors are not listed; hover over the list to see which file and which item.
+  Controls that mostly follow FANUC but differ in a few places (Mitsubishi, Mazak, Haas and so on) get a `dialect` section: tool call, speed limit,
+  polar / cylindrical interpolation switches, canned-cycle style; every entry needs its source (the maker's official manual: name, document number,
+  version, section) or the configuration is refused. Live-tool start lines may contain `{rpm}` (e.g. `M133 P{rpm}`). `checks` records how far the
+  configuration has been checked before a real machine (L2 independent interpreter, L3 the maker's control software) and is written into the program
+  header; only after a real-machine check is `verified` set and "not verified on a real machine" dropped from the header.
 - **Heidenhain (TNC 640 / 620 / 530)**: milling only, conversational format: `BEGIN PGM` … `END PGM`, block numbers from 0; lines `L … R0 F`,
   rapid `FMAX`; tool change `TOOL CALL n Z S rpm`; with drilling cycles on, `CYCL DEF 200` (surface Q203 = R plane − 2 mm, 2nd set-up clearance
   back to the safe height); tapping as `CYCL DEF 207` rigid tapping, each hole called with `M99`; subprograms as `LBL n` … `LBL 0`, called with

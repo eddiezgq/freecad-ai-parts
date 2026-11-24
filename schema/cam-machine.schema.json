@@ -484,7 +484,7 @@
   },
   "channels": {
    "type": "array",
-   "description": "多通道（ADR-0122）：每个刀架一个通道；不写就是单通道",
+   "description": "多通道（ADR-0123）：每个刀架一个通道；不写就是单通道",
    "minItems": 2,
    "items": {
     "type": "object",
