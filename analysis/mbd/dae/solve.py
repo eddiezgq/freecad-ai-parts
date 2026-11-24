@@ -175,8 +175,9 @@ def reactions(sysm: System, q, t, rows_idx, lam):
     for jid, info in sysm.joints.items():
         j = info["j"]
         ks = [pos[r] for r in info["rows"] if r in pos]
-        if j < 0:  # 反力报在 body_i 上，取反
-            j_eff, sgn, s = info["i"], -1.0, info["si"]
+        if j < 0:  # body_j 是地面：报在 body_i 上。-Jᵀλ 取 body_i 的分量就是作用在 body_i 上的力，不取反
+            # （原来取反，报的是作用在地面上的力——《多体动力学》书第 8 章线索第 17 条，问渠 CAD 0.3.6 细则 C1）
+            j_eff, sgn, s = info["i"], 1.0, info["si"]
         else:
             j_eff, sgn, s = j, 1.0, info["sj"]
         gen = -J[ks].T @ lam[ks] if ks else np.zeros(sysm.n)
