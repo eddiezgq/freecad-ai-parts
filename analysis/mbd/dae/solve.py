@@ -58,9 +58,24 @@ def structural(sysm: System, q, t):
             "joints": joints, "sigma_max": float(sv[0])}
 
 
+def check_structure(sysm: System, q, t):
+    """分析开始前：只看运动副的结构自由度少于驱动数 → 锁死或驱动多余，报错（不删真约束照算）"""
+    drives = [r for r in sysm.rows if r.kind in DRIVE_KINDS]
+    if not drives:
+        return
+    st = structural(sysm, q, t)
+    if len(drives) > st["dof"]:
+        where = "、".join(st["joints"]) or "—"
+        sig = f"{st['sigma_rel']:.2g}" if st["sigma_rel"] is not None else "—"
+        raise SolveError(
+            f"机构锁死或驱动多余：只看运动副，机构的自由度是 {st['dof']}，却加了 {len(drives)} 个驱动。"
+            f"最可能卡住的是 {where}（这组约束的奇异值是最大值的 {sig}，高于按冗余处理的界限 {NEAR_REDUNDANT:g}，偏差已超出制造误差的量级）。"
+            "检查这几个运动副的位置、方向是否和设计一致；确实要按冗余（靠间隙）处理时，去掉其中一个或改成约束更少的运动副")
+
+
 def independent_rows(sysm: System, q, t):
     """雅可比按行做带主元的 QR，挑出线性无关的约束行（ADAMS 同样会删掉冗余约束，并报出来）。
-    先只看运动副判结构自由度：驱动数多于它 → 锁死或驱动多余，报错，不删真约束；运动副近奇异（制造误差级）→ 按冗余处理并记下。"""
+    运动副近奇异（制造误差级）→ 按冗余处理并记下；锁死（驱动数多于结构自由度）由分析入口的 check_structure 报错。"""
     J = sysm.jac(q, t)
     if J.shape[0] == 0:
         return [], []
@@ -71,12 +86,8 @@ def independent_rows(sysm: System, q, t):
         return keep, drop
     st = structural(sysm, q, t)
     nd = len(drives)
-    if nd > st["dof"]:
-        where = "、".join(st["joints"]) or "—"
-        raise SolveError(
-            f"机构锁死或驱动多余：只看运动副，机构的自由度是 {st['dof']}，却加了 {nd} 个驱动。"
-            f"最可能卡住的是 {where}（这组约束的奇异值是最大值的 {st['sigma_rel']:.2g}，高于按冗余处理的界限 {NEAR_REDUNDANT:g}，偏差已超出制造误差的量级）。"
-            "检查这几个运动副的位置、方向是否和设计一致；确实要按冗余（靠间隙）处理时，去掉其中一个或改成约束更少的运动副")
+    if nd > st["dof"]:            # 锁死或驱动多余：分析入口（run_model 调 check_structure）会先报错；底层照原来的办法挑行
+        return keep, drop
     if nd > st["dof_exact"]:
         # 运动副近奇异：工程上按冗余处理——运动副行用工程阈值挑，驱动全留
         ks, _ = _qr_rows(st["J"], tol=max(st["tol"], NEAR_REDUNDANT * st["sigma_max"]))

@@ -197,6 +197,7 @@ def run_model(model: dict, base_dir=None):
             return hht.dynamic(sysm_, t_end_, steps_, alpha=float(an.get("hht_alpha", -0.1)), **kw)
     else:
         dyn = S.dynamic
+    S.check_structure(sysm, sysm.q0(), 0.0)          # 问渠 CAD 0.3.6 细则 C3：锁死在分析入口报出来
     messages = []
     stab = None
     if typ == "kinematic":
