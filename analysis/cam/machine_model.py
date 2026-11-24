@@ -190,7 +190,7 @@ def mirror_z(model: dict) -> dict:
 
 
 def channels(model: dict) -> list | None:
-    """多通道（两个刀架，ADR-0106 C4c、ADR-0122）：按编号排的通道；单通道返回 None"""
+    """多通道（两个刀架，ADR-0106 C4c、ADR-0123）：按编号排的通道；单通道返回 None"""
     ch = model.get("channels")
     return sorted(ch, key=lambda c: c["id"]) if ch else None
 
@@ -234,7 +234,7 @@ def channel_model(model: dict, cid: int = 1) -> dict:
     for c in chs:
         for a in c["axes"]:
             if a not in known or known[a]["type"] != "linear" or known[a]["carrier"] != "tool":
-                raise MachineError(f"机床 {model['id']} 通道 {c['id']} 的轴 {a} 要是刀具一侧的直线轴（ADR-0122）")
+                raise MachineError(f"机床 {model['id']} 通道 {c['id']} 的轴 {a} 要是刀具一侧的直线轴（ADR-0123）")
     other = {a for c in chs if c["id"] != cid for a in c["axes"]}
     names = {}
     for a in ch["axes"]:

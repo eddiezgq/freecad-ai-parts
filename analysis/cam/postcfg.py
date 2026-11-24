@@ -107,7 +107,7 @@ def check(cfg: dict, where: str = "") -> dict:
                     raise PostConfigError(f"{where}：FANUC 写法的车铣程序行（{sec}.{k}）不该带括号或逗号（ADR-0111）")
         chc = cfg.get("channels") or {}
         if any(ch in ln for ln in [chc.get("wait", ""), *(x for h in chc.get("heads") or [] for x in h)] for ch in "()[],"):
-            raise PostConfigError(f"{where}：FANUC 写法的多通道程序行（channels）不该带括号或逗号（ADR-0111、ADR-0122）")
+            raise PostConfigError(f"{where}：FANUC 写法的多通道程序行（channels）不该带括号或逗号（ADR-0111、ADR-0123）")
     return cfg
 
 
