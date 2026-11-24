@@ -122,7 +122,8 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
 
 ![Tool library window](img/en-tools.png)
 
-- **Machine window** ("WenQuest CAM" menu → "Machines…"): view travel, speeds, tool change time, axis chain and source, and draw the machine in the view; "Copy as my machine", then correct travel, rapids, speed, power and tool change time to the real machine and state the source (maker's document and page, or who measured it and when).
+- **Machine window** ("WenQuest CAM" menu → "Machines…"): view travel, speeds, tool change time, axis chain and source, and draw the machine in the view; "Copy as my machine", then correct travel, rapids, speed, power and tool change time and tool change position to the real machine and state the source (maker's document and page, or who measured it and when).
+  Real machines built from makers' public spec pages (e.g. Haas ST-10Y) are also listed, every value with its source; the tool change position and time, which spec pages do not publish, must be filled in here from the real machine and saved before programming.
 
 ![Machine window](img/en-machines.png)
 

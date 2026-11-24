@@ -43,9 +43,12 @@ def test_our_numbers_come_from_the_result_files(res, ref):
     o = C.ours(res)
     assert o["mass_kg"] == res["cad"]["mass_kg"]
     assert o["repeatability_mm"] == res["build"]["repeatability"]["worst_mm"]
-    assert f"| 5 | 0.5 | 350 | {round(res['cad']['mass_kg'], 3):g} | 0.25 | ±0.95 |" in md
+    m = res["cad"]["mass_kg"]
+    assert f"| 5 | 0.5 | 350 | {round(m, 3):g} | {round(0.5 / m, 2):g} | ±0.95 |" in md
     assert "只作参照" in md and "None" not in md and "null" not in md
-    assert "58%" in md and "最低 3.7" in md
+    b = R.bom(res)
+    fat = min(x["safety_fatigue"] for x in res["fea"]["items"])
+    assert f"{round(100 * b['made_mass_kg'] / b['total_mass_kg'])}%" in md and f"最低 {fat:.1f}" in md
 
 
 def test_missing_values_are_not_guessed(res, ref):
@@ -69,3 +72,15 @@ def test_report_write_also_writes_comparison(tmp_path, res):
     R.write(tmp_path / "out")
     assert (tmp_path / "out" / "comparison.md").read_text(encoding="utf-8") == \
         (CASE / "out" / "comparison.md").read_text(encoding="utf-8")
+
+
+def test_thin_note_reflects_step_9():
+    from assist.robot_compare import _thin_note
+
+    assert "另定方案" in _thin_note(None)
+    tr = {"trials": [{"part": "j2 U 形支架", "from_mm": 5.0, "to_mm": 4.0, "accepted": True},
+                     {"part": "j2 U 形支架", "from_mm": 4.0, "to_mm": 3.0, "accepted": True},
+                     {"part": "j3 U 形支架", "from_mm": 4.0, "to_mm": 3.0, "accepted": False}]}
+    n = _thin_note(tr)
+    assert "j2 U 形支架 5 → 3 mm" in n and "j3" not in n and "另定方案" not in n
+    assert "没有一件合格" in _thin_note({"trials": [tr["trials"][2]]})

@@ -1,0 +1,86 @@
+{
+ "format": "cam-machine/1",
+ "id": "HAAS-ST-10Y",
+ "name": "Haas ST-10Y Y 轴车铣中心",
+ "example": false,
+ "source": "厂商公开规格页 https://www.haascnc.com/machines/lathes/st/models/y-axis/st-10y.html（2026-11-24 查）：行程 X 200 mm、Y ±51 mm、Z 406 mm；快移 X 12.0 m/min、Y 12.0 m/min、Z 30.5 m/min；主轴最高 6000 r/min、最大功率 11.2 kW（15 hp）、最大扭矩 102 N·m @ 1300 r/min；动力刀最高 4000 r/min；C 轴定位 ±0.02°。规格页没公开：各轴零点（刀具朝向 +X、基准点在刀尖是转塔刀架的约定，同示例机床；行程上下限按 ADR-0106 E2 的约定放：X 直径 0 ~ 2 × 200（零点在主轴中心线）、Y ±51、Z −203 ~ 203（工件零点放在 Z 行程中间；按实际装夹改））、换刀点、换刀时间、传动效率、部件外形——按实机填",
+ "kind": "mill_turn",
+ "controller": {
+  "family": "other",
+  "model": "Haas Control"
+ },
+ "spindle": {
+  "max_rpm": 6000,
+  "power_kw": 11.2
+ },
+ "axes": [
+  {
+   "id": "X",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    1,
+    0,
+    0
+   ],
+   "min": 0.0,
+   "max": 400.0,
+   "rapid": 12000.0,
+   "diameter_mode": true
+  },
+  {
+   "id": "Y",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    1,
+    0
+   ],
+   "min": -51.0,
+   "max": 51.0,
+   "rapid": 12000.0
+  },
+  {
+   "id": "Z",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "min": -203.0,
+   "max": 203.0,
+   "rapid": 30500.0
+  },
+  {
+   "id": "C",
+   "type": "rotary",
+   "carrier": "workpiece",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "point_mm": [
+    0,
+    0,
+    0
+   ],
+   "continuous": true
+  }
+ ],
+ "tool": {
+  "direction": [
+   1,
+   0,
+   0
+  ],
+  "gauge_point_mm": [
+   0,
+   0,
+   0
+  ]
+ }
+}

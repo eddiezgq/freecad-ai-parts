@@ -175,7 +175,9 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
         if lk.imag < -1e-9 * max(1.0, abs(lk)):
             continue                                 # 共轭对只留虚部为正的那个（重根各自保留）
         w = abs(lk)
+        # 实特征值（虚部为 0）不是振动：|λ|/2π 只是量级，标 oscillatory = False（《多体动力学》书第 21 条附带）
         modes.append({"eigenvalue": [float(lk.real), float(lk.imag)], "frequency_hz": w / (2 * math.pi),
+                      "oscillatory": bool(abs(lk.imag) > 1e-9 * max(1.0, w)),
                       "damped_frequency_hz": abs(lk.imag) / (2 * math.pi),
                       "damping_ratio": (-lk.real / w) if w > 0 else None,
                       "shape": _shape(sysm, J0, dep, ind, V[:dof, k])})

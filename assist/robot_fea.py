@@ -28,6 +28,12 @@ G = 9.81
 TOL_MM = 0.02
 TIME_LIMIT_S = 1500             # 每次求解的时限（网格收敛核查最细一层要十几分钟）
 MESH_MM = 2.0                   # 板厚 4 mm：两层二阶单元；收敛核查在最大应力处再加密两层
+
+
+def mesh_mm(part: Mapping) -> float:
+    """网格尺寸：板厚至少两层单元（减薄到 3 mm 的支架用 1.5 mm，ADR-0115 第 9 步）；板厚 4 mm 及以上仍是 MESH_MM"""
+    t = part.get("plate_mm")
+    return MESH_MM if not t else min(MESH_MM, float(t) / 2)
 LIMITS = ["载荷取检验动作起点的静重乘动载系数，不是逐时刻的动载荷；起点是水平伸直，弯矩最大",
           "零件按点质量挂在重心上；螺钉按孔壁全固定（不计螺钉预紧、接触与孔边滑移），孔边应力的峰值已由收敛核查判断",
           "模组壳体当刚体（支架装在上面的那一面不变形），实际壳体有弹性，支架受力会更均匀"]
@@ -261,9 +267,9 @@ def judge(res: Mapping, material: str, required: float | None) -> dict:
 
 
 def analyse(concept: Mapping, build_result: Mapping, cad_result: Mapping, verify_result: Mapping, assembly_step: str | Path,
-            payload_kg: float, *, joints=None, work_dir: str | Path | None = None, convergence: bool = True,
+            payload_kg: float, *, joints=None, parts_only=None, work_dir: str | Path | None = None, convergence: bool = True,
             on_item=None) -> dict:
-    """on_item：每算完一件回调一次（命令行用它边算边打印，一件要几分钟）"""
+    """on_item：每算完一件回调一次（命令行用它边算边打印，一件要几分钟）；parts_only：只算这些名字的零件（减薄时逐件试）"""
     import analysis
 
     factor = dynamic_factor(verify_result)
@@ -275,7 +281,7 @@ def analyse(concept: Mapping, build_result: Mapping, cad_result: Mapping, verify
         wd = Path(work_dir or tmp)
         wd.mkdir(parents=True, exist_ok=True)
         for k, p in enumerate(parts):
-            if p["kind"] != "bracket" or (joints and p["joint"] not in joints):
+            if p["kind"] != "bracket" or (joints and p["joint"] not in joints) or (parts_only and p["name"] not in parts_only):
                 continue
             itf = p.get("interfaces") or {}
             row = {"part": p["name"], "joint": p["joint"], "role": p["role"]}
@@ -286,7 +292,7 @@ def analyse(concept: Mapping, build_result: Mapping, cad_result: Mapping, verify
             step = wd / f"bracket-{k:02d}.step"
             try:
                 extract(assembly_step, p, step)
-                st_ = study(p, step, ld, convergence=convergence)
+                st_ = study(p, step, ld, mesh_mm=mesh_mm(p), convergence=convergence)
             except FeaError as ex:                     # 取不出零件、选不到接口面：这一件判不了，其余照算
                 items.append(dict(row, load=ld, status="unknown", note=f"建不成算例：{ex}"))
                 continue

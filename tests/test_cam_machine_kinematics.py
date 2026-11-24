@@ -52,8 +52,12 @@ def _head_table() -> dict:
 
 def test_example_machines_load_and_legacy_view_matches_old_yaml():
     assert {m["id"] for m in machines.models()} >= {"EX-LATHE", "EX-VMC", "EX-5AX-AC", "EX-5AX-BC", "EX-MT-CY"}
-    for m in machines.models():
-        assert MM.validate(m) == [] and m["example"] is True and "虚构" in m["name"]
+    for m in machines.models():                  # 示例机床都是虚构的；真实机床（ADR-0106 E2）不是示例、写厂商规格页出处
+        assert MM.validate(m) == []
+        if m["id"].startswith("EX-"):
+            assert m["example"] is True and "虚构" in m["name"]
+        else:
+            assert m["example"] is False and "http" in m["source"] and "虚构" not in m["name"]
     # 旧格式 machines_example.yaml 里的数，转换后一个不差（ADR-0105 第 3 节：旧数据不作废）
     old = {"EX-LATHE": {"max_rpm": 4000, "power_kw": 11.0, "eff": 0.8, "x": [-2.0, 320.0], "z": [-600.0, 250.0],
                         "rapid": {"x": 12000.0, "z": 15000.0}, "home": [200.0, 150.0], "tool_change_s": 1.5, "kind": "lathe"},
