@@ -219,7 +219,7 @@ def _twin_lines(op, sie):
     tw = _fmt().get("twin") or {}
     cm = _semi if sie else _paren
     g0, g1 = ("G0", "G1") if sie else ("G00", "G01")
-    if op["twin"] in ("wait", "head"):              # 多通道（ADR-0106 C4c、ADR-0122）：等待指令、通道程序开头的行
+    if op["twin"] in ("wait", "head"):              # 多通道（ADR-0106 C4c、ADR-0123）：等待指令、通道程序开头的行
         return list(op["lines"])
     ax = op["axis"]
     if op["twin"] == "in":
@@ -280,7 +280,7 @@ def render_channels(prog_r: dict, prog_l: dict, twin: dict, mach1: dict, mach2: 
         raise ReleaseError("两个刀架的程序只出 FANUC、西门子（ADR-0106 C4c）")
     chc = cfg.get("channels")
     if not chc:
-        raise ReleaseError("后处理配置没写 channels（两个通道之间等待指令的写法各家不同，按机床说明书填，ADR-0122），两个刀架的程序不出")
+        raise ReleaseError("后处理配置没写 channels（两个通道之间等待指令的写法各家不同，按机床说明书填，ADR-0123），两个刀架的程序不出")
     tw = cfg.get("twin") or {}
     miss = [k for k in CH_TWIN_KEYS if not tw.get(k)]
     if miss:
@@ -310,7 +310,7 @@ def render_channels(prog_r: dict, prog_l: dict, twin: dict, mach1: dict, mach2: 
 
 
 def strip_waits(text: str, controller: str) -> str:
-    """回读前去掉等待指令行（多通道，ADR-0122；不动刀）"""
+    """回读前去掉等待指令行（多通道，ADR-0123；不动刀）"""
     post = posts().get(controller)
     chc = postcfg.resolved(post["cfg"]).get("channels") if post else None
     if not chc:
