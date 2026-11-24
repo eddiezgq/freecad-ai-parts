@@ -854,6 +854,26 @@
    "source": "ADR-0124 sources required; okuma / fagor wait for official manuals"
   },
   {
+   "id": "CAM-84",
+   "test": "tests/test_cam_machines_e2.py::test_haas_st10y_values_and_source",
+   "category": "kin",
+   "title": {
+    "zh": "真实机床：参数与厂商规格页一致、写明出处",
+    "en": "Real machine: values match the maker's spec page, source given"
+   },
+   "source": "haascnc.com ST-10Y spec page, 2026-11-24"
+  },
+  {
+   "id": "CAM-85",
+   "test": "tests/test_cam_machines_e2.py::test_unpublished_items_named_then_usable",
+   "category": "must",
+   "title": {
+    "zh": "真实机床：规格页没公开的数不编，编程前报出来",
+    "en": "Real machine: unpublished values are not invented and are reported"
+   },
+   "source": "ADR-0106 E2"
+  },
+  {
    "id": "CAM-86",
    "test": "tests/test_cam_post_haas.py::test_haas_lathe_codes_all_in_manual",
    "category": "post",

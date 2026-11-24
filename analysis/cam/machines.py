@@ -118,6 +118,21 @@ def _view_ok(v: dict) -> bool:
         and all(k in v for k in VIEW_NEED[v["kind"]])
 
 
+def _missing(m: dict) -> list[str]:
+    """编程要用、机床文件里没有的数（中文名）"""
+    out = []
+    lin = [a for a in m.get("axes") or [] if a["type"] == "linear" and a["id"] not in MM.sub_axes(m)]
+    if any("min" not in a or "max" not in a for a in lin):
+        out.append("轴行程（各轴零点、上下限）")
+    if any("rapid" not in a for a in lin):
+        out.append("快移速度")
+    if m["kind"] in ("lathe", "mill_turn") and "lathe_home_mm" not in m:
+        out.append("换刀点")
+    if "tool_change_s" not in m:
+        out.append("换刀时间")
+    return out
+
+
 def all_machines(env=None) -> list[dict]:
     """两轴车床、三轴加工中心的旧字段视图（现有车削、2.5 轴铣、程序检查用）"""
     out = []
@@ -132,7 +147,11 @@ def get(machine_id: str, env=None) -> dict:
     for m in all_machines(env):
         if m["id"] == machine_id:
             return m
-    if any(m["id"] == machine_id for m in models(env)):
+    m = next((m for m in models(env) if m["id"] == machine_id), None)
+    if m is not None:
+        miss = _missing(m)
+        if miss and not m.get("example"):          # 真实机床：规格页没公开的数（ADR-0106 E2）
+            raise MachineError(f"机床 {machine_id!r} 的厂商规格页没公开{'、'.join(miss)}：在“机床…”窗口里按实机填好保存后才能编程")
         raise MachineError(f"机床 {machine_id!r} 不是两轴车床、三轴或 3+2 五轴加工中心（或机床文件缺行程、快移、换刀点），"
                            "现有的车削、2.5 轴铣编程和程序检查用不了它")
     raise MachineError(f"没有机床 {machine_id!r}；可选：{', '.join(m['id'] for m in all_machines(env))}")

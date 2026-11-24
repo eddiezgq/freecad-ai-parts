@@ -106,3 +106,21 @@ def test_machine_window(gui, homes):
         assert {o.Label for o in objs} >= {"工作台", "主轴头"}
     finally:
         App.closeDocument(doc.Name)
+
+
+def test_real_machine_fill_home_and_tool_change(gui, homes):
+    """真实机床（ADR-0106 E2，HAAS-ST-10Y）：规格页没公开换刀点、换刀时间，编程前报出来；机床窗口里按实机填好保存，就能编程"""
+    from analysis.cam import machines as M
+    from freecad_addon.gui import cam_library as L
+
+    with pytest.raises(M.MachineError, match="换刀点、换刀时间"):
+        M.get("HAAS-ST-10Y")
+    dlg = L.MachineDialog()
+    dlg.list.setCurrentRow(next(k for k, m in enumerate(dlg.models) if m["id"] == "HAAS-ST-10Y"))
+    assert dlg.btn_save.isEnabled() and "换刀点：X—" in dlg.info.toPlainText()
+    dlg.fields["home.x"].setText("250")
+    dlg.fields["home.z"].setText("-50")
+    dlg.fields["tool_change_s"].setText("0.5")
+    assert dlg.save(), dlg.status.text()
+    v = M.get("HAAS-ST-10Y")
+    assert v["home"] == [250.0, -50.0] and v["tool_change_s"] == 0.5 and v["max_rpm"] == 6000

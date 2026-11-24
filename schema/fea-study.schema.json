@@ -179,6 +179,70 @@
                 "additionalProperties": false
               }
             ]
+          },
+          "step_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "写算例时 STEP 文件的 SHA-256（ADR-0125）。计算时文件散列变了，就按 face_signatures 重新认面，认不准就拒绝计算"
+          },
+          "face_signatures": {
+            "type": "object",
+            "description": "支承、载荷引用的面在写算例时的“签名”（ADR-0125），键是面编号。几何改过以后按签名重新认面，不静默沿用面号",
+            "propertyNames": {
+              "pattern": "^[0-9]+$"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "plane",
+                    "cylinder",
+                    "cone",
+                    "sphere",
+                    "torus",
+                    "other"
+                  ]
+                },
+                "area_mm2": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "center_mm": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "normal": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "description": "平面的单位法向"
+                },
+                "axis": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "description": "柱面的轴线方向"
+                }
+              },
+              "required": [
+                "kind",
+                "area_mm2",
+                "center_mm"
+              ],
+              "additionalProperties": false
+            }
           }
         },
         "required": [
