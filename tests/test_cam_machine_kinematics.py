@@ -64,7 +64,7 @@ def test_example_machines_load_and_legacy_view_matches_old_yaml():
         for k, val in o.items():
             assert v[k] == val, (mid, k)
     # 3+2 五轴、车铣中心进旧视图（ADR-0106 C2a、C2b：带回转轴列表）
-    assert {m["id"] for m in machines.all_machines()} == {"EX-LATHE", "EX-VMC", "EX-5AX-AC", "EX-5AX-BC", "EX-MT-CY"}
+    assert {m["id"] for m in machines.all_machines()} == {"EX-LATHE", "EX-VMC", "EX-5AX-AC", "EX-5AX-BC", "EX-MT-CY", "EX-MT-B"}
     assert machines.get("EX-5AX-AC")["rotary"] == ["A", "C"] and machines.get("EX-MT-CY")["rotary"] == ["C"]
 
 
