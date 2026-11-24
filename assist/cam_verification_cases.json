@@ -874,6 +874,16 @@
    "source": "ADR-0106 E2"
   },
   {
+   "id": "CAM-86",
+   "test": "tests/test_cam_post_haas.py::test_haas_lathe_codes_all_in_manual",
+   "category": "post",
+   "title": {
+    "zh": "哈斯车床：程序里的代码都在 Haas 官方手册里、回读一致",
+    "en": "Haas lathe: every code is in the Haas manual, read-back matches"
+   },
+   "source": "Haas Lathe Operator's Manual (online), ch. 11, 16, 17"
+  },
+  {
    "id": "CAM-87",
    "test": "tests/test_cam_post_dialect_codes.py::test_haas_mill_tapping_without_m29",
    "category": "post",
