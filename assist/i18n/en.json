@@ -2418,6 +2418,8 @@
 "首次设置": "First-run setup",
 "填 AI 密钥（只存本机用户目录）、企业数字工厂地址并测试连接": "Enter the AI key (stored only in your user folder) and the company digital factory address, and test the connection",
 "授权与席位": "Licence and seats",
+"帮助与培训": "Help and training",
+"问渠 CAD 培训课程与帮助（21 课，录屏、练习、小测）": "WenQuest CAD training course and help (21 lessons, screen recordings, exercises, quizzes)",
 "本机授权、激活码、导入授权文件、向企业数字工厂租浮动席位": "Local licence, activation code, import a licence file, borrow a floating seat from the company digital factory",
 "已存入企业库：{}\n可在库浏览器、选型窗口中使用。": "Saved to the company library: {}\nAvailable in the library browser and the selection window.",
 "AI Parts 桥接已启用：127.0.0.1:{}，连接信息在 {}\n": "AI Parts bridge started: 127.0.0.1:{}; connection details in {}\n",
