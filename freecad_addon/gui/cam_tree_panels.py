@@ -176,6 +176,7 @@ class JobPanel:
             if not hasattr(j, "Cycles"):
                 j.Proxy.setup(j)
             j.Cycles = self.cycles.isChecked()
+            CO.sync_machine(j)                    # 双主轴、两个刀架：装夹名、背面刀号（ADR-0106 C4d）
         else:
             lengths = {}
             for piece in self.lengths.text().replace("，", ",").split(","):
@@ -362,6 +363,8 @@ class OpPanel:
         self.tno.setRange(1, 99)
         self.tno.setValue(op.ToolNumber)
         tf.addRow(T("刀号 T"), self.tno)
+        if turn and abs(float(getattr(op, "BAngle", 0.0) or 0.0)) > 1e-9:      # B 轴车削（ADR-0106 C4d）
+            tf.addRow(T("B 轴"), QtWidgets.QLabel(T("转 {}°（自动挑的，让副偏角车得到下坡）").format(f"{op.BAngle:g}")))
         self.tool_info = QtWidgets.QLabel("")
         self.tool_info.setWordWrap(True)
         tf.addRow("", self.tool_info)

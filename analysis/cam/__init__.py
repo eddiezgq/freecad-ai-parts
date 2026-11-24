@@ -290,6 +290,14 @@ def _lathe(mach) -> bool:
     return mach["kind"] in ("lathe", "mill_turn")
 
 
+def _bar_len(setup, total, e) -> float:
+    """棒料切断时伸出卡盘端面的长度：零件 + 端面余量 + 切断刀宽 + 10 mm 空当，再加卡爪夹的长度（整机仿真设置写了 chuck 时）。
+    卡爪从棒料这一段的左端起夹，夹的那段不能挡着切断刀（ADR-0106 C4d 改）"""
+    w = float((setup.get("parting") or {}).get("tool_w") or 0.0)
+    ch = (setup.get("machine_sim") or {}).get("chuck") or {}
+    return total + e + (w + 10.0 + float(ch.get("jaw_len") or 0.0) if w else 0.0)
+
+
 def _with_chuck(setup, stock_len, reach, checks, stock_d, info=None, mach=None):
     """整机仿真设置里写了 chuck {jaw_len, jaw_d}：每次装夹的卡爪夹持长度取 min(jaw_len, 这次没车的毛坯长度 − 2)。
     卡爪转起来扫过的是毛坯外面的一圈（毛坯外径 ~ jaw_d），按 ±X 两侧各一个长方体包住（刀架在哪一侧都查得到）；
@@ -791,7 +799,7 @@ def twin_grip(ctx, mach, setup) -> dict:
     if ms.get("work_offset_mm"):
         zwo = float(ms["work_offset_mm"][2])
     elif mach["model"].get("components"):
-        zwo = total + ctx["e"]                        # 与 _with_chuck 的缺省相同：毛坯左端靠在卡盘端面上
+        zwo = _bar_len(setup, total, ctx["e"])        # 与 _with_chuck 的缺省相同：棒料伸出卡盘端面这么长
     else:
         raise SetupError("双主轴要知道工件零点在机床上的位置：machine_sim 里写 work_offset_mm")
     dz = float(ax["direction"][2])
@@ -1035,6 +1043,7 @@ def _turn(setup, mach):
             if n_ in tools_sim and tools_sim[n_].get("kind") == "turn":
                 tools_sim[n_] = {**tools_sim[n_], "trail_deg": tr}
         part_w = float((sc.get("parting") or {}).get("tool_w") or 0.0)
+        slen = _bar_len(setup, total, e) if part_w else total + e   # 棒料切断：卡爪、卡盘按棒料伸出的长度放
         stock = {"d": stock_d, "z_right": e, "z_left": -(total + e + (part_w + 10.0 if part_w else 0.0))}
         # 精车（没有精车就粗车）、镗刀的刀尖圆弧：轴肩根部、内孔台阶根部车出来是 R rε 的圆角，按“做得到的轮廓”比
         tg["nose_outer"] = (tools_sim.get(nmap.get(2, 2)) or tools_sim.get(nmap.get(1, 1)) or {}).get("nose_r", 0.0)
@@ -1079,7 +1088,7 @@ def _turn(setup, mach):
         clamp: dict = {}
         live = (setup.get("live_ops") or {}).get(side) or []
         if live:                                 # 车铣中心：车削之后接动力刀工序，整段按车铣算（ADR-0106 C2b 界面）
-            _live_join(setup, mach, prog, live, stock, tools_sim, _with_chuck(setup, total + e, reach, checks, stock_d, clamp, mach), out)
+            _live_join(setup, mach, prog, live, stock, tools_sim, _with_chuck(setup, slen, reach, checks, stock_d, clamp, mach), out)
         else:
             if twin and side == "left":
                 if back_missing:
@@ -1090,9 +1099,9 @@ def _turn(setup, mach):
                     mb, sb = _twin_back_machine(setup, mach, twin, mach["model"].get("channel", 1))
                     _msim(sb, mb, parsed, g, stock, [], out, withhold=True)
             else:
-                _msim(_with_chuck(setup, total + e, reach, checks, stock_d, clamp, mach), mach, parsed, g, stock, [], out, withhold=True)
+                _msim(_with_chuck(setup, slen, reach, checks, stock_d, clamp, mach), mach, parsed, g, stock, [], out, withhold=True)
             if twin and side == "right":
-                _twin_transfer_checks(setup, mach, twin, prog, parsed, _with_chuck(setup, total + e, reach, [], stock_d, None, mach), out)
+                _twin_transfer_checks(setup, mach, twin, prog, parsed, _with_chuck(setup, slen, reach, [], stock_d, None, mach), out)
             if twin:
                 twin_progs.append(prog)
                 twin_parsed.append(parsed)
