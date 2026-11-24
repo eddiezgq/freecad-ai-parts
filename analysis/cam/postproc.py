@@ -117,9 +117,9 @@ def _lathe(prog, machine, sim_res, post, dialect):
             mt = _fmt().get("millturn")
             if not mt:
                 raise ReleaseError("后处理配置没写动力刀、C 轴的 M 代码（millturn，按机床说明书填，ADR-0110），带铣削段的车铣程序不出")
-            if op.get("b_mill") is not None:
-                raise ReleaseError("B 轴车铣中心的铣削：刀装在 B 轴主轴上，刀长随 B 怎么补各家不同，后处理配置还没有这一项"
-                                   "（ADR-0106 C4a，要另改配置格式），带铣削段的程序不出")
+            if op.get("b_mill") is not None and not mt.get("b_tool_comp"):
+                raise ReleaseError("B 轴车铣中心的铣削：刀装在 B 轴主轴上，刀长要沿刀轴补，各家开这种补偿的写法不同；"
+                                   "后处理配置 millturn 没写 b_tool_comp（按机床说明书填，ADR-0120），带铣削段的程序不出")
             from analysis.cam import post as _post
 
             fnd = _fmt()["feed"] if _fmt()["feed"] is not None else 1

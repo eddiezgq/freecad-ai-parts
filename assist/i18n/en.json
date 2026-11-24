@@ -2975,5 +2975,5 @@
 "台阶斜角 {}° 比主偏角 {}° 陡，车不出": "shoulder angle {}° is steeper than the approach angle {}°; it cannot be turned",
 "往下斜角 {}° 超过副偏角 {}° 减 {}° 间隙，副切削刃会啃工件": "down-slope angle {}° exceeds the trailing edge angle {}° minus {}° clearance; the trailing edge would gouge the part",
 "B 轴车铣中心的程序只出 FANUC、西门子（ADR-0106 C4a）": "B-axis mill-turn programs are output for FANUC and Siemens only (ADR-0106 C4a)",
-"B 轴车铣中心的铣削：刀装在 B 轴主轴上，刀长随 B 怎么补各家不同，后处理配置还没有这一项（ADR-0106 C4a，要另改配置格式），带铣削段的程序不出": "B-axis mill-turn milling: the tool sits in the B-axis spindle and length compensation along B differs between makers; the post configuration has no entry for it yet (ADR-0106 C4a, needs a format change), so programs with milling are not output"
+"B 轴车铣中心的铣削：刀装在 B 轴主轴上，刀长要沿刀轴补，各家开这种补偿的写法不同；后处理配置 millturn 没写 b_tool_comp（按机床说明书填，ADR-0120），带铣削段的程序不出": "B-axis mill-turn milling: the tool sits in the B-axis spindle and its length must be compensated along the tool axis, which each control switches on differently; the post configuration's millturn has no b_tool_comp (fill it from the machine manual, ADR-0120), so programs with milling are not output"
 }
