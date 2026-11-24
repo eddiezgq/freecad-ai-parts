@@ -3,10 +3,10 @@ name: Windows 安装包
 # 企业单机安装版（ADR-0066）：在 GitHub 的 Windows 机器上取 FreeCAD 1.0.2 便携版、装依赖与工作台、打 Inno Setup 安装包。
 # 只在安装包相关文件有改动的 PR、每晚（main 有新提交时）或手动时跑（ADR-0067）；main 上把安装包传到 Release windows-installer。
 on:
+  # PR 上不跑：只在 main 推送、打标签、每晚和手动时跑（ADR-0122）
   push:
     branches: [main]
-  pull_request:
-    types: [opened, synchronize, reopened, labeled]
+    tags: ["v*"]
   schedule:
     - cron: "47 7 * * *"          # 每晚一次全量（ADR-0067）；main 没有新提交时不跑
   workflow_dispatch:
