@@ -282,7 +282,9 @@ def rotary_path(machine: dict, axes, prefer: dict | None = None, flip_deg: float
                 flips += max(abs(q[k] - seg[-1][k]) for k in q) > flip_deg
                 total += dist(q, seg[-1])
                 seg.append(q)
-            key = (flips, dist(st, prev) if prev else 0.0, total)
+            # 比较时取到 1e-6：两组解转角一样（例如 A −15°、C 90° 与 A 15°、C −90° 绕一圈都是 360°）时不让 1e-12 的舍入误差挑，
+            # 照解的先后（固定）取，换机器、换数值库结果都一样
+            key = (flips, round(dist(st, prev), 6) if prev else 0.0, round(total, 6))
             if best is None or key < best[0]:
                 best = (key, seg)
         out += best[1]
