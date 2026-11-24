@@ -429,6 +429,58 @@
     }
    },
    "additionalProperties": false
+  },
+  "sub_spindle": {
+   "type": "object",
+   "description": "双主轴车铣中心的副主轴（ADR-0121）：夹住主主轴上车好的一端，切断后车另一端",
+   "properties": {
+    "max_rpm": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "power_kw": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "efficiency": {
+     "type": "number",
+     "exclusiveMinimum": 0,
+     "maximum": 1
+    },
+    "torque_n_m": {
+     "type": "number",
+     "exclusiveMinimum": 0
+    },
+    "axis": {
+     "type": "string",
+     "description": "副主轴沿 Z 移动的直线轴 id（须在 axes 里）；它只带副主轴一侧的部件"
+    },
+    "c_axis": {
+     "type": "string",
+     "description": "副主轴的 C 轴 id（可不写）"
+    },
+    "face_z_mm": {
+     "type": "number",
+     "description": "axis 在零位时副主轴卡爪端面的机床 Z"
+    },
+    "grip_mm": {
+     "type": "array",
+     "items": {
+      "type": "number",
+      "exclusiveMinimum": 0
+     },
+     "minItems": 2,
+     "maxItems": 2,
+     "description": "[最短, 最长] 夹持长度"
+    }
+   },
+   "required": [
+    "max_rpm",
+    "axis",
+    "face_z_mm",
+    "grip_mm"
+   ],
+   "additionalProperties": false
   }
  },
  "required": [
