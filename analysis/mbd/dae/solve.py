@@ -22,17 +22,67 @@ class SolveError(RuntimeError):
 
 
 # ---------------------------------------------------------------- 冗余约束与装配
+DRIVE_KINDS = ("rdrive", "tdrive")
+NEAR_REDUNDANT = 1e-6    # 运动副约束的奇异值 / 最大奇异值低于它：工程上按冗余处理（制造误差级的偏差），并报出来
+
+
+def _qr_rows(J, tol=None):
+    _, R, piv = sla.qr(J.T, pivoting=True, mode="economic")
+    d = np.abs(np.diag(R))
+    if tol is None:
+        tol = max(J.shape) * np.finfo(float).eps * max(d[0], 1.0) * 1e3
+    rank = int(np.sum(d > tol))
+    return sorted(int(x) for x in piv[:rank]), sorted(int(x) for x in piv[rank:])
+
+
+def structural(sysm: System, q, t):
+    """只看运动副约束（不含驱动）的秩：精确秩、工程秩（近奇异按冗余）和最接近冗余的那组约束。
+    问渠 CAD 0.3.6 细则 C3（《多体动力学》书第 4 章线索第 11 条）：原来连同驱动一起判秩，“运动副缺 1 个秩 + 驱动补上”
+    和“运动副满秩（锁死）+ 驱动多余”删的行数一样，锁死的机构被当成有冗余约束照算，被删的真约束在运动中拉开。"""
+    srows = [k for k, r in enumerate(sysm.rows) if r.kind not in DRIVE_KINDS]
+    if not srows:
+        return {"rows": srows, "dof_exact": sysm.n, "dof": sysm.n, "sigma_rel": None, "joints": []}
+    J = sysm.jac(q, t, [sysm.rows[k] for k in srows])
+    U, sv, _ = np.linalg.svd(J, full_matrices=False)
+    tol = max(J.shape) * np.finfo(float).eps * max(sv[0], 1.0) * 1e3
+    r_exact = int(np.sum(sv > tol))
+    r_eng = int(np.sum(sv > max(tol, NEAR_REDUNDANT * sv[0])))
+    # 最小的“精确非零”奇异值：最接近冗余的约束方向；左奇异向量里分量大的行就是参与的运动副
+    sig, joints = None, []
+    if r_exact:
+        k = r_exact - 1
+        sig = float(sv[k] / sv[0])
+        u = np.abs(U[:, k])
+        joints = sorted({sysm.rows[srows[i]].joint or sysm.rows[srows[i]].label for i in np.nonzero(u > 0.2 * u.max())[0]})
+    return {"rows": srows, "J": J, "tol": tol, "dof_exact": sysm.n - r_exact, "dof": sysm.n - r_eng, "sigma_rel": sig,
+            "joints": joints, "sigma_max": float(sv[0])}
+
+
 def independent_rows(sysm: System, q, t):
-    """雅可比按行做带主元的 QR，挑出线性无关的约束行（ADAMS 同样会删掉冗余约束，并报出来）"""
+    """雅可比按行做带主元的 QR，挑出线性无关的约束行（ADAMS 同样会删掉冗余约束，并报出来）。
+    先只看运动副判结构自由度：驱动数多于它 → 锁死或驱动多余，报错，不删真约束；运动副近奇异（制造误差级）→ 按冗余处理并记下。"""
     J = sysm.jac(q, t)
     if J.shape[0] == 0:
         return [], []
-    _, R, piv = sla.qr(J.T, pivoting=True, mode="economic")
-    d = np.abs(np.diag(R))
-    tol = max(J.shape) * np.finfo(float).eps * max(d[0], 1.0) * 1e3
-    rank = int(np.sum(d > tol))
-    keep = sorted(int(x) for x in piv[:rank])
-    drop = sorted(int(x) for x in piv[rank:])
+    sysm.near_redundant = None
+    keep, drop = _qr_rows(J)
+    drives = [k for k, r in enumerate(sysm.rows) if r.kind in DRIVE_KINDS]
+    if not drives:
+        return keep, drop
+    st = structural(sysm, q, t)
+    nd = len(drives)
+    if nd > st["dof"]:
+        where = "、".join(st["joints"]) or "—"
+        raise SolveError(
+            f"机构锁死或驱动多余：只看运动副，机构的自由度是 {st['dof']}，却加了 {nd} 个驱动。"
+            f"最可能卡住的是 {where}（这组约束的奇异值是最大值的 {st['sigma_rel']:.2g}，高于按冗余处理的界限 {NEAR_REDUNDANT:g}，偏差已超出制造误差的量级）。"
+            "检查这几个运动副的位置、方向是否和设计一致；确实要按冗余（靠间隙）处理时，去掉其中一个或改成约束更少的运动副")
+    if nd > st["dof_exact"]:
+        # 运动副近奇异：工程上按冗余处理——运动副行用工程阈值挑，驱动全留
+        ks, _ = _qr_rows(st["J"], tol=max(st["tol"], NEAR_REDUNDANT * st["sigma_max"]))
+        keep = sorted([st["rows"][i] for i in ks] + drives)
+        drop = sorted(set(range(len(sysm.rows))) - set(keep))
+        sysm.near_redundant = {"sigma_rel": st["sigma_rel"], "joints": st["joints"], "rows": [sysm.rows[k].label for k in drop]}
     return keep, drop
 
 
