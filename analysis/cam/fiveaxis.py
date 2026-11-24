@@ -4,6 +4,8 @@
 
 - `swarf`：直纹面侧刃铣。直纹面由底边、顶边两条等点数折线给出（第 i 点连成一条直纹线），
   刀轴沿直纹线（底 → 顶），刀尖在底边沿曲面法向往外偏一个刀具半径（平底刀侧刃贴住曲面），可再沿刀轴往下伸 `below`。
+- `swarf_check` / `swarf_clear`（ADR-0106 C3e）：扭曲直纹面（不可展）上圆柱侧刃只能沿一条直纹线贴住，两端会啃进曲面；
+  `swarf_check` 按全部刀位量曲面上各点的过切、剩料，`swarf_clear` 把啃进去的刀位沿法向推出来（不过切，剩料换过切）。
 - `densify`：相邻两刀位刀轴夹角大于 `max_angle` 时插点（刀尖直线插值、刀轴球面插值）。
 - `solve`：逐点逆解，回转轴取离上一点最近的解；查超程（错误）、回转轴突变（错误）、奇异点附近（提示）。
 """
@@ -45,10 +47,12 @@ def slerp(a, b, t: float) -> np.ndarray:
 
 # ---------------------------------------------------------------- 刀位
 def swarf(bottom, top, radius: float, side: int = 1, below: float = 0.0, closed: bool = False,
-          normals=None) -> tuple[np.ndarray, np.ndarray]:
+          normals=None, at: float = 0.5) -> tuple[np.ndarray, np.ndarray]:
     """直纹面侧刃铣的刀位：返回 (刀尖点 N×3, 刀轴 N×3)。
     side = 1：刀具在 (底边走向 × 直纹线方向) 那一侧（逆时针绕一圈的外侧）；−1 反过来。closed：底边首尾相连（求切向用）。
-    normals：底边各点的曲面法向（指向刀具一侧，如 FreeCAD 面的外法向）；给了就按它定刀具在哪一侧（去掉沿直纹线的分量），side 不用"""
+    at：按直纹线上哪个高度（0 底、1 顶）的曲面法向定刀具偏哪边，默认 0.5 中间（ADR-0106 C3e：扭曲直纹面上法向沿直纹线转，
+    取中间那点两端各啃一半，比取底边少啃约四分之三；可展面法向沿直纹线不变，取哪儿都一样）
+    normals：底边各点的曲面法向（指向刀具一侧，如 FreeCAD 面的外法向）；给了就按它定刀具在哪一侧，side 不用"""
     b = np.asarray(bottom, float)
     t_ = np.asarray(top, float)
     if b.shape != t_.shape or b.ndim != 2 or b.shape[1] != 3 or len(b) < 2:
@@ -57,16 +61,18 @@ def swarf(bottom, top, radius: float, side: int = 1, below: float = 0.0, closed:
     tips, axes = [], []
     for i in range(n):
         u = _unit(t_[i] - b[i])
+        m = b + at * (t_ - b)
         if closed:
-            tg = b[(i + 1) % n] - b[(i - 1) % n]
+            tg = m[(i + 1) % n] - m[(i - 1) % n]
         else:
-            tg = b[min(i + 1, n - 1)] - b[max(i - 1, 0)]
-        if normals is not None:
+            tg = m[min(i + 1, n - 1)] - m[max(i - 1, 0)]
+        nrm, sgn = np.cross(tg, u), side
+        if normals is not None:                                  # 给了面法向：只用它定刀具在哪一侧，方向仍取 at 那个高度的
             g = np.asarray(normals[i], float)
-            nrm = g - u * float(np.dot(g, u))
-            sgn = 1
-        else:
-            nrm, sgn = np.cross(tg, u), side
+            g = g - u * float(np.dot(g, u))
+            if float(np.linalg.norm(nrm)) < 1e-12:
+                nrm = g
+            sgn = 1 if float(np.dot(nrm, g)) >= 0 else -1
         nn = float(np.linalg.norm(nrm))
         if nn < 1e-12:
             raise FiveAxisError(f"第 {i + 1} 点：底边走向与直纹线平行，定不了曲面法向")
@@ -74,6 +80,83 @@ def swarf(bottom, top, radius: float, side: int = 1, below: float = 0.0, closed:
         tips.append(b[i] + radius * nrm - below * u)
         axes.append(u)
     return np.array(tips), np.array(axes)
+
+
+def _refine(pts, sub: int):
+    p = np.asarray(pts, float)
+    if sub <= 1 or len(p) < 2:
+        return p
+    f = np.arange(sub)[None, :, None] / sub
+    out = (p[:-1, None, :] + f * (p[1:] - p[:-1])[:, None, :]).reshape(-1, p.shape[1])
+    return np.vstack([out, p[-1:]])
+
+
+def _refine_axes(axes, sub: int):
+    a = np.asarray(axes, float)
+    if sub <= 1 or len(a) < 2:
+        return a
+    out = [slerp(a[i], a[i + 1], j / sub) for i in range(len(a) - 1) for j in range(sub)]
+    return np.vstack([np.array(out), a[-1:]])
+
+
+def _ruled_samples(bottom, top, samples: int):
+    b, t_ = np.asarray(bottom, float), np.asarray(top, float)
+    f = np.linspace(0.0, 1.0, samples)
+    return (b[:, None, :] + f[None, :, None] * (t_ - b)[:, None, :]).reshape(-1, 3)
+
+
+def _line_dist(pts, tips, axes, length: float):
+    """各点到各刀轴线段（刀尖起沿刀轴 0…length）的最近距离和是哪一个刀位：返回 (距离, 刀位号)"""
+    tips, axes = np.asarray(tips, float), np.asarray(axes, float)
+    dist, idx = np.empty(len(pts)), np.empty(len(pts), int)
+    for k in range(0, len(pts), 256):
+        w = pts[k:k + 256, None, :] - tips[None, :, :]
+        s = np.clip(np.einsum("pij,ij->pi", w, axes), 0.0, length)
+        d = np.linalg.norm(w - s[..., None] * axes[None, :, :], axis=2)
+        j = np.argmin(d, axis=1)
+        dist[k:k + 256], idx[k:k + 256] = d[np.arange(len(j)), j], j
+    return dist, idx
+
+
+def swarf_check(bottom, top, tips, axes, radius: float, samples: int = 11, skip: int = 0, sub: int = 4) -> dict:
+    """侧刃铣刀位对直纹面的偏差（ADR-0106 C3e）：直纹面每条直纹线上取 samples 点（相邻两条之间再插 sub − 1 条），
+    量到刀轴线段的最近距离 d（刀位之间也按刀尖直线、刀轴球面插 sub − 1 个，机床联动就是这么走的）；
+    过切 = 半径 − d（> 0 啃进曲面），剩料 = d − 半径（> 0 没碰到）。skip：两头各跳过几条直纹线（切入、切出那一截不算）。
+    返回 {"overcut_mm", "leftover_mm", "per_tip": 每个刀位（附近）造成的最大过切}"""
+    b, t_ = np.asarray(bottom, float), np.asarray(top, float)
+    if skip:
+        b, t_ = b[skip:len(b) - skip], t_[skip:len(t_) - skip]
+    pts = _ruled_samples(_refine(b, sub), _refine(t_, sub), samples)
+    length = float(np.linalg.norm(t_ - b, axis=1).max()) + 50.0
+    rt, ra = _refine(tips, sub), _refine_axes(axes, sub)
+    d, j = _line_dist(pts, rt, ra, length)
+    g = radius - d
+    per = np.zeros(len(tips))
+    np.maximum.at(per, np.minimum((j + sub // 2) // max(sub, 1), len(tips) - 1), g)
+    return {"overcut_mm": float(max(0.0, g.max())), "leftover_mm": float(max(0.0, (-g).max())), "per_tip": per}
+
+
+def swarf_clear(bottom, top, tips, axes, radius: float, samples: int = 11, tol: float = 0.001, rounds: int = 8):
+    """把啃进直纹面的侧刃刀位沿法向（刀尖离开直纹线那个方向，垂直刀轴）推出来，直到全部曲面点过切 ≤ tol（ADR-0106 C3e）。
+    刀轴不变；返回 (新刀尖, 刀轴, swarf_check 结果)。推出来的量就是那一段的剩料，没有过切"""
+    b = np.asarray(bottom, float)
+    tips, axes = np.array(tips, float), np.asarray(axes, float)
+    if len(tips) != len(b):
+        raise FiveAxisError("swarf_clear 要用 swarf 算出的刀位（一条直纹线一个，插点前）")
+    nv = []
+    for p, q, a in zip(tips, b, axes):
+        v = p - q
+        v = v - a * float(np.dot(v, a))
+        nv.append(_unit(v))
+    nv = np.array(nv)
+    chk = swarf_check(bottom, top, tips, axes, radius, samples)
+    for _ in range(rounds):
+        if chk["overcut_mm"] <= tol:
+            break
+        push = np.where(chk["per_tip"] > 0, chk["per_tip"] + 0.25 * tol, 0.0)
+        tips = tips + push[:, None] * nv
+        chk = swarf_check(bottom, top, tips, axes, radius, samples)
+    return tips, axes, chk
 
 
 def densify(tips, axes, max_angle: float = 1.0) -> tuple[np.ndarray, np.ndarray]:

@@ -2964,5 +2964,7 @@
 "先给这个零件建铣削作业（机床选五轴加工中心），再点它上面的面或边": "First create a milling job for this part (choose a five-axis machining centre), then pick its faces or edges",
 "点一个或几个直纹面（圆锥、斜面、直纹曲面）：平底刀侧刃贴着面，刀轴沿直纹线（五轴联动）": "Pick one or more ruled faces (cone, slope, ruled surface): the side of a flat end mill lies on the face and the tool axis follows the rulings (simultaneous 5-axis)",
 "点一个曲面：球头刀按曲面法向加前倾、侧倾精加工（五轴联动）": "Pick a curved face: ball end mill finishing along the surface normal plus lead and tilt (simultaneous 5-axis)",
-"点一条或几条边：球头刀沿边走，刀轴取边旁边朝上那个面的法向（五轴联动）": "Pick one or more edges: a ball end mill follows the edge with the tool axis along the normal of the upward-facing neighbouring face (simultaneous 5-axis)"
+"点一条或几条边：球头刀沿边走，刀轴取边旁边朝上那个面的法向（五轴联动）": "Pick one or more edges: a ball end mill follows the edge with the tool axis along the normal of the upward-facing neighbouring face (simultaneous 5-axis)",
+"；面是扭曲的直纹面，圆柱侧刃贴不严：刀位已推出不过切，那里最多剩料 {} mm（留给后面清根或换球头多轴精加工）": "; the face is a twisted ruled surface the cylinder flank cannot fit exactly: tool positions were pushed out so nothing is overcut, leaving at most {} mm there (for a later rest pass or ball-end multi-axis finishing)",
+"swarf_clear 要用 swarf 算出的刀位（一条直纹线一个，插点前）": "swarf_clear needs the tool positions from swarf (one per ruling, before densifying)"
 }

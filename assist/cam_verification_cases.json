@@ -662,6 +662,36 @@
     "en": "5-axis: non-RTCP programs (FANUC / Siemens / Heidenhain) read back to the tool positions (chord 0.01)"
    },
    "source": "tip = forward(q, L) − offset; |mid deviation| ≤ 0.01"
+  },
+  {
+   "id": "CAM-65",
+   "test": "tests/test_cam_fiveaxis_c3e.py::test_mid_normal_and_clear",
+   "category": "geom",
+   "title": {
+    "zh": "五轴联动：S 形试件扭曲直纹面侧刃——中间高度法向贴刀、啃进去的刀位推出，不过切（剩料 ≤ 0.15）",
+    "en": "5-axis: S-test twisted ruled-surface swarf — mid-height normal, gouging positions pushed out, no overcut (leftover ≤ 0.15)"
+   },
+   "source": "gouge = R − min dist(surface point, tool axis segment) ≤ 0.001"
+  },
+  {
+   "id": "CAM-66",
+   "test": "tests/test_cam_fiveaxis_c3e.py::test_release_on_both_machines",
+   "category": "post",
+   "title": {
+    "zh": "五轴联动：S 形试件在摇篮 AC、摆头 BC 上出程序，回转轴不突变",
+    "en": "5-axis: S-test released on AC table and BC head machines, no rotary flip"
+   },
+   "source": "per-step rotary change < 4 deg; flip limit 30 deg"
+  },
+  {
+   "id": "CAM-67",
+   "test": "tests/test_cam_fiveaxis_c3e.py::test_dexel_wall",
+   "category": "geom",
+   "title": {
+    "zh": "五轴联动：S 形薄壁两面侧刃 dexel 不过切、不剩料",
+    "en": "5-axis: S-shaped thin wall swarf on both sides, dexel no overcut, no leftover"
+   },
+   "source": "material at 0.3 mm inside wall; none at 0.5–9 mm outside; grid 0.25"
   }
  ]
 }

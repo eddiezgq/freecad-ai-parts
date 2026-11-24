@@ -196,6 +196,9 @@ In the machining tree: choose a five-axis machine for the milling job (e.g. EX-5
 the ruling) with mid-catalogue parameters; lead, tilt, fixed lead direction, singularity avoidance and collision tilting are operation properties — change them and
 right-click "Regenerate path". Surface finishing runs parallel lines in plan view and skips places where the ball would cut into neighbouring faces (noted in the
 operation's reason). The path wireframe shows short lines along the tool axis; calculation, replay, 3D comparison and program output work as usual.
+When a swarf face is a twisted ruled surface (the normal turns along each ruling, as on an S-shaped thin wall), a cylindrical flank cannot fit it exactly: the tool is
+offset along the normal at mid-height of each ruling, and positions that would gouge the surface are pushed out, so nothing is overcut at the cost of a little
+leftover material there (the operation's reason gives the maximum, about 0.15 mm on the S test piece) for a later rest pass or ball-end multi-axis finishing.
 Example: `examples/wenquest-cam/03-cone-5axis` (runs without FreeCAD).
 
 # Mill-turn
