@@ -331,6 +331,11 @@ def parse(text, m):
             st["c"] = w.pop("C")                    # C 轴分度（不在插补里）：记下角度，分度铣按它换工件坐标
             if st["mt"] is not None:
                 st["mt"] = ("index", st["c"])
+        sub = model.get("sub_spindle") if lathe else None
+        if sub:                                     # 双主轴：副主轴移动 / C 轴的字只动副主轴，不动刀（ADR-0106 C4b-1）
+            for a in (sub["axis"], sub.get("c_axis")):
+                if a and a in w:
+                    w.pop(a)
         if lathe and "B" in w and any(a["id"] == "B" for a in model.get("axes", [])):
             st["bdeg"] = w.pop("B")                 # B 轴车削：B 定位（ADR-0106 C4a）
             if not any(k in w for k in "XZUW"):

@@ -214,6 +214,12 @@ manual); without them programs with milling are not output. For SINUMERIK the po
 B is turned automatically so the tool can reach it (the result shows the angle). The program writes the B position and machine X, Z positions without tool offsets,
 with the tool length in the header, so every tool needs a length in the machine simulation settings. Live milling is simulated with B positioned (90° on the face,
 0° on the cylinder); the milling tool length must be compensated along the tool axis and each control switches this on differently: write `b_tool_comp` in the post configuration's `millturn` (from the machine manual, e.g. `G43.7 H05`); the program writes those lines after the B positioning, and without them no release program is output.
+**Twin-spindle mill-turn centres** (e.g. the example EX-MT-TS): when bar stock is parted off and both ends need turning, there is no manual flip — the sub-spindle grips
+the finished right end (the cylinder at the right end, grip length from the machine file `sub_spindle.grip_mm`), the part is parted off and the left end is turned on the sub-spindle,
+all in one program. The result shows the sub-spindle grip position, grip length and the sub-spindle work zero on the machine. On the sub-spindle Z runs the other way, so program Z is negated
+and no canned cycles are used. Spindle sync, clamping and spindle switching differ between makers: fill the seven `twin` entries in the post configuration (from the machine manual).
+A too-short end cylinder, a groove or thread in the grip zone, or insufficient sub-spindle travel is reported as an error. Machine simulation of the sub-spindle side (sub-spindle chuck,
+orientation of back-working tools) is not finished yet, so no release program is output for now (the program is assembled and reads back correctly).
 **Slopes a turning tool can reach** (all lathes): the approach angle comes from the holder style and the corner angle from the insert shape (Tungaloy catalogue C004),
 trailing edge angle = 180° − approach − corner angle; a down slope steeper than the trailing edge angle minus 2°, or a shoulder steeper than the approach angle, is an error.
 Unknown holders or inserts give "unknown".

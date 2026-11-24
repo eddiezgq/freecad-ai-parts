@@ -113,6 +113,9 @@ def _lathe(prog, machine, sim_res, post, dialect):
             L.append(_paren(f"{en} {v}" if en else v))
         L.append("G21 G18 G40 G97 G99")
     for k, op in enumerate(prog["ops"], 1):
+        if op.get("twin"):                          # 双主轴交接（ADR-0106 C4b、ADR-0121）：程序行按后处理配置 twin
+            L += _twin_lines(op, sie)
+            continue
         if op.get("interp"):                        # 车铣的铣削工序（ADR-0106 C2b、ADR-0110）：开 / 关动力刀、C 轴的程序行按后处理配置
             mt = _fmt().get("millturn")
             if not mt:
@@ -129,6 +132,7 @@ def _lathe(prog, machine, sim_res, post, dialect):
                 L += _post.millturn_lines(op, (hx, hz), mt, nd=_fmt()["coord"], fnd=fnd, cm=_paren)
             continue
         t, sp = op["tool"], op["spindle"]
+        hx, hz = op.get("home_xz") or home       # 副主轴一侧：换刀点按副主轴坐标（Z 反向）
         L.append(_semi(f"工序 {k}：{op.get('title', '')}") if sie else _paren(f"OP{k} T{t['n']:02d}"))
         L.append(f"G0 X{num(hx)} Z{num(hz)}" if sie else f"G00 X{num(hx)} Z{num(hz)}")
         L.append(f"T{t['n']} D{0 if op.get('b_turn') else 1}" if sie else f"T{t['n']:02d}{t.get('offset', t['n']):02d}")
@@ -202,6 +206,53 @@ def _lathe(prog, machine, sim_res, post, dialect):
         L += [f"G0 X{num(hx)} Z{num(hz)} M9", "M5"] if sie else [f"G00 X{num(hx)} Z{num(hz)} M09", "M05"]
     L += ["M30"] if sie else ["M30", "%"]
     return "\n".join(x for x in L if x) + "\n"
+
+
+TWIN_KEYS = ("sync_on", "sync_off", "sub_clamp", "sub_unclamp", "sub_select", "main_select", "sub_offset")
+
+
+def _twin_lines(op, sie):
+    """双主轴交接的几段程序行。in：同步、副主轴快移到夹持位置前、进给到夹持位置（每分进给）、夹紧；out：副主轴退回、停同步；
+    sub：切到副主轴编程、副主轴工件坐标；main：松开副主轴卡盘（卸件）、切回主主轴"""
+    tw = _fmt().get("twin") or {}
+    cm = _semi if sie else _paren
+    g0, g1 = ("G0", "G1") if sie else ("G00", "G01")
+    ax = op["axis"]
+    if op["twin"] == "in":
+        return [cm("SUB SPINDLE PICK-UP"), *tw["sync_on"], f"{g0} {ax}{num(op['approach'])}",
+                *(["G94"] if sie else ["G98"]), f"{g1} {ax}{num(op['grip'])} F{fnum(op['f'], 1)}", *(["G95"] if sie else ["G99"]), *tw["sub_clamp"]]
+    if op["twin"] == "out":
+        return [f"{g0} {ax}{num(op['home'])}", *tw["sync_off"]]
+    if op["twin"] == "sub":
+        return [cm(f"SUB SPINDLE BACK WORKING Z = -Z PART  SUB OFFSET Z0 AT B{num(op['home'])}: MACHINE Z{num(op['z0'])}"),
+                *tw["sub_select"], *tw["sub_offset"]]
+    return [*tw["sub_unclamp"], *tw["main_select"]]
+
+
+def render_twin(prog_r: dict, prog_l: dict, twin: dict, machine: dict, controller: str, sim_res: dict | None) -> dict:
+    """双主轴一个程序（ADR-0106 C4b）：右端各工序 → 接料 → 切断 → 副主轴退回 → 切到副主轴 → 左端各工序（Z 反向、不用固定循环） → 卸件、切回主主轴。
+    twin：{axis, approach, grip, home, f, z0}（副主轴移动轴的位置）。后处理配置 twin 缺一项、或不是 FANUC / 西门子 → ReleaseError"""
+    post = posts().get(controller)
+    if post is None:
+        raise ReleaseError(f"没有 {controller!r} 的后处理")
+    cfg = postcfg.resolved(post["cfg"])
+    if cfg["family"] not in ("fanuc", "siemens"):
+        raise ReleaseError("双主轴程序只出 FANUC、西门子（ADR-0106 C4b）")
+    tw = cfg.get("twin") or {}
+    miss = [k for k in TWIN_KEYS if not tw.get(k)]
+    if miss:
+        raise ReleaseError(f"后处理配置 twin 没写 {'、'.join(miss)}（主副主轴同步、夹紧、切换的写法各家不同，按机床说明书填，ADR-0121），双主轴程序不出")
+    if any(op.get("cycles") for op in prog_l["ops"]):
+        raise ReleaseError("副主轴一侧不用固定循环")
+    ops_r = [op for op in prog_r["ops"] if not op.get("part")]
+    part = [op for op in prog_r["ops"] if op.get("part")]
+    home = machine.get("home") or (machine.get("model") or machine).get("lathe_home_mm")
+    common = {"axis": twin["axis"], "home": twin["home"]}
+    ops_l = [{**op, "home_xz": (home[0], -home[1]), "moves": [{**mv, "z": -mv["z"]} if "z" in mv else mv for mv in op["moves"]]}
+             for op in prog_l["ops"]]
+    ops = [*ops_r, {"twin": "in", **common, "approach": twin["approach"], "grip": twin["grip"], "f": twin["f"]}, *part,
+           {"twin": "out", **common}, {"twin": "sub", **common, "z0": twin["z0"]}, *ops_l, {"twin": "main", **common}]
+    return render({**prog_r, "ops": ops, "cycles": prog_r.get("cycles")}, machine, controller, sim_res)
 
 
 def _blocks_key(seg):
@@ -564,7 +615,7 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
     tok = _FMT.set({"coord": cfg["decimals"]["coord"], "feed": cfg["decimals"]["feed"],
                     "utf8": cfg["comments"] == "utf8" and fam != "siemens",
                     "turn_cycles": cfg["cycles"]["turn"], "drill_cycles": cfg["cycles"]["drill"] and fam != "siemens",
-                    "millturn": cfg.get("millturn")})
+                    "millturn": cfg.get("millturn"), "twin": cfg.get("twin")})
     if fam == "gsk" and any(op.get("simul5") for op in prog.get("ops") or []):
         _FMT.reset(tok)
         raise ReleaseError("广数系统没有刀尖跟随（RTCP），五轴联动程序不输出（ADR-0106 C3a）")
