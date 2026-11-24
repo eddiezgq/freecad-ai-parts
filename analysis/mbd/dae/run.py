@@ -198,10 +198,12 @@ def run_model(model: dict, base_dir=None):
     else:
         dyn = S.dynamic
     messages = []
+    stab = None
     if typ == "kinematic":
         rec, info = S.kinematic(sysm, t_end, steps)
     elif typ == "static":
         rec, info = S.static(sysm, load_steps=int(an.get("load_steps", 1)))
+        stab = _stability(sysm, rec.q[-1], rec.t[-1])
     elif typ == "dynamic":
         rec, info = dyn(sysm, t_end, steps, method=method, rtol=rtol, atol=atol)
     elif typ in ("linear", "static_then_linear"):
@@ -209,6 +211,10 @@ def run_model(model: dict, base_dir=None):
     else:  # static_then_dynamic
         st, info0 = S.static(sysm, load_steps=int(an.get("load_steps", 1)))
         messages.append("先做静平衡（残差 {:.2g}），从平衡位置开始动力学".format(info0["residual"]))
+        stab = _stability(sysm, st.q[0], 0.0)
+        if stab["status"] == FAIL:
+            messages.append("注意：静平衡找到的是不稳定平衡，动力学从这里出发会长时间“静止”（舍入误差要很久才放大），"
+                            "看起来像稳定，其实一碰就倒。给一点初始扰动或改用稳定的平衡位置")
         rec, info = dyn(sysm, t_end, steps, method=method, rtol=rtol, atol=atol, q=st.q[0], qd=np.zeros(sysm.n))
     if info.get("redundant"):
         messages.append("删掉了 {} 条冗余约束（反力里这些方向的分量不唯一，标为不完整）：{}".format(
@@ -229,6 +235,12 @@ def run_model(model: dict, base_dir=None):
         else:
             verification.append({"key": "energy_drift", "name": "能量守恒", "value": None, "limit": ENERGY_LIMIT,
                                  "status": UNKNOWN, "note": "有驱动、阻尼或外力，系统不守恒，不判"})
+    if stab is not None:
+        verification.append(stab)
+        if stab["status"] == FAIL:
+            messages.append("静平衡不稳定：平衡位置有 {} 个特征值实部为正（最大 {:.3g} 1/s），一碰就会离开；"
+                            "这是结论，不是计算错误。要找稳定平衡可换初始位置，或用 static_then_dynamic 加扰动和阻尼".format(
+                                stab["value"], stab["max_real"]))
     dof_g = M.grubler(sysm)
     verification.append({"key": "dof", "name": "自由度（雅可比秩算）与 Grübler 公式", "value": info["dof"], "grubler": dof_g,
                          "redundant": len(info.get("redundant", [])),
@@ -258,6 +270,24 @@ def _plant_inputs(model, sysm):
         P = np.asarray(u.get("point_mm", (sysm.bodies[k].r0 * 1000).tolist()), float) * 1e-3
         out.append({"id": u["id"], "type": u["type"], "body": k, "dir": d / np.linalg.norm(d), "s": P - sysm.bodies[k].r0})
     return out
+
+
+def _stability(sysm, q, t):
+    """静平衡位置的稳定性：在平衡位置线性化，特征值实部有正的就不稳定（问渠 CAD 0.3.6 细则 C4，
+    《多体动力学》书第 21 章线索第 21 条：原来静平衡不判稳定，倒立杆、四杆机构可能落在不稳定平衡上，核查全部通过）"""
+    from analysis.mbd.dae import linear as L
+    item = {"key": "stability", "name": "静平衡的稳定性（平衡位置线性化，特征值实部都不大于 0）"}
+    try:
+        lin, _, _ = L.linearize(sysm, np.asarray(q), np.zeros(sysm.n), float(t))
+    except Exception as exc:  # noqa: BLE001 — 线性化做不了时如实标“未知”，不影响静平衡结果
+        return item | {"value": None, "status": UNKNOWN, "note": f"线性化没做成，稳定性未判：{str(exc)[:120]}"}
+    reals = [m["eigenvalue"][0] for m in lin["modes"]]
+    unstable = [m for m in lin["modes"] if m["eigenvalue"][0] > 1e-6 * max(1.0, abs(complex(*m["eigenvalue"])))]
+    note = "有实部为正的特征值说明平衡不稳定（例如倒立摆顶点），这是结论不是计算错误"
+    if L.nonsmooth(sysm):
+        note += "；模型里有摩擦、接触、间隙或齿轮侧隙，线性化只在平衡点附近、接触状态不变时成立"
+    return item | {"value": len(unstable), "max_real": max(reals) if reals else 0.0,
+                   "status": PASS if not unstable else FAIL, "note": note}
 
 
 def _run_linear(model, sysm, typ):
