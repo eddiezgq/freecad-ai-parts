@@ -451,6 +451,9 @@ def machine_text(m: dict) -> str:
                                               (m.get("controller") or {}).get("family", "—"), (m.get("controller") or {}).get("model", "")),
              T("主轴：最高 {} r/min，功率 {} kW").format(_fmt(sp.get("max_rpm")) or "—", _fmt(sp.get("power_kw")) or "—"),
              T("换刀时间：{} s").format(_fmt(m.get("tool_change_s")) or "—")]
+    if m["kind"] in ("lathe", "mill_turn"):
+        hm = m.get("lathe_home_mm") or [None, None]
+        lines.append(T("换刀点：X{}（直径）Z{}").format(_fmt(hm[0]) or "—", _fmt(hm[1]) or "—"))
     for a in m.get("axes") or []:
         unit = "°" if a["type"] == "rotary" else "mm"
         lines.append(T("{} 轴（{}，{}）：{} ~ {} {}，快移 {}").format(
@@ -559,6 +562,10 @@ class MachineDialog(QtWidgets.QDialog):
                 a, _, b = key.partition(".")
                 v = (self.cur.get(a) or {}).get(b) if b else self.cur.get(a)
                 self._add(key, T(cn), _fmt(v))
+            if self.cur["kind"] in ("lathe", "mill_turn"):      # 换刀点（规格页一般不写，按实机填，ADR-0106 E2）
+                hm = self.cur.get("lathe_home_mm") or [None, None]
+                self._add("home.x", T("换刀点 X（直径）mm"), _fmt(hm[0]))
+                self._add("home.z", T("换刀点 Z mm"), _fmt(hm[1]))
             for ax in self.cur.get("axes") or []:
                 for k in ("min", "max", "rapid"):
                     self._add(f"axis.{ax['id']}.{k}", f"{ax['id']} " + {"min": T("行程下限"), "max": T("行程上限"), "rapid": T("快移")}[k],
@@ -579,6 +586,8 @@ class MachineDialog(QtWidgets.QDialog):
             if key in ("name", "source"):
                 if txt:
                     m[key] = txt
+                continue
+            if key in ("home.x", "home.z"):
                 continue
             if key.startswith("axis."):
                 _, aid, k = key.split(".")
@@ -601,6 +610,12 @@ class MachineDialog(QtWidgets.QDialog):
                 m.pop(a, None)
             else:
                 m[a] = float(v)
+        if "home.x" in self.fields:
+            hx, hz = _num(self.fields["home.x"].text().strip()), _num(self.fields["home.z"].text().strip())
+            if hx is None or hz is None:
+                m.pop("lathe_home_mm", None)
+            else:
+                m["lathe_home_mm"] = [float(hx), float(hz)]
         return m
 
     def save(self) -> bool:
