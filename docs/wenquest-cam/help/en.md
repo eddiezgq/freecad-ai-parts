@@ -218,8 +218,11 @@ with the tool length in the header, so every tool needs a length in the machine 
 the finished right end (the cylinder at the right end, grip length from the machine file `sub_spindle.grip_mm`), the part is parted off and the left end is turned on the sub-spindle,
 all in one program. The result shows the sub-spindle grip position, grip length and the sub-spindle work zero on the machine. On the sub-spindle Z runs the other way, so program Z is negated
 and no canned cycles are used. Spindle sync, clamping and spindle switching differ between makers: fill the seven `twin` entries in the post configuration (from the machine manual).
-A too-short end cylinder, a groove or thread in the grip zone, or insufficient sub-spindle travel is reported as an error. Machine simulation of the sub-spindle side (sub-spindle chuck,
-orientation of back-working tools) is not finished yet, so no release program is output for now (the program is assembled and reads back correctly).
+A too-short end cylinder, a groove or thread in the grip zone, or insufficient sub-spindle travel is reported as an error. Back working needs tools with inserts facing
+the sub-spindle: set `back_tools` in the setup (e.g. {"1": 11, "2": 12}: T11 for back roughing, T12 for back finishing) and list those tools in the machine simulation settings.
+Machine simulation also checks three things: whether the sub-spindle sweeps into the tool waiting at the tool-change point when it moves in and when it retracts with the part;
+whether the sub-spindle chuck is in the way of the parting tool (the parting tool moves along Z at the tool-change X first, then down, and retracts in X first);
+and back working, simulated by mirroring the whole machine in Z (sub-spindle chuck and turret travel converted). The release program is output only when all pass and it reads back correctly.
 **Slopes a turning tool can reach** (all lathes): the approach angle comes from the holder style and the corner angle from the insert shape (Tungaloy catalogue C004),
 trailing edge angle = 180° − approach − corner angle; a down slope steeper than the trailing edge angle minus 2°, or a shoulder steeper than the approach angle, is an error.
 Unknown holders or inserts give "unknown".
