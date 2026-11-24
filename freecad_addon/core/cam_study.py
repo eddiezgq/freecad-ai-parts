@@ -147,6 +147,18 @@ def summary(result: dict) -> list[str]:
         lines.append(f"{p.get('title', '')}：{p['time']['total_s'] / 60:.1f} min，整机仿真{sim_txt}"
                      + (f"，指纹 {ms['fingerprint']}" if ms else "")
                      + ("，正式程序已出" if rel else "，没有正式程序"))
+        tw = p.get("twin")
+        if tw:                                   # 双主轴接料（ADR-0106 C4d）
+            lines.append(f"副主轴接料：夹 Ø{tw['d']:g} 段 {tw['grip_len']:g} mm，副主轴 {tw['axis']}{tw['grip']:g}；"
+                         f"背面工件零点在机床 Z{tw['z0']:g}")
+        ch = p.get("channels")
+        if ch:                                   # 两个刀架的节拍（ADR-0106 C4c）
+            lines.append(f"两个刀架：通道 1 车右端 {ch['right_s']:.1f} s、通道 2 车背面 {ch['back_s']:.1f} s 同时干，交接 {ch['transfer_s']:.1f} s；"
+                         f"节拍 {ch['cycle_s']:.1f} s（一个刀架干要 {ch['single_s']:.1f} s）")
+        tb = {k: v for k, v in (p.get("turn_b_deg") or {}).items() if abs(v) > 1e-9}
+        if tb:                                   # B 轴车削（ADR-0106 C4a）
+            bs = "、".join(f"T{k} B{v:g}°" for k, v in sorted(tb.items()))
+            lines.append(f"{p.get('title', '')}：B 轴车削 {bs}")
     return lines
 
 

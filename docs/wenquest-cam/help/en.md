@@ -219,7 +219,9 @@ the finished right end (the cylinder at the right end, grip length from the mach
 all in one program. The result shows the sub-spindle grip position, grip length and the sub-spindle work zero on the machine. On the sub-spindle Z runs the other way, so program Z is negated
 and no canned cycles are used. Spindle sync, clamping and spindle switching differ between makers: fill the seven `twin` entries in the post configuration (from the machine manual).
 A too-short end cylinder, a groove or thread in the grip zone, or insufficient sub-spindle travel is reported as an error. Back working needs tools with inserts facing
-the sub-spindle: set `back_tools` in the setup (e.g. {"1": 11, "2": 12}: T11 for back roughing, T12 for back finishing) and list those tools in the machine simulation settings.
+the sub-spindle: when the job's machine has a sub-spindle and a parting tool width is set, the left setup is renamed "Left end (back working on the sub spindle)" and its turning
+operations get tool numbers 10 above the same kind on the right end (T11 for back roughing, T12 for back finishing); you can change them in the operation panel, but not to a right-end number.
+Switching back to an ordinary machine or turning parting off restores the names and numbers (ones you changed yourself are left alone).
 Machine simulation also checks three things: whether the sub-spindle sweeps into the tool waiting at the tool-change point when it moves in and when it retracts with the part;
 whether the sub-spindle chuck is in the way of the parting tool (the parting tool moves along Z at the tool-change X first, then down, and retracts in X first);
 and back working, simulated by mirroring the whole machine in Z (sub-spindle chuck and turret travel converted). The release program is output only when all pass and it reads back correctly.
@@ -229,7 +231,9 @@ configuration `channels` (e.g. FANUC `M{n}`, Siemens `WAITM({n},1,2)`, numbered 
 then turns the back and finally unclamps the sub-spindle chuck to unload, so on the first part after start-up channel 2 just waits. The period when both turrets work is checked in 0.05 s steps:
 turret against turret, the lower turret against the main-spindle chuck and bar, the upper turret against the sub-spindle chuck and part; any hit and neither program is output.
 The result gives the cycle time: cutting, rapid, tool-change and waiting time for each channel, the transfer time (parting + sub-spindle moves), the cycle time = the longer side + transfer,
-and how long one turret alone would take for the same part.
+and how long one turret alone would take for the same part. In the job tree the two setups carry the channel in their names (property "Channel" 1 and 2);
+the split is fixed: channel 1 on the main spindle, channel 2 on the sub-spindle; saving writes one file per channel. On a B-axis mill-turn centre, after calculating,
+each turning operation's "BAngle" property holds the B tilt in degrees, also shown on the Tool page of the operation panel.
 **Slopes a turning tool can reach** (all lathes): the approach angle comes from the holder style and the corner angle from the insert shape (Tungaloy catalogue C004),
 trailing edge angle = 180° − approach − corner angle; a down slope steeper than the trailing edge angle minus 2°, or a shoulder steeper than the approach angle, is an error.
 Unknown holders or inserts give "unknown".
