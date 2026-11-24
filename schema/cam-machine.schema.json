@@ -481,6 +481,81 @@
     "grip_mm"
    ],
    "additionalProperties": false
+  },
+  "channels": {
+   "type": "array",
+   "description": "多通道（ADR-0122）：每个刀架一个通道；不写就是单通道",
+   "minItems": 2,
+   "items": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "integer",
+      "minimum": 1
+     },
+     "axes": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      },
+      "minItems": 1,
+      "description": "这个刀架的直线轴 id（须在 axes 里）"
+     },
+     "tool": {
+      "type": "object",
+      "description": "铣削主轴：所有轴在零位时的刀具方向与主轴端面基准点",
+      "properties": {
+       "direction": {
+        "type": "array",
+        "items": {
+         "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "从刀尖指向主轴的单位向量（立式一般为 [0, 0, 1]）"
+       },
+       "gauge_point_mm": {
+        "type": "array",
+        "items": {
+         "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "主轴端面基准点（刀长从这里量）的机床坐标"
+       }
+      },
+      "required": [
+       "direction",
+       "gauge_point_mm"
+      ],
+      "additionalProperties": false
+     },
+     "lathe_home_mm": {
+      "type": "array",
+      "items": {
+       "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "换刀点 [X 直径, Z]"
+     },
+     "spindle": {
+      "enum": [
+       "main",
+       "sub"
+      ],
+      "description": "这个刀架干哪个主轴"
+     }
+    },
+    "required": [
+     "id",
+     "axes",
+     "tool",
+     "lathe_home_mm",
+     "spindle"
+    ],
+    "additionalProperties": false
+   }
   }
  },
  "required": [
