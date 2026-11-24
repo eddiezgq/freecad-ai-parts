@@ -41,3 +41,12 @@
   车削时间与 FANUC 相同；六位刀具指令加顺序号；`turn_cycles: none`；没出处、单段、不认识的占位符、非 ISO 家族、大隈家族都拒收；核对记录进程序头；
   没写 dialect 的内置配置一字不差。
 - 各家的真实配置等官方手册（ADR-0106 E3 的表）。
+
+## 第一份厂商配置：哈斯车床（2026-11-24）
+
+- `analysis/cam/posts/haas-lathe.json`：按 Haas 官网在线《Lathe Operator's Manual》（第 11 章 Programming、第 16 章 G-Codes、第 17 章 M-Codes，2026-11-24 查，
+  用浏览器直接读的官方页面原文）：程序号 O 加 5 位、换刀 `T101`（刀号不补零、刀补两位）、限速 G50 S 与 FANUC 相同；
+  G71 手册只写了单段写法（D 切深），FANUC 两段写法没写，按工业级标准不用复合循环（`turn_cycles: none`）；
+  车铣：G112 是直角坐标 XY 编程、G107 另一套参数，与 FANUC 的 G12.1 / G7.1 不只是开关指令不同，`dialect` 表达不了——没配 `millturn`，带铣削段的程序不出。
+- 核对：L1 回读；L2 独立解释器 rs274（`checks` 记录，程序头写 `CHECKED L2`）；标准题核对程序里每个 G、M 代码都在手册的代码表里（CAM-86）。
+- 还没做：哈斯铣床（按 Mill Operator's Manual）、车铣（要先给 dialect 加“极坐标插补用直角坐标”的写法，另写 ADR）。
