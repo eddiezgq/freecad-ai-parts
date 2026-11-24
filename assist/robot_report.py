@@ -305,6 +305,9 @@ def write(out_dir: str | Path) -> dict:
     (d / "bom.json").write_text(json.dumps(b, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     (d / "bom.csv").write_text(bom_csv(b), encoding="utf-8")
     (d / "report.md").write_text(report(res, b), encoding="utf-8")
+    from assist import robot_compare
+
+    robot_compare.write(d.parent, res, b)            # 案例目录有 reference.json 时出对照页（第 8 步）
     return b
 
 
