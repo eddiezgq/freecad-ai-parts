@@ -287,6 +287,38 @@
     }
    },
    "additionalProperties": false
+  },
+  "channels": {
+   "type": "object",
+   "description": "多通道等待指令（ADR-0122；按机床说明书填，不写则不出多通道程序）",
+   "properties": {
+    "wait": {
+     "type": "string",
+     "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*\\{n\\}[A-Z0-9 .=+\\-()\\[\\],]*$",
+     "description": "等待指令模板，{n} 处填等待号，例如 M{n}、WAITM({n},1,2)"
+    },
+    "wait_first": {
+     "type": "integer",
+     "minimum": 0,
+     "description": "等待号从几开始"
+    },
+    "heads": {
+     "type": "array",
+     "items": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
+      }
+     },
+     "description": "每个通道程序开头的行（按通道顺序）"
+    }
+   },
+   "required": [
+    "wait",
+    "wait_first"
+   ],
+   "additionalProperties": false
   }
  },
  "required": [
