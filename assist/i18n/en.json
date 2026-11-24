@@ -2975,7 +2975,6 @@
 "往下斜角 {}° 超过副偏角 {}° 减 {}° 间隙，副切削刃会啃工件": "down-slope angle {}° exceeds the trailing edge angle {}° minus {}° clearance; the trailing edge would gouge the part",
 "B 轴车铣中心的程序只出 FANUC、西门子（ADR-0106 C4a）": "B-axis mill-turn programs are output for FANUC and Siemens only (ADR-0106 C4a)",
 "B 轴车铣中心的铣削：刀装在 B 轴主轴上，刀长要沿刀轴补，各家开这种补偿的写法不同；后处理配置 millturn 没写 b_tool_comp（按机床说明书填，ADR-0120），带铣削段的程序不出": "B-axis mill-turn milling: the tool sits in the B-axis spindle and its length must be compensated along the tool axis, which each control switches on differently; the post configuration's millturn has no b_tool_comp (fill it from the machine manual, ADR-0120), so programs with milling are not output",
-"副主轴一侧的整机仿真（副主轴夹头、背面加工的刀具朝向，ADR-0106 C4b-2）还没做，双主轴正式程序不出": "machine simulation of the sub-spindle side (sub-spindle chuck, orientation of back-working tools, ADR-0106 C4b-2) is not done yet, so the twin-spindle release program is not output",
 "副主轴夹不住：零件右端圆柱段只有 {} mm，副主轴最短要夹 {} mm（机床文件 sub_spindle.grip_mm）": "the sub-spindle cannot grip the part: the cylinder at the right end is only {} mm long and the sub-spindle needs at least {} mm (machine file sub_spindle.grip_mm)",
 "副主轴夹持段 Z{} ~ Z{} 上有槽，夹不住": "there is a groove in the sub-spindle grip zone Z{} ~ Z{}, it cannot be gripped",
 "副主轴夹持段 Z{} ~ Z{} 上有螺纹，夹了会伤螺纹": "there is a thread in the sub-spindle grip zone Z{} ~ Z{}; gripping would damage it",
@@ -2990,5 +2989,13 @@
 "双主轴程序只出 FANUC、西门子（ADR-0106 C4b）": "twin-spindle programs are output for FANUC and Siemens only (ADR-0106 C4b)",
 "后处理配置 twin 没写 {}（主副主轴同步、夹紧、切换的写法各家不同，按机床说明书填，ADR-0121），双主轴程序不出": "the post configuration twin is missing {} (spindle sync, clamping and switching are written differently by each maker; fill them from the machine manual, ADR-0121), so the twin-spindle program is not output",
 "没有 {} 的后处理": "no post-processor {}",
-"副主轴一侧的部件 {} 是网格，还不能跟着副主轴移动（ADR-0106 C4b-2）": "sub-spindle component {} is a mesh and cannot move with the sub-spindle yet (ADR-0106 C4b-2)"
+"副主轴一侧的部件 {} 是网格，还不能跟着副主轴移动（ADR-0106 C4b-2）": "sub-spindle component {} is a mesh and cannot move with the sub-spindle yet (ADR-0106 C4b-2)",
+"切断时副主轴夹着工件": "parting off with the sub-spindle gripping the part",
+"副主轴带工件退回": "sub-spindle retracting with the part",
+"副主轴过来接料": "sub-spindle moving in to pick up the part",
+"正式程序没有输出：背面加工的刀没换成朝副主轴的刀（back_tools）": "release program not output: back-working tools were not switched to tools facing the sub-spindle (back_tools)",
+"背面加工要用刀片朝副主轴的刀：设置里写 back_tools（原刀号对应朝副主轴的刀号），缺 {}（ADR-0106 C4b-2）": "back working needs tools with inserts facing the sub-spindle: set back_tools in the setup (original tool number to sub-facing tool number); missing {} (ADR-0106 C4b-2)",
+"，第 0 行": ", line 0",
+"轴 {} 斜着沿 Z，镜像不了（ADR-0106 C4b-2）": "axis {} is inclined to Z and cannot be mirrored (ADR-0106 C4b-2)",
+"部件 {} 是网格，镜像还不支持（ADR-0106 C4b-2）": "component {} is a mesh; mirroring is not supported yet (ADR-0106 C4b-2)"
 }

@@ -752,6 +752,16 @@
     "en": "Twin spindle: transfer lines in order, read-back matches"
    },
    "source": "ADR-0121 twin lines; sub side Z = -z', no canned cycles"
+  },
+  {
+   "id": "CAM-74",
+   "test": "tests/test_cam_twin_c4b.py::test_mirrored_machine_by_hand",
+   "category": "kin",
+   "title": {
+    "zh": "双主轴：背面整机仿真的镜像机床与手算一致",
+    "en": "Twin spindle: mirrored machine for back working matches hand calculation"
+   },
+   "source": "Z -> -Z: travel [-max, -min], components and points z negated"
   }
  ]
 }

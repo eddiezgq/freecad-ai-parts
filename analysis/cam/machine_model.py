@@ -125,19 +125,20 @@ def sub_axes(model: dict) -> set:
 
 
 def main_model(model: dict, sub_pos: float = 0.0) -> dict:
-    """主主轴上加工用的运动链：去掉副主轴的轴，副主轴一侧的部件按副主轴停在 sub_pos（移动轴的位置）固定在机床上（ADR-0106 C4b-1）。
-    去掉的轴记在 sub_spindle["axis_def"] 里（查行程用）"""
+    """主主轴上加工用的运动链：去掉副主轴的轴，副主轴一侧的部件按副主轴停在 sub_pos（移动轴的位置）固定在机床上（ADR-0106 C4b）。
+    去掉的轴记在 sub_spindle["axis_def"]、停的位置记在 sub_spindle["at"]；已经是这种视图的再调用就把副主轴部件挪到新位置"""
     sx = sub_axes(model)
     if not sx:
         return model
     sp = model["sub_spindle"]
-    ax = next(a for a in model["axes"] if a["id"] == sp["axis"])
-    off = [float(sub_pos) * float(c) for c in ax["direction"]]
+    ax = sp.get("axis_def") or next(a for a in model["axes"] if a["id"] == sp["axis"])
+    d = float(sub_pos) - float(sp.get("at", 0.0))
+    off = [d * float(c) for c in ax["direction"]]
 
     def moved(c):
         if "mesh" in c and any(abs(v) > 1e-9 for v in off):
             raise MachineError(f"副主轴一侧的部件 {c['id']} 是网格，还不能跟着副主轴移动（ADR-0106 C4b-2）")
-        c = {**c, "attached_to": "base"}
+        c = {**c, "attached_to": "base", "sub_part": True}
         if "box_mm" in c:
             b = c["box_mm"]
             c["box_mm"] = [b[0] + off[0], b[1] + off[1], b[2] + off[2], b[3] + off[0], b[4] + off[1], b[5] + off[2]]
@@ -148,8 +149,44 @@ def main_model(model: dict, sub_pos: float = 0.0) -> dict:
         return c
 
     return {**model, "axes": [a for a in model["axes"] if a["id"] not in sx],
-            "components": [moved(c) if c.get("attached_to") in sx else c for c in model.get("components") or []],
-            "sub_spindle": {**sp, "axis_def": ax}}
+            "components": [moved(c) if c.get("attached_to") in sx or c.get("sub_part") else c for c in model.get("components") or []],
+            "sub_spindle": {**sp, "axis_def": ax, "at": float(sub_pos)}}
+
+
+def mirror_z(model: dict) -> dict:
+    """整台机床沿 Z 镜像（Z → −Z，ADR-0106 C4b-2）：副主轴上 Z 反向的工件、朝副主轴的刀，镜像后就是主主轴上的工件、普通朝向的刀。
+    直线轴沿 Z 的行程换成 [−max, −min]（指令值也取反）；部件、回转轴点、刀具基准点的 Z 取反。只用于副主轴固定（main_model）的视图"""
+    def zf(v):
+        return [v[0], v[1], -v[2]]
+
+    axes = []
+    for a in model["axes"]:
+        a = dict(a)
+        if a["type"] == "linear" and abs(abs(a["direction"][2]) - 1.0) < 1e-9 and "min" in a:
+            a["min"], a["max"] = -float(a["max"]), -float(a["min"])
+        elif a["type"] == "linear" and abs(a["direction"][2]) > 1e-9:
+            raise MachineError(f"轴 {a['id']} 斜着沿 Z，镜像不了（ADR-0106 C4b-2）")
+        if "point_mm" in a:
+            a["point_mm"] = zf(a["point_mm"])
+        axes.append(a)
+    comps = []
+    for c in model.get("components") or []:
+        if "mesh" in c:
+            raise MachineError(f"部件 {c['id']} 是网格，镜像还不支持（ADR-0106 C4b-2）")
+        c = dict(c)
+        if "box_mm" in c:
+            b = c["box_mm"]
+            c["box_mm"] = [b[0], b[1], -b[5], b[3], b[4], -b[2]]
+        if "cylinder_mm" in c:
+            c["cylinder_mm"] = {**c["cylinder_mm"], "p0": zf(c["cylinder_mm"]["p0"]), "p1": zf(c["cylinder_mm"]["p1"])}
+        comps.append(c)
+    out = {**model, "axes": axes, "components": comps}
+    for key in ("tool",):
+        if model.get(key):
+            out[key] = {**model[key], "gauge_point_mm": zf(model[key]["gauge_point_mm"])}
+    if model.get("live_tools"):
+        out["live_tools"] = {k: {**v, "gauge_point_mm": zf(v["gauge_point_mm"])} for k, v in model["live_tools"].items()}
+    return out
 
 
 def is_mill_turn(model: dict) -> bool:
