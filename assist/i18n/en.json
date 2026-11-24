@@ -3031,5 +3031,11 @@
 "两个刀架时这次装夹由哪个通道干（1 主主轴、2 副主轴；0 = 单通道，ADR-0106 C4d）": "with two turrets, the channel that runs this setup (1 main spindle, 2 sub-spindle; 0 = single channel, ADR-0106 C4d)",
 "左端（副主轴背面加工，通道 2）": "Left end (back working on the sub spindle, channel 2)",
 "B 轴": "B axis",
-"转 {}°（自动挑的，让副偏角车得到下坡）": "tilted {}° (picked automatically so the trailing edge can reach the down slope)"
+"转 {}°（自动挑的，让副偏角车得到下坡）": "tilted {}° (picked automatically so the trailing edge can reach the down slope)",
+"{}dialect 的 {} 没写出处（sources，ADR-0124）": "{}dialect {} has no source (sources, ADR-0124)",
+"{}dialect.{} 里有不认识的占位符 {}": "{}dialect.{} has unknown placeholders {}",
+"{}{} 家族的基本写法要按厂商官方编程手册做，手册还没到，还不能用（ADR-0106 E3）": "{}the {} family's base syntax must follow the maker's official programming manual, which has not arrived yet, so it cannot be used (ADR-0106 E3)",
+"{}写法差别（dialect）只用于 ISO 家族（fanuc / gsk / hnc，ADR-0124）": "{}dialect applies only to the ISO families (fanuc / gsk / hnc, ADR-0124)",
+"{}复合循环的单段写法还没按官方手册做，请写 two_block 或 none（ADR-0124）": "{}the one-block canned-cycle format has not been done from an official manual yet; use two_block or none (ADR-0124)",
+"已核对": "checked"
 }

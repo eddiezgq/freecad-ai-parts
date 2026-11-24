@@ -52,6 +52,25 @@ def check(cfg: dict, where: str = "") -> dict:
         raise PostConfigError(f"{where + '：' if where else ''}后处理配置不符合 cam-post/1：" +
                               "；".join(f"{'/'.join(map(str, e.absolute_path)) or '（顶层）'}：{e.message}" for e in errs[:5]))
     fam = cfg["family"]
+    if fam in ("okuma", "fagor"):              # ADR-0124：家族的基本写法要按厂商官方编程手册做（ADR-0106 E3 工业级标准）
+        raise PostConfigError(f"{where + '：' if where else ''}{fam} 家族的基本写法要按厂商官方编程手册做，手册还没到，还不能用（ADR-0106 E3）")
+    dl = cfg.get("dialect") or {}
+    if dl and fam not in ISO:
+        raise PostConfigError(f"{where + '：' if where else ''}写法差别（dialect）只用于 ISO 家族（fanuc / gsk / hnc，ADR-0124）")
+    if dl.get("turn_cycles") == "one_block":
+        raise PostConfigError(f"{where + '：' if where else ''}复合循环的单段写法还没按官方手册做，请写 two_block 或 none（ADR-0124）")
+    for key, v in dl.items():
+        if key in ("sources", "turn_cycles"):
+            continue
+        for t in (v if isinstance(v, list) else [v]):
+            bad = set(re.findall(r"\{([a-z]+)\}", t)) - set(_PH)
+            if bad:
+                raise PostConfigError(f"{where + '：' if where else ''}dialect.{key} 里有不认识的占位符 {', '.join(sorted(bad))}")
+    if dl:
+        have = {x["item"] for x in dl["sources"]}
+        miss = [k for k in dl if k != "sources" and k not in have]
+        if miss:
+            raise PostConfigError(f"{where + '：' if where else ''}dialect 的 {'、'.join(miss)} 没写出处（sources，ADR-0124）")
     if fam == "heidenhain":
         from analysis.cam import klartext
 
@@ -135,7 +154,7 @@ def problems(env=None) -> list[str]:
 
 
 def resolved(cfg: dict) -> dict:
-    """配置 + 家族缺省（逐项合并）"""
+    """配置 + 家族缺省（逐项合并）；dialect.turn_cycles = none 时不用车削复合循环"""
     base = DEFAULTS[cfg["family"]]
     out = {**cfg}
     for k, v in base.items():
@@ -143,7 +162,121 @@ def resolved(cfg: dict) -> dict:
             out[k] = {**v, **(cfg.get(k) or {})}
         else:
             out[k] = cfg.get(k, v)
+    if (cfg.get("dialect") or {}).get("turn_cycles") == "none":
+        out["cycles"] = {**out["cycles"], "turn": False}
     return out
+
+
+# ---------------------------------------------------------------- 写法差别（ADR-0124）
+_NUM = r"-?\d+(?:\.\d*)?"
+_PH = {"n": r"\d+", "nn": r"\d{2}", "o": r"\d+", "oo": r"\d{2}", "s": r"\d+", "r": _NUM, "d": _NUM, "rpm": r"\d+", "number": r"\d+"}
+_KEY = {"nn": "n", "oo": "o"}                # 两位写法与一位写法是同一个数
+
+
+def _fill(t: str, v: dict) -> str:
+    def one(m):
+        k = m.group(1)
+        if k in ("nn", "oo"):
+            return f"{int(v[_KEY[k]]):02d}"
+        if k in ("n", "o", "s", "rpm", "number"):
+            return str(int(v[k]))
+        return str(v[k])
+    return re.sub(r"\{([a-z]+)\}", one, t)
+
+
+def _tpl_re(t: str) -> re.Pattern:
+    """模板 → 正则；同一个数出现两次（如 T{nn}{oo}{oo}）要相同"""
+    seen, out, pos = set(), "", 0
+    for m in re.finditer(r"\{([a-z]+)\}", t):
+        out += re.escape(t[pos:m.start()])
+        k = _KEY.get(m.group(1), m.group(1))
+        out += f"(?P={k})" if k in seen else f"(?P<{k}>{_PH[m.group(1)]})"
+        seen.add(k)
+        pos = m.end()
+    return re.compile("^" + out + re.escape(t[pos:]) + "$")
+
+
+def _rules(dl: dict, lathe: bool) -> list:
+    """FANUC 写法（问渠CAM 的基本写法）↔ 这家的写法：[(FANUC 正则, FANUC 模板, 这家的模板行)]"""
+    from analysis.cam.post import num
+
+    r = []
+    if lathe and dl.get("tool_call_lathe"):
+        r.append((re.compile(r"^T(?P<n>\d{2})(?P<o>\d{2})$"), "T{nn}{oo}", [dl["tool_call_lathe"]]))
+    if not lathe and dl.get("tool_call_mill"):
+        r.append((re.compile(r"^T(?P<n>\d+) M06$"), "T{n} M06", list(dl["tool_call_mill"])))
+    if lathe and dl.get("spindle_limit"):
+        r.append((re.compile(r"^G50 S(?P<s>\d+)$"), "G50 S{s}", [dl["spindle_limit"]]))
+    if dl.get("polar"):
+        r += [(re.compile(r"^G12\.1$"), "G12.1", [dl["polar"][0]]), (re.compile(r"^G13\.1$"), "G13.1", [dl["polar"][1]])]
+    if dl.get("cylindrical"):
+        r += [(re.compile(r"^G07\.1 C0$"), "G07.1 C0", [dl["cylindrical"][1]]),
+              (re.compile(rf"^G07\.1 C(?P<r>{_NUM})$"), "G07.1 C{r}", [dl["cylindrical"][0]])]
+    del num
+    return r
+
+
+def _split_n(line: str):
+    m = re.match(r"^(N\d+\s+)(.*)$", line)
+    return (m.group(1), m.group(2)) if m else ("", line)
+
+
+def apply_dialect(lines: list, cfg: dict, lathe: bool) -> list:
+    """写好的 FANUC 写法逐行换成这家的写法（换刀、限速、车铣插补开关）"""
+    from analysis.cam.post import num
+
+    dl = cfg.get("dialect") or {}
+    rules = _rules(dl, lathe)
+    if not rules:
+        return lines
+    out = []
+    for ln in lines:
+        pre, body = _split_n(ln.strip())
+        for rx, _f, tpl in rules:
+            m = rx.match(body)
+            if m:
+                v = m.groupdict()
+                if "r" in v:
+                    v["d"] = num(2.0 * float(v["r"]))
+                out += [pre + _fill(tpl[0], v)] + [_fill(t, v) for t in tpl[1:]]
+                break
+        else:
+            out.append(ln)
+    return out
+
+
+def undo_dialect(text: str, cfg: dict, lathe: bool) -> str:
+    """回读前：这家的写法换回 FANUC 写法（apply_dialect 的逆）"""
+    from analysis.cam.post import num
+
+    dl = cfg.get("dialect") or {}
+    rules = _rules(dl, lathe)
+    if not rules:
+        return text
+    lines = text.split("\n")
+    out, i = [], 0
+    while i < len(lines):
+        raw = lines[i].strip()
+        mt = re.search(r"\s*\(#L\d+\)$", raw)                  # 回读时记的原程序行号（postproc.tag）
+        tail = mt.group(0) if mt else ""
+        pre, body = _split_n(raw[: len(raw) - len(tail)])
+        hit = False
+        for _rx, fan, tpl in rules:
+            m = _tpl_re(tpl[0]).match(body)
+            if not m or not all(i + k < len(lines) and _tpl_re(t).match(_split_n(re.sub(r"\s*\(#L\d+\)$", "", lines[i + k].strip()))[1])
+                                for k, t in enumerate(tpl[1:], 1)):
+                continue
+            v = m.groupdict()
+            if "d" in v and "r" not in v:
+                v["r"] = num(float(v["d"]) / 2.0)
+            out.append(pre + _fill(fan, v) + tail)
+            i += len(tpl)
+            hit = True
+            break
+        if not hit:
+            out.append(lines[i])
+            i += 1
+    return "\n".join(out)
 
 
 # ---------------------------------------------------------------- 写好以后按配置加工
@@ -189,6 +322,8 @@ def finish(text: str, cfg: dict, lathe: bool, number: int) -> str:
     # 子程序（ISO 家族）：每道工序（从一次换刀前的注释或换刀起，到下一次之前）一个子程序，主程序按顺序 M98 调用
     if cfg["subprograms"] and fam in ISO:
         body = _subprograms(body, key, number, cfg)
+    # 写法差别（ADR-0124）
+    body = apply_dialect(body, cfg, lathe)
     # 顺序号
     if cfg["sequence"]["enabled"]:
         body = _sequence(body, cfg, fam)
