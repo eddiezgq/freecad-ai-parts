@@ -213,6 +213,14 @@
       "type": "string",
       "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
      }
+    },
+    "b_tool_comp": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
+     },
+     "description": "B 轴车铣中心（ADR-0120）：铣刀装在 B 轴主轴上时，B 定位之后开“沿刀轴方向的刀长补偿”的程序行（各家写法不同，按机床说明书填）；不写则 B 轴机床上带铣削段的程序不出"
     }
    },
    "additionalProperties": false
