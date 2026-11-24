@@ -14,11 +14,72 @@
 
 from __future__ import annotations
 
+import itertools
+import math
 import re
 
 # ISO 5608 全长字母 → l1（mm）；X 为特殊长度
 LENGTH = {"A": 32, "B": 40, "C": 50, "D": 60, "E": 70, "F": 80, "G": 90, "H": 100, "J": 110, "K": 125, "L": 140,
           "M": 150, "N": 160, "P": 170, "Q": 180, "R": 200, "S": 250, "T": 300, "U": 350, "V": 400, "W": 450, "Y": 500}
+
+# 外圆车刀的主偏角 κ（刀杆形式，沿 Z 走刀量的那几种）与刀片刀尖角 ε（刀片形状）：泰珂洛综合样本 2020–2021 外圆车削 C004
+# 的“刀杆形式”“刀片形状”两张图（ADR-0106 C4a）。端面走刀量角的形式（C、F、K、U、X、Y 等）和没标角度的不收，查不了就 unknown
+KAPPA_DEG = {"A": 90.0, "B": 75.0, "D": 45.0, "G": 91.0, "H": 100.0, "I": 76.5, "J": 93.0, "L": 95.0, "N": 63.0,
+             "S": 45.0, "V": 72.5}
+EPSILON_DEG = {"C": 80.0, "D": 55.0, "K": 55.0, "S": 90.0, "T": 60.0, "V": 35.0}
+
+
+def turn_angles(holder_code: str, insert_iso: str) -> tuple[float, float] | None:
+    """ISO 5608 刀杆代号 + ISO 1832 刀片代号 → (主偏角 κ, 副偏角 κ′ = 180 − κ − ε)（度）；查不到返回 None"""
+    try:
+        h = parse(holder_code)
+    except HolderError:
+        return None
+    shape = (insert_iso or "").strip().upper()[:1]
+    if h["style"] not in KAPPA_DEG or shape not in EPSILON_DEG or (h["insert_shape"] and h["insert_shape"] != shape):
+        return None
+    k = KAPPA_DEG[h["style"]]
+    return k, 180.0 - k - EPSILON_DEG[shape]
+
+
+def profile_slopes(profile) -> tuple[float, float]:
+    """外圆车削轮廓 [(z, d), …]（从右往左，Z 递减）→ (最陡的往上台阶斜角, 最陡的往下斜角)（度，从 −Z 方向量，90 = 直角台阶）；没有就 0"""
+    up = down = 0.0
+    for (z0, d0), (z1, d1) in itertools.pairwise(profile):
+        dz, dr = z0 - z1, (d1 - d0) / 2.0
+        if dz < -1e-9 or (abs(dz) < 1e-9 and abs(dr) < 1e-9):
+            continue
+        ang = math.degrees(math.atan2(abs(dr), dz))
+        if dr > 1e-9:
+            up = max(up, ang)
+        elif dr < -1e-9:
+            down = max(down, ang)
+    return up, down
+
+
+CLEAR_DEG = 2.0                                                    # 副切削刃与下坡之间留的间隙
+
+
+def angle_issues(kappa: float, kappa2: float, up: float, down: float, beta: float = 0.0) -> list[str]:
+    """B 转 β（正 = 主偏角变大）后：往上台阶 > κ + β 车不出，往下斜角 > κ′ − β − 间隙 副切削刃啃工件"""
+    out = []
+    k, k2 = kappa + beta, kappa2 - beta
+    if up > k + 1e-6:
+        out.append(f"台阶斜角 {up:.1f}° 比主偏角 {k:g}° 陡，车不出")
+    if down > k2 - CLEAR_DEG + 1e-6:
+        out.append(f"往下斜角 {down:.1f}° 超过副偏角 {k2:g}° 减 {CLEAR_DEG:g}° 间隙，副切削刃会啃工件")
+    return out
+
+
+def pick_beta(kappa: float, kappa2: float, up: float, down: float, lo: float = -90.0, hi: float = 90.0) -> int | None:
+    """B 轴车削（ADR-0106 C4a）：挑一个让台阶、下坡都车得到的整数 β（绝对值最小的）；挑不到 None"""
+    a = math.ceil(up - kappa - 1e-9)
+    b = math.floor(kappa2 - CLEAR_DEG - down + 1e-9)
+    a, b = max(a, math.ceil(lo)), min(b, math.floor(hi))
+    if a > b:
+        return None
+    return 0 if a <= 0 <= b else (a if a > 0 else b)
+
 
 _RE = re.compile(r"^([A-Z])([A-Z])([A-Z])([A-Z])([RLN])\s*(\d{2})(\d{2})\s*([A-Z])\s*(\d{2})(.*)$")
 

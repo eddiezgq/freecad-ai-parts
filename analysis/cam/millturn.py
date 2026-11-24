@@ -234,3 +234,15 @@ def flat_moves(feature: dict, tool_d: float, step_down: float, f: float, f_plung
             q["f"] = m["f"]
         out.append(q)
     return out
+
+
+def b_turn_offset(model: dict, b_deg: float, tool_length: float) -> tuple[float, float]:
+    """B 轴车削（ADR-0106 C4a）：X、Z 轴在 0（其他轴也在 0、B 在 b_deg）时刀尖在哪 → (直径方向的 X 偏移, Z 偏移)。
+    程序 X = 刀尖直径 − 偏移 X，Z = 刀尖 Z − 偏移 Z（直线轴只是平移）；回读反过来加上"""
+    from analysis.cam import kinematics as K
+
+    q = {a["id"]: 0.0 for a in model["axes"]}
+    q["B"] = float(b_deg)
+    tip, _ax = K.forward(model, q, float(tool_length))
+    return 2.0 * float(tip[0]), float(tip[2])
+

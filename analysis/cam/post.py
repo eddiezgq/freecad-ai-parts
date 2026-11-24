@@ -32,6 +32,11 @@ def _header(prog, machine, lines):
         lines.append(comment(f"T{t['n']:02d} {t.get('name', '')}" + (f" D{num(t['d'])}" if t.get("d") else "")))
 
 
+def b_turn_note(op) -> str:
+    bt = op["b_turn"]
+    return f"B-AXIS TURNING T{op['tool']['n']} L{bt['L']:.3f} B{bt['deg']:g} NO TOOL OFFSET X Z = MACHINE AXES"
+
+
 def post_lathe(prog, machine):
     """数控车：G18（ZX 平面）、X 直径编程、G99 每转进给、G96 恒线速 + G50 限速。"""
     lines: list[str] = []
@@ -46,6 +51,8 @@ def post_lathe(prog, machine):
         lines.append(comment(op.get("title", "")))
         lines.append(f"G00 X{num(hx)} Z{num(hz)}")
         lines.append(f"T{t['n']:02d}{t.get('offset', t['n']):02d}")
+        if op.get("b_turn"):                       # B 轴车削（ADR-0106 C4a）：B 定位，走刀写 B 轴回转中心的位置
+            lines += [comment(b_turn_note(op)), f"G00 B{num(op['b_turn']['deg'])}"]
         if sp.get("css"):
             lines.append(f"G50 S{int(min(sp.get('max_rpm', machine['max_rpm']), machine['max_rpm']))}")
             lines.append(f"G96 S{round(sp['css'])} M03")
@@ -105,6 +112,8 @@ def millturn_lines(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[str]:
     t, sp = op["tool"], op["spindle"]
     rpm = round(float(sp["rpm"]))
     out = [cm(op.get("title", "")), f"G00 X{num(hx, nd)} Z{num(hz, nd)}", f"T{t['n']:02d}{t.get('offset', t['n']):02d}"]
+    if op.get("b_mill") is not None:          # B 轴车铣中心（ADR-0106 C4a）：轴向 B90、径向 B0 定位（仿真用的程序）
+        out.append(f"G00 B{num(op['b_mill'], nd)}")
     if cfg_mt is None:
         out += ["G98", f"G97 S{rpm} M03"]
     else:
@@ -154,7 +163,8 @@ def millturn_lines_siemens(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[st
     cyl = op["interp"].get("cyl") if isinstance(op["interp"], dict) else None
     idx = op["interp"].get("index") if isinstance(op["interp"], dict) else None
     d = 2.0 * float(cyl) if cyl else None
-    out = [cm(op.get("title", "")), f"G0 X{num(hx, nd)} Z{num(hz, nd)}", f"T{t['n']} D1", "M5",
+    out = [cm(op.get("title", "")), f"G0 X{num(hx, nd)} Z{num(hz, nd)}", f"T{t['n']} D1",
+           *([f"G0 B{num(op['b_mill'], nd)}"] if op.get("b_mill") is not None else []), "M5",
            *cfg_mt.get("c_on", []), *cfg_mt.get("live_on", []), f"S{rpm}", "G94"]
     if idx is not None:                       # C 轴分度 + Y 轴铣：直径编程照旧，G19 平面
         out += [f"G0 C{num(idx, nd)}", "G19"]

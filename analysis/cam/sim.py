@@ -109,6 +109,16 @@ def parse(text, m):
                 st["approach"] = False
         a = tuple(st["pos"])
         b = tuple(float(v) for v in b)
+        b_mach = b
+        bt = (m.get("bturn") or {}).get(st["tool"]) if lathe else None
+        if bt is not None and not kw.get("home"):    # B 轴车削（ADR-0106 C4a）：程序是机床 X、Z 的位置，按刀长、B 角换回刀尖
+            from analysis.cam import millturn as _MT
+
+            ox, oz = _MT.b_turn_offset(model, st.get("bdeg", 0.0), bt)
+            rad = math.radians(st.get("bdeg", 0.0))
+            a = (a[0] + ox, a[1], a[2] + oz)
+            b = (b[0] + ox, b[1], b[2] + oz)
+            kw = {**kw, "axis": (math.cos(rad), 0.0, math.sin(rad)), "b_deg": st.get("bdeg", 0.0)}
         turned = kw.get("axis_b") is not None and float(np.linalg.norm(np.subtract(kw["axis_b"], kw["axis"]))) > 1e-12
         if max(abs(b[i] - a[i]) for i in range(3)) > 1e-9 or turned:
             if st["frame"] is not None:              # 倾斜面（G68.2）：程序坐标是平面坐标，刀路记工件坐标和刀轴方向
@@ -119,7 +129,7 @@ def parse(text, m):
                 aw, bw = a, b
             moves.append(dict(t=t, a=aw, b=bw, line=line, tool=st["tool"], f=st["f"], per_rev=st["per_rev"], css=st["css"],
                               rpm=st["rpm"], smax=st["smax"], spin=st["spin"], **kw))
-        st["pos"] = list(b)
+        st["pos"] = list(b_mach)
 
     for ln, raw in enumerate(lines, 1):
         if ln in skip:
@@ -321,6 +331,10 @@ def parse(text, m):
             st["c"] = w.pop("C")                    # C 轴分度（不在插补里）：记下角度，分度铣按它换工件坐标
             if st["mt"] is not None:
                 st["mt"] = ("index", st["c"])
+        if lathe and "B" in w and any(a["id"] == "B" for a in model.get("axes", [])):
+            st["bdeg"] = w.pop("B")                 # B 轴车削：B 定位（ADR-0106 C4a）
+            if not any(k in w for k in "XZUW"):
+                continue
         if st["mt"] is not None and "C" in w and not any(k in w for k in "XYZUW"):
             w["Y"] = w["C"]                         # 车铣插补里只写 C 的段：C 是第二个坐标
         if st["mt"] is not None and "C" in w:
@@ -648,11 +662,21 @@ def _seg_points(a, b, step):
     return np.outer(1 - t, a) + np.outer(t, b)
 
 
+def _trail(cut, zc, trail_deg):
+    """外圆刀刀尖右边（+Z 一侧）的刀体：副切削刃从刀尖往 +Z 抬 trail_deg（副偏角，ADR-0106 C4a）；没给就按 0（刀尖右边整个都是刀，最保守）。
+    只用在往卡盘方向（−Z）走的段上（仿形下坡靠它）；车端面、退刀照旧按 0"""
+    if not trail_deg or trail_deg <= 0:
+        return np.minimum.accumulate(cut)
+    tn = math.tan(math.radians(min(float(trail_deg), 89.0)))
+    return np.minimum.accumulate(cut - zc * tn) + zc * tn
+
+
 def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=None):
     """stock：{"d": 毛坯直径, "z_right": 毛坯右端（端面余量）, "z_left": 毛坯左端（卡盘处，负数）}，可另给 "bore_d"（毛坯已有的内孔）
     tools：{刀号: {"kind": "turn"} | {"kind": "groove", "w": 刀宽} | {"kind": "thread"} | {"kind": "thread_in"} | {"kind": "drill", "d": 直径}
            | {"kind": "bore"} | {"kind": "face_groove", "w": 刀宽（半径方向）}}
-           外圆刀、镗刀可带 "nose_r"（刀尖圆弧半径）：程序点是假想刀尖（外圆刀方位 3、镗刀方位 2），按半径 nose_r 的圆扫过去切（ADR-0106 Q2）
+           外圆刀、镗刀可带 "nose_r"（刀尖圆弧半径）：程序点是假想刀尖（外圆刀方位 3、镗刀方位 2），按半径 nose_r 的圆扫过去切（ADR-0106 Q2）；
+           外圆刀可带 "trail_deg"（副偏角，刀尖右边的刀体按它往上抬，ADR-0106 C4a；没给按 0）
     target：比对用轮廓 [(z, d), …]（成品或本工序尺寸），或 {"outer": 轮廓, "grooves": [(z 右边, 宽, 槽底直径)], "threads": [(z 起, z 止, 牙底直径)],
             "inner": 内轮廓 [(z, d), …]}。返回最终半径网格（外 r、内 ri）、碰撞、过切 / 残留。
     材料在 ri < 半径 < r 之间。螺纹按整圈切（不计螺旋线），比对时螺纹段看牙底直径；钻头按平底。"""
@@ -736,13 +760,13 @@ def simulate_turn(parsed, stock, tools, target=None, h=0.02, tol=0.01, history=N
             elif rn > 0:                                  # 外圆刀刀尖圆弧：圆心 = 假想刀尖 + (rε, rε)，切到圆的下半边
                 k, rr = _nose_envelope(pts[:, 0] + rn, pts[:, 1] + rn, rn, z0, h, n, upper=False)
                 np.minimum.at(cut, k, rr)
-                cut = np.minimum.accumulate(cut)
+                cut = _trail(cut, zc, tl.get("trail_deg") if b[0] < a[0] - 1e-9 else None)
             else:
                 k = idx_of(pts[:, 0])
                 ok = (k >= 0) & (k < n)
                 np.minimum.at(cut, k[ok], pts[ok, 1])
                 if kind == "turn":
-                    cut = np.minimum.accumulate(cut)
+                    cut = _trail(cut, zc, tl.get("trail_deg") if b[0] < a[0] - 1e-9 else None)
             new_r = np.where(solid, np.maximum(np.minimum(r, cut), ri), r)
             removed = np.where(solid, r - new_r, 0.0)
         if removed.max() > 0.005:

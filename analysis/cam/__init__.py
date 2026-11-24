@@ -38,6 +38,8 @@ import re
 import statistics
 import time
 
+from analysis.cam import holders as H
+from analysis.cam import machine_model as MM
 from analysis.cam import machine_sim as MS
 from analysis.cam import machines as M
 from analysis.cam import paths as P
@@ -592,6 +594,103 @@ def groove_holder_checks(setup, sc, stock_d) -> list[dict]:
     return out
 
 
+def turn_b(setup) -> dict:
+    """B 轴车削（ADR-0106 C4a）：各车刀的固定 B 角（β，度，正 = 主偏角变大）{刀号: β}；没写的按 0"""
+    return {int(k): float(v) for k, v in (setup.get("turn_b_deg") or {}).items()}
+
+
+def insert_angle_checks(setup, sc) -> list[dict]:
+    """外圆粗车（T1）、精车（T2）能车的斜度（ADR-0106 C4a）：刀杆形式定主偏角 κ、刀片形状定刀尖角 ε，副偏角 κ′ = 180 − κ − ε；
+    往上台阶 > κ + β、往下斜角 > κ′ − β − 2° → 错误；刀杆或刀片查不到 → unknown（只在轮廓有下坡或比 90° 还陡的台阶时报）"""
+    lib = _lib_tools(setup)
+    given = (setup.get("machine_sim") or {}).get("tools") or {}
+    up, down = H.profile_slopes(sc["tgt"])
+    beta = turn_b(setup)
+    out = []
+    for n, what in ((1, "粗车"), (2, "精车")):
+        t = lib.get(n)
+        if t is None:
+            continue
+        hd = (given.get(str(n)) or {}).get("holder") or t.get("holder") or {}
+        code = hd.get("iso5608") or ""
+        ins = (t.get("insert") or {}).get("iso", "")
+        ang = H.turn_angles(code, ins) if code else None
+        if ang is None:
+            if down > 1e-6 or up > 90.0 + 1e-6:
+                txt = (f"T{n}（{what}）的刀杆 {code}、刀片 {ins} 查不到主偏角或刀尖角，轮廓的斜度车不车得到没查" if code and ins else
+                       f"T{n}（{what}）没写刀杆代号或刀片代号，轮廓的斜度车不车得到没查")
+                out.append({"line": None, "level": "unknown", "text": txt})
+            continue
+        b = beta.get(n, 0.0)
+        for msg in H.angle_issues(ang[0], ang[1], up, down, b):
+            out.append({"line": None, "level": "error", "text": f"T{n}（{what}，{code} + {ins}，B 转 {b:g}°）：{msg}" if b else
+                        f"T{n}（{what}，{code} + {ins}）：{msg}"})
+    return out
+
+
+def trail_angles(setup) -> dict:
+    """外圆粗车、精车刀（T1、T2）转过 B 以后的副偏角 κ′ − β {刀号: 度}；查不到的不给（仿真按 0，ADR-0106 C4a）"""
+    lib = _lib_tools(setup)
+    given = (setup.get("machine_sim") or {}).get("tools") or {}
+    beta = turn_b(setup)
+    out = {}
+    for n in (1, 2):
+        t = lib.get(n)
+        if t is None:
+            continue
+        hd = (given.get(str(n)) or {}).get("holder") or t.get("holder") or {}
+        ang = H.turn_angles(hd.get("iso5608") or "", (t.get("insert") or {}).get("iso", ""))
+        if ang is not None:
+            out[n] = max(0.0, ang[1] - beta.get(n, 0.0))
+    return out
+
+
+AXIAL_TURN_TOOLS = (5, 6, 7, 9)                    # 钻头、镗刀、内螺纹刀、端面切槽刀：刀杆沿 Z（B 轴机床上 B = 90°）
+
+
+def _b_turn(setup, mach, prog, sc):
+    """B 轴车铣中心的车削（ADR-0106 C4a）：车刀装在 B 轴主轴上，每道工序固定一个 B 角。
+    外圆刀 B = β（缺省 0；T1、T2 车不了轮廓的斜度时自动挑一个车得到的 β），钻头、镗刀、内螺纹刀、端面切槽刀 B = 90° + β。
+    走刀从刀尖换成机床 X、Z 轴的位置（按机床运动链和刀长正解，不用刀补，程序头写明）。
+    返回 (程序, 带 bturn 的机床, 各刀的 β)"""
+    cfg = setup.get("machine_sim") or {}
+    tools = cfg.get("tools") or {}
+    beta = turn_b(setup)
+    if "turn_b_deg" not in setup and sc is not None:
+        lib = _lib_tools(setup)
+        up, down = H.profile_slopes(sc["tgt"])
+        for n in (1, 2):
+            t = lib.get(n)
+            hd = (tools.get(str(n)) or {}).get("holder") or (t or {}).get("holder") or {}
+            ang = H.turn_angles(hd.get("iso5608") or "", ((t or {}).get("insert") or {}).get("iso", "")) if t else None
+            if ang is not None and H.angle_issues(ang[0], ang[1], up, down):
+                b = H.pick_beta(ang[0], ang[1], up, down)
+                if b is not None:
+                    beta[n] = float(b)
+    lens, ops = {}, []
+    for op in prog["ops"]:
+        if op.get("interp") or op.get("b_turn"):
+            if op.get("b_turn"):
+                lens[int(op["tool"]["n"])] = float(op["b_turn"]["L"])
+            ops.append(op)
+            continue
+        n = int(op["tool"]["n"])
+        L = (tools.get(str(n)) or {}).get("length_mm")
+        if L is None:
+            raise SetupError(f"{mach['name']} 是 B 轴车铣中心：车刀装在 B 轴主轴上，程序按刀长算机床 X、Z 的位置，"
+                             f"machine_sim 里要写 T{n} 的 length_mm")
+        L = float(L)
+        lens[n] = L
+        deg = (90.0 if n in AXIAL_TURN_TOOLS else 0.0) + beta.get(n, 0.0)
+        from analysis.cam import millturn as MTN
+
+        ox, oz = MTN.b_turn_offset(mach["model"], deg, L)
+        mv = [dict(m, x=m["x"] - ox, z=m["z"] - oz) if m["t"] in ("rapid", "feed", "thread") else m for m in op["moves"]]
+        o = {k: v for k, v in op.items() if k != "cycles"}
+        ops.append({**o, "moves": mv, "tool": {**op["tool"], "offset": 0}, "b_turn": {"deg": deg, "L": L}})
+    return {**prog, "ops": ops, "cycles": False}, {**mach, "bturn": lens}, beta
+
+
 def nose_radii(setup) -> dict:
     """车刀刀尖圆弧半径 {刀号: rε}：按整机仿真设置里刀号对应的刀具库刀具（刀片 nose_radius_mm）。
     没对应上的刀按尖刀算（与以前一样）；刀尖圆弧补偿与仿真都用这个值（ADR-0106 Q2 第 4 步）。"""
@@ -652,6 +751,13 @@ def _turn(setup, mach):
             for key, v in b["target"].items():
                 tg[key] = (tg.get(key) or []) + v if isinstance(v, list) and key != "inner" else v
             cuts[spec["kind"]] = c
+        setup_b = setup
+        if MM.b_axis(mach["model"]) is not None:          # B 轴车铣中心（ADR-0106 C4a）
+            prog, mach, bdeg = _b_turn(setup, mach, prog, sc)
+            setup_b = {**setup, "turn_b_deg": {str(n): v for n, v in bdeg.items()}}
+        for n_, tr in trail_angles(setup_b).items():      # 外圆刀的副偏角：仿真里刀尖右边的刀体按它抬起来（ADR-0106 C4a）
+            if n_ in tools_sim and tools_sim[n_].get("kind") == "turn":
+                tools_sim[n_] = {**tools_sim[n_], "trail_deg": tr}
         part_w = float((sc.get("parting") or {}).get("tool_w") or 0.0)
         stock = {"d": stock_d, "z_right": e, "z_left": -(total + e + (part_w + 10.0 if part_w else 0.0))}
         # 精车（没有精车就粗车）、镗刀的刀尖圆弧：轴肩根部、内孔台阶根部车出来是 R rε 的圆角，按“做得到的轮廓”比
@@ -670,6 +776,7 @@ def _turn(setup, mach):
         checks += thread_insert_checks(setup, sc["threads"])
         checks += inner_tool_checks(setup, sc)
         checks += groove_holder_checks(setup, sc, stock_d)
+        checks += insert_angle_checks(setup_b, sc)
         if s.get("under_mm", 0) > 0.05:
             checks.append({"line": None, "level": "error", "text": f"残留：最多 {s['under_mm']:.3f} mm（半径），Z{s['under_z'][0]:.2f} ~ Z{s['under_z'][1]:.2f}"})
         if s.get("face_left", 0) > 0.01:
@@ -691,6 +798,8 @@ def _turn(setup, mach):
                "power": pdet, "target": [[float(z), float(d)] for z, d in tgt],
                "replay_in": {"kind": "turn", "stock": stock, "tools": {str(k): v for k, v in tools_sim.items()},
                              "target": _jsonable(tg)}}
+        if setup_b is not setup:
+            out["turn_b_deg"] = setup_b["turn_b_deg"]
         clamp: dict = {}
         live = (setup.get("live_ops") or {}).get(side) or []
         if live:                                 # 车铣中心：车削之后接动力刀工序，整段按车铣算（ADR-0106 C2b 界面）
@@ -1036,6 +1145,10 @@ def _millturn(setup, mach):
                                        **({"nose_r": float(t["nose_r"])} if t.get("nose_r") else {})}
     if setup.get("turn_tools"):                  # 车削作业带过来的车削刀（刀尖圆弧等，ADR-0106 C2b 界面）
         turn_tools = {int(k): v for k, v in setup["turn_tools"].items()}
+    if MM.b_axis(mach["model"]) is not None:     # B 轴车铣中心（ADR-0106 C4a）：车削按刀长写机床位置，铣削先 B 定位（轴向 90°、径向 0°）
+        prog, mach, _b = _b_turn(setup, mach, prog, None)
+        prog = {**prog, "ops": [dict(op, b_mill=90.0 if op["interp"] == "polar" else 0.0) if op.get("interp") else op
+                                for op in prog["ops"]]}
     g = _sim_gcode(prog, mach, setup)
     parsed = sim.parse(g, mach)
     checks = sim.machine_checks(parsed, mach)

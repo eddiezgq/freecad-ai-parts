@@ -107,10 +107,17 @@ def is_three_plus_two(model: dict) -> bool:
     return model["kind"] == "mill" and t.count("linear") == 3 and t.count("rotary") == 2
 
 
+def b_axis(model: dict) -> dict | None:
+    """B 轴车铣中心（ADR-0106 C4a）刀具一侧的摆动轴；没有返回 None"""
+    rs = [a for a in model["axes"] if a["type"] == "rotary" and a["carrier"] == "tool"]
+    return rs[0] if len(rs) == 1 else None
+
+
 def is_mill_turn(model: dict) -> bool:
-    """车铣中心：X、Z（可带 Y）直线轴 + C 轴（ADR-0106 C2b）"""
+    """车铣中心：X、Z（可带 Y）直线轴 + C 轴（ADR-0106 C2b）；B 轴车铣中心再加刀具一侧一根摆动轴（C4a）"""
     t = [a["type"] for a in model["axes"]]
-    return model["kind"] == "mill_turn" and t.count("rotary") == 1 and t.count("linear") in (2, 3)
+    nr = t.count("rotary")
+    return model["kind"] == "mill_turn" and t.count("linear") in (2, 3) and (nr == 1 or (nr == 2 and b_axis(model) is not None))
 
 
 def legacy_view(model: dict) -> dict:
