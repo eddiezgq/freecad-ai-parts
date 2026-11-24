@@ -722,6 +722,16 @@
     "en": "B-axis mill-turn: live milling positioned by B, machine simulation passes"
    },
    "source": "axial B90, radial B0; inverse kinematics of B and C"
+  },
+  {
+   "id": "CAM-71",
+   "test": "tests/test_cam_baxis_c4a.py::test_live_milling_releases_with_tool_comp",
+   "category": "post",
+   "title": {
+    "zh": "B 轴车铣中心：配置写了沿刀轴刀长补偿，带铣削段的程序出得来",
+    "en": "B-axis mill-turn: with tool-axis length compensation configured, programs with milling are released"
+   },
+   "source": "ADR-0120 millturn.b_tool_comp; lines after B positioning, skipped on read-back"
   }
  ]
 }

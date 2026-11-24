@@ -98,14 +98,14 @@ def test_b_axis_needs_tool_length():
     assert r["status"] != "ok" and any("length_mm" in m for m in r["messages"]), r["messages"]
 
 
-def _mt(post, tmp_path=None, monkeypatch=None):
+def _mt(post, tmp_path=None, monkeypatch=None, comp=None, family="fanuc"):
     from tests.test_cam_millturn_c2b import _mt_prog
 
     if tmp_path is not None:
         d = tmp_path / "posts"
         d.mkdir()
-        mt = {"live_on": ["M13"], "live_off": ["M15"], "c_on": ["M18"], "c_off": ["M19"]}
-        (d / "bmt.json").write_text(json.dumps({"format": "cam-post/1", "id": "bmt", "name": "FANUC B mill-turn", "family": "fanuc",
+        mt = {"live_on": ["M13"], "live_off": ["M15"], "c_on": ["M18"], "c_off": ["M19"], **({"b_tool_comp": comp} if comp else {})}
+        (d / "bmt.json").write_text(json.dumps({"format": "cam-post/1", "id": "bmt", "name": "B mill-turn", "family": family,
                                                 "kinds": ["lathe"], "source": "测试", "millturn": mt}), encoding="utf-8")
         monkeypatch.setenv("FAP_POSTS", str(d))
     tools = {"1": {"tool": "TR-CNMG", "length_mm": L_TURN}, "5": {"tool": "EM6", "length_mm": 120}, "6": {"tool": "EM6", "length_mm": 120}}
@@ -117,11 +117,23 @@ def _mt(post, tmp_path=None, monkeypatch=None):
 
 def test_live_milling_positions_b(tmp_path, monkeypatch):
     """动力刀铣削：端面槽 B90、圆柱面槽 B0 定位，整机仿真按运动链逆解 B、C，通过；
-    刀长随 B 怎么补各家不同，后处理配置还没有这一项——写了动力刀 M 代码也不出程序，写明原因"""
+    后处理配置没写沿刀轴刀长补偿（b_tool_comp，ADR-0120）——写了动力刀 M 代码也不出程序，写明原因"""
     p = _mt("bmt", tmp_path, monkeypatch)
     g = p["gcode"]
     assert "T0505\nG00 B90.0" in g and "T0606\nG00 B0.0" in g
     errs = _errors(p)
     assert p["machine_sim"]["status"] in ("pass", "unknown") and not [e for e in errs if "正式程序" not in e], errs
-    assert p["release"] is None and any("刀长随 B 怎么补" in e for e in errs), errs
+    assert p["release"] is None and any("b_tool_comp" in e for e in errs), errs
     record_verdict(("B 轴车铣中心：动力刀铣削按 B 定位、整机仿真通过", "B-axis mill-turn: live milling positioned by B, machine sim passes"), "pass", "pass")
+
+
+@pytest.mark.parametrize("family,comp,b90", [("fanuc", ["G43.7 H05"], "G00 B90.0"), ("siemens", ["TRAORI"], "G0 B90.0")])
+def test_live_milling_releases_with_tool_comp(tmp_path, monkeypatch, family, comp, b90):
+    """配置 millturn 写了 b_tool_comp（ADR-0120）：B 定位之后、开动力刀之前写这几行，出正式程序；回读跳过它们，与仿真刀路一致"""
+    p = _mt("bmt", tmp_path, monkeypatch, comp=comp, family=family)
+    assert p["release"] is not None, _errors(p)
+    t = p["release"]["text"]
+    i = t.index(b90)
+    assert t[i:].split("\n")[1] == comp[0] and t.index(comp[0], i) < t.index("M13", i), t
+    record_verdict((f"B 轴车铣中心：配置写了沿刀轴刀长补偿，{family} 带铣削段的程序出得来",
+                    f"B-axis mill-turn: with tool-axis length compensation configured, {family} releases the milling program"), "pass", "pass")
