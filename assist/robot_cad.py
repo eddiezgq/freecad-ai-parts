@@ -41,6 +41,7 @@ DESIGN = {
     "tube_end_round_mm": 1.5,   # 管端外棱倒圆（大于孔底圆角，管子才插得到底）
 }
 DENSITY_KG_MM3 = {"6061-T6": 2.70e-6}
+PLATE_STOCK_MM = (3.0, 4.0, 5.0, 6.0, 8.0)      # 6061 铝板常用厚度；减薄只在这里面选，最薄 3 mm（ADR-0115 第 9 步）
 PCD_MM, HORN_HOLES = 22.0, 8
 BOTTOM_HOLES = ((-10.0, -8.0), (-10.0, 8.0), (10.0, -8.0), (10.0, 8.0))   # 底面孔：x，z 相对壳体中段
 
@@ -282,10 +283,11 @@ def actuator_solid(comp: Mapping) -> int:
     return _fuse(tags)
 
 
-def clevis(d: float, sec: Mapping, g: Mapping, xdir: np.ndarray | None = None) -> tuple[int, dict]:
-    """U 形支架（模组坐标系，随输出转）：返回 (实体, 套管口：离轴线的距离)"""
+def clevis(d: float, sec: Mapping, g: Mapping, xdir: np.ndarray | None = None, t: float | None = None) -> tuple[int, dict]:
+    """U 形支架（模组坐标系，随输出转）：返回 (实体, 套管口：离轴线的距离)。t：板厚，缺省 plate_mm（减薄时按关节给，第 9 步）"""
     xd = np.array([1.0, 0.0, 0.0]) if xdir is None else np.asarray(xdir, float)
-    t, wall, Ls = DESIGN["plate_mm"], DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
+    wall, Ls = DESIGN["socket_wall_mm"], DESIGN["socket_len_mm"]
+    t = DESIGN["plate_mm"] if t is None else float(t)
     span = 49.0                                                  # 前后舵盘端面距离（0 与 −49）
     so = (sec["outer"] + 2 * wall) if sec["shape"] == "circle" else max(sec["outer"]) + 2 * wall
     w = max(2 * g["half_width"], so + 2 * _rim())   # 套管四周留出倒圆的地方（相切会生出碎面）
@@ -495,7 +497,18 @@ def _access_fix(p: Mapping, b: np.ndarray, d: np.ndarray, ra: float) -> str:
     return f"把这根杆的截面加大，让离轴线 {rad + ra + f:.1f} mm 以内都在管孔里面（螺钉从管孔里装）"
 
 
-def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | Path | None = None) -> dict:
+def clevis_plate_mm(plates: Mapping | None, jid: str) -> float:
+    """U 形支架的板厚：plates（案例的 plates.json，ADR-0115 第 9 步）按关节给的值，没给就用 plate_mm"""
+    v = ((plates or {}).get("clevis_mm") or {}).get(jid)
+    if v is None:
+        return DESIGN["plate_mm"]
+    if float(v) not in PLATE_STOCK_MM:
+        raise CadError(f"{jid} U 形支架板厚 {v} mm 不在铝板常用规格 {PLATE_STOCK_MM} 里")
+    return float(v)
+
+
+def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | Path | None = None,
+          plates: Mapping | None = None) -> dict:
     """生成并装配；返回 {"parts": [...], "interferences": [...], "mass_kg", "cog_mm", "status", "step"}"""
     from analysis.fea.geometry import _LOCK, _gmsh
 
@@ -518,11 +531,11 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
             nxt = [c for c in m.joints if c.parent == J["child"]]
             sec = _section(child_link) if (nxt or J["kind"] == "flange") else None
             xw = _link_xdir(lay, jid)
-            t = DESIGN["plate_mm"]
+            t = clevis_plate_mm(plates, jid)
             U = J["U"]
             if J["kind"] == "clevis":
                 d = J["d_mm"] + DESIGN["clearance_mm"]
-                tag, info = clevis(d, sec, g, U[:3, :3].T @ xw)
+                tag, info = clevis(d, sec, g, U[:3, :3].T @ xw, t)
                 name = f"{jid} U 形支架"
                 fixed = _hole_set(U, [(p, (0, 0, 1)) for p in _horn_pts(0.0)] + [(p, (0, 0, -1)) for p in _horn_pts(-49.0)], t)
                 load = None if sec is None else _socket(U, (0.0, d + t, -24.5), (0, 1, 0), sec, U[:3, :3].T @ xw)
@@ -534,7 +547,8 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
                 load = None if sec is None else _socket(U, (0.0, 0.0, tf), (0, 0, 1), sec, U[:3, :3].T @ xw)
             _place(tag, U)
             parts.append({"name": name, "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6", "body": J["child"],
-                          "role": "output", "interfaces": {"fixed": fixed, "load": load}})
+                          "role": "output", "plate_mm": t if J["kind"] == "clevis" else tf,
+                          "interfaces": {"fixed": fixed, "load": load}})
             J["socket_end"] = info["socket_end"]
             if J["parent"] == "base":
                 table_z = -float(J["origin"][2])                       # 安装面在模组坐标系里的 z（竖轴）
@@ -546,7 +560,8 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
                 foot = {"type": "plane", "point": _r((A @ np.array([0.0, yb - DESIGN["foot_mm"] / 2, table_z, 1.0]))[:3]),
                         "normal": _r(-A[:3, 2])}
                 parts.append({"name": f"{jid} 基座", "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6",
-                              "body": "base", "role": "housing", "interfaces": {"fixed": foot, "load": holes}})
+                              "body": "base", "role": "housing", "plate_mm": housing_plate_mm(None, True),
+                              "interfaces": {"fixed": foot, "load": holes}})
             else:
                 psec = _section(m.links[J["parent"]])
                 pj = m.by_child[J["parent"]]
@@ -558,7 +573,7 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
                 holes = _hole_set(A, [((x, yb, -24.5 + z), (0, -1, 0)) for x, z in BOTTOM_HOLES], th,
                                   DESIGN["cb_depth_mm"] if th > DESIGN["plate_mm"] else 0.0, seat=((0.0, yb, -24.5), (0, 1, 0)))
                 parts.append({"name": f"{jid} 壳体底座", "kind": "bracket", "tag": tag, "joint": jid, "material": "6061-T6",
-                              "body": J["parent"], "role": "housing",
+                              "body": J["parent"], "role": "housing", "plate_mm": th,
                               "interfaces": {"fixed": _socket(A, (0.0, yb - th, -24.5), (0, -1, 0), psec, hx), "load": holes}})
         # 杆件：本关节的套管口到下一关节壳体底座的套管底
         t, Ls = DESIGN["plate_mm"], DESIGN["socket_len_mm"]
@@ -632,6 +647,7 @@ def build(concept: Mapping, fit_result: Mapping, comp: Mapping, out_dir: str | P
     status = "fail" if hits or problems else "pass"
     return {"status": status, "parts": parts, "interferences": hits, "problems": problems,
             "mass_kg": round(total, 4), "cog_mm": [round(float(v), 1) for v in cog], "design": DESIGN,
+            "plates": dict(plates or {}),
             "step": None if step is None else step.name,
             "notes": ["模组外形用零件库的保守包络，干涉检查偏保守", "支架、套管尺寸是第一版设计值（DESIGN），之后由 AI 按载荷与工艺改"]}
 
@@ -646,6 +662,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("concept_result", type=Path)
     ap.add_argument("build_result", type=Path)
     ap.add_argument("-o", "--out", type=Path, required=True, help="输出目录（assembly.step、cad-result.json）")
+    ap.add_argument("--plates", type=Path, help="按零件定的板厚（案例的 plates.json，ADR-0115 第 9 步）")
     a = ap.parse_args(argv)
     cr = json.loads(a.concept_result.read_text(encoding="utf-8"))
     br = json.loads(a.build_result.read_text(encoding="utf-8"))
@@ -656,7 +673,8 @@ def main(argv: list[str] | None = None) -> int:
     comp = lib.get(next(iter(picks.values()))["components"][0])
     concept = cr["chosen"]
     fr = fit.check(concept, {j["id"]: comp for j in concept["joints"]})
-    res = build(concept, fr, comp, a.out)
+    plates = json.loads(a.plates.read_text(encoding="utf-8")) if a.plates else None
+    res = build(concept, fr, comp, a.out, plates)
     (a.out / "cad-result.json").write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(f"{res['status']}：{len(res['parts'])} 个零件，整机 {res['mass_kg']} kg，重心 {res['cog_mm']}；"
           f"干涉 {len(res['interferences'])} 处；{'；'.join(res['problems'])}")

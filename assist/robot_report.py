@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 FILES = {"concept": "concept-result.json", "build": "build-result.json", "cad": "cad/cad-result.json",
-         "verify": "verify-result.json", "fea": "fea-result.json", "timing": "timing.json"}
+         "verify": "verify-result.json", "fea": "fea-result.json", "timing": "timing.json", "thin": "thin-result.json"}
 STATUS = {"pass": "通过", "fail": "不通过", "unknown": "待确认", "not_applicable": "不适用"}
 SCREW = "ISO 4762 内六角圆柱头螺钉 M2.5"
 SCREW_LENGTH_NOTE = "长度待定：模组上螺纹孔的深度不在零件库，登记后才能定"
@@ -251,6 +251,8 @@ def report(res: Mapping, b: Mapping) -> str:
     L += ["", (f"质量：外购件 {_n(b['purchased_mass_kg'])} kg + 自制件 {_n(b['made_mass_kg'])} kg = {_n(b['total_mass_kg'])} kg"
                f"（三维装配 {_n(b['assembly_mass_kg'])} kg）；紧固件{b['fastener_mass']}。")]
 
+    L += thin_section(res)
+
     L += ["", "## 5 用时", ""]
     t = res.get("timing")
     if t:
@@ -263,6 +265,44 @@ def report(res: Mapping, b: Mapping) -> str:
 
     L += ["", "## 6 卡在哪里", ""] + [f"- {x}" for x in open_items(res, b)]
     return "\n".join(L) + "\n"
+
+
+def thin_section(res: Mapping) -> list[str]:
+    """支架减薄（第 9 步）：改前取 thin-result.json · before，改后取现在的 cad、fea、verify"""
+    th = res.get("thin")
+    if not th:
+        return []
+    before = th["before"]["parts"]
+    cad = {p["name"]: p for p in res["cad"]["parts"]}
+    fea = {x["part"]: x for x in (res.get("fea") or {}).get("items") or []}
+    L = ["", "### 支架减薄（thin-result.json，ADR-0115 第 9 步）", "", f"规则：{th['rule']}。", ""]
+    rows, saved = [], {True: 0.0, False: 0.0}
+    for name, b0 in before.items():
+        p, f = cad.get(name) or {}, fea.get(name) or {}
+        if p.get("mass_kg") is not None:
+            saved[b0["moving"]] += b0["mass_kg"] - p["mass_kg"]
+        if b0.get("plate_mm") is None or p.get("plate_mm") == b0.get("plate_mm"):
+            continue
+        rows.append([name, f"{_n(b0['plate_mm'], 1)} → {_n(p.get('plate_mm'), 1)}", f"{_n(b0['mass_kg'], 4)} → {_n(p.get('mass_kg'), 4)}",
+                     f"{_n(b0.get('safety_yield'), 1)} → {_n(f.get('safety_yield'), 1)}",
+                     f"{_n(b0.get('safety_fatigue'), 1)} → {_n(f.get('safety_fatigue'), 1)}", _st(f.get("status"))])
+    if rows:
+        L += _table(["零件", "板厚 mm", "质量 kg", "对屈服", "对弯曲疲劳", "有限元"], rows)
+    else:
+        L.append("没有可以减的：每一级都没通过（见下面的试算记录）。")
+    L += ["", (f"省下：跟着转的 {_n(saved[True], 4)} kg，固定不动的 {_n(saved[False], 4)} kg；"
+               f"整机 {_n(th['before']['mass_kg'])} → {_n(res['cad'].get('mass_kg'))} kg。"), ""]
+    after = {x["joint"]: x["peak_nm"] for x in (res.get("verify") or {}).get("compare") or []}
+    L += ["关节峰值力矩（verify-result.json · compare，复核多体动力学）：", ""]
+    L += _table(["关节", "减薄前 N·m", "减薄后 N·m"],
+                [[j, _n(v), _n(after.get(j))] for j, v in th["before"]["peak_nm"].items()])
+    L += ["", "试算记录：", ""] + _table(
+        ["零件", "试的板厚", "对弯曲疲劳", "结果"],
+        [[t["part"], f"{_n(t['from_mm'], 1)} → {_n(t['to_mm'], 1)} mm", _n(t.get("safety_fatigue"), 1),
+          "接受" if t["accepted"] else f"不接受（{t.get('note') or _st(t.get('status'))}）"] for t in th["trials"]])
+    L += ["", ("基座、舵盘法兰、壳体底座没减：法兰与壳体底座的 6 mm 由沉头孔深 3 mm 加压紧 3 mm 定，不是强度定的；"
+               "基座底面在有限元里整面固定，桌面固定方式设计之前，底板和立板根部的真实受力算不出来。")]
+    return L
 
 
 def open_items(res: Mapping, b: Mapping) -> list[str]:
@@ -289,6 +329,8 @@ def open_items(res: Mapping, b: Mapping) -> list[str]:
         items.append("支架有限元没跑")
     elif fea["status"] != "pass":
         items += [f"支架有限元 {x['part']} {_st(x['status'])}：{x.get('note', '')}" for x in fea["items"] if x["status"] != "pass"]
+    elif res.get("thin"):
+        items.append("基座底板（120 × 120 mm）还没减：要等桌面固定方式设计好、按真实固定点算过有限元再定")
     else:
         lo = min(fea["items"], key=lambda x: x.get("safety_fatigue") or float("inf"))
         items.append(f"支架偏厚：最弱的 {lo['part']} 对弯曲疲劳 {_n(lo['safety_fatigue'], 1)}，其余富余更多；可让 AI 按有限元结果减薄（另行计划）")
