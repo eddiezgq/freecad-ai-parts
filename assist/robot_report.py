@@ -258,7 +258,8 @@ def report(res: Mapping, b: Mapping) -> str:
     if t:
         L.append(f"本机 {t.get('machine', MISSING)}，{t.get('date', '')}，AI {t.get('ai', MISSING)}。")
         L.append("")
-        L += _table(["步骤", "谁做", "用时 s"], [[s["step"], s["who"], _n(s["seconds"], 1)] for s in t["steps"]])
+        L += _table(["步骤", "谁做", "用时 s"], [[s["step"] + (f"（{s['note']}）" if s.get("note") else ""), s["who"], _n(s["seconds"], 1)]
+                                                for s in t["steps"]])
         L += ["", f"合计 {_n(sum(s['seconds'] for s in t['steps']), 1)} s。要人确认的：需求条件（AI 摘的条件、AI 的问题）、采用哪个构型、最终结果入企业库。"]
     else:
         L.append(f"{MISSING}：没有 timing.json（用 `python -m assist.robot_case` 跑一遍才有）。")

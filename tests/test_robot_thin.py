@@ -19,7 +19,12 @@ def case(tmp_path):
     (out / "cad").mkdir(parents=True)
     for f in ("concept-result.json", "build-result.json", "verify-result.json", "fea-result.json"):
         shutil.copy(CASE / "out" / f, out / f)
-    shutil.copy(CASE / "out" / "cad" / "cad-result.json", out / "cad" / "cad-result.json")
+    cad = json.loads((CASE / "out" / "cad" / "cad-result.json").read_text(encoding="utf-8"))
+    before = json.loads((CASE / "out" / "thin-result.json").read_text(encoding="utf-8"))["before"]["parts"]
+    for p in cad["parts"]:                       # 案例已减薄过：按 thin-result.json · before 退回减薄前的样子
+        if p["name"].endswith("U 形支架"):
+            p.update(plate_mm=before[p["name"]]["plate_mm"], mass_kg=before[p["name"]]["mass_kg"])
+    (out / "cad" / "cad-result.json").write_text(json.dumps(cad, ensure_ascii=False), encoding="utf-8")
     return tmp_path
 
 
