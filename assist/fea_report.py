@@ -261,6 +261,12 @@ _EN_NUM = re.compile(r"\b(?:one|two|three|four|five|six|seven|eight|nine|ten|ele
                      re.IGNORECASE)
 
 
+# 说某项核查“没通过”。问渠 CAD 0.3.6 细则 B4（《有限元》书第 49 章线索第 42 条第 1 款）：原来只拦“把没通过说成通过”，
+# 不拦反方向（“反力平衡核查未通过”而实际通过，照样放行）
+NOT_PASSED = re.compile(r"(未通过|没有通过|没通过|不通过|未能通过|did not pass|didn't pass|not passed|has not passed|have not passed|failed)",
+                        re.IGNORECASE)
+_COND = re.compile(r"若|如果|一旦|假如|是否|能否|\bif\b|\bunless\b|\bwhether\b|\bshould\b", re.IGNORECASE)
+_CHECK_WORD = re.compile(r"核查|可信度|收敛|校核|\bchecks?\b|\bconverg", re.IGNORECASE)
 _HEDGE = re.compile(r"不|未|没有|无法|不能|尚未|若|如果|一旦|直到|待|before|until|unless|not|cannot", re.IGNORECASE)
 _HEDGE_AFTER = re.compile(r"^\s*(之前|以前|前|为止)")
 _CLAUSE = re.compile(r"[，。；;,.!?！？\n]")
@@ -331,6 +337,15 @@ def check_text(text: str, facts_: dict, all_pass: bool, result: dict | None = No
             if any(w in clause for w in ok_words) and not any(w in clause for w in bad_words):
                 continue
             return f"可信度核查没有全部通过，却说“{m.group(0)}”"
+    for clause in _CLAUSE.split(bare):
+        m = NOT_PASSED.search(clause)
+        if not m or _COND.search(clause[:m.start()]):
+            continue
+        named_ok = [w for w in ok_words if w and w in clause]
+        if named_ok and not any(w in clause for w in bad_words if w):
+            return f"核查“{named_ok[0]}”实际通过，却说“{m.group(0)}”"
+        if all_pass and not named_ok and _CHECK_WORD.search(clause):
+            return f"可信度核查全部通过，却说“{m.group(0)}”"
     return None
 
 
