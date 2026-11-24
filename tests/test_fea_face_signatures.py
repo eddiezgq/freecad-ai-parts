@@ -24,6 +24,7 @@ def _beam(tmp_path, name):
 
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 0)
+    gmsh.model.add(name)                    # a fresh model: an earlier test may have left entities in the current one
     o = gmsh.model.occ
     L = 120.0 if name == "G3" else 100.0
     box = o.addBox(0, 0, 0, L, B, H)
