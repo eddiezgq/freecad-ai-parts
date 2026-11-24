@@ -224,6 +224,69 @@
     }
    },
    "additionalProperties": false
+  },
+  "twin": {
+   "type": "object",
+   "description": "双主轴交接的程序行（ADR-0121；按机床说明书填，缺一项则双主轴程序不出）",
+   "properties": {
+    "sync_on": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
+     },
+     "description": "主副主轴同步转（副主轴接料前）"
+    },
+    "sync_off": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
+     },
+     "description": "停同步（切断、副主轴退回后）"
+    },
+    "sub_clamp": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
+     },
+     "description": "副主轴卡盘夹紧"
+    },
+    "sub_unclamp": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
+     },
+     "description": "副主轴卡盘松开（程序末卸件）"
+    },
+    "sub_select": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
+     },
+     "description": "切到副主轴编程（之后的转速、C 轴指副主轴）"
+    },
+    "main_select": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
+     },
+     "description": "切回主主轴"
+    },
+    "sub_offset": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
+     },
+     "description": "副主轴一侧的工件坐标（例如 G55）"
+    }
+   },
+   "additionalProperties": false
   }
  },
  "required": [
