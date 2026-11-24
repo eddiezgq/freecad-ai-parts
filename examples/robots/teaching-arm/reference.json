@@ -1,0 +1,57 @@
+{
+ "format": "robot-reference/1",
+ "purpose": "同类桌面教学臂的公开规格，只作参照：不进零件库、不参与校核、不作为方案依据（ADR-0115 44.3 之二第 8 步）",
+ "accessed": "2026-11-24",
+ "robots": [
+  {
+   "name": "OpenMANIPULATOR-X（RM-X52-TNM）",
+   "vendor": "ROBOTIS",
+   "why": "同一厂商、同一系列关节模组（DYNAMIXEL XM430-W350-T，比我们的 XM540 小一号）",
+   "url": "https://emanual.robotis.com/docs/en/platform/openmanipulator_x/specification/",
+   "dof": {"value": 4, "quote": "5 (4 DOF + 1 DOF Gripper)", "note": "另有 1 个夹爪自由度"},
+   "payload_kg": {"value": 500, "unit": "g", "quote": "Payload 500 (g)"},
+   "reach_mm": {"value": 380, "unit": "mm", "quote": "Reach 380 (14.9) mm (in)"},
+   "mass_kg": {"value": 0.70, "unit": "kg", "quote": "Weight 0.70 (1.54) kg (lb)"},
+   "repeatability_mm": {"value": 0.2, "unit": "mm", "quote": "Repeatability < 0.2 mm", "note": "厂商写“小于”"},
+   "joint_speed_rpm": {"value": 46, "unit": "rpm", "quote": "Speed (Joint) 46 RPM"}
+  },
+  {
+   "name": "Magician",
+   "vendor": "DOBOT（越疆）",
+   "why": "4 轴桌面教学臂，负载与我们相同",
+   "url": "https://dobot-robots.com/products/education/magician.html",
+   "dof": {"value": 4, "quote": "Number of Axis 4"},
+   "payload_kg": {"value": 500, "unit": "g", "quote": "Payload 500 g"},
+   "reach_mm": {"value": 320, "unit": "mm", "quote": "Max. Reach 320 mm"},
+   "mass_kg": {"value": 3.4, "unit": "kg", "quote": "Net Weight 3.4 KG", "note": "厂商写的是整机净重（Net Weight）"},
+   "repeatability_mm": {"value": 0.2, "unit": "mm", "quote": "Repeatability ±0.2 mm"},
+   "joint_speed_rpm": {"value": 320, "unit": "°/s", "quote": "Max Speed (250 g workload): Joint 1 base 320° / s, Joint 2 rear arm 320° / s, Joint 3 forearm 320° / s",
+                       "note": "带 250 g 时的主臂三个关节"}
+  },
+  {
+   "name": "Ned2",
+   "vendor": "Niryo",
+   "why": "6 轴教学臂，厂商按 ISO 9283 给重复定位精度",
+   "url": "https://niryo.com/wp-content/uploads/2026/06/10001874-4_TECHNICAL_SPECIFICATIONS_NED2.pdf",
+   "dof": {"value": 6, "quote": "6 rotating joints"},
+   "payload_kg": {"value": 300, "unit": "g", "quote": "Payload 300 g / 0,6 lbs (z = 20mm TCP)"},
+   "reach_mm": {"value": 490, "unit": "mm", "quote": "Reach 490 mm / 19,29 In"},
+   "mass_kg": {"value": 7, "unit": "kg", "quote": "Weight 7 kg / 15,4 lbs"},
+   "repeatability_mm": {"value": 0.5, "unit": "mm", "quote": "Repeatability +/- 0.5 mm (ISO 9283)"},
+   "joint_speed_rpm": {"min": 30, "max": 45, "unit": "°/s", "quote": "Joint 1 : 45°/s, Joint 2 : 30°/s, Joint 3 : 45°/s",
+                       "note": "主臂三个关节的名义值；腕部关节 90°/s"}
+  },
+  {
+   "name": "Lite 6",
+   "vendor": "UFACTORY",
+   "why": "6 轴桌面协作臂，负载与我们相近",
+   "url": "https://docs.lite6.ufactory.cc/9.technical_specifications.html",
+   "dof": {"value": 6, "quote": "6", "url": "https://www.ufactory.cc/lite-6-collaborative-robot"},
+   "payload_kg": {"value": 600, "unit": "g", "quote": "Maximum Payload 600g"},
+   "reach_mm": {"value": 440, "unit": "mm", "quote": "Reach 440 mm", "url": "https://www.ufactory.cc/lite-6-collaborative-robot"},
+   "mass_kg": {"value": 8, "unit": "kg", "quote": "Weight (robotic only) 8KG", "note": "厂商注明只算机械臂（robotic only）"},
+   "repeatability_mm": {"value": 0.5, "unit": "mm", "quote": "Repeatability ±0.5mm"},
+   "joint_speed_rpm": {"value": 180, "unit": "°/s", "quote": "Max joint speed 180°/s"}
+  }
+ ]
+}
