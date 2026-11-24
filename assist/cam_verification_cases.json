@@ -771,7 +771,7 @@
     "zh": "两个刀架：下刀架单独看的机床与手算一致",
     "en": "Two turrets: lower-turret view of the machine matches hand calculation"
    },
-   "source": "ADR-0122 channels; X axis toward -X: whole machine rotated 180 deg about Z"
+   "source": "ADR-0123 channels; X axis toward -X: whole machine rotated 180 deg about Z"
   },
   {
    "id": "CAM-76",
@@ -781,7 +781,7 @@
     "zh": "两个刀架：两条程序等待号成对、顺序对、回读一致",
     "en": "Two turrets: two programs, waits paired and in order, read-back matches"
    },
-   "source": "ADR-0122 channels.wait / wait_first"
+   "source": "ADR-0123 channels.wait / wait_first"
   },
   {
    "id": "CAM-77",
