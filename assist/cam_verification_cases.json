@@ -852,6 +852,16 @@
     "en": "Dialect: unsourced or invalid configs are rejected"
    },
    "source": "ADR-0124 sources required; okuma / fagor wait for official manuals"
+  },
+  {
+   "id": "CAM-86",
+   "test": "tests/test_cam_post_haas.py::test_haas_lathe_codes_all_in_manual",
+   "category": "post",
+   "title": {
+    "zh": "哈斯车床：程序里的代码都在 Haas 官方手册里、回读一致",
+    "en": "Haas lathe: every code is in the Haas manual, read-back matches"
+   },
+   "source": "Haas Lathe Operator's Manual (online), ch. 11, 16, 17"
   }
  ]
 }

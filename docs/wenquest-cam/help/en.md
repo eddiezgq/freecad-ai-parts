@@ -147,6 +147,7 @@ Tick "Deviation" to colour the finished stock by its deviation from the part mod
   machine simulation. Whatever the configuration, no program is output without simulation or when the read-back differs from the simulated path,
   and the header still carries "first part: dry run" and "not verified on a real machine" — also with comments set to none. Configurations with
   errors are not listed; hover over the list to see which file and which item.
+  The built-in Haas lathe configuration (haas-lathe) follows Haas's online operator's manual: 5-digit O numbers, T101 tool calls, no multiple repetitive cycles; mill-turn is not done yet.
   Controls that mostly follow FANUC but differ in a few places (Mitsubishi, Mazak, Haas and so on) get a `dialect` section: tool call, speed limit,
   polar / cylindrical interpolation switches, canned-cycle style; every entry needs its source (the maker's official manual: name, document number,
   version, section) or the configuration is refused. Live-tool start lines may contain `{rpm}` (e.g. `M133 P{rpm}`). `checks` records how far the
