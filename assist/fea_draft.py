@@ -692,7 +692,9 @@ def confirm(study: dict, by: str, at: datetime | None = None) -> dict:
     errs = check_study(study)
     if errs:
         raise ConfirmRefused("算例不能算：" + "；".join(errs))
-    s = copy.deepcopy(study)
+    from analysis.fea import facesig
+
+    s = facesig.sign(study)                       # ADR-0125：确认时记下 STEP 散列和被引用面的签名，几何改过能认出来
     s["provenance"] = {**pv, "drafted_by": pv.get("drafted_by", "human"), "confirmed_by_human": True,
                        "confirmed_by": by.strip()[:80],
                        "confirmed_at": (at or datetime.now(UTC)).isoformat(timespec="seconds")}
