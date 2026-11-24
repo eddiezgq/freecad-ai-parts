@@ -82,9 +82,10 @@ def check(cfg: dict, where: str = "") -> dict:
     if fam == "gsk" and "mill" in cfg["kinds"]:
         raise PostConfigError(f"{where}：广数后处理只有车床")
     if fam != "siemens":                          # ADR-0111：括号只给西门子的 SETMS(2)、SPOS[1]=0 用；FANUC 系里圆括号是注释
-        for k, lines in (cfg.get("millturn") or {}).items():
-            if any(ch in ln for ln in lines for ch in "()[],"):
-                raise PostConfigError(f"{where}：FANUC 写法的车铣程序行（millturn.{k}）不该带括号或逗号（ADR-0111）")
+        for sec in ("millturn", "twin"):
+            for k, lines in (cfg.get(sec) or {}).items():
+                if any(ch in ln for ln in lines for ch in "()[],"):
+                    raise PostConfigError(f"{where}：FANUC 写法的车铣程序行（{sec}.{k}）不该带括号或逗号（ADR-0111）")
     return cfg
 
 

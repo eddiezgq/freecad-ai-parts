@@ -732,6 +732,26 @@
     "en": "B-axis mill-turn: with tool-axis length compensation configured, programs with milling are released"
    },
    "source": "ADR-0120 millturn.b_tool_comp; lines after B positioning, skipped on read-back"
+  },
+  {
+   "id": "CAM-72",
+   "test": "tests/test_cam_twin_c4b.py::test_grip_position_by_hand",
+   "category": "kin",
+   "title": {
+    "zh": "双主轴：副主轴夹持位置与手算一致",
+    "en": "Twin spindle: sub-spindle grip position matches hand calculation"
+   },
+   "source": "grip length within grip_mm on the right-end cylinder; B = Zwo - grip - face_z"
+  },
+  {
+   "id": "CAM-73",
+   "test": "tests/test_cam_twin_c4b.py::test_transfer_sequence",
+   "category": "post",
+   "title": {
+    "zh": "双主轴：交接程序行按顺序、回读一致",
+    "en": "Twin spindle: transfer lines in order, read-back matches"
+   },
+   "source": "ADR-0121 twin lines; sub side Z = -z', no canned cycles"
   }
  ]
 }

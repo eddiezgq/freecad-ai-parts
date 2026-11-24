@@ -434,7 +434,7 @@ def turn_build_op(ctx, sc, spec, c):
         ch = float(sc["parting"].get("chamfer") or 0.0)
         mv = P.turn_part(-ctx["total"], stock_d, c["f"], w, clear=_heights(c)["clear"], chamfer=ch, d_part=sc["parting"].get("d_part"))
         return {"op": {"tool": {"n": 8, "name": f"切断刀 宽 {w:g}"}, "spindle": {"css": c["vc"], "max_rpm": max_rpm},
-                       "moves": mv, "title": "切断"},
+                       "moves": mv, "title": "切断", "part": True},
                 "tools": {8: {"kind": "groove", "w": w}}, "target": {"parted": [-ctx["total"]],
                                                                     **({"part_chamfer": [[-ctx["total"], ch, float(sc["parting"]["d_part"])]]} if ch else {})}}
     b = sc["bore"]
@@ -713,6 +713,93 @@ def nose_radii(setup) -> dict:
     return out
 
 
+TWIN_RELEASE = False          # 副主轴一侧的整机仿真（夹头、背面刀具朝向）做完（ADR-0106 C4b-2）才放开双主轴正式程序
+
+
+def twin_grip(ctx, mach, setup) -> dict:
+    """双主轴接料（ADR-0106 C4b）：副主轴夹零件右端的圆柱段（端部 ≤ 2 mm 的倒角让开）；夹持长度取 grip_mm 范围内、不超过圆柱段长度的最大值。
+    返回 {axis, d, c, grip_len, grip, approach, home, f, z0, zwo}：grip / approach / home 是副主轴移动轴的位置，
+    z0 是副主轴退回后左端面（副主轴工件坐标原点）的机床 Z。夹不住、超行程 → SetupError"""
+    sub = MM.sub_spindle(mach["model"])
+    ax = sub["axis_def"]
+    pr = list(reversed(ctx["prof"]))                  # 从右端往左 (t, d)
+    total = ctx["total"]
+    i, c = 0, 0.0
+    if len(pr) > 2 and abs(pr[1][1] - pr[0][1]) > 1e-9 and total - pr[1][0] <= 2.0 + 1e-9:
+        i, c = 1, total - pr[1][0]
+    cyl = pr[i][0] - pr[i + 1][0] if i + 1 < len(pr) and abs(pr[i + 1][1] - pr[i][1]) < 1e-9 else 0.0
+    lo, hi = (float(v) for v in sub["grip_mm"])
+    g = min(hi, cyl)
+    if g < lo - 1e-9:
+        raise SetupError(f"副主轴夹不住：零件右端圆柱段只有 {cyl:g} mm，副主轴最短要夹 {lo:g} mm（机床文件 sub_spindle.grip_mm）")
+    for gv in setup.get("grooves") or []:
+        if float(gv["z"]) > -(c + g) and float(gv["z"]) - float(gv["width"]) < -c:
+            raise SetupError(f"副主轴夹持段 Z{-c:g} ~ Z{-(c + g):g} 上有槽，夹不住")
+    for th in setup.get("threads") or []:
+        if not th.get("internal") and float(th["z_start"]) > -(c + g) and float(th["z_end"]) < -c:
+            raise SetupError(f"副主轴夹持段 Z{-c:g} ~ Z{-(c + g):g} 上有螺纹，夹了会伤螺纹")
+    ms = setup.get("machine_sim") or {}
+    if ms.get("work_offset_mm"):
+        zwo = float(ms["work_offset_mm"][2])
+    elif mach["model"].get("components"):
+        zwo = total + ctx["e"]                        # 与 _with_chuck 的缺省相同：毛坯左端靠在卡盘端面上
+    else:
+        raise SetupError("双主轴要知道工件零点在机床上的位置：machine_sim 里写 work_offset_mm")
+    dz = float(ax["direction"][2])
+    if abs(abs(dz) - 1.0) > 1e-9:
+        raise SetupError(f"副主轴移动轴 {ax['id']} 要沿 Z 轴")
+    face_z = float(sub["face_z_mm"])
+    grip = (zwo - (c + g) - face_z) / dz
+    approach = (zwo - (c + g) + 2.0 - face_z) / dz
+    home = 0.0 if float(ax["min"]) <= 0.0 <= float(ax["max"]) else (float(ax["max"]) if dz < 0 else float(ax["min"]))
+    for v in (grip, approach):
+        if not float(ax["min"]) - 1e-9 <= v <= float(ax["max"]) + 1e-9:
+            raise SetupError(f"副主轴移到夹持位置要 {ax['id']}{v:.3f}，超出行程 {ax['min']:g} ~ {ax['max']:g}")
+    z_right = zwo + (home - grip) * dz                # 退回后零件右端的机床 Z
+    return {"axis": ax["id"], "d": pr[i][1], "c": c, "grip_len": g, "grip": round(grip, 4), "approach": round(approach, 4),
+            "home": home, "f": 500.0, "z0": round(z_right - total, 4), "zwo": zwo}
+
+
+def _mirror_z(text: str) -> str:
+    """副主轴一侧：程序 Z 取反（仿真用的 FANUC 写法里只有 G00 / G01 / G32 的 X Z，没有圆弧、固定循环）"""
+    def flip(mo):
+        v = -float(mo.group(1))
+        return "Z" + post.num(v)
+    return "\n".join(re.sub(r"Z(-?\d+(?:\.\d*)?)", flip, ln) if not ln.lstrip().startswith("(") else ln for ln in text.split("\n"))
+
+
+def _twin_finish(setup, mach, twin, progs_in, outs):
+    """双主轴：两段合成一个正式程序，回读与两段仿真刀路逐段一致；副主轴一侧整机仿真没做完（C4b-2）之前不出"""
+    (pr, pl), (r, lf) = progs_in, outs
+    r["twin"] = {k: twin[k] for k in ("axis", "d", "grip_len", "grip", "approach", "home", "z0")}
+    lf["twin_of"] = r["number"]
+    lf["release"] = None
+    ctl = setup.get("post")
+    if not ctl:
+        return
+    st = [o.get("machine_sim") or {} for o in (r, lf)]
+    sim_res = None if not all(st) else {"status": "error" if any(x["status"] == "error" for x in st) else
+                                        ("unknown" if any(x["status"] == "unknown" for x in st) else "pass"),
+                                        "fingerprint": "+".join(x["fingerprint"] for x in st)}
+    try:
+        rel = postproc.render_twin(pr, pl, twin, mach, ctl, sim_res)
+        back = [m for m in sim.parse(postproc.to_fanuc(rel["text"], ctl, True), mach)["moves"] if not m.get("home")]
+        want = [m for g in (r["gcode"], _mirror_z(lf["gcode"])) for m in sim.parse(g, mach)["moves"] if not m.get("home")]
+        if len(back) != len(want) or any(x["t"] != y["t"] or max(abs(u - v) for u, v in zip(x["b"], y["b"], strict=True)) >= 1e-3
+                                          for x, y in zip(back, want, strict=True)):
+            raise postproc.ReleaseError("双主轴程序回读后与两段仿真刀路不一致，不输出")
+        r["twin"]["readback"] = "ok"
+        if not TWIN_RELEASE:
+            raise postproc.ReleaseError("副主轴一侧的整机仿真（副主轴夹头、背面加工的刀具朝向，ADR-0106 C4b-2）还没做，双主轴正式程序不出")
+    except postproc.ReleaseError as exc:
+        r["release"] = None
+        r["checks"].append({"line": None, "level": "error", "text": f"正式程序没有输出：{exc}"})
+        return
+    r["release"] = rel
+    if not rel["verified"]:
+        r["checks"].append({"line": None, "level": "warn", "text": f"{rel['post']} 后处理还没在实机上验证过：首件空运行、单段试切确认"})
+
+
 def _turn(setup, mach):
     """setup 可另给 ops：{"right" | "left": [{"kind", "i"?, "cut": {...}}, ...]}——按给的顺序和参数出这次装夹的工序（加工树里的工序，ADR-0106 Q1）；
     不给时按缺省顺序，参数取 setup 的 cut 与各项自带的 cut"""
@@ -720,10 +807,18 @@ def _turn(setup, mach):
     stock_d, e, total = ctx["stock_d"], ctx["e"], ctx["total"]
     given = setup.get("ops") or {}
     progs = []
+    twin, twin_progs = None, []
+    sub = MM.sub_spindle(mach["model"])
+    if sub and setup.get("parting") and len(ctx["sides"]) == 2:     # 双主轴：副主轴接料、背面加工（ADR-0106 C4b）
+        if (setup.get("live_ops") or {}).get("left") or (setup.get("live_ops") or {}).get("right"):
+            raise SetupError("双主轴接料带动力刀工序还没做（ADR-0106 C4b）")
+        twin = twin_grip(ctx, mach, setup)
+        ctx["sides"][1]["title"] = "左端（副主轴背面加工）"
     for sc in ctx["sides"]:
         side, k, tgt, reach, title = sc["side"], sc["k"], sc["tgt"], sc["reach"], sc["title"]
         specs = given.get(side) if side in given else turn_op_specs(sc)
-        prog = {"number": 1001 + k, "title": f"{setup.get('item') or '阶梯轴'} 车削 {title}", "cycles": bool(setup.get("cycles")),
+        cyc = bool(setup.get("cycles")) and not (twin and side == "left")      # 副主轴一侧 Z 反向，不用固定循环
+        prog = {"number": 1001 + k, "title": f"{setup.get('item') or '阶梯轴'} 车削 {title}", "cycles": cyc,
                 "header": {"item": setup.get("item"), "stock": f"Ø{stock_d:g} 棒料" if setup.get("parting") else f"Ø{stock_d:g}×{total + 2 * e:g}"}, "ops": []}
         tools_sim: dict = {}
         tg = {"outer": tgt, "grooves": [], "threads": []}
@@ -740,12 +835,14 @@ def _turn(setup, mach):
         fin = next((cut_of(sp) for sp in specs if sp["kind"] == "finish"), None)
         for spec in specs:
             c = cut_of(spec)
-            if setup.get("cycles") and spec["kind"] in ("rough", "finish", "thread"):
+            if cyc and spec["kind"] in ("rough", "finish", "thread"):
                 c = {**c, "cycles": True}
                 if spec["kind"] == "rough":
                     c["finish_nose"] = (fin or c).get("nose_r", 0.0)
                     c["finish_f"] = (fin or c)["f"]
             b = turn_build_op(ctx, sc, spec, c)
+            if twin and side == "left" and b["op"]["spindle"].get("max_rpm") is not None:   # 副主轴的最高转速
+                b["op"]["spindle"] = {**b["op"]["spindle"], "max_rpm": min(float(b["op"]["spindle"]["max_rpm"]), float(sub["max_rpm"]))}
             prog["ops"].append(b["op"])
             tools_sim.update(b["tools"])
             for key, v in b["target"].items():
@@ -806,10 +903,15 @@ def _turn(setup, mach):
             _live_join(setup, mach, prog, live, stock, tools_sim, _with_chuck(setup, total + e, reach, checks, stock_d, clamp, mach), out)
         else:
             _msim(_with_chuck(setup, total + e, reach, checks, stock_d, clamp, mach), mach, parsed, g, stock, [], out, withhold=True)
-            _release(setup, mach, prog, out)
+            if twin:
+                twin_progs.append(prog)
+            else:
+                _release(setup, mach, prog, out)
         if clamp:
             out["clamp"] = clamp
         progs.append(out)
+    if twin:
+        _twin_finish(setup, mach, twin, twin_progs, progs)
     return progs, {"profile": [[float(t), float(d)] for t, d in ctx["prof"]], "stock_d_mm": stock_d, "length_mm": total}
 
 

@@ -113,15 +113,55 @@ def b_axis(model: dict) -> dict | None:
     return rs[0] if len(rs) == 1 else None
 
 
+def sub_spindle(model: dict) -> dict | None:
+    """双主轴车铣中心的副主轴（ADR-0106 C4b、ADR-0121）；没有返回 None"""
+    return model.get("sub_spindle")
+
+
+def sub_axes(model: dict) -> set:
+    """只带副主轴一侧的轴（副主轴移动轴、副主轴 C 轴）：主主轴上的加工不看它们"""
+    sp = model.get("sub_spindle")
+    return {sp["axis"], *([sp["c_axis"]] if sp.get("c_axis") else [])} if sp else set()
+
+
+def main_model(model: dict, sub_pos: float = 0.0) -> dict:
+    """主主轴上加工用的运动链：去掉副主轴的轴，副主轴一侧的部件按副主轴停在 sub_pos（移动轴的位置）固定在机床上（ADR-0106 C4b-1）。
+    去掉的轴记在 sub_spindle["axis_def"] 里（查行程用）"""
+    sx = sub_axes(model)
+    if not sx:
+        return model
+    sp = model["sub_spindle"]
+    ax = next(a for a in model["axes"] if a["id"] == sp["axis"])
+    off = [float(sub_pos) * float(c) for c in ax["direction"]]
+
+    def moved(c):
+        if "mesh" in c and any(abs(v) > 1e-9 for v in off):
+            raise MachineError(f"副主轴一侧的部件 {c['id']} 是网格，还不能跟着副主轴移动（ADR-0106 C4b-2）")
+        c = {**c, "attached_to": "base"}
+        if "box_mm" in c:
+            b = c["box_mm"]
+            c["box_mm"] = [b[0] + off[0], b[1] + off[1], b[2] + off[2], b[3] + off[0], b[4] + off[1], b[5] + off[2]]
+        if "cylinder_mm" in c:
+            cy = c["cylinder_mm"]
+            c["cylinder_mm"] = {**cy, "p0": [u + v for u, v in zip(cy["p0"], off, strict=True)],
+                                "p1": [u + v for u, v in zip(cy["p1"], off, strict=True)]}
+        return c
+
+    return {**model, "axes": [a for a in model["axes"] if a["id"] not in sx],
+            "components": [moved(c) if c.get("attached_to") in sx else c for c in model.get("components") or []],
+            "sub_spindle": {**sp, "axis_def": ax}}
+
+
 def is_mill_turn(model: dict) -> bool:
-    """车铣中心：X、Z（可带 Y）直线轴 + C 轴（ADR-0106 C2b）；B 轴车铣中心再加刀具一侧一根摆动轴（C4a）"""
-    t = [a["type"] for a in model["axes"]]
+    """车铣中心：X、Z（可带 Y）直线轴 + C 轴（ADR-0106 C2b）；B 轴车铣中心再加刀具一侧一根摆动轴（C4a）；副主轴的轴不算（C4b）"""
+    t = [a["type"] for a in model["axes"] if a["id"] not in sub_axes(model)]
     nr = t.count("rotary")
     return model["kind"] == "mill_turn" and t.count("linear") in (2, 3) and (nr == 1 or (nr == 2 and b_axis(model) is not None))
 
 
 def legacy_view(model: dict) -> dict:
     """旧代码用的字段；行程按工件坐标（刀具相对工件）给，带工件一侧的直线轴把方向翻过来"""
+    model = main_model(model)                 # 双主轴：主主轴上加工时副主轴停在零位（ADR-0106 C4b-1）
     v = {"id": model["id"], "name": model["name"], "kind": model["kind"], "max_rpm": float(model["spindle"]["max_rpm"]),
          "rapid": {}, "model": model, "example": bool(model.get("example"))}
     sp = model["spindle"]
@@ -130,7 +170,7 @@ def legacy_view(model: dict) -> dict:
     if "efficiency" in sp:
         v["eff"] = float(sp["efficiency"])
     for a in model["axes"]:
-        if a["type"] != "linear":
+        if a["type"] != "linear" or a["id"] in sub_axes(model):
             continue
         key = a["id"].lower()
         lo, hi = float(a["min"]), float(a["max"])
