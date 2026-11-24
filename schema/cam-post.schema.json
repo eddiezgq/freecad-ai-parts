@@ -22,9 +22,11 @@
     "siemens",
     "gsk",
     "hnc",
-    "heidenhain"
+    "heidenhain",
+    "okuma",
+    "fagor"
    ],
-   "description": "数控系统家族：决定基本语法（G 代码写法、注释符号、子程序、回读规则）"
+   "description": "数控系统家族：决定基本语法（G 代码写法、注释符号、子程序、回读规则）；okuma、fagor 见 ADR-0124"
   },
   "kinds": {
    "type": "array",
@@ -188,9 +190,9 @@
      "type": "array",
      "items": {
       "type": "string",
-      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],]*$"
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],#]*(\\{[a-z]+\\}[A-Z0-9 .=+\\-()\\[\\],#]*)*$"
      },
-     "description": "开动力刀（动力刀转速 S 由后处理写在这之后）"
+     "description": "开动力刀（动力刀转速 S 由后处理写在这之后；或在行里写 {rpm}，例如哈斯 M133 P{rpm}，ADR-0124）"
     },
     "live_off": {
      "type": "array",
@@ -290,7 +292,7 @@
   },
   "channels": {
    "type": "object",
-   "description": "多通道等待指令（ADR-0122；按机床说明书填，不写则不出多通道程序）",
+   "description": "多通道等待指令（ADR-0123；按机床说明书填，不写则不出多通道程序）",
    "properties": {
     "wait": {
      "type": "string",
@@ -319,6 +321,166 @@
     "wait_first"
    ],
    "additionalProperties": false
+  },
+  "dialect": {
+   "type": "object",
+   "description": "同一家族里各家写法的差别（ADR-0124）：模板里 {n} 刀号、{nn} 两位刀号、{o} 刀补号、{oo} 两位刀补号、{s} 转速、{r} 半径、{d} 直径、{rpm} 动力刀转速；按厂商手册填，每项写出处（sources）",
+   "properties": {
+    "tool_call_lathe": {
+     "type": "string",
+     "pattern": "^[A-Z0-9 .=+\\-()\\[\\],#]*(\\{[a-z]+\\}[A-Z0-9 .=+\\-()\\[\\],#]*)*$",
+     "description": "车床换刀，例如 FANUC T{nn}{oo}、大隈 T{nn}{oo}{oo}、发格 T{n} D{o}"
+    },
+    "tool_call_mill": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],#]*(\\{[a-z]+\\}[A-Z0-9 .=+\\-()\\[\\],#]*)*$",
+      "description": ""
+     },
+     "minItems": 1,
+     "description": "铣床换刀的程序行，例如 [\"T{n} M06\"]、[\"M06 T{n}\"]"
+    },
+    "spindle_limit": {
+     "type": "string",
+     "pattern": "^[A-Z0-9 .=+\\-()\\[\\],#]*(\\{[a-z]+\\}[A-Z0-9 .=+\\-()\\[\\],#]*)*$",
+     "description": "恒线速时的主轴限速，例如 G50 S{s}、G92 S{s}"
+    },
+    "polar": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],#]*(\\{[a-z]+\\}[A-Z0-9 .=+\\-()\\[\\],#]*)*$",
+      "description": ""
+     },
+     "minItems": 2,
+     "maxItems": 2,
+     "description": "极坐标插补开、关，例如 [\"G12.1\", \"G13.1\"]、哈斯 [\"G112\", \"G113\"]"
+    },
+    "cylindrical": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],#]*(\\{[a-z]+\\}[A-Z0-9 .=+\\-()\\[\\],#]*)*$",
+      "description": ""
+     },
+     "minItems": 2,
+     "maxItems": 2,
+     "description": "圆柱插补开（带 {r} 或 {d}）、关，例如 [\"G07.1 C{r}\", \"G07.1 C0\"]"
+    },
+    "turn_cycles": {
+     "enum": [
+      "two_block",
+      "one_block",
+      "none"
+     ],
+     "description": "车削复合循环 G71 / G76 的写法：FANUC 两段、单段（D 切深）、不用（出直线段）"
+    },
+    "head": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],#]*(\\{[a-z]+\\}[A-Z0-9 .=+\\-()\\[\\],#]*)*$",
+      "description": ""
+     },
+     "description": "程序开头的行（{number} 程序号），代替家族缺省的程序号行"
+    },
+    "foot": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z0-9 .=+\\-()\\[\\],#]*(\\{[a-z]+\\}[A-Z0-9 .=+\\-()\\[\\],#]*)*$",
+      "description": ""
+     },
+     "description": "程序结尾的行，代替家族缺省的结尾"
+    },
+    "sources": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "object",
+      "properties": {
+       "item": {
+        "type": "string",
+        "minLength": 1,
+        "description": "哪一项（dialect 的键、或 millturn.live_on 等）"
+       },
+       "doc": {
+        "type": "string",
+        "minLength": 1,
+        "description": "厂商正式文件：名称与文件号"
+       },
+       "version": {
+        "type": "string",
+        "minLength": 1
+       },
+       "section": {
+        "type": "string",
+        "minLength": 1,
+        "description": "章节或页码"
+       },
+       "url": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "item",
+       "doc",
+       "version",
+       "section"
+      ],
+      "additionalProperties": false
+     }
+    }
+   },
+   "required": [
+    "sources"
+   ],
+   "additionalProperties": false
+  },
+  "checks": {
+   "type": "array",
+   "description": "实机之前的核对记录（ADR-0106 E、ADR-0124）：L2 独立解释器、L3 厂商系统软件；L4 实机写在 verified",
+   "items": {
+    "type": "object",
+    "properties": {
+     "level": {
+      "enum": [
+       "L2",
+       "L3"
+      ]
+     },
+     "tool": {
+      "type": "string",
+      "minLength": 1,
+      "description": "用什么核对：软件名与版本，例如 LinuxCNC 2.9.4 rs274、SinuTrain 4.95"
+     },
+     "date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+     },
+     "by": {
+      "type": "string",
+      "minLength": 1
+     },
+     "evidence": {
+      "type": "string",
+      "minLength": 1,
+      "description": "证据：测试名或截屏、导出文件的仓库路径"
+     },
+     "note": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "level",
+     "tool",
+     "date",
+     "by",
+     "evidence"
+    ],
+    "additionalProperties": false
+   }
   }
  },
  "required": [
