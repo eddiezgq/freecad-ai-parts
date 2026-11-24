@@ -44,6 +44,7 @@ class Replay:
             self.frames.append({"i": i, "line": mv["line"], "t0": t, "t1": t + dt, "a": tuple(mv["a"]), "b": tuple(mv["b"]),
                                 "tool": mv["tool"], "rapid": mv["t"] == "rapid", "home": bool(mv.get("home")),
                                 "axis": tuple(mv["axis"]) if mv.get("axis") is not None else (0.0, 0.0, 1.0),
+                                **({"axis_b": tuple(mv["axis_b"])} if mv.get("axis_b") is not None else {}),     # 五轴联动：终点刀轴
                                 **({"pieces": [(tuple(map(float, p0)), tuple(map(float, p1)), tuple(map(float, w)))
                                                for p0, p1, w in mv["pieces"]]} if mv.get("mill") else {})})
             t += dt
@@ -96,6 +97,15 @@ class Replay:
         if self.lathe:
             return (float(p[0] / 2), 0.0, float(p[2]))
         return tuple(float(v) for v in p)
+
+    def axis(self, i: int, s: float = 1.0) -> tuple[float, float, float]:
+        """第 i 帧走到 s 时的刀轴（工件坐标，刀尖指向主轴）；五轴联动在起止刀轴间球面插值"""
+        f = self.frames[i]
+        if "axis_b" not in f:
+            return tuple(float(v) for v in f["axis"])
+        from analysis.cam import fiveaxis as FA
+
+        return tuple(float(v) for v in FA.slerp(f["axis"], f["axis_b"], s))
 
     def at(self, t: float) -> tuple[int, float]:
         """时间 t → (帧号, 帧内比例)"""
@@ -162,7 +172,7 @@ class Replay:
             for f in self.frames:
                 tl = built.get(f["tool"])
                 if tl is not None and not f["home"]:
-                    r = dx.cut(tl, f["a"], f["b"], w=f["axis"])
+                    r = dx.cut(tl, f["a"], f["b"], w=f["axis"], w_end=f.get("axis_b"))
                     self._volume.append(self._volume[-1] + r["volume"])
                 else:
                     self._volume.append(self._volume[-1])
@@ -201,7 +211,7 @@ class Replay:
         for f in self.frames[k:n]:
             tl = built.get(f["tool"])
             if tl is not None and not f["home"]:
-                dx.cut(tl, f["a"], f["b"], w=f["axis"])
+                dx.cut(tl, f["a"], f["b"], w=f["axis"], w_end=f.get("axis_b"))
         return dx
 
     def turned_after(self, n: int):

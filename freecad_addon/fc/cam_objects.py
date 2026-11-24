@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 
+import itertools
 import json
 import math
 
@@ -31,6 +32,7 @@ MILL_ALLOW_KINDS = ("pocket", "adaptive", "rest", "profile")             # 铣�
 MILL_FC_KINDS = ("face", "pocket", "adaptive", "rest", "profile", "drill", "surface", "waterline")  # 铣：FreeCAD CAM 出刀路的（安全高度、快移高度可改）     # 按孔特征出刀路（ADR-0106 Q3b）：孔表存在工序的 HoleData 里
 TURN_TOOL_N = {"rough": 1, "finish": 2, "groove": 3, "thread": 4, "drill": 5, "bore": 6, "part": 8, "face_groove": 9}
 LIVE_KINDS = {"live_face": "端面铣（动力刀）", "live_keyway": "圆柱面键槽（动力刀）", "live_flat": "圆柱面平底槽（Y 轴）"}     # 车铣中心（ADR-0106 C2b 界面）
+FIVE_KINDS = {"swarf5": "五轴侧刃铣（直纹面）", "surface5": "五轴曲面精加工（球头刀）", "curve5": "五轴沿曲线"}           # 五轴联动（ADR-0106 C3d）
 
 
 class CamObjError(ValueError):
@@ -142,6 +144,14 @@ class OpProxy:
         _add(obj, "App::PropertyString", "Spindle", "主轴（JSON：rpm 或 css）", hidden=True)
         _add(obj, "App::PropertyString", "Frame", "倾斜面工序的工作平面（JSON，刀路是平面坐标；重算刀路时按装夹的倾斜面定，平面 Z0 在零件沿法向的最高处）",
              "", hidden=True)
+        # 五轴联动（ADR-0106 C3d）：只对 swarf5 / surface5 / curve5 有用
+        _add(obj, "App::PropertyFloat", "Lead", "五轴：前倾角（度，刀轴往走刀方向或固定方向倒）")
+        _add(obj, "App::PropertyFloat", "Tilt", "五轴：侧倾角（度，往走刀方向左侧倒）")
+        _add(obj, "App::PropertyString", "LeadDir", "五轴：固定前倾方向（空 = 跟走刀方向；x / y = 往工件 +X / +Y 倒，之字形用）")
+        _add(obj, "App::PropertyFloat", "Below", "五轴侧刃铣：刀尖比直纹面底边再往下伸（mm）")
+        _add(obj, "App::PropertyFloat", "Depth5", "五轴沿曲线：往面里进给的深度（mm）")
+        _add(obj, "App::PropertyFloat", "PoleMin", "五轴：刀轴离回转轴至少几度（让开奇异点；0 = 不让）")
+        _add(obj, "App::PropertyBool", "AvoidCollision", "五轴：刀杆、刀柄碰零件时自动加大倾角")
 
     def onDocumentRestored(self, obj):
         self.setup(obj)
@@ -343,7 +353,7 @@ def new_op(setup, kind: str, *, index: int = -1, tool_id: str = "", tool_n: int 
     op.Vc, op.Feed, op.Ap, op.StepOver = float(vc), float(feed or 0.0), float(ap or 0.0), float(stepover or 0.0)
     op.Reason, op.Status = reason, status
     job = job_of(setup) or next(p for p in setup.InList if is_job(p))
-    names = {**TURN_KINDS, **LIVE_KINDS} if job.Kind == "turn" else MILL_KINDS
+    names = {**TURN_KINDS, **LIVE_KINDS} if job.Kind == "turn" else {**MILL_KINDS, **FIVE_KINDS}
     op.Label = T(names.get(kind, kind)) + (f" {index + 1}" if index >= 0 and kind in FEATURE_KINDS else "")
     setup.addObject(op)
     return op
@@ -636,6 +646,8 @@ def new_tilt_setup(job, sub: str):
 def regenerate(op) -> None:
     if op.OpKind in LIVE_KINDS:
         regenerate_live(op)
+    elif op.OpKind in FIVE_KINDS:
+        regenerate_five(op)
     else:
         (regenerate_turn if job_of(op).Kind == "turn" else regenerate_mill)(op)
     op.recompute()
@@ -908,6 +920,195 @@ def regenerate_live(op) -> None:
     op.Spindle = json.dumps({"rpm": round(rpm)})
 
 
+# ---------------------------------------------------------------- 五轴联动工序（ADR-0106 C3d）
+def _five_tool(job, kind: str, need_len: float = 0.0):
+    """侧刃铣：刃长够直纹线长的平底刀里最粗的（没有刃长数据的不挑）；曲面精加工、沿曲线：不超过 Ø10 的球头刀里最粗的"""
+    lib = _lib(job)
+    if kind == "swarf5":
+        c = [t for t in lib["tools"] if t.get("kind") in ("endmill", "flat_endmill") and t.get("diameter_mm")
+             and float(t.get("flute_length_mm") or 0.0) >= need_len - 1e-9]
+        if not c:
+            raise CamObjError(f"刀具库里没有刃长不小于 {need_len:.1f} mm 的平底立铣刀（侧刃铣要刃长盖住整条直纹线）")
+    else:
+        c = [t for t in lib["tools"] if t.get("kind") == "ball_endmill" and t.get("diameter_mm") and float(t["diameter_mm"]) <= 10 + 1e-9]
+        if not c:
+            raise CamObjError("刀具库里没有不超过 Ø10 的球头刀")
+    return max(c, key=lambda t: (float(t["diameter_mm"]), t["id"]))
+
+
+def _has_rotary(job) -> bool:
+    from analysis.cam import machines
+
+    return bool(machines.get(job.Machine).get("rotary"))
+
+
+def add_five_op(setup, kind: str, subs: list[str]):
+    """铣削作业的装夹加一道五轴联动工序：subs 是点的面（侧刃铣、曲面精加工）或边（沿曲线）"""
+    from analysis.cam import tools as TL
+    from freecad_addon.core import cam_study as S
+    from freecad_addon.fc import cam_5axis as C5
+
+    job = job_of(setup) or next(p for p in setup.InList if is_job(p))
+    if kind not in FIVE_KINDS:
+        raise CamObjError(f"没有这种五轴工序：{kind}")
+    if job.Kind == "turn":
+        raise CamObjError("五轴联动工序要在铣削作业里加（机床选五轴加工中心）")
+    if not _has_rotary(job):
+        raise CamObjError(f"机床 {job.Machine} 没有回转轴，做不了五轴联动：作业的机床选五轴加工中心")
+    want = "Edge" if kind == "curve5" else "Face"
+    if not subs or any(not s_.startswith(want) for s_ in subs):
+        raise CamObjError("五轴沿曲线要点边" if kind == "curve5" else "要点零件上的面")
+    shape = job.Model.Shape
+    need = 0.0
+    if kind == "swarf5":
+        for s_ in subs:
+            b, t, _n = C5.ruled_rails(shape.getElement(s_), 8)
+            need = max(need, float(max(np.linalg.norm(t - b, axis=1))))
+    t = _five_tool(job, kind, need)
+    cc = TL.cutting_for(t, S.iso_group(job.Kienzle)) or {}
+    mid = lambda r: (r.get("min", 0.0) + r.get("max", 0.0)) / 2 if r and r.get("min") is not None and r.get("max") is not None else 0.0
+    vc, fz = mid(cc.get("vc_m_min")), mid(cc.get("fz_mm"))
+    taken = [o.ToolNumber for s_ in setups(job) for o in ops(s_)]
+    same = [o.ToolNumber for s_ in setups(job) for o in ops(s_) if o.ToolId == t["id"]]
+    op = new_op(setup, kind, tool_id=t["id"], tool_n=same[0] if same else (max(taken) + 1 if taken else 1), vc=vc, feed=fz,
+                stepover=0.1 if kind == "surface5" else 0.0,
+                reason=("刀具样本没有这个材料组的参数，vc、fz 待填" if not (vc and fz) else "按面选刀；参数取样本范围的中间值"))
+    op.Geometry = [(job.Model, s_) for s_ in subs]
+    op.Lead = 10.0 if kind == "surface5" else 0.0
+    op.Below = 0.0                                   # 侧刃铣：倾斜的平底刀底面边缘正好到直纹面底边，再往下伸会切进底面
+    op.Depth5 = 0.2 if kind == "curve5" else 0.0
+    op.PoleMin = 3.0
+    op.AvoidCollision = kind == "surface5"
+    if vc and fz:
+        regenerate(op)
+    op.Check = "待确认"
+    return op
+
+
+def _tool_parts(t: dict, ball_r: float) -> tuple[list, str]:
+    """刀具除刀刃外的部分（离球心 / 刀尖的高度起止、半径）：刀杆（刃长 → 伸出长）、刀柄外形；缺数据的部分不查，返回说明"""
+    parts, miss = [], []
+    flute = t.get("flute_length_mm")
+    stick = t.get("stickout_mm")
+    shank_r = float(t.get("shank_diameter_mm") or t["diameter_mm"]) / 2
+    if stick:
+        parts.append((float(flute or 2 * float(t["diameter_mm"])) - ball_r, float(stick) - ball_r, shank_r))
+    else:
+        miss.append("stickout")
+    prof = (t.get("holder") or {}).get("profile_mm") or []
+    for (r0, z0), (r1, z1) in itertools.pairwise(prof):
+        if abs(r0 - r1) < 1e-9 and z1 > z0:
+            parts.append((float(z0) - ball_r, float(z1) - ball_r, float(r0)))
+    if not prof:
+        miss.append("holder")
+    note = {("stickout", "holder"): "；刀具没写伸出长和刀柄外形，刀杆、刀柄的碰撞没查", ("stickout",): "；刀具没写伸出长，刀杆的碰撞没查",
+            ("holder",): "；刀具没写刀柄外形，刀柄的碰撞没查"}.get(tuple(miss), "")
+    return parts, note
+
+
+def _part_distance(shape, z_top: float):
+    """零件（FreeCAD 网格，工件坐标）的距离函数：点 → 到零件表面的距离"""
+    from analysis.cam import dexel as DX
+
+    v, fc = shape.tessellate(0.2)
+    V = np.array([[p.x, p.y, p.z - z_top] for p in v])
+    tris = V[np.array(fc)]
+
+    def dist(P_):
+        return DX.point_triangle_distance(np.atleast_2d(P_), tris)
+    return dist
+
+
+def regenerate_five(op) -> None:
+    from analysis.cam import fiveaxis as FA
+    from analysis.cam import machines
+    from analysis.cam import paths as P
+    from analysis.cam import tools as TL
+    from freecad_addon.fc import cam_5axis as C5
+
+    job = job_of(op)
+    t = TL.get(_lib(job), op.ToolId)
+    d = float(t["diameter_mm"])
+    R = d / 2
+    z_teeth = int(t.get("flutes") or t.get("teeth") or 0)
+    if op.Vc <= 0 or op.Feed <= 0 or z_teeth <= 0:
+        raise CamObjError(f"{op.Label}：vc、fz 要大于 0，刀具要写刃数")
+    mach = machines.get(job.Machine)
+    rpm = P.spindle_rpm(op.Vc, d, float(mach["max_rpm"]))
+    f = P.mill_feed(op.Feed, z_teeth, rpm)
+    shape = job.Model.Shape
+    z_top = _js(job, "PartData", {}).get("z_top", 0.0)
+    shift = np.array([0.0, 0.0, -z_top])                         # 模型坐标 → 工件坐标（Z0 在零件顶面）
+    subs = [s_ for _o, ss in op.Geometry for s_ in (ss if isinstance(ss, (list, tuple)) else [ss])]
+    lead_dir = {"x": [1.0, 0.0, 0.0], "y": [0.0, 1.0, 0.0]}.get((op.LeadDir or "").strip().lower())
+    segs, note = [], ""
+    if op.OpKind == "swarf5":
+        for s_ in subs:
+            b, tp, nr = C5.ruled_rails(shape.getElement(s_), max(8, math.ceil(shape.getElement(s_).Length / 4)))
+            tips, axes = FA.swarf(b + shift, tp + shift, R, below=op.Below, normals=nr)
+            segs.append((tips, axes))
+    elif op.OpKind == "surface5":
+        face = shape.getElement(subs[0])
+        rows = C5.raster_rows(face, max(0.05, (op.StepOver or 0.1) * d), max(0.2, d / 6))
+        if lead_dir is not None:
+            rows = FA.zigzag(rows)
+        parts, note = _tool_parts(t, R) if op.AvoidCollision else ([], "")
+        dist = _part_distance(shape, z_top)
+        cut_rows = []
+        for pts, nrm in rows:                        # 球心离零件不到 R（会切进旁边的面，如球冠和平面相接的凹角）的点去掉，行在那里断开
+            ctr = pts + shift + R * nrm
+            ok = dist(ctr) >= R - 0.005
+            cur = []
+            for k in range(len(pts)):
+                if ok[k]:
+                    cur.append(k)
+                elif len(cur) >= 2:
+                    cut_rows.append((pts[cur], nrm[cur]))
+                    cur = []
+                else:
+                    cur = []
+            if len(cur) >= 2:
+                cut_rows.append((pts[cur], nrm[cur]))
+        if not cut_rows:
+            raise CamObjError(f"{op.Label}：球头刀 Ø{d:g} 在这个面上处处会切进旁边的面，换小一点的刀")
+        if len(cut_rows) < len(rows) or sum(len(r[0]) for r in cut_rows) < sum(len(r[0]) for r in rows):
+            note += "；旁边的面挡着的地方（球头刀会切进去）没走刀"
+        for pts, nrm in cut_rows:
+            tips, axes = FA.ball_surface(pts + shift, nrm, R, op.Lead, op.Tilt, lead_dir=lead_dir)
+            if parts:
+                r = FA.avoid_collision(tips, axes, R, parts, dist)
+                if r["issues"]:
+                    raise CamObjError(f"{op.Label}：{r['issues'][0]['text']}")
+                tips, axes = r["tips"], r["axes"]
+            segs.append((tips, axes))
+    else:
+        for s_ in subs:
+            e = shape.getElement(s_)
+            import Part
+
+            faces = list(shape.ancestorsOfType(e, Part.Face))
+            if not faces:
+                raise CamObjError(f"{s_} 不在任何面上")
+            fc = max(faces, key=lambda x: x.normalAt(*x.Surface.parameter(e.valueAt(e.FirstParameter))).z)
+            pts, nrm = C5.edge_points(e, fc, max(0.2, d / 4))
+            tips, axes = FA.curve_follow(pts + shift, nrm, depth=op.Depth5, lead=op.Lead)
+            segs.append((tips, axes))
+    if op.PoleMin > 0 and op.OpKind != "swarf5":                 # 侧刃铣的刀轴由曲面定，改了形状就变，不让
+        pz = FA.pole(mach["model"])
+        if pz is not None:
+            new = []
+            for tips, axes in segs:
+                na, _ = FA.avoid_pole(axes, pz, op.PoleMin)
+                new.append((FA.ball_reaxis(tips, axes, na, R), na))           # 球头刀：球心不动
+            segs = new
+    clear = 5.0 + float(getattr(job, "StockTop", 0.0))          # 退到毛坯顶以上 5 mm 再快移
+    mv = FA.link_moves(segs, f, link="direct" if (op.OpKind == "surface5" and lead_dir is not None) else "lift", clear_z=clear)
+    op.Moves = json.dumps(mv)
+    op.Spindle = json.dumps({"rpm": round(rpm)})
+    if note:
+        op.Reason = (op.Reason or "") + note
+
+
 # ---------------------------------------------------------------- 刀路线框
 def to_model(job, side, x, y, z):
     """程序坐标 → 零件模型坐标。铣：XY 不变，Z0 在零件顶面；车：(x 直径, z) → (半径, 0, z)，
@@ -966,6 +1167,12 @@ def path_shape(op):
         if pos is not None and (p - pos).Length > 1e-9:
             edges.append(Part.LineSegment(pos, p).toShape())
         pos = p
+    if op.OpKind in FIVE_KINDS:                       # 五轴联动：每隔几个刀位画一根沿刀轴的短线（看得出刀轴怎么倒，ADR-0106 C3d）
+        feeds = [m for m in mv if m.get("t") == "feed" and m.get("axis")]
+        for m in feeds[::max(1, len(feeds) // 40)]:
+            p = FreeCAD.Vector(*to_model(job, side, m["x"], m["y"], m["z"]))
+            a = FreeCAD.Vector(*m["axis"])
+            edges.append(Part.LineSegment(p, p + a * 8.0).toShape())
     return Part.Compound(edges) if edges else Part.Shape()
 
 
@@ -1243,7 +1450,8 @@ def build_setup(job) -> dict:
                                       **({"ae_max": cc["ae_max_mm"]} if "ae_max_mm" in cc else {})},
                              "spindle": _js(o, "Spindle", {}), "moves": mv, "title": o.Label,
                              "safe": max((x["z"] for x in mv if x.get("t") == "rapid"), default=5.0),
-                             **({"frame": _js(o, "Frame", None)} if getattr(o, "Frame", "") else {})})
+                             **({"frame": _js(o, "Frame", None)} if getattr(o, "Frame", "") else {}),
+                             **({"simul5": True} if o.OpKind in FIVE_KINDS else {})})
         st = float(getattr(job, "StockTop", 0.0))
         stock = {**d["stock"], "top": st, "height": float(d["stock"]["height"]) + st}
         setup = {"mode": "program", "machine": job.Machine, "item": job.Item, "stock": stock,

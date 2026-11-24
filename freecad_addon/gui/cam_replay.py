@@ -357,8 +357,9 @@ class ReplayDock:
             L = 3 * d
             self._tool_cyl.radius = d / 2
             self._tool_cyl.height = L
-            self._tool_shape_xf.rotation.setValue(coin.SbVec3f(1, 0, 0), 1.5707963267948966)   # 圆柱默认沿 Y，转到沿 Z
-            self._tool_shape_xf.translation.setValue(0, 0, L / 2)
+            w = np.asarray(self.rp.axis(i, s), float)           # 3+2、五轴联动：圆柱沿刀轴（ADR-0106 C3d）
+            self._tool_shape_xf.rotation.setValue(coin.SbRotation(coin.SbVec3f(0, 1, 0), coin.SbVec3f(*map(float, w))))
+            self._tool_shape_xf.translation.setValue(*map(float, w * L / 2))
         n = f["i"] + (1 if s >= 1.0 - 1e-9 else 0)
         if n != self.frame:
             self.frame = n

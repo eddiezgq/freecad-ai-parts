@@ -335,7 +335,12 @@ def avoid_pole(axes, pz, min_deg: float = 3.0) -> tuple[np.ndarray, list[tuple[i
             i += 1
     lam0 = math.tan(math.radians(min_deg)) * 1.05
     out = A.copy()
+    kept = []
     for i, j in runs:
+        seg = A[max(i - 1, 0):min(j + 2, len(A))]
+        if max(angle_deg(seg[0], x) for x in seg) < 0.1:      # 刀轴这一段基本不变（例如一直竖着）：回转轴不用动，不推
+            continue
+        kept.append((i, j))
         h0, h1 = _horiz(A[max(i - 1, 0)], pz), _horiz(A[min(j + 1, len(A) - 1)], pz)
         d = h1 - h0
         if np.linalg.norm(d) < 1e-9:
@@ -352,7 +357,7 @@ def avoid_pole(axes, pz, min_deg: float = 3.0) -> tuple[np.ndarray, list[tuple[i
         for k in range(i, j + 1):
             w = min(1.0, max(0.0, (2 * min_deg - ang[k]) / min_deg))
             out[k] = _unit(A[k] + lam0 * w * side)
-    return out, runs
+    return out, kept
 
 
 def ball_reaxis(tips, axes, new_axes, radius: float) -> np.ndarray:

@@ -3,6 +3,8 @@
 - `ruled_rails(face, n)`：直纹面（圆锥、圆柱、平面、直纹 B 样条面）的两条“导轨”——沿直纹线两端的两条边上的等参数点，第 i 点连成一条直纹线；
   另给底边各点的面法向（实体面的外法向，指向刀具一侧）。
 - `surface_rows(face, stepover, step)`：曲面上一行一行的接触点和法向（沿较长的参数方向走，行距按弧长取），面的修剪区外的点去掉。
+- `raster_rows(face, stepover, step)`：俯视平行线（沿 X，行距按 Y）投到曲面上的接触点和法向——曲面精加工用这个：按参数线走在球极这种地方行会缩成小圈，
+  回转轴一圈圈猛转。
 - `edge_points(edge, face, step)`：边上的点和所在面的法向（沿曲线加工）。
 长度 mm；需要 FreeCAD。
 """
@@ -104,12 +106,57 @@ def surface_rows(face, stepover: float, step: float) -> list[tuple[np.ndarray, n
                     rows.append((np.array(pts), np.array(nrm)))
                 pts, nrm = [], []
                 continue
-            pts.append(_v(p))
+            q = _v(p)
+            if pts and float(np.linalg.norm(q - pts[-1])) < 1e-6:     # 球极这种等参数线缩成一点的地方：重复点去掉
+                continue
+            pts.append(q)
             nrm.append(_v(face.normalAt(u, v)))
         if len(pts) >= 2:
             rows.append((np.array(pts), np.array(nrm)))
     if not rows:
         raise Cam5AxisError("这个面上取不出刀路点（面太小或修剪区为空）")
+    return rows
+
+
+def _vertical_hit(face, x: float, y: float, z0: float):
+    """竖直线 (x, y) 与曲面的交点：从 (x, y, z0) 找曲面上最近点，再用它的高度重找，几次就收敛（坡度不大于 60° 的面）；
+    返回 (点, 参数 u, v) 或 None（不在面的修剪区里 / 不收敛）"""
+    import FreeCAD as App
+
+    srf = face.Surface
+    z = z0
+    for _ in range(12):
+        u, v = srf.parameter(App.Vector(x, y, z))
+        p = srf.value(u, v)
+        if abs(p.x - x) < 1e-6 and abs(p.y - y) < 1e-6:
+            return (p, u, v) if face.isInside(p, 1e-6, True) else None
+        z = p.z
+    return None
+
+
+def raster_rows(face, stepover: float, step: float) -> list[tuple[np.ndarray, np.ndarray]]:
+    """俯视平行线（沿 X 走，按 Y 排行）投到曲面上：[(点 k×3, 外法向 k×3), …]；面外、取不到的点把一行断开"""
+    bb = face.BoundBox
+    rows = []
+    for y in np.arange(bb.YMin + stepover / 2, bb.YMax, stepover):
+        pts, nrm = [], []
+        for x in np.arange(bb.XMin, bb.XMax + 1e-9, step):
+            hit = _vertical_hit(face, float(x), float(y), bb.ZMax)
+            if hit is None:
+                if len(pts) >= 2:
+                    rows.append((np.array(pts), np.array(nrm)))
+                pts, nrm = [], []
+                continue
+            p, u, v = hit
+            n = _v(face.normalAt(u, v))
+            if n[2] <= 0:                                   # 朝下的部分（俯视看不到）不走
+                continue
+            pts.append(_v(p))
+            nrm.append(n)
+        if len(pts) >= 2:
+            rows.append((np.array(pts), np.array(nrm)))
+    if not rows:
+        raise Cam5AxisError("这个面上取不出刀路点（俯视看不到、面太小或修剪区为空）")
     return rows
 
 
