@@ -692,6 +692,36 @@
     "en": "5-axis: S-shaped thin wall swarf on both sides, dexel no overcut, no leftover"
    },
    "source": "material at 0.3 mm inside wall; none at 0.5–9 mm outside; grid 0.25"
+  },
+  {
+   "id": "CAM-68",
+   "test": "tests/test_cam_baxis_c4a.py::test_lathe_reports_neck_the_insert_cannot_reach",
+   "category": "must",
+   "title": {
+    "zh": "车刀车不到的下坡必须报出（主偏角、副偏角）",
+    "en": "Turning insert that cannot reach a down slope must be reported (approach and trailing edge angles)"
+   },
+   "source": "kappa' = 180 - kappa - epsilon; down slope > kappa' - 2 deg is an error"
+  },
+  {
+   "id": "CAM-69",
+   "test": "tests/test_cam_baxis_c4a.py::test_b_axis_turning_tilts_and_releases",
+   "category": "kin",
+   "title": {
+    "zh": "B 轴车削：转 B 车到普通刀车不到的下坡，FANUC / 西门子出程序、回读一致",
+    "en": "B-axis turning reaches the down slope; FANUC / Siemens released and read back"
+   },
+   "source": "tip = forward(X, Z, B, L); read-back deviation < 0.001 mm"
+  },
+  {
+   "id": "CAM-70",
+   "test": "tests/test_cam_baxis_c4a.py::test_live_milling_positions_b",
+   "category": "kin",
+   "title": {
+    "zh": "B 轴车铣中心：动力刀铣削按 B 定位、整机仿真通过",
+    "en": "B-axis mill-turn: live milling positioned by B, machine simulation passes"
+   },
+   "source": "axial B90, radial B0; inverse kinematics of B and C"
   }
  ]
 }

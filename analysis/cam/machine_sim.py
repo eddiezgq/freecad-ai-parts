@@ -162,7 +162,7 @@ def tool_specs(machine: dict, cfg: dict, parsed: dict) -> tuple[dict, list[dict]
             mill = {mv["tool"] for mv in parsed["moves"] if mv.get("mill")}
             part = lambda keep: {"tools": [t for t in parsed["tools"] if keep(t)],
                                  "moves": [mv for mv in parsed["moves"] if keep(mv["tool"])]}
-            s1, c1 = _lathe_specs(cfg, part(lambda t: t not in mill))
+            s1, c1 = _lathe_specs(cfg, part(lambda t: t not in mill), b_head=_b_head(machine))
             s2, c2 = _tool_specs(cfg, part(lambda t: t in mill))
             return {**s1, **s2}, c1 + c2
         return _lathe_specs(cfg, parsed) if machine["kind"] == "lathe" else _tool_specs(cfg, parsed)
@@ -218,6 +218,7 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
             seen[key]["lines"].add(line)
 
     approach = millturn = False
+    bhead = lathe and _b_head(machine)
     live_pre = _live_by_tool(machine, parsed)
     for mv in parsed["moves"]:
         if mv.get("home"):
@@ -228,10 +229,12 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
         sp = specs.get(mv["tool"])
         if mv.get("mill"):                       # 车铣的铣削段（ADR-0106 C2b、ADR-0110）：按机床文件的动力刀朝向逆解 C 轴
             live = (machine.get("live_tools") or {}).get("axial" if mv["mill"] == "polar" else "radial")
-            if live is None or sp is None:
+            if bhead and sp is not None:         # B 轴车铣中心（ADR-0106 C4a）：铣刀装在 B 轴主轴上，按运动链逆解 B、C
+                live = None
+            elif live is None or sp is None:
                 millturn = True
                 continue
-            mach_u = {**machine, "tool": live}
+            mach_u = {**machine, "tool": live} if live else machine
             pts = []
             for p0, p1, w in mv["pieces"]:
                 pts += [(np.asarray(p, float), w) for p in _samples(p0, p1, step)]
@@ -239,7 +242,7 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
             if sp is None:
                 continue
             live = live_pre.get(mv["tool"])
-            mach_u = {**machine, "tool": live} if live else machine   # 动力刀在插补前后的定位段：刀还是那把动力刀，朝向照旧
+            mach_u = {**machine, "tool": live} if live and not bhead else machine   # 动力刀在插补前后的定位段：刀还是那把动力刀，朝向照旧
             w = _unit3(live["direction"]) if live else mv.get("axis")
             smp = _samples(mv["a"], mv["b"], step)
             if mv.get("axis_b") is not None and not live:        # 五轴联动：刀轴在一段里从 axis 转到 axis_b（球面插值），按转角加密
@@ -263,6 +266,8 @@ def run(machine: dict, parsed: dict, cfg: dict, stock: dict | None = None, gcode
                 pref = {**prefer, "C": -math.degrees(math.atan2(tip[1] - off[1], tip[0] - off[0]))}
             elif lathe and not mv.get("mill") and any(a["id"] == "C" for a in machine["axes"]):
                 pref = {**prefer, "C": 0.0}              # 车削、定位段：程序里 Y = 0，C 停在哪不影响回转体的碰撞，按 C0 算
+                if mv.get("b_deg") is not None:          # B 轴车削（ADR-0106 C4a）：B 按程序里写的角度
+                    pref["B"] = float(mv["b_deg"])
             try:
                 q = K.inverse(mach_u, tip, axis, sp["L"], prefer=pref)
             except K.KinematicsError as exc:
@@ -330,7 +335,7 @@ def _unit3(v) -> tuple:
 
 def _live_by_tool(machine: dict, parsed: dict) -> dict:
     """车铣：每把动力刀第一次插补用的朝向（轴向 / 径向），插补前的定位段也按这个朝向算"""
-    lt = machine.get("live_tools") or {}
+    lt = machine.get("live_tools") or ({"axial": {"direction": [0, 0, 1]}, "radial": {"direction": [1, 0, 0]}} if _b_head(machine) else {})
     out: dict = {}
     for mv in parsed["moves"]:
         if mv.get("mill") and mv["tool"] not in out:
@@ -346,9 +351,15 @@ def _translate(v) -> np.ndarray:
     return T
 
 
-def _lathe_specs(cfg: dict, parsed: dict) -> tuple[dict, list[dict]]:
+def _b_head(machine: dict) -> bool:
+    from analysis.cam import machine_model as _MM
+
+    return _MM.b_axis(machine) is not None
+
+
+def _lathe_specs(cfg: dict, parsed: dict, b_head: bool = False) -> tuple[dict, list[dict]]:
     """车刀：刀尖圆弧（刀片 nose_radius）；刀杆按 ISO 5608 代号与刀尖偏距 f 生成长方体（holders.py，ADR-0107），
-    没有代号或没有 f 的报“未知”"""
+    没有代号或没有 f 的报“未知”。b_head：车刀装在 B 轴主轴上（ADR-0106 C4a），刀尖离主轴端面 length_mm（转塔刀架的刀按 0）"""
     lib_path = cfg.get("tool_library")
     lib = TL.load(lib_path) if lib_path else TL.load()
     specs, checks = {}, []
@@ -360,7 +371,8 @@ def _lathe_specs(cfg: dict, parsed: dict) -> tuple[dict, list[dict]]:
             continue
         tool = TL.get(lib, g["tool"])
         r = float((tool.get("insert") or {}).get("nose_radius_mm", 0.0))
-        specs[t] = {"tool": tool, "L": 0.0, "parts": [{"part": "cutter", "z0": 0.0, "z1": 0.0, "r": max(r, 1e-3)}], "boxes": []}
+        specs[t] = {"tool": tool, "L": float(g.get("length_mm") or 0.0) if b_head else 0.0,
+                    "parts": [{"part": "cutter", "z0": 0.0, "z1": 0.0, "r": max(r, 1e-3)}], "boxes": []}
         holder = g.get("holder") or tool.get("holder") or {}   # 起草时配的刀杆（ADR-0112）优先
         if not holder.get("iso5608") and not holder.get("iso6261") and not holder.get("vendor_code"):
             checks.append({"line": None, "level": "unknown", "text": f"T{t}（{tool['id']}）：刀具库里没写刀杆代号（ISO 5608），只查了刀尖"})

@@ -117,6 +117,9 @@ def _lathe(prog, machine, sim_res, post, dialect):
             mt = _fmt().get("millturn")
             if not mt:
                 raise ReleaseError("后处理配置没写动力刀、C 轴的 M 代码（millturn，按机床说明书填，ADR-0110），带铣削段的车铣程序不出")
+            if op.get("b_mill") is not None:
+                raise ReleaseError("B 轴车铣中心的铣削：刀装在 B 轴主轴上，刀长随 B 怎么补各家不同，后处理配置还没有这一项"
+                                   "（ADR-0106 C4a，要另改配置格式），带铣削段的程序不出")
             from analysis.cam import post as _post
 
             fnd = _fmt()["feed"] if _fmt()["feed"] is not None else 1
@@ -128,7 +131,14 @@ def _lathe(prog, machine, sim_res, post, dialect):
         t, sp = op["tool"], op["spindle"]
         L.append(_semi(f"工序 {k}：{op.get('title', '')}") if sie else _paren(f"OP{k} T{t['n']:02d}"))
         L.append(f"G0 X{num(hx)} Z{num(hz)}" if sie else f"G00 X{num(hx)} Z{num(hz)}")
-        L.append(f"T{t['n']} D1" if sie else f"T{t['n']:02d}{t.get('offset', t['n']):02d}")
+        L.append(f"T{t['n']} D{0 if op.get('b_turn') else 1}" if sie else f"T{t['n']:02d}{t.get('offset', t['n']):02d}")
+        if op.get("b_turn"):                    # B 轴车削（ADR-0106 C4a）：B 定位；X、Z 是 B 轴回转中心的位置（不用刀补）
+            if dialect not in ("fanuc", "siemens"):
+                raise ReleaseError("B 轴车铣中心的程序只出 FANUC、西门子（ADR-0106 C4a）")
+            from analysis.cam import post as _post
+
+            L += [_semi(_post.b_turn_note(op)) if sie else _paren(_post.b_turn_note(op)),
+                  f"G0 B{num(op['b_turn']['deg'])}" if sie else f"G00 B{num(op['b_turn']['deg'])}"]
         threading = any(mv["t"] == "thread" for mv in op["moves"])
         css = sp.get("css") if not threading else None
         if css and dialect == "gsk":            # 广数：用 G97，按本工序最大直径算转速

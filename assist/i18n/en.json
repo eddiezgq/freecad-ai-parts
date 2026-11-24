@@ -2966,5 +2966,14 @@
 "点一个曲面：球头刀按曲面法向加前倾、侧倾精加工（五轴联动）": "Pick a curved face: ball end mill finishing along the surface normal plus lead and tilt (simultaneous 5-axis)",
 "点一条或几条边：球头刀沿边走，刀轴取边旁边朝上那个面的法向（五轴联动）": "Pick one or more edges: a ball end mill follows the edge with the tool axis along the normal of the upward-facing neighbouring face (simultaneous 5-axis)",
 "；面是扭曲的直纹面，圆柱侧刃贴不严：刀位已推出不过切，那里最多剩料 {} mm（留给后面清根或换球头多轴精加工）": "; the face is a twisted ruled surface the cylinder flank cannot fit exactly: tool positions were pushed out so nothing is overcut, leaving at most {} mm there (for a later rest pass or ball-end multi-axis finishing)",
-"swarf_clear 要用 swarf 算出的刀位（一条直纹线一个，插点前）": "swarf_clear needs the tool positions from swarf (one per ruling, before densifying)"
+"swarf_clear 要用 swarf 算出的刀位（一条直纹线一个，插点前）": "swarf_clear needs the tool positions from swarf (one per ruling, before densifying)",
+"T{}（{}）的刀杆 {}、刀片 {} 查不到主偏角或刀尖角，轮廓的斜度车不车得到没查": "T{} ({}): approach or corner angle not found for holder {} and insert {}; whether the profile slopes can be turned was not checked",
+"T{}（{}）没写刀杆代号或刀片代号，轮廓的斜度车不车得到没查": "T{} ({}): holder or insert code missing; whether the profile slopes can be turned was not checked",
+"T{}（{}，{} + {}，B 转 {}°）：{}": "T{} ({}, {} + {}, B turned {}°): {}",
+"T{}（{}，{} + {}）：{}": "T{} ({}, {} + {}): {}",
+"{} 是 B 轴车铣中心：车刀装在 B 轴主轴上，程序按刀长算机床 X、Z 的位置，machine_sim 里要写 T{} 的 length_mm": "{} is a B-axis mill-turn centre: turning tools sit in the B-axis spindle and the program gives machine X, Z positions from the tool length; give length_mm for T{} in machine_sim",
+"台阶斜角 {}° 比主偏角 {}° 陡，车不出": "shoulder angle {}° is steeper than the approach angle {}°; it cannot be turned",
+"往下斜角 {}° 超过副偏角 {}° 减 {}° 间隙，副切削刃会啃工件": "down-slope angle {}° exceeds the trailing edge angle {}° minus {}° clearance; the trailing edge would gouge the part",
+"B 轴车铣中心的程序只出 FANUC、西门子（ADR-0106 C4a）": "B-axis mill-turn programs are output for FANUC and Siemens only (ADR-0106 C4a)",
+"B 轴车铣中心的铣削：刀装在 B 轴主轴上，刀长随 B 怎么补各家不同，后处理配置还没有这一项（ADR-0106 C4a，要另改配置格式），带铣削段的程序不出": "B-axis mill-turn milling: the tool sits in the B-axis spindle and length compensation along B differs between makers; the post configuration has no entry for it yet (ADR-0106 C4a, needs a format change), so programs with milling are not output"
 }
