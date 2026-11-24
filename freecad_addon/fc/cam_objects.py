@@ -39,13 +39,15 @@ class CamObjError(ValueError):
     pass
 
 
-def _add(obj, typ, name, doc, value=None, hidden=False):
+def _add(obj, typ, name, doc, value=None, hidden=False, readonly=False):
     if not hasattr(obj, name):
         obj.addProperty(typ, name, GROUP, doc)
         if value is not None:
             setattr(obj, name, value)
         if hidden:
             obj.setEditorMode(name, 2)
+        elif readonly:
+            obj.setEditorMode(name, 1)
 
 
 def _js(obj, name, default):
@@ -80,6 +82,7 @@ class JobProxy:
         _add(obj, "App::PropertyString", "Programs", "正式程序（JSON：文件名 → 文本）", hidden=True)
         _add(obj, "App::PropertyString", "Replay", "回放数据（JSON：每个程序的仿真程序、毛坯、刀具、带行号的检查）", hidden=True)
         _add(obj, "App::PropertyBool", "Cycles", "车削正式程序用固定循环（G71 / G70 / G76；FANUC、广数）", False)
+        _add(obj, "App::PropertyString", "TurnMode", "上次同步装夹时的干法（single / twin；ADR-0106 C4d）", "single", hidden=True)
 
     def onDocumentRestored(self, obj):
         self.setup(obj)
@@ -101,6 +104,7 @@ class SetupProxy:
     def setup(self, obj):
         _add(obj, "App::PropertyString", "Side", "车：right 第一次装夹 / left 调头；铣：1、2…")
         _add(obj, "App::PropertyString", "Frame", "3+2 倾斜面（JSON：工件坐标的原点、X、Z 方向；空 = 不倾斜，ADR-0106 C2a）", "", hidden=True)
+        _add(obj, "App::PropertyInteger", "Channel", "两个刀架时这次装夹由哪个通道干（1 主主轴、2 副主轴；0 = 单通道，ADR-0106 C4d）", 0, readonly=True)
 
     def onDocumentRestored(self, obj):
         self.setup(obj)
@@ -152,6 +156,7 @@ class OpProxy:
         _add(obj, "App::PropertyFloat", "Depth5", "五轴沿曲线：往面里进给的深度（mm）")
         _add(obj, "App::PropertyFloat", "PoleMin", "五轴：刀轴离回转轴至少几度（让开奇异点；0 = 不让）")
         _add(obj, "App::PropertyBool", "AvoidCollision", "五轴：刀杆、刀柄碰零件时自动加大倾角")
+        _add(obj, "App::PropertyFloat", "BAngle", "B 轴车削：算出来 B 转的角度（度，自动挑的；0 = 不转，ADR-0106 C4d）", 0.0, readonly=True)
 
     def onDocumentRestored(self, obj):
         self.setup(obj)
@@ -295,6 +300,72 @@ def new_job(doc, model, kind: str, *, machine: str | None = None, post: str = "f
         job.addObject(s)
     doc.recompute()
     return job
+
+
+BACK_N = 10          # 双主轴：背面（副主轴一侧）车刀的缺省刀号 = 右端同类刀号 + 10（ADR-0106 C4d）
+SETUP_NAMES = ("右端（第一次装夹）", "右端（主主轴，通道 1）", "左端（调头装夹）", "左端（副主轴背面加工）", "左端（副主轴背面加工，通道 2）")
+
+
+def machine_mode(job) -> dict:
+    """车削作业在这台机床上怎么干：twin = 副主轴接料背面加工（机床有副主轴且切断），channels = 两个刀架各干一个主轴"""
+    if job.Kind != "turn":
+        return {"twin": False, "channels": False}
+    from analysis.cam import machine_model as MM
+    from analysis.cam import machines
+
+    raw = machines.model(job.Machine)
+    twin = bool(MM.sub_spindle(raw)) and bool((_js(job, "PartData", {}).get("parting") or {}).get("tool_w"))
+    return {"twin": twin, "channels": twin and bool(MM.channels(raw))}
+
+
+def sync_machine(job) -> dict:
+    """机床、切断变了以后同步装夹（ADR-0106 C4d）：装夹名（只改还是缺省名的）、通道号；干法变了时左端车削工序的缺省刀号（双主轴 +10，换回去还原）"""
+    m = machine_mode(job)
+    if job.Kind != "turn":
+        return m
+    names = {"right": "右端（主主轴，通道 1）" if m["channels"] else "右端（第一次装夹）",
+             "left": "左端（副主轴背面加工，通道 2）" if m["channels"] else "左端（副主轴背面加工）" if m["twin"] else "左端（调头装夹）"}
+    known = set(SETUP_NAMES) | {T(x) for x in SETUP_NAMES}
+    if not hasattr(job, "TurnMode"):
+        job.Proxy.setup(job)
+    key = "twin" if m["twin"] else "single"
+    changed, job.TurnMode = job.TurnMode != key, key
+    for s in setups(job):
+        if not hasattr(s, "Channel"):
+            s.Proxy.setup(s)
+        if s.Side in names and s.Label in known:
+            s.Label = T(names[s.Side])
+        s.Channel = ({"right": 1, "left": 2}.get(s.Side, 0)) if m["channels"] else 0
+        if s.Side != "left" or not changed:          # 刀号只在干法变了时改（用户自己改的刀号不动）
+            continue
+        for o in ops(s):
+            base = TURN_TOOL_N.get(o.OpKind)
+            if base is None:
+                continue
+            if m["twin"] and o.ToolNumber == base:
+                o.ToolNumber = base + BACK_N
+            elif not m["twin"] and o.ToolNumber == base + BACK_N:
+                o.ToolNumber = base
+    return m
+
+
+def _back_tools(job) -> dict:
+    """双主轴：左端车削工序的刀号 → back_tools（原刀号 → 朝副主轴的刀号）；与右端同号、同类两个刀号的报错"""
+    right = {o.ToolNumber for s in setups(job) if s.Side == "right" for o in ops(s)}
+    out: dict = {}
+    for s in setups(job):
+        if s.Side != "left":
+            continue
+        for o in ops(s):
+            base = TURN_TOOL_N.get(o.OpKind)
+            if base is None:
+                continue
+            if o.ToolNumber in right:
+                raise CamObjError(f"{o.Label}：背面加工用朝副主轴的刀，刀号 T{o.ToolNumber} 与右端的刀重了（例如改成 T{base + BACK_N}）")
+            if out.get(str(base), o.ToolNumber) != o.ToolNumber:
+                raise CamObjError(f"{o.Label}：同类工序在背面要用同一把刀（T{out[str(base)]}）")
+            out[str(base)] = o.ToolNumber
+    return out
 
 
 def thread_text(t: dict) -> str:
@@ -1203,6 +1274,7 @@ def draft(job, client=None, note: str = "") -> dict:
 
         card = {c["id"]: c for c in d["card"]}
         setup = d["setup"]
+        back = BACK_N if sync_machine(job)["twin"] else 0        # 双主轴：背面的刀号 +10（ADR-0106 C4d）
         ctx = cam.turn_context(setup, machines.get(job.Machine))
         for sc in ctx["sides"]:
             s = next(x for x in setups(job) if x.Side == sc["side"])
@@ -1213,8 +1285,8 @@ def draft(job, client=None, note: str = "") -> dict:
                 cid = f"{k}{gi + 1}" if k in FEATURE_KINDS else k
                 row = card[cid]
                 p = row["params"]
-                op = new_op(s, k, index=gi, tool_id=row["tool"], tool_n=TURN_TOOL_N[k], vc=p["vc"], feed=p.get("f", 0.0),
-                            ap=p.get("ap", 0.0), reason=row.get("reason", ""))
+                op = new_op(s, k, index=gi, tool_id=row["tool"], tool_n=TURN_TOOL_N[k] + (back if sc["side"] == "left" else 0),
+                            vc=p["vc"], feed=p.get("f", 0.0), ap=p.get("ap", 0.0), reason=row.get("reason", ""))
                 op.Check = "在样本范围内" if row["status"] == "pass" else "待确认"
                 regenerate(op)
         doc.recompute()
@@ -1310,7 +1382,8 @@ def add_op(setup, kind: str):
             gi = free[0] if free else lst[specs[0]["i"]][key]
         row = {c["id"]: c for c in d["card"]}[f"{kind}{gi + 1}" if gi >= 0 else kind]
         p = row["params"]
-        op = new_op(setup, kind, index=gi, tool_id=row["tool"], tool_n=TURN_TOOL_N[kind], vc=p["vc"], feed=p.get("f", 0.0),
+        op = new_op(setup, kind, index=gi, tool_id=row["tool"], tool_n=TURN_TOOL_N[kind] + (BACK_N if setup.Side == "left" and machine_mode(job)["twin"] else 0),
+                    vc=p["vc"], feed=p.get("f", 0.0),
                     ap=p.get("ap", 0.0), reason=row.get("reason", ""))
         regenerate(op)
     else:
@@ -1412,9 +1485,13 @@ def build_setup(job) -> dict:
     all_ops = [(s, o) for s in setups(job) for o in ops(s)]
     if not all_ops:
         raise CamObjError("作业里还没有工序：先起草或新建工序")
+    if job.Kind == "turn":
+        mode = sync_machine(job)
     tool_rows = sorted({(o.ToolNumber, o.ToolId) for _s, o in all_ops if o.ToolId})
     if job.Kind == "turn":
         setup = turn_setup(job)
+        if mode["twin"]:
+            setup["back_tools"] = _back_tools(job)
         setup["ops"] = {s.Side: [_turn_spec(job, o, s.Side) for o in ops(s) if o.OpKind not in LIVE_KINDS] for s in setups(job)}
         live = {s.Side: [live_program_op(job, o) for o in ops(s) if o.OpKind in LIVE_KINDS] for s in setups(job)}
         if any(live.values()):
@@ -1483,6 +1560,16 @@ def calculate(job) -> dict:
     progs = {f"O{int(p.get('number', 1)):04d}_{p['release']['controller']}.nc": p["release"]["text"]
              for p in r["data"]["programs"] if p.get("release")}
     job.Programs = json.dumps(progs, ensure_ascii=False)
+    if job.Kind == "turn":                        # B 轴车削：每道车削工序 B 转了多少（ADR-0106 C4d）
+        for p in r["data"]["programs"]:
+            tb = p.get("turn_b_deg") or {}
+            for s in setups(job):
+                if s.Side != p.get("side"):
+                    continue
+                for o in ops(s):
+                    if not hasattr(o, "BAngle"):
+                        o.Proxy.setup(o)
+                    o.BAngle = float(tb.get(str(o.ToolNumber), 0.0)) if o.OpKind not in LIVE_KINDS else 0.0
     if job.Kind == "mill" and job.Model is not None:   # 三维比对：加工完的毛坯与零件模型（ADR-0106 Q2 第 6 步）
         _mill_deviation_checks(job, r, progs)
         job.Programs = json.dumps(progs, ensure_ascii=False)
