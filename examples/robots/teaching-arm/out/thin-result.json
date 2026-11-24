@@ -1,0 +1,122 @@
+{
+ "format": "robot-thin/1",
+ "rule": "板厚只在铝板常用规格里选；有限元可信、对弯曲疲劳 ≥ 2 才接受（需求的安全系数照旧另判）；从末端往基座试；基座、舵盘法兰、壳体底座不减",
+ "fatigue_min": 2.0,
+ "before": {
+  "parts": {
+   "j1 舵盘法兰": {
+    "mass_kg": 0.0493,
+    "moving": true,
+    "safety_yield": 34.626,
+    "safety_fatigue": 12.11
+   },
+   "j1 基座": {
+    "mass_kg": 0.3462,
+    "moving": false,
+    "safety_yield": 10.638,
+    "safety_fatigue": 3.72
+   },
+   "j2 U 形支架": {
+    "plate_mm": 4.0,
+    "mass_kg": 0.1156,
+    "moving": true,
+    "safety_yield": 34.761,
+    "safety_fatigue": 12.15
+   },
+   "j2 壳体底座": {
+    "mass_kg": 0.0603,
+    "moving": true,
+    "safety_yield": 105.747,
+    "safety_fatigue": 36.97
+   },
+   "j3 U 形支架": {
+    "plate_mm": 4.0,
+    "mass_kg": 0.1156,
+    "moving": true,
+    "safety_yield": 64.774,
+    "safety_fatigue": 22.65
+   },
+   "j3 壳体底座": {
+    "mass_kg": 0.0603,
+    "moving": true,
+    "safety_yield": 157.804,
+    "safety_fatigue": 55.17
+   },
+   "j4 U 形支架": {
+    "plate_mm": 4.0,
+    "mass_kg": 0.1156,
+    "moving": true,
+    "safety_yield": 160.839,
+    "safety_fatigue": 56.24
+   },
+   "j4 壳体底座": {
+    "mass_kg": 0.0603,
+    "moving": true,
+    "safety_yield": 319.075,
+    "safety_fatigue": 111.56
+   },
+   "j5 舵盘法兰": {
+    "mass_kg": 0.0423,
+    "moving": true,
+    "safety_yield": 1014.706,
+    "safety_fatigue": 354.78
+   },
+   "j5 壳体底座": {
+    "mass_kg": 0.0603,
+    "moving": true,
+    "safety_yield": 958.333,
+    "safety_fatigue": 335.07
+   }
+  },
+  "mass_kg": 1.9832,
+  "peak_nm": {
+   "j1": 0.465,
+   "j2": 5.623,
+   "j3": 3.24,
+   "j4": 1.403,
+   "j5": 0.0
+  }
+ },
+ "trials": [
+  {
+   "part": "j4 U 形支架",
+   "from_mm": 4.0,
+   "to_mm": 3.0,
+   "accepted": true,
+   "status": "pass",
+   "safety_yield": 99.316,
+   "safety_fatigue": 34.72,
+   "mass_kg": 0.0912,
+   "note": "最大当量应力 2.8 MPa；对屈服 99.3、对弯曲疲劳 34.7，要求 ≥ 1.2"
+  },
+  {
+   "part": "j3 U 形支架",
+   "from_mm": 4.0,
+   "to_mm": 3.0,
+   "accepted": true,
+   "status": "pass",
+   "safety_yield": 39.508,
+   "safety_fatigue": 13.81,
+   "mass_kg": 0.0912,
+   "note": "最大当量应力 7.0 MPa；对屈服 39.5、对弯曲疲劳 13.8，要求 ≥ 1.2"
+  },
+  {
+   "part": "j2 U 形支架",
+   "from_mm": 4.0,
+   "to_mm": 3.0,
+   "accepted": true,
+   "status": "pass",
+   "safety_yield": 21.684,
+   "safety_fatigue": 7.58,
+   "mass_kg": 0.0912,
+   "note": "最大当量应力 12.7 MPa；对屈服 21.7、对弯曲疲劳 7.6，要求 ≥ 1.2"
+  }
+ ],
+ "plates": {
+  "clevis_mm": {
+   "j4": 3.0,
+   "j3": 3.0,
+   "j2": 3.0
+  }
+ }
+}
