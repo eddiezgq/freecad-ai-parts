@@ -235,17 +235,17 @@ def run_model(model: dict, base_dir=None):
         else:
             verification.append({"key": "energy_drift", "name": "能量守恒", "value": None, "limit": ENERGY_LIMIT,
                                  "status": UNKNOWN, "note": "有驱动、阻尼或外力，系统不守恒，不判"})
+    dof_g = M.grubler(sysm)
+    verification.append({"key": "dof", "name": "自由度（雅可比秩算）与 Grübler 公式", "value": info["dof"], "grubler": dof_g,
+                         "redundant": len(info.get("redundant", [])),
+                         "status": PASS if info["dof"] == dof_g + len(info.get("redundant", [])) else UNKNOWN,
+                         "note": "雅可比秩算出的自由度 = Grübler 自由度 + 冗余约束数时通过；不等说明有奇异位形，请检查模型"})
     if stab is not None:
         verification.append(stab)
         if stab["status"] == FAIL:
             messages.append("静平衡不稳定：平衡位置有 {} 个特征值实部为正（最大 {:.3g} 1/s），一碰就会离开；"
                             "这是结论，不是计算错误。要找稳定平衡可换初始位置，或用 static_then_dynamic 加扰动和阻尼".format(
                                 stab["value"], stab["max_real"]))
-    dof_g = M.grubler(sysm)
-    verification.append({"key": "dof", "name": "自由度（雅可比秩算）与 Grübler 公式", "value": info["dof"], "grubler": dof_g,
-                         "redundant": len(info.get("redundant", [])),
-                         "status": PASS if info["dof"] == dof_g + len(info.get("redundant", [])) else UNKNOWN,
-                         "note": "雅可比秩算出的自由度 = Grübler 自由度 + 冗余约束数时通过；不等说明有奇异位形，请检查模型"})
     data = {"model": model["name"], "analysis": typ, "dof": info["dof"], "redundant_constraints": info.get("redundant", []),
             "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas,
             "contacts": cont, "flex": flex, "actuators": act, "energy": energy,
