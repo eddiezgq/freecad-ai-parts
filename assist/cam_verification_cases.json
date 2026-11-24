@@ -802,6 +802,26 @@
     "en": "Two turrets: timeline finds lower turret hitting the main-spindle side"
    },
    "source": "0.05 s steps, both turrets in machine coordinates"
+  },
+  {
+   "id": "CAM-79",
+   "test": "tests/test_cam_rs274.py::test_release_programs_match_rs274",
+   "category": "post",
+   "title": {
+    "zh": "独立解释器 rs274：正式程序的刀路与仿真一致",
+    "en": "Independent interpreter rs274: release toolpath matches simulation"
+   },
+   "source": "LinuxCNC 2.9.4 rs274 (Debian 13), every post switch, FANUC/HNC/GSK"
+  },
+  {
+   "id": "CAM-80",
+   "test": "tests/test_cam_rs274.py::test_rs274_notices_a_misread",
+   "category": "must",
+   "title": {
+    "zh": "独立解释器 rs274：程序改一个数就报不一致",
+    "en": "Independent interpreter rs274: one changed number is reported"
+   },
+   "source": "X48.0 -> X48.5 in the release program"
   }
  ]
 }
