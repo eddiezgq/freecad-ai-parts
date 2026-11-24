@@ -3041,5 +3041,6 @@
 "rs274 的终点 {} 在自家回读里按顺序找不到": "rs274 end point {} is not found in order in the own read-back",
 "rs274 解释不了：": "rs274 cannot interpret the program: ",
 "没有 rs274（scripts/fetch_rs274.sh）": "rs274 is not installed (scripts/fetch_rs274.sh)",
-"自家回读的点 {} 不在 rs274 的刀路上": "own read-back point {} is not on the rs274 toolpath"
+"自家回读的点 {} 不在 rs274 的刀路上": "own read-back point {} is not on the rs274 toolpath",
+"{} 的手册代码表里没有 {}（ADR-0125），程序不出": "{}: the manual's code table has no {} (ADR-0125), so the program is not output"
 }

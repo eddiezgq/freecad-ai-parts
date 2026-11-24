@@ -852,6 +852,26 @@
     "en": "Dialect: unsourced or invalid configs are rejected"
    },
    "source": "ADR-0124 sources required; okuma / fagor wait for official manuals"
+  },
+  {
+   "id": "CAM-87",
+   "test": "tests/test_cam_post_dialect_codes.py::test_haas_mill_tapping_without_m29",
+   "category": "post",
+   "title": {
+    "zh": "哈斯铣床：攻丝不写 M29（哈斯的 M29 是接继电器），回读一致",
+    "en": "Haas mill: no M29 before tapping (Haas M29 is a relay), read-back matches"
+   },
+   "source": "Haas Mill Operator's Manual (online), ch. 18 M-Codes; G84 page"
+  },
+  {
+   "id": "CAM-88",
+   "test": "tests/test_cam_post_dialect_codes.py::test_code_not_in_manual_is_refused",
+   "category": "must",
+   "title": {
+    "zh": "手册代码表外的代码：程序不出、写明哪个代码",
+    "en": "Code not in the manual's table: program withheld, code named"
+   },
+   "source": "ADR-0125 dialect.codes"
   }
  ]
 }

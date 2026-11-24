@@ -691,6 +691,7 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
         fn = _lathe if kind == "lathe" else _mill
         text = fn(prog, machine, sim_res, post, dialect)
         text = postcfg.finish(text, cfg, kind == "lathe", int(prog.get("number", 1)))
+        postcfg.check_codes(text, cfg)               # 手册代码表里没有的代码不出（ADR-0125）
     except (postcfg.PostConfigError, klartext.KlartextError) as exc:
         raise ReleaseError(str(exc)) from exc
     finally:
