@@ -1,25 +1,25 @@
 {
  "format": "robot-timing/1",
- "date": "2026-11-23T23:06:32-05:00",
+ "date": "2026-11-24T13:42:47-05:00",
  "machine": "2 核、内存 7.8 GB",
  "ai": "回放 tests/recordings/robot_design",
  "steps": [
   {
    "step": "构型（AI 提、代码初筛）",
    "who": "AI（回放录制）+ 代码",
-   "seconds": 97.4,
+   "seconds": 85.7,
    "exit_code": 0
   },
   {
    "step": "选件（代码）",
    "who": "代码",
-   "seconds": 22.2,
+   "seconds": 22.7,
    "exit_code": 0
   },
   {
    "step": "三维装配（代码）",
    "who": "代码",
-   "seconds": 45.0,
+   "seconds": 61.5,
    "exit_code": 0
   },
   {
@@ -31,13 +31,14 @@
   {
    "step": "支架有限元（代码）",
    "who": "代码",
-   "seconds": 5255.5,
-   "exit_code": 0
+   "seconds": 7761.1,
+   "exit_code": 0,
+   "note": "分 j1–j3、j4–j5 两段先后跑，用时为两段之和"
   },
   {
    "step": "报告与 BOM（代码）",
    "who": "代码",
-   "seconds": 0.0,
+   "seconds": 0.3,
    "exit_code": 0
   }
  ],

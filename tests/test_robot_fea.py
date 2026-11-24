@@ -24,6 +24,12 @@ def _load(name):
     return json.loads((OUT / name).read_text(encoding="utf-8"))
 
 
+def _plates():
+    """案例的板厚（第 9 步减薄后写在案例目录）；重出装配要按它，才和保存的复核结果一致"""
+    pp = OUT.parent / "plates.json"
+    return json.loads(pp.read_text(encoding="utf-8")) if pp.exists() else None
+
+
 def _case():
     return _load("concept-result.json"), _load("build-result.json"), _load("cad/cad-result.json"), _load("verify-result.json")
 
@@ -105,7 +111,7 @@ def test_j2_u_bracket_faces_and_reactions(tmp_path):
     comp = JsonLibrary(Path(__file__).resolve().parents[1] / "data" / "library").get(
         next(iter(br["picks"].values()))["components"][0])
     fr = fit.check(c, {j["id"]: comp for j in c["joints"]})
-    cad = RC.build(c, fr, comp, tmp_path)
+    cad = RC.build(c, fr, comp, tmp_path, _plates())
     p = next(x for x in cad["parts"] if x["name"] == "j2 U 形支架")
     step = tmp_path / "j2.step"
     RF.extract(tmp_path / "assembly.step", p, step)
@@ -115,7 +121,7 @@ def test_j2_u_bracket_faces_and_reactions(tmp_path):
     assert len(holes) >= 16 and sock and not set(holes) & set(sock)
     k = RF.dynamic_factor(vr)
     ld = RF.load_on(c, p, cad["parts"], float(cr["conditions"]["payload"]), br["duty"]["initial"], k)
-    res = analysis.run("fea", RF.study(p, step, ld, mesh_mm=2.0, convergence=False))
+    res = analysis.run("fea", RF.study(p, step, ld, mesh_mm=RF.mesh_mm(p), convergence=False))
     assert res["status"] == "ok", res.get("messages")
     s = res["data"]["steps"][0]
     sr = s["support_reactions"][0]
