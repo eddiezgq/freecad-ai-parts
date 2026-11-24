@@ -104,6 +104,14 @@ def tilt_lines(op) -> list[str]:
     return ["G91 G28 Z0.0", "G90", f"G68.2 X{num(o[0])} Y{num(o[1])} Z{num(o[2])} I{num(i, 4)} J{num(j, 4)} K{num(k, 4)}", "G53.1"]
 
 
+def live_on_lines(cfg_mt, rpm) -> list[str]:
+    """开动力刀的程序行：行里写了 {rpm} 的（如哈斯 M133 P{rpm}）把转速填进去、不再另写 S；没写的照旧随后写 S 转速（ADR-0124）"""
+    lines = cfg_mt.get("live_on", [])
+    if any("{rpm}" in ln for ln in lines):
+        return [ln.replace("{rpm}", str(rpm)) for ln in lines]
+    return [*lines, f"S{rpm}"]
+
+
 def millturn_lines(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[str]:
     """车铣的铣削工序：极坐标插补 interp = "polar"（G12.1 … G13.1，程序 X 直径、C 毫米）或圆柱插补 interp = {"cyl": 半径}
     （G7.1 C 半径 … G7.1 C0，程序 C 角度）；每分进给 G98，完了回 G99。
@@ -119,7 +127,7 @@ def millturn_lines(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[str]:
     if cfg_mt is None:
         out += ["G98", f"G97 S{rpm} M03"]
     else:
-        out += ["G98", "M05", *cfg_mt.get("c_on", []), *cfg_mt.get("live_on", []), f"S{rpm}"]
+        out += ["G98", "M05", *cfg_mt.get("c_on", []), *live_on_lines(cfg_mt, rpm)]
     cyl = op["interp"].get("cyl") if isinstance(op["interp"], dict) else None
     idx = op["interp"].get("index") if isinstance(op["interp"], dict) else None
     if idx is not None:                       # C 轴分度 + Y 轴铣（G19，ADR-0106 C2b）
@@ -167,7 +175,7 @@ def millturn_lines_siemens(op, home, cfg_mt, nd=3, fnd=1, cm=comment) -> list[st
     d = 2.0 * float(cyl) if cyl else None
     out = [cm(op.get("title", "")), f"G0 X{num(hx, nd)} Z{num(hz, nd)}", f"T{t['n']} D1",
            *([f"G0 B{num(op['b_mill'], nd)}", *cfg_mt.get("b_tool_comp", [])] if op.get("b_mill") is not None else []), "M5",
-           *cfg_mt.get("c_on", []), *cfg_mt.get("live_on", []), f"S{rpm}", "G94"]
+           *cfg_mt.get("c_on", []), *live_on_lines(cfg_mt, rpm), "G94"]
     if idx is not None:                       # C 轴分度 + Y 轴铣：直径编程照旧，G19 平面
         out += [f"G0 C{num(idx, nd)}", "G19"]
     else:

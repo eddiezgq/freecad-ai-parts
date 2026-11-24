@@ -802,6 +802,36 @@
     "en": "Two turrets: timeline finds lower turret hitting the main-spindle side"
    },
    "source": "0.05 s steps, both turrets in machine coordinates"
+  },
+  {
+   "id": "CAM-81",
+   "test": "tests/test_cam_post_dialect.py::test_turn_and_mill_written_in_dialect_and_read_back",
+   "category": "post",
+   "title": {
+    "zh": "写法差别：车、铣按配置写，回读一致",
+    "en": "Dialect: turning and milling written per config, read-back matches"
+   },
+   "source": "ADR-0124 dialect templates"
+  },
+  {
+   "id": "CAM-82",
+   "test": "tests/test_cam_post_dialect.py::test_millturn_switches_and_live_rpm",
+   "category": "post",
+   "title": {
+    "zh": "写法差别：车铣插补开关、动力刀转速按配置写，回读一致",
+    "en": "Dialect: mill-turn switches and live-tool speed per config, read-back matches"
+   },
+   "source": "ADR-0124 polar / cylindrical / live_on {rpm}"
+  },
+  {
+   "id": "CAM-83",
+   "test": "tests/test_cam_post_dialect.py::test_bad_dialect_configs_named",
+   "category": "must",
+   "title": {
+    "zh": "写法差别：没出处、不认识、家族不对的配置不收",
+    "en": "Dialect: unsourced or invalid configs are rejected"
+   },
+   "source": "ADR-0124 sources required; okuma / fagor wait for official manuals"
   }
  ]
 }

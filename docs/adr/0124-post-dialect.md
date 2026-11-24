@@ -28,3 +28,16 @@
 
 - 已有配置不用改。实现与各家内置配置见 ADR-0106 E3（单独的 PR）。
 - 本 PR 合并到实现合并之间，写了 `dialect` 或新家族的用户配置还不起作用（现在没有用户配置）。
+
+## 实现记录（2026-11-24，ADR-0106 E3 第一步：机制）
+
+- `postcfg.apply_dialect`（写好的 FANUC 写法逐行换成这家的写法：车床换刀 `T0101`、铣床换刀 `T1 M06`、限速 `G50 S`、`G12.1` / `G13.1`、
+  `G07.1 C半径` / `G07.1 C0`；顺序号、回读行号标记照样认）与 `postcfg.undo_dialect`（回读前换回，逐项是逆运算）；`postproc.to_fanuc` 回读时调用。
+- `post.live_on_lines`：`millturn.live_on` 里写了 `{rpm}` 就把转速填进去、不再另写 `S`。
+- `postcfg.check`：dialect 只用于 ISO 家族；每一项都要有出处；不认识的占位符、`turn_cycles: one_block`（还没按官方手册做）拒收；
+  `okuma`、`fagor` 家族在官方编程手册到之前拒收、写明原因。`turn_cycles: none` 不用车削复合循环。
+- 程序头：`checks` 里每条核对记录写一行 `(CHECKED L2 … 日期)`；“未经实机验证”照旧，只有 `verified` 才去掉。
+- 标准题 `tests/test_cam_post_dialect.py`（CAM-81 ~ 83）：车（固定循环开、关）、铣、车铣（极坐标、圆柱插补开关，动力刀 `{rpm}`）按测试用写法写出、回读一致、
+  车削时间与 FANUC 相同；六位刀具指令加顺序号；`turn_cycles: none`；没出处、单段、不认识的占位符、非 ISO 家族、大隈家族都拒收；核对记录进程序头；
+  没写 dialect 的内置配置一字不差。
+- 各家的真实配置等官方手册（ADR-0106 E3 的表）。
