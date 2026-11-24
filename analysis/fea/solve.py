@@ -271,6 +271,21 @@ def _nset(w, name, nodes):
         w.write(",".join(str(int(n)) for n in ns[i:i + 12]) + "\n")
 
 
+def _sliding(tris, P, vals):
+    """给定位移是“滑动支承”吗：只限一个分量、值为 0、面是平面且法向就是这个分量的方向。滑动支承和对称面一样，不排除评估区域"""
+    if len(vals) != 1 or abs(next(iter(vals.values()))) > 0 or not len(tris):
+        return False
+    ns = np.array([q[3] for q in tri_points(tris, P)])
+    m = ns.mean(0)
+    if np.linalg.norm(m) < 1e-12:
+        return False
+    m = m / np.linalg.norm(m)
+    if np.min(np.abs(ns @ m)) < 1 - 1e-6:
+        return False
+    ax = next(iter(vals)) - 1
+    return abs(m[ax]) > 1 - 1e-6
+
+
 def write_inp(path, ntags, xyz, tets, fixed_nodes, cyl_supports, nodal_forces, mat, reactions=False, extra=None):
     """cyl_supports: [(节点集合, 轴心, 轴向, [限制的局部自由度 1 径向 2 切向 3 轴向])]
     extra（ADR-0093 F2，可无）：{"disp": [(节点集合, {自由度: 值})], "rect": [(节点集合, a, b, [局部自由度])],
@@ -531,7 +546,8 @@ def _prep_body(gmsh, body, setup, tmp):
             vals = {i + 1: float(l[k]) for i, k in enumerate(("ux_mm", "uy_mm", "uz_mm")) if k in l}
             dsp.append((nodes, vals))
             sup_dofs.append((l, set(nodes), tuple(vals)))
-            constrained |= nodes
+            if not _sliding(tris, P, vals):
+                constrained |= nodes
             continue
         if t == "symmetry":
             ns = np.array([q[3] for q in tri_points(tris, P)])
@@ -547,7 +563,8 @@ def _prep_body(gmsh, body, setup, tmp):
                 b = np.cross(m, [1, 0, 0] if abs(m[0]) < 0.9 else [0, 1, 0])
                 rect.append((nodes, m, b, [1]))
                 sup_dofs.append((l, set(nodes), (1, 2, 3)))
-            constrained |= nodes
+            # 对称面不是真支承（面上应力就是整体结构内部的应力），不计入评估时排除的“约束面”——
+            # 《有限元》书第 41 章线索第 35 条（问渠 CAD 0.3.6 细则 B2）：原来排除了对称面 1.5h，带孔板的孔边最大应力被漏掉
             continue
         if t == "mass":                                    # 附加质量：按节点面积分（ADR-0093 补充十）
             na = {n: a for n, a in nodal_areas(tris, P).items() if a > 0}
@@ -1280,6 +1297,11 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
              "vm_peak_all_mpa": round(float(allvm[ia]), 3), "vm_peak_all_at": [round(float(x), 3) for x in allp[ia]],
              "u_max_mm": round(float(umag.max()), 6), "u_max_at": [round(float(x), 3) for x in pos[jmax]],
              "applied_force_n": [round(float(x), 3) for x in sum(forces.values(), np.zeros(3))]}
+    if not ok[ia] and allvm[ia] > 1.1 * allvm[ie]:
+        stats["vm_peak_excluded_note"] = (
+            "全部节点的最大应力 {:.4g} MPa 在支承面附近（评估时排除的区域，见 vm_peak_all_at），比评估最大应力 {:.4g} MPa 大 {:.0f}%；"
+            "支承处的应力受边界条件影响，评估不计，但真实结构在那里怎么受力要单独确认".format(
+                allvm[ia], allvm[ie], 100 * (allvm[ia] / allvm[ie] - 1)))
     if len(Bs) > 1:
         stats["vm_max_body"] = Bs[int(node_body[ie])]["id"]
     if nonlin:
