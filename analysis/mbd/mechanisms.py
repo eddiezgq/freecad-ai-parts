@@ -227,7 +227,7 @@ def mjcf(mid, given=None):
         body.append(f'<body name="pulley1"><joint name="pulley1" {HINGE_Y}/>{_disc(D1 / 2, w, BLUE)}</body>')
         body.append(f'<body name="pulley2" pos="{a} 0 0"><joint name="pulley2" {HINGE_Y}/>{_disc(D2 / 2, w, GREY)}</body>')
     elif mid == "C-SCN-LEAD":
-        d, Ph, Ls, Ln = p["diameter_mm"] / 1000, p["lead_mm"] / 1000, p["screw_length_m"], p["nut_length_m"]
+        d, Ls, Ln = p["diameter_mm"] / 1000, p["screw_length_m"], p["nut_length_m"]
         body.append('<body name="screw"><joint name="screw" type="hinge" axis="1 0 0"/>'
                     f'<geom type="cylinder" euler="0 90 0" size="{d / 2} {Ls / 2}" density="{RHO}" rgba="{GREY}"/></body>')
         body.append('<body name="nut"><joint name="nut" type="slide" axis="1 0 0"/>'
