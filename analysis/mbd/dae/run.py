@@ -217,6 +217,10 @@ def run_model(model: dict, base_dir=None):
             messages.append("注意：静平衡找到的是不稳定平衡，动力学从这里出发会长时间“静止”（舍入误差要很久才放大），"
                             "看起来像稳定，其实一碰就倒。给一点初始扰动或改用稳定的平衡位置")
         rec, info = dyn(sysm, t_end, steps, method=method, rtol=rtol, atol=atol, q=st.q[0], qd=np.zeros(sysm.n))
+    if typ == "kinematic" and info.get("dead_points"):
+        dp = info["dead_points"]
+        messages.append("经过死点 {} 次（雅可比奇异；缺省让原动件推着越过死点继续往前走）：{}".format(
+            len(dp), "；".join(_dead_txt(x) for x in dp)))
     if info.get("redundant"):
         messages.append("删掉了 {} 条冗余约束（反力里这些方向的分量不唯一，标为不完整）：{}".format(
             len(info["redundant"]), "、".join(info["redundant"])))
@@ -266,6 +270,13 @@ def run_model(model: dict, base_dir=None):
                             "这是结论，不是计算错误。要找稳定平衡可换初始位置，或用 static_then_dynamic 加扰动和阻尼".format(
                                 stab["value"], stab["max_real"]))
     return data, messages
+
+
+def _dead_txt(x):
+    if x.get("collinear"):
+        a, b, j = x["collinear"]
+        return "t ≈ {:.4g} s，“{}”与“{}”在运动副“{}”处共线".format(x["t_s"], a, b, j)
+    return "t ≈ {:.4g} s，运动副 {}".format(x["t_s"], "、".join(x["joints"]))
 
 
 def _plant_inputs(model, sysm):
