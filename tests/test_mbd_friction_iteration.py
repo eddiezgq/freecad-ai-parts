@@ -3,13 +3,15 @@
 《多体动力学》书第 20 章线索第 29 条（问渠 CAD 0.3.8 细则）。曲柄滑块（曲柄 50 mm、连杆 150 mm，三个转动副销半径 10 mm，
 导轨同一 μ，滑块阻力 200 N），曲柄是大飞轮（绕轴 10³ kg·m²、3600 °/s），在 θ = 90° 处由 A 铰反力和 O、A 销摩擦换算驱动力矩。
 原来：μ = 1.5 迭代 30 次就停，给 113.3 N·m，收敛值是 127.84 N·m（书里另写的不动点迭代 355 次收敛）；
-μ = 2.0 增益 > 1、没有解（自锁），照样给 35203 N·m、无提示。
+μ = 2.0 增益 > 1、没有解（自锁），照样给 35203 N·m、无提示；现在停下报“可能自锁”并指出运动副。
 """
 import math
 
 import numpy as np
+import pytest
 
 from analysis.mbd.dae.run import run_model
+from analysis.mbd.dae.solve import SolveError
 
 R, L = 50.0, 150.0
 M1, M2, M3 = 0.5, 0.8, 1.0
@@ -66,18 +68,19 @@ def test_slow_convergence_reaches_fixed_point():
     # 书里不动点迭代 355 次收敛到 127.841 N·m（θ 差 0.0016° 的影响约 1e-5）；原来给 113.3
     assert abs(_tau90(d, 1.5) / 127.84124 - 1) < 1e-4
     assert _item(d, "friction_iteration")["status"] == "pass"
-    assert not any("自锁" in m for m in msgs)
+    assert not any("可能自锁" in m for m in msgs)
+    # 增益约 0.96（所以普通迭代要 355 次）：算得出来，但提示接近自锁
+    assert any("接近自锁" in m for m in msgs)
 
 
-def test_self_locking_reported():
-    d, msgs = run_model(_model(2.0))
-    it = _item(d, "friction_iteration")
-    assert it["status"] == "fail"
-    assert any("可能自锁" in m for m in msgs)
+def test_self_locking_stops_with_reason():
+    with pytest.raises(SolveError, match="可能自锁") as e:
+        run_model(_model(2.0))
+    assert "运动副“" in str(e.value)
 
 
 def test_ordinary_friction_unchanged():
     # μ = 0.5 在 30 次以内收敛（书里 23 次），与原来一致：9.0113 N·m
-    d, msgs = run_model(_model(0.5))
+    d, _ = run_model(_model(0.5))
     assert abs(_tau90(d, 0.5) - 9.01133) < 1e-3
     assert _item(d, "friction_iteration")["status"] == "pass"

@@ -276,14 +276,13 @@ def _friction_check(sysm, messages):
     if not any(info.get("friction") for info in sysm.joints.values()):
         return None
     log = sysm.__dict__.get("friction_log") or {}
-    lock, fail = log.get("lock", 0), log.get("fail", 0)
-    item = {"key": "friction_iteration", "name": "运动副摩擦迭代收敛（摩擦力与约束反力一致）", "value": lock + fail,
-            "limit": 0, "status": PASS if lock + fail == 0 else FAIL}
-    if lock:
-        messages.append("可能自锁：t = {:.6g} s 起运动副摩擦的迭代增益约 {:.3g}（≥ 1，摩擦力越算越大，没有解），"
-                        "摩擦最大的是运动副“{}”。这一段的驱动力矩、反力不可信；请检查摩擦系数、销半径，"
-                        "或这个位置本来就会卡死".format(log["t_first"], log["rate"], log["joint"]))
-    elif fail:
+    fail = log.get("fail", 0)          # 自锁（增益 ≥ 1）在求解时就停下报错，到不了这里
+    item = {"key": "friction_iteration", "name": "运动副摩擦迭代收敛（摩擦力与约束反力一致）", "value": fail,
+            "limit": 0, "status": PASS if fail == 0 else FAIL}
+    if log.get("gain_max", 0.0) >= S.FRICTION_LOCK_GAIN:
+        messages.append("接近自锁：t = {:.6g} s 运动副摩擦的迭代增益到 {:.3g}（1 就卡死），摩擦最大的是运动副“{}”；"
+                        "这附近的驱动力矩、反力对摩擦系数非常敏感".format(log["gain_t"], log["gain_max"], log["gain_joint"]))
+    if fail:
         messages.append("摩擦迭代不收敛：t = {:.6g} s 起共 {} 次，摩擦最大的是运动副“{}”，这些时刻的结果不可信".format(
             log["t_first"], fail, log["joint"]))
     return item
