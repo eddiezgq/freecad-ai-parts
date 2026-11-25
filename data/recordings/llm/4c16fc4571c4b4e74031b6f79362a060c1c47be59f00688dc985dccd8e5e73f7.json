@@ -1,0 +1,117 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "4c16fc4571c4b4e74031b6f79362a060c1c47be59f00688dc985dccd8e5e73f7",
+  "response": {
+    "id": "msg_011ChQ4SBuHSMemHsmk8b62L",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Needle gripper",
+          "printed_text": "Needle gripper for handling of flexible, non-rigid",
+          "printed_unit": "",
+          "quote": "• Needle gripper for handling of flexible, non-rigid",
+          "target": "params/gripper_type",
+          "value": "needle"
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Number of needles",
+          "printed_text": "4",
+          "printed_unit": "",
+          "quote": "| SNG-M 4 0.8 | 4 | 0.8 | 4.0 ... 6.0 bar | 5 ... 60 °C | BEL | 80 |",
+          "target": "params/needle_count",
+          "value": 4
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Needle diameter [mm]",
+          "printed_text": "0.8",
+          "printed_unit": "mm",
+          "quote": "| SNG-M 4 0.8 | 4 | 0.8 | 4.0 ... 6.0 bar | 5 ... 60 °C | BEL | 80 |",
+          "target": "params/needle_diameter_mm",
+          "value": 0.8
+        },
+        {
+          "confidence": 0.85,
+          "page": 2,
+          "printed_label": "Needle stroke",
+          "printed_text": "3 mm",
+          "printed_unit": "mm",
+          "quote": "Needle stroke 3 mm",
+          "target": "params/needle_stroke_mm",
+          "value": 3
+        },
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Plunge angle",
+          "printed_text": "30°",
+          "printed_unit": "°",
+          "quote": "• Plunge angle 30°",
+          "target": "params/needle_angle_deg",
+          "value": 30
+        },
+        {
+          "confidence": 0.9,
+          "max": 6.0,
+          "min": 4.0,
+          "page": 2,
+          "printed_label": "Pressure range (operating pressure) [bar]",
+          "printed_text": "4.0 ... 6.0 bar",
+          "printed_unit": "bar",
+          "quote": "| SNG-M 4 0.8 | 4 | 0.8 | 4.0 ... 6.0 bar | 5 ... 60 °C | BEL | 80 |",
+          "target": "params/operating_pressure_mpa"
+        },
+        {
+          "confidence": 0.9,
+          "page": 2,
+          "printed_label": "Weight [g]",
+          "printed_text": "80",
+          "printed_unit": "g",
+          "quote": "| SNG-M 4 0.8 | 4 | 0.8 | 4.0 ... 6.0 bar | 5 ... 60 °C | BEL | 80 |",
+          "target": "params/mass_kg",
+          "value": 80
+        },
+        {
+          "confidence": 0.8,
+          "page": 3,
+          "printed_label": "B [mm]",
+          "printed_text": "33",
+          "printed_unit": "mm",
+          "quote": "| SNG-M 4 0.8 | 33 | M5-F | M4-F | 25 | 35 | 30 | 20 | 20 | 3 |",
+          "target": "dims/width_mm",
+          "value": 33
+        },
+        {
+          "confidence": 0.8,
+          "page": 3,
+          "printed_label": "H [mm]",
+          "printed_text": "25",
+          "printed_unit": "mm",
+          "quote": "| SNG-M 4 0.8 | 33 | M5-F | M4-F | 25 | 35 | 30 | 20 | 20 | 3 |",
+          "target": "dims/height_mm",
+          "value": 25
+        },
+        {
+          "confidence": 0.8,
+          "page": 3,
+          "printed_label": "L [mm]",
+          "printed_text": "35",
+          "printed_unit": "mm",
+          "quote": "| SNG-M 4 0.8 | 33 | M5-F | M4-F | 25 | 35 | 30 | 20 | 20 | 3 |",
+          "target": "dims/overall_length_mm",
+          "value": 35
+        }
+      ],
+      "model": "SNG-M 4 0.8",
+      "series": "Needle Grippers SNG-M",
+      "vendor": "J. Schmalz GmbH"
+    }
+  }
+}

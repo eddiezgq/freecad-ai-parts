@@ -217,6 +217,10 @@ def run_model(model: dict, base_dir=None):
             messages.append("注意：静平衡找到的是不稳定平衡，动力学从这里出发会长时间“静止”（舍入误差要很久才放大），"
                             "看起来像稳定，其实一碰就倒。给一点初始扰动或改用稳定的平衡位置")
         rec, info = dyn(sysm, t_end, steps, method=method, rtol=rtol, atol=atol, q=st.q[0], qd=np.zeros(sysm.n))
+    if typ == "kinematic" and info.get("dead_points"):
+        dp = info["dead_points"]
+        messages.append("经过死点 {} 次（雅可比奇异；缺省让原动件推着越过死点继续往前走）：{}".format(
+            len(dp), "；".join(_dead_txt(x) for x in dp)))
     messages += getattr(sysm, "init_velocity_notes", [])
     if info.get("redundant"):
         messages.append("删掉了 {} 条冗余约束（反力里这些方向的分量不唯一，标为不完整）：{}".format(
@@ -238,6 +242,9 @@ def run_model(model: dict, base_dir=None):
             drift = max(abs(x - tot[0]) for x in tot) / scale
             verification.append({"key": "energy_drift", "name": "能量守恒（无驱动、无阻尼、无外力时的相对漂移）", "value": drift,
                                  "limit": ENERGY_LIMIT, "status": PASS if drift <= ENERGY_LIMIT else FAIL})
+            if drift > ENERGY_LIMIT:            # 线索第 16 条：能量核查不通过时原来结果仍标“完成”，看不出不可信
+                messages.append(f"能量核查不通过：守恒系统的总能量相对漂移 {drift:.3g}（限值 {ENERGY_LIMIT:.0e}），积分结果不可信。"
+                                "请收紧 rtol、增加输出步数，或检查高速转动、很硬的力元")
         else:
             verification.append({"key": "energy_drift", "name": "能量守恒", "value": None, "limit": ENERGY_LIMIT,
                                  "status": UNKNOWN, "note": "有驱动、阻尼或外力，系统不守恒，不判"})
@@ -307,6 +314,13 @@ def _spin_stiffening(model, sysm, rec, messages):
                             "请改用大变形梁 nonlinear_beam".format(b["id"], w, w1, w / w1, SPIN_RATIO))
 
 
+def _dead_txt(x):
+    if x.get("collinear"):
+        a, b, j = x["collinear"]
+        return "t ≈ {:.4g} s，“{}”与“{}”在运动副“{}”处共线".format(x["t_s"], a, b, j)
+    return "t ≈ {:.4g} s，运动副 {}".format(x["t_s"], "、".join(x["joints"]))
+
+
 def _friction_check(sysm, messages):
     """运动副摩擦的不动点迭代有没有收敛（《多体动力学》书线索第 29 条，问渠 CAD 0.3.8 细则）"""
     if not any(info.get("friction") for info in sysm.joints.values()):
@@ -345,11 +359,12 @@ def _stability(sysm, q, t):
     from analysis.mbd.dae import linear as L
     item = {"key": "stability", "name": "静平衡的稳定性（平衡位置线性化，特征值实部都不大于 0）"}
     try:
-        lin, _, _ = L.linearize(sysm, np.asarray(q), np.zeros(sysm.n), float(t))
+        lin, _, _ = L.linearize(sysm, np.asarray(q), np.zeros(sysm.n), float(t), xc=getattr(sysm, "static_xc", None))
     except Exception as exc:  # noqa: BLE001 — 线性化做不了时如实标“未知”，不影响静平衡结果
         return item | {"value": None, "status": UNKNOWN, "note": f"线性化没做成，稳定性未判：{str(exc)[:120]}"}
     reals = [m["eigenvalue"][0] for m in lin["modes"]]
-    unstable = [m for m in lin["modes"] if m["eigenvalue"][0] > 1e-6 * max(1.0, abs(complex(*m["eigenvalue"])))]
+    unstable = [m for m in lin["modes"] if not m.get("rigid_body")
+                and m["eigenvalue"][0] > 1e-6 * max(1.0, abs(complex(*m["eigenvalue"])))]
     note = "有实部为正的特征值说明平衡不稳定（例如倒立摆顶点），这是结论不是计算错误"
     if L.nonsmooth(sysm):
         note += "；模型里有摩擦、接触、间隙或齿轮侧隙，线性化只在平衡点附近、接触状态不变时成立"
@@ -388,10 +403,12 @@ def _run_linear(model, sysm, typ):
         if o not in known:
             raise M.ModelError(f"状态空间输出 {o} 不在 measures 里")
     inputs = _plant_inputs(model, sysm)
+    xc = None
     if typ == "static_then_linear":
         st, info0 = S.static(sysm, load_steps=int(an.get("load_steps", 1)))
         messages.append("先做静平衡（残差 {:.2g}），在平衡位置线性化".format(info0["residual"]))
         q, qd = st.q[0], np.zeros(sysm.n)
+        xc = getattr(sysm, "static_xc", None)
     else:
         q = sysm.q0()
         keep, _ = S.independent_rows(sysm, q, 0.0)
@@ -400,7 +417,10 @@ def _run_linear(model, sysm, typ):
         qd = S.initial_velocity(sysm, q, 0.0, rows)
     if L.nonsmooth(sysm):
         messages.append("模型里有摩擦、接触、间隙或齿轮侧隙：这些力不光滑，线性化结果只在工作点附近、接触状态不变时成立")
-    lin, q, qd = L.linearize(sysm, q, qd, 0.0, inputs, outputs, an.get("modes"))
+    ctrl = getattr(sysm, "ctrl", None)
+    if ctrl is not None and ctrl.fmus:
+        messages.append("模型里有 FMU 控制器：它是采样（离散）控制器，线性化不含它，模态和稳定性按没有这个控制器算")
+    lin, q, qd = L.linearize(sysm, q, qd, 0.0, inputs, outputs, an.get("modes"), xc=xc)
     rec = S.Recorder(sysm)
     keep, _ = S.independent_rows(sysm, q, 0.0)
     rows = S._rows(sysm, keep)
@@ -410,7 +430,8 @@ def _run_linear(model, sysm, typ):
     flex = bodies.pop("_flex")
     act = bodies.pop("_act", {})
     resid = max(rec.resid) if rec.resid else 0.0
-    unstable = [m for m in lin["modes"] if m["eigenvalue"][0] > 1e-6 * max(1.0, abs(complex(*m["eigenvalue"])))]
+    unstable = [m for m in lin["modes"] if not m.get("rigid_body")
+                and m["eigenvalue"][0] > 1e-6 * max(1.0, abs(complex(*m["eigenvalue"])))]
     wp = _working_point(sysm, q, qd, qdd)
     stab_item = {"key": "stability", "name": "工作点稳定性（特征值实部都不大于 0）", "value": len(unstable),
                  "status": PASS if not unstable else FAIL,

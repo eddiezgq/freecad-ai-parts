@@ -1,0 +1,77 @@
+{
+  "model": "claude-opus-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "6676935947baf78dd79a12f993f7d8e89c9271aeca0999aad7e4eaf61a453911",
+  "response": {
+    "id": "msg_011ChQ4c8A5b8R39yskpSj6X",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.95,
+          "page": 1,
+          "printed_label": "Flat Suction Cups",
+          "printed_text": "Flat Suction Cups (Round)",
+          "printed_unit": "",
+          "quote": "Flat Suction Cups (Round)",
+          "target": "params/gripper_type",
+          "value": "suction_cup"
+        },
+        {
+          "condition": "Suction force (-600 mbar); theoretical values at a vacuum of -0.6 bar and with a smooth, dry workpiece surface",
+          "confidence": 0.85,
+          "page": 4,
+          "printed_label": "Suction force (-600 mbar) [N]*",
+          "printed_text": "22.70",
+          "printed_unit": "N",
+          "quote": "| SPF | 25 | 22.70 | 27.1 | 17.0 | 1.7 | 30 | 4 |",
+          "target": "params/holding_force_n",
+          "value": 22.7
+        },
+        {
+          "confidence": 0.8,
+          "page": 6,
+          "printed_label": "Ds [mm]",
+          "printed_text": "26.4",
+          "printed_unit": "mm",
+          "quote": "| SPF | 25 | 7.5 | 10.5 | 15.1 | 28.0 | 26.4 | 11.0 | 4.6 | 2.0 |",
+          "target": "params/cup_diameter_mm",
+          "value": 26.4
+        },
+        {
+          "confidence": 0.65,
+          "page": 6,
+          "printed_label": "Ds [mm]",
+          "printed_text": "26.4",
+          "printed_unit": "mm",
+          "quote": "| SPF | 25 | 7.5 | 10.5 | 15.1 | 28.0 | 26.4 | 11.0 | 4.6 | 2.0 |",
+          "target": "dims/outer_diameter_mm",
+          "value": 26.4
+        },
+        {
+          "confidence": 0.6,
+          "page": 6,
+          "printed_label": "H [mm]",
+          "printed_text": "11.0",
+          "printed_unit": "mm",
+          "quote": "| SPF | 25 | 7.5 | 10.5 | 15.1 | 28.0 | 26.4 | 11.0 | 4.6 | 2.0 |",
+          "target": "dims/height_mm",
+          "value": 11.0
+        },
+        {
+          "confidence": 0.7,
+          "page": 1,
+          "printed_label": "Handling of",
+          "printed_text": "cardboards and rigid packaging",
+          "printed_unit": "",
+          "quote": "• Handling of cardboards and rigid packaging in top-loading",
+          "target": "params/suitable_materials",
+          "value": "cardboards and rigid packaging"
+        }
+      ],
+      "model": "SPF 25",
+      "series": "Flat Suction Cups SPF",
+      "vendor": "J. Schmalz GmbH"
+    }
+  }
+}
