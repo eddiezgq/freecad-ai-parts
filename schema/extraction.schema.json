@@ -38,7 +38,9 @@
         "reducer",
         "drive",
         "bearing",
-        "adapter"
+        "adapter",
+        "linear_module",
+        "gripper"
       ]
     },
     "vendor": {

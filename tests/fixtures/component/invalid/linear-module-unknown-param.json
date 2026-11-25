@@ -1,0 +1,154 @@
+{
+  "why": "参数名不在品类里（速度标准单位是 m/s，字段 max_speed_m_s）",
+  "instance": {
+    "id": "test.linear_module.test-vendor.lb140-1600",
+    "category": "linear_module",
+    "vendor": "Test Vendor",
+    "model": "LB140-1600",
+    "status": "active",
+    "license": "params-only",
+    "params": {
+      "drive_type": {
+        "value": "belt",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "stroke_mm": {
+        "value": 1600,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "lead_mm": {
+        "value": 120,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "max_speed_m_s": {
+        "value": 1.8,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "rated_thrust_n": {
+        "value": 67,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "repeatability_mm": {
+        "value": 0.1,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "max_load_horizontal_kg": {
+        "value": 15,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "moment_roll_nm": {
+        "value": 100,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true,
+        "condition": "动态"
+      },
+      "mass_kg": {
+        "value": 20.5,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "max_speed_mm_s": {
+        "value": 1800,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "ports": [],
+    "envelope": {
+      "parts": [
+        {
+          "shape": "box",
+          "label": "body",
+          "z_start_mm": -40,
+          "length_mm": {
+            "value": 46,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "width_mm": {
+            "value": 28,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "height_mm": {
+            "value": 34,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      ]
+    }
+  }
+}
