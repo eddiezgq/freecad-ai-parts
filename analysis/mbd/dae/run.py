@@ -217,6 +217,11 @@ def run_model(model: dict, base_dir=None):
             messages.append("注意：静平衡找到的是不稳定平衡，动力学从这里出发会长时间“静止”（舍入误差要很久才放大），"
                             "看起来像稳定，其实一碰就倒。给一点初始扰动或改用稳定的平衡位置")
         rec, info = dyn(sysm, t_end, steps, method=method, rtol=rtol, atol=atol, q=st.q[0], qd=np.zeros(sysm.n))
+    const_damp = [f["id"] for kind, f in sysm.forces if kind == "contact" and "rest" not in f]
+    if const_damp and typ in ("dynamic", "static_then_dynamic"):
+        # ADR-0130（线索第 31 条）：常值阻尼的实际恢复系数随碰撞速度、质量变（0.01 m/s 时近 1，10 m/s 时 0.84）
+        messages.append("接触对 {} 没给恢复系数 restitution，按常值阻尼算：实际恢复系数随碰撞速度、质量变，"
+                        "低速碰撞几乎不耗能、落下的零件可能停不住；知道恢复系数就给 restitution".format("、".join(const_damp)))
     if info.get("redundant"):
         messages.append("删掉了 {} 条冗余约束（反力里这些方向的分量不唯一，标为不完整）：{}".format(
             len(info["redundant"]), "、".join(info["redundant"])))

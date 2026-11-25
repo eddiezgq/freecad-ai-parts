@@ -799,6 +799,8 @@
 "接触 {} 法向力（N）": "Contact {} normal force (N)",
 "接触几何 id 重复：{}": "Duplicate contact geometry id: {}",
 "接触对 id 重复：{}": "Duplicate contact pair id: {}",
+"接触对 {} 没给恢复系数 restitution，按常值阻尼算：实际恢复系数随碰撞速度、质量变，低速碰撞几乎不耗能、落下的零件可能停不住；知道恢复系数就给 restitution": "Contact pair {} has no restitution coefficient and uses constant damping: the actual coefficient of restitution changes with impact speed and mass, low-speed impacts lose almost no energy and a dropped part may never come to rest; give restitution if you know it",
+"接触对 {}：restitution 要在 (0, 1] 之间": "Contact pair {}: restitution must be in (0, 1]",
 "接触对 {}：{}": "Contact pair {}: {}",
 "接触对 {}：两个几何在同一个构件上": "Contact pair {}: both geometries are on the same body",
 "接触对 {}：摩擦的 transition_speed 要大于 stiction_speed": "Contact pair {}: friction transition_speed must be greater than stiction_speed",
