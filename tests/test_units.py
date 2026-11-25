@@ -151,7 +151,7 @@ def test_pressure_and_acceleration_fields_for_fea_drafting():
 
 
 def test_linear_speed_field_for_linear_modules():
-    """直线模组（ADR-0127）：直线速度标准单位 m/s，字段后缀 _m_s 不被当成时间 _s；PDF 文字层里的“m/s2”认作 m/s²"""
+    """直线模组（ADR-0128）：直线速度标准单位 m/s，字段后缀 _m_s 不被当成时间 _s；PDF 文字层里的“m/s2”认作 m/s²"""
     assert to_standard(1800, "mm/s", "max_speed_m_s") == pytest.approx(1.8)
     assert to_standard(5, "m/s", "max_speed_m_s") == 5
     assert to_standard(50, "m/s2", "max_accel_m_s2") == 50

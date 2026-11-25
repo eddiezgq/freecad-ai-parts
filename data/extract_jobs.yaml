@@ -29,7 +29,7 @@ index:
     terms: [Single-Row Deep Groove Ball Bearings, "6000", "6001", "6200", "6201", "6202", "608", Boundary Dimensions,
             Basic Load Ratings, Limiting Speeds, Abutment and Fillet Dimensions, Mass]
 
-  # 直线模组与抓手（ADR-0127，ADR-0115 44.5.3）
+  # 直线模组与抓手（ADR-0128，ADR-0115 44.5.3）
   - doc: src-festo-egc-tb
     terms: [EGC-TB-KF, General technical data, Max. speed, Max. acceleration, Repetition accuracy, Max. feed force,
             Max. working stroke, Feed constant, Fy, Fz, Mx, My, Mz, Basic weight, Additional weight per 10 mm stroke,
@@ -95,7 +95,7 @@ jobs:
     category: bearing
     pages: "13-14"
     targets: ["6008", "6009", "6010", "6011"]
-  # 施迈茨针刺抓手 SNG-M（ADR-0127）：数据表 3 页，不给保持力（不写，抓取力校核判待确认）
+  # 施迈茨针刺抓手 SNG-M（ADR-0128）：数据表 3 页，不给保持力（不写，抓取力校核判待确认）
   - doc: src-schmalz-sng-m
     category: gripper
     pages: "1-3"
