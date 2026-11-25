@@ -25,6 +25,7 @@ def _plate(tmp_path):
 
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 0)
+    gmsh.model.add("plate")                 # a fresh model: an earlier test may have left entities in the current one
     o = gmsh.model.occ
     box = o.addBox(0, 0, 0, W, W, T)
     cyl = o.addCylinder(0, 0, -1, 0, 0, T + 2, R)
