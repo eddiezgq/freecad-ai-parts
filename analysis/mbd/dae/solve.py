@@ -122,12 +122,32 @@ def _rows(sysm, idx):
 
 
 def initial_velocity(sysm: System, q, t, rows):
-    """初速度：构件给的 v0、ω0 与运动副初速度，按最小改动投影到速度约束上"""
+    """初速度：构件给的 v0、ω0 与运动副初速度，投影到速度约束上。
+
+    《多体动力学》书第 13 章线索第 22 条（问渠 CAD 0.3.8 细则）：原来在（质心速度, 欧拉参数变化率）空间里不加权地
+    最小二乘修正，没写的 ω0 当成 0 去凑——刚体摆只给质心速度 1 m/s、质心距铰点 0.1 m 时，开始的质心速度变成 0.038 m/s，
+    无提示；结果还随长度单位变。现在：
+    1. 模型里写了的分量（v0_mm_s、w0_deg_s）当硬条件，没写的由运动副补全；相容就原样保留用户给的速度；
+    2. 不相容时只对给了的分量按动能加权投影（与坐标、单位无关），没给的由运动副补全，并在
+       sysm.init_velocity_notes 里记下哪个构件被改了多少，由 run_model 报出。
+    """
     qd0 = np.zeros(sysm.n)
+    given = []
     for k, b in enumerate(sysm.bodies):
         p = sysm.rp(q, k)[1]
         qd0[7 * k:7 * k + 3] = b.v0
         qd0[7 * k + 3:7 * k + 7] = 0.5 * E_of(p).T @ b.w0
+        if b.v0_given:
+            for c in range(3):
+                row = np.zeros(sysm.n)
+                row[7 * k + c] = 1.0
+                given.append((row, b.v0[c]))
+        if b.w0_given:
+            Ew = 2 * E_of(p)                       # ω（地面系）= 2 E(p) ṗ
+            for c in range(3):
+                row = np.zeros(sysm.n)
+                row[7 * k + 3:7 * k + 7] = Ew[c]
+                given.append((row, b.w0[c]))
     J, nu = sysm.jac(q, t, rows), sysm.nu(q, t, rows)
     extra_J, extra_v = [], []
     for info in sysm.joints.values():
@@ -156,12 +176,59 @@ def initial_velocity(sysm: System, q, t, rows):
     if extra_J:
         J = np.vstack([J, np.array(extra_J)])
         nu = np.concatenate([nu, extra_v])
-    r = nu - J @ qd0
-    corr = np.linalg.lstsq(J, r, rcond=None)[0]
-    qd = qd0 + corr
+    W = sysm.mass(q)
+    sysm.init_velocity_notes = []
+    if given:
+        Jg = np.vstack([J, np.array([g[0] for g in given])])
+        ng = np.concatenate([nu, [g[1] for g in given]])
+        qd = _weighted_projection(W, Jg, ng, qd0)
+        if np.max(np.abs(Jg @ qd - ng), initial=0) <= 1e-8:
+            return qd                              # 用户给的全部保留
+    # 不相容：只对用户给了的分量按动能加权（质心速度权 m，角速度权地面系惯量），没给的由运动副补全；
+    # 再加一个很小的整体动能权保证唯一
+    Wg = np.zeros_like(W)
+    for k, b in enumerate(sysm.bodies):
+        p = sysm.rp(q, k)[1]
+        if b.v0_given:
+            Wg[7 * k:7 * k + 3, 7 * k:7 * k + 3] += b.mass * np.eye(3)
+        if b.w0_given:
+            A, Ew = A_of(p), 2 * E_of(p)
+            Wg[7 * k + 3:7 * k + 7, 7 * k + 3:7 * k + 7] += Ew.T @ (A @ b.J @ A.T) @ Ew
+    if not given:
+        Wg = W
+    qd = _weighted_projection(Wg + INIT_W_REG * W, J, nu, qd0)
     if np.max(np.abs(J @ qd - nu), initial=0) > 1e-8:
         raise SolveError("初速度和运动副、驱动不相容（运动副初速度与驱动冲突，或给了被约束住的速度）")
+    for k, b in enumerate(sysm.bodies):
+        p = sysm.rp(q, k)[1]
+        v, w = qd[7 * k:7 * k + 3], 2 * E_of(p) @ qd[7 * k + 3:7 * k + 7]
+        dv = float(np.linalg.norm(v - b.v0)) if b.v0_given else 0.0
+        dw = float(np.linalg.norm(w - b.w0)) if b.w0_given else 0.0
+        if dv > INIT_V_TOL * max(1.0, float(np.linalg.norm(b.v0))) or dw > INIT_W_TOL * max(1.0, float(np.linalg.norm(b.w0))):
+            sysm.init_velocity_notes.append(
+                "构件“{}”给的初速度与运动副不相容，按动能加权投影改成：质心速度 {} mm/s（给的 {}），"
+                "角速度 {} °/s（给的 {}）".format(b.name, _fmt3(v * 1e3), _fmt3(b.v0 * 1e3) if b.v0_given else "未给",
+                                                  _fmt3(np.degrees(w)), _fmt3(np.degrees(b.w0)) if b.w0_given else "未给"))
     return qd
+
+
+INIT_V_TOL = 1e-6        # 相对（m/s 下限 1）：给的初速度被改动超过它就报
+INIT_W_TOL = 1e-6
+INIT_W_REG = 1e-9      # 没给的分量上的动能权（相对），只为解唯一
+
+
+def _fmt3(x):
+    return "(" + ", ".join(f"{float(c):.4g}" for c in x) + ")"
+
+
+def _weighted_projection(W, A, b, x0):
+    """min (x − x0)ᵀ W (x − x0)，A x = b：W 是质量阵（动能加权）。W 在欧拉参数的径向上是奇异的，
+    但 A 里有欧拉参数归一的速度约束，KKT 阵一般可逆；冗余行用最小二乘"""
+    n, m = W.shape[0], A.shape[0]
+    K = np.block([[W, A.T], [A, np.zeros((m, m))]])
+    rhs = np.concatenate([np.zeros(n), b - A @ x0])
+    sol = np.linalg.lstsq(K, rhs, rcond=None)[0]
+    return x0 + sol[:n]
 
 
 # ---------------------------------------------------------------- 加速度与反力

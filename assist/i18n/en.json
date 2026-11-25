@@ -962,6 +962,7 @@
 "构件 id 重复：{}": "Duplicate body id: {}",
 "构件 j": "Body j",
 "构件 {} 的惯性张量不是正定的（主惯量 {}）": "The inertia tensor of body {} is not positive definite (principal inertias {})",
+"构件“{}”给的初速度与运动副不相容，按动能加权投影改成：质心速度 {} mm/s（给的 {}），角速度 {} °/s（给的 {}）": "The initial velocity given for body “{}” is not compatible with the joints; projected with kinetic-energy weighting to: centre-of-mass velocity {} mm/s (given {}), angular velocity {} °/s (given {})",
 "构件质量、质心、惯量与实物一致（来自 CAD 或材料）": "Body masses, centres of mass and inertias match the real parts (from CAD or materials)",
 "柔性件的取法（模态 / 实体 / 大变形梁）适合本问题": "The choice of flexible parts (modal / solid / large-deformation beam) suits the problem",
 "柔性体": "flexible body",
