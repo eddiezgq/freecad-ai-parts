@@ -1,0 +1,69 @@
+{
+ "format": "cam-machine/1",
+ "id": "OKUMA-GENOS-M660-V",
+ "name": "Okuma GENOS M660-V 立式加工中心",
+ "example": false,
+ "source": "大隈官网样本《GENOS M Series》（https://www.okuma.com/files/documents/genos_m_e__a___17__300_mar2020.pdf，GENOS-M-E-(A)-(17)-300(Mar2020)，第 9 页 Machine Specifications，2026-11-25 下载）GENOS M660-V 列：行程 X 1500 mm（立柱滑座左右）、Y 660 mm（工作台前后）、Z 660 mm；主轴端面到工作台 150 ~ 810 mm；快移 X、Y 40 m/min、Z 32 m/min；主轴最高 15000 min⁻¹、22 / 18.5 kW（5 分钟 / 连续，这里取 22）；刀库 32 把；数控系统 OSP-P300MA。按 ADR-0106 E2 的约定放：机床坐标原点在工作台面中心，X、Y 零点在行程中间（±750、±330），Z 零点在行程中间（−330 ~ 330），主轴端面在 Z0 时离工作台 810 − 330 = 480 mm——按实际装夹改；样本没公开：换刀时间、传动效率、部件外形",
+ "kind": "mill",
+ "controller": {
+  "family": "other",
+  "model": "Okuma OSP-P300MA"
+ },
+ "spindle": {
+  "max_rpm": 15000,
+  "power_kw": 22.0
+ },
+ "axes": [
+  {
+   "id": "X",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    1,
+    0,
+    0
+   ],
+   "min": -750.0,
+   "max": 750.0,
+   "rapid": 40000.0
+  },
+  {
+   "id": "Y",
+   "type": "linear",
+   "carrier": "workpiece",
+   "direction": [
+    0,
+    -1,
+    0
+   ],
+   "min": -330.0,
+   "max": 330.0,
+   "rapid": 40000.0
+  },
+  {
+   "id": "Z",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "min": -330.0,
+   "max": 330.0,
+   "rapid": 32000.0
+  }
+ ],
+ "tool": {
+  "direction": [
+   0,
+   0,
+   1
+  ],
+  "gauge_point_mm": [
+   0,
+   0,
+   480.0
+  ]
+ }
+}
