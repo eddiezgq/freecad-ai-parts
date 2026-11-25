@@ -699,8 +699,9 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
         elif fam == "num":                           # ADR-0127：同发格的做法，换成 NUM 写法、查手册代码表
             text = postcfg.finish(text, {**cfg, "family": "fanuc"}, kind == "lathe", int(prog.get("number", 1)))
             text = numcnc.to_num(text, kind == "lathe")
-            tc = cfg["tool_change"]
-            numcnc.check_codes(text, kind == "lathe", re.findall(r"\bM(\d+)", " ".join(tc["before"] + tc["after"])))
+            tc, mt = cfg["tool_change"], cfg.get("millturn") or {}
+            own = tc["before"] + tc["after"] + [ln for k in ("live_on", "live_off", "c_on", "c_off") for ln in mt.get(k, [])]
+            numcnc.check_codes(text, kind == "lathe", re.findall(r"\bM(\d+)", " ".join(own)))   # 配置里的 M 代码也认（ADR-0128）
         else:
             text = postcfg.finish(text, cfg, kind == "lathe", int(prog.get("number", 1)))
         postcfg.check_codes(text, cfg)               # 手册代码表里没有的代码不出（ADR-0125）

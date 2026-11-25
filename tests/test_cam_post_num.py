@@ -6,6 +6,7 @@ G00 G52 Z0 回 Z 零点、M02 结束；FANUC 写法里在 NUM 上意思不同的
 from __future__ import annotations
 
 import json
+import math
 import re
 
 import pytest
@@ -96,14 +97,69 @@ def test_num_refusals():
         num.to_fanuc("%1001\nG71 G17 G40 G80 G90 G94\nG38 Z1.0 K1.5\n", False)
 
 
-def test_mill_turn_not_output():
-    """车铣（动力刀、C 轴）：还没做——配置不收；程序里出现 G12.1 等按代码表拒出、写明“NUM 车铣还没做”"""
-    with pytest.raises(postcfg.PostConfigError, match="车铣"):
-        postcfg.check({"format": "cam-post/1", "id": "n", "name": "n", "family": "num", "kinds": ["lathe"], "source": "t",
-                       "millturn": {"live_on": ["M45"]}}, "t")
-    with pytest.raises(num.NumError, match="NUM 车铣还没做"):
-        num.check_codes("G18\nG12.1\nG01 X10.0 C0.0\nG13.1\n", True)
+NMT = {"format": "cam-post/1", "id": "nmt", "name": "NUM mill-turn", "family": "num", "kinds": ["lathe"], "source": "t",
+       "millturn": {"live_on": ["M65 M03"], "live_off": ["M05 M64"], "c_on": ["M18"], "c_off": ["M19"]}}
+
+
+def _run_nmt(tmp_path, monkeypatch, cyl_moves=None):
+    d = tmp_path / "posts"
+    d.mkdir(exist_ok=True)
+    monkeypatch.setenv("FAP_POSTS", str(d))
+    (d / "nmt.json").write_text(json.dumps(NMT), encoding="utf-8")
+    pr = MT._mt_prog()
+    if cyl_moves:
+        pr["ops"][2]["moves"] = cyl_moves
+    r = cam.run({"mode": "millturn", "machine": "EX-MT-CY", "program": pr, "stock": {"d": 52, "z_right": 0.5, "z_left": -60},
+                 "post": "nmt", "machine_sim": {"tools": {}}})
+    return r["data"]["programs"][0]
+
+
+def test_num_mill_turn_face_and_cylinder(tmp_path, monkeypatch):
+    """车铣（ADR-0128）：端面 G12.1 → G21（X 半径、Y = 虚拟 C，§5.18.3、E11005），圆柱面 G7.1 C25 → G22（X 半径、Y = 角度 × π ÷ 180 × 半径，§5.18.4），
+    退出都是 G20；动力刀、C 轴按配置写；回读与仿真刀路一致"""
+    t = _rel(_run_nmt(tmp_path, monkeypatch))
+    assert not re.search(r"G12\.1|G13\.1|G0?7\.1|\bG9[89]\b", t)
+    for frag in ("G94\nM05\nM18\nM65 M03\nS2000\nG21\nG00 X10.0 Y-10.0 Z2.0\nG01 Z-3.0 F100.0\nY10.0 F200.0\nG00 Z2.0\nG20\nM05 M64\nM19\nG95",
+                 "G22 (CYL R25.0)\nG00 X30.0 Y0.0 Z-10.0\nG01 X22.0 F100.0\nZ-30.0 F200.0\nG00 X30.0\nG20"):
+        assert frag in t, frag
+    record_verdict(("NUM 车铣：端面 G21、圆柱面 G22 按手册换（G21 / G22 里 X 是半径），回读一致",
+                    "NUM mill-turn: face G21 and cylinder G22 per the manual (X is a radius in G21 / G22), read-back matches"), "pass", "pass")
+
+
+def test_num_cylinder_feed_scaled_to_tool_radius(tmp_path, monkeypatch):
+    """G22 的 Y、F 按当前半径（手算）：刀在 Ø44（r = 22）、圆柱 R25；C 0 → 90 纯转：Y = 22·π/2 = 34.558，F = 200 × 22 / 25 = 176；
+    C 90 → 180 同时 Z −10 → −20：F = 200 × √(10² + 34.558²) ÷ √(10² + 39.270²) = 177.554；C = 180 时退刀 X 变、角度不变：Y 跟着半径变"""
+    mv = [{"t": "rapid", "x": 60, "c": 0, "z": -10}, {"t": "feed", "x": 44, "c": 0, "z": -10, "f": 100},
+          {"t": "feed", "x": 44, "c": 90, "z": -10, "f": 200}, {"t": "feed", "x": 44, "c": 180, "z": -20, "f": 200},
+          {"t": "feed", "x": 48, "c": 180, "z": -20, "f": 100}, {"t": "rapid", "x": 60, "c": 180, "z": -20}]
+    t = _rel(_run_nmt(tmp_path, monkeypatch, mv))
+    assert "G01 X22.0 F100.0\nY34.558 F176.0\nY69.115 Z-20.0 F177.554\nX24.0 Y75.398 F100.0\nG00 X30.0 Y94.248\nG20" in t
+    assert num._cyl_feed(200, -10, math.pi / 2, 22, 25) == pytest.approx(200 * math.hypot(10, 11 * math.pi) / math.hypot(10, 12.5 * math.pi))
+    record_verdict(("NUM 圆柱面 G22：Y、进给按当前半径换算（与 FANUC G7.1 用时相同）",
+                    "NUM cylinder G22: Y and feed converted to the current radius (same cutting time as FANUC G7.1)"), "pass", "pass")
+
+
+def test_num_mill_turn_refusals(tmp_path, monkeypatch):
+    """不出：G22 里 G01 段 X、C 同变；进 G22 前 C 不知道；C 分度 + Y 轴铣（G19）；B 轴车铣配置；内置配置没写车铣 M 代码"""
+    mv = [{"t": "rapid", "x": 60, "c": 0, "z": -10}, {"t": "feed", "x": 44, "c": 30, "z": -10, "f": 100}]
+    p = _run_nmt(tmp_path, monkeypatch, mv)
+    assert p["release"] is None and any("X、C 都变" in c["text"] for c in p["checks"])
+    with pytest.raises(num.NumError, match="C 的位置不知道"):
+        num.to_num("O1001\nG21 G18 G40 G97 G99\nG07.1 C25.0\nG00 X60.0 Z-10.0\n", True)
+    with pytest.raises(num.NumError, match="C 分度"):
+        num.check_codes("G71 G18\nG00 C30.0\nG19\nM02\n", True)
+    with pytest.raises(postcfg.PostConfigError, match="B 轴车铣"):
+        postcfg.check({**NMT, "millturn": {**NMT["millturn"], "b_tool_comp": ["M99"]}}, "t")
     assert MT._run_mt("num-flexium")["release"] is None
+
+
+def test_num_word_format_digits():
+    """§5.1.4：µm 系统直线轴 3 位小数、C 4 位；超了不出、点名；攻丝螺距 K 取 3 位"""
+    with pytest.raises(num.NumError, match="5.1.4"):
+        num.check_codes("G71 G17\nG01 X10.1234 F100.0\nM02\n", False)
+    num.check_codes("G71 G18\nG00 X10.123 C30.1234\nM02\n", True)
+    t = num.to_num("O1001\nG21 G17 G40 G49 G80 G90 G94\nT1 M06\nG43 Z50.0 H01\nM29 S800\nG98 G84 X10.0 Y5.0 Z-12.0 R2.0 F1000.0\nG80\n", False)
+    assert "S800 G84 Z-12.0 K1.25" in t
 
 
 def test_code_outside_manual_table_refused(tmp_path, monkeypatch):
