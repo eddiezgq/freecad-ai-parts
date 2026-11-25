@@ -1,0 +1,20 @@
+{
+ "format": "cam-post/1",
+ "id": "fagor-8065",
+ "name": "Fagor CNC 8060 / 8065",
+ "family": "fagor",
+ "kinds": [
+  "lathe",
+  "mill"
+ ],
+ "source": "按发格官网资料门户《CNCelite 8058/8060/8065/8070 Programming manual》（man_elite_58_60_65_70_prg.pdf，2026-11-24 下载）写（ADR-0126）：§1.2 程序结构、§1.5 / §1.6 G、M 代码表、§3.1 G71 公制、§3.4 G151 直径编程、§5.1 #MCS、§6.2 G94 / G95、§6.13 ~ §6.15 T、M06、D、§7.2.1 G192 限速、§10.1 G33 车螺纹、§10.3 G63 刚性攻丝、§13.2 长度补偿随 D；冷却 M 代码由机床厂定（手册表里没有），按机床说明书写进换刀后动作；车铣、固定循环、子程序还没做",
+ "program": {
+  "number_digits": 4,
+  "percent": false
+ },
+ "coolant": "off",
+ "cycles": {
+  "drill": false,
+  "turn": false
+ }
+}

@@ -17,7 +17,7 @@ import contextvars
 import math
 import re
 
-from analysis.cam import klartext, postcfg
+from analysis.cam import fagor, klartext, postcfg
 from analysis.cam.post import num as _num
 
 # 按后处理配置的小数位、注释写法（ADR-0106 Q5a）：render 时设，写法函数里读
@@ -675,7 +675,7 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
         raise ReleaseError("整机仿真不通过，不输出程序（ADR-0104 安全底线第 1 条）")
     cfg = postcfg.resolved(post["cfg"])
     fam = cfg["family"]
-    dialect = "fanuc" if fam == "hnc" else fam                  # 华中按 FANUC 写法，程序头另改
+    dialect = "fanuc" if fam in ("hnc", "fagor") else fam       # 华中按 FANUC 写法，程序头另改；发格按 FANUC 写好再换（ADR-0126）
     tok = _FMT.set({"coord": cfg["decimals"]["coord"], "feed": cfg["decimals"]["feed"],
                     "utf8": cfg["comments"] == "utf8" and fam != "siemens",
                     "turn_cycles": cfg["cycles"]["turn"], "drill_cycles": cfg["cycles"]["drill"] and fam != "siemens",
@@ -690,9 +690,15 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
                     "fingerprint": sim_res["fingerprint"], "text": text}
         fn = _lathe if kind == "lathe" else _mill
         text = fn(prog, machine, sim_res, post, dialect)
-        text = postcfg.finish(text, cfg, kind == "lathe", int(prog.get("number", 1)))
+        if fam == "fagor":                           # ADR-0126：按 FANUC 家族加工好，再按对照表换成发格写法、查手册代码表
+            text = postcfg.finish(text, {**cfg, "family": "fanuc"}, kind == "lathe", int(prog.get("number", 1)))
+            text = fagor.to_fagor(text, kind == "lathe")
+            tc = cfg["tool_change"]
+            fagor.check_codes(text, kind == "lathe", re.findall(r"\bM(\d+)", " ".join(tc["before"] + tc["after"])))
+        else:
+            text = postcfg.finish(text, cfg, kind == "lathe", int(prog.get("number", 1)))
         postcfg.check_codes(text, cfg)               # 手册代码表里没有的代码不出（ADR-0125）
-    except (postcfg.PostConfigError, klartext.KlartextError) as exc:
+    except (postcfg.PostConfigError, klartext.KlartextError, fagor.FagorError) as exc:
         raise ReleaseError(str(exc)) from exc
     finally:
         _FMT.reset(tok)
@@ -716,8 +722,13 @@ def to_fanuc(text: str, controller: str, lathe: bool, *, tags: bool = False) -> 
             return klartext.to_iso(text, tags=tags)
         except klartext.KlartextError as exc:
             raise ReleaseError(f"海德汉程序回读不了：{exc}") from exc
-    if tags and fam in postcfg.ISO:
+    if tags and fam in (*postcfg.ISO, "fagor"):
         text = "\n".join(f"{ln} {tag(i)}" if ln.strip() else ln for i, ln in enumerate(text.split("\n"), 1))
+    if fam == "fagor":                               # 发格写法换回 FANUC 写法（ADR-0126）
+        try:
+            return fagor.to_fanuc(text, lathe)
+        except fagor.FagorError as exc:
+            raise ReleaseError(f"发格程序回读不了：{exc}") from exc
     if post:
         text = postcfg.expand(text, postcfg.resolved(post["cfg"]))
         if fam in postcfg.ISO:                       # 这家的写法换回 FANUC 写法（ADR-0124）
