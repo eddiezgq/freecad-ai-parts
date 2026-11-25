@@ -15,6 +15,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import sys
@@ -268,8 +269,10 @@ def judge(res: Mapping, material: str, required: float | None) -> dict:
 
 def analyse(concept: Mapping, build_result: Mapping, cad_result: Mapping, verify_result: Mapping, assembly_step: str | Path,
             payload_kg: float, *, joints=None, parts_only=None, work_dir: str | Path | None = None, convergence: bool = True,
-            on_item=None) -> dict:
-    """on_item：每算完一件回调一次（命令行用它边算边打印，一件要几分钟）；parts_only：只算这些名字的零件（减薄时逐件试）"""
+            on_item=None, on_start=None, reuse: Mapping[str, Mapping] | None = None) -> dict:
+    """on_item：每算完一件回调一次（命令行用它边算边打印，一件要几分钟）；parts_only：只算这些名字的零件（减薄时逐件试）；
+    on_start(第几件, 共几件, 零件名)：开始算一件之前回调（面板显示进度）；
+    reuse：{指纹: 已算的结果项}——指纹一样的直接用（标 reused），不一样的现算（问渠 CAD 面板回放示例时用，44.4）"""
     import analysis
 
     factor = dynamic_factor(verify_result)
@@ -280,15 +283,23 @@ def analyse(concept: Mapping, build_result: Mapping, cad_result: Mapping, verify
     with tempfile.TemporaryDirectory() as tmp:
         wd = Path(work_dir or tmp)
         wd.mkdir(parents=True, exist_ok=True)
-        for k, p in enumerate(parts):
-            if p["kind"] != "bracket" or (joints and p["joint"] not in joints) or (parts_only and p["name"] not in parts_only):
-                continue
+        todo = [(k, p) for k, p in enumerate(parts) if p["kind"] == "bracket" and not (joints and p["joint"] not in joints)
+                and not (parts_only and p["name"] not in parts_only)]
+        for n, (k, p) in enumerate(todo):
+            if on_start:
+                on_start(n, len(todo), p["name"])
             itf = p.get("interfaces") or {}
             row = {"part": p["name"], "joint": p["joint"], "role": p["role"]}
             if not itf.get("load"):
                 items.append(dict(row, status="unknown", note="没有载荷接口（末端不接杆件），不分析"))
                 continue
             ld = load_on(concept, p, parts, payload_kg, q, factor)
+            fp = fingerprint(p, ld, mesh=mesh_mm(p), convergence=convergence, required=required, design=cad_result.get("design"))
+            if reuse and fp in reuse:
+                items.append(dict(reuse[fp], part=p["name"], fingerprint=fp, reused=True))
+                if on_item:
+                    on_item(items[-1])
+                continue
             step = wd / f"bracket-{k:02d}.step"
             try:
                 extract(assembly_step, p, step)
@@ -297,13 +308,48 @@ def analyse(concept: Mapping, build_result: Mapping, cad_result: Mapping, verify
                 items.append(dict(row, load=ld, status="unknown", note=f"建不成算例：{ex}"))
                 continue
             res = analysis.run("fea", st_)
-            items.append(dict(row, load=ld, **judge(res, p.get("material") or "6061-T6", required)))
+            items.append(dict(row, load=ld, fingerprint=fp, **judge(res, p.get("material") or "6061-T6", required)))
             if on_item:
                 on_item(items[-1])
     st = {i["status"] for i in items}
     status = "fail" if "fail" in st else "unknown" if ("unknown" in st or not items) else "pass"
     return {"status": status, "items": items, "dynamic_factor": round(factor, 3), "pose_deg": q,
             "required_safety": required, "limits": LIMITS}
+
+
+def _canon(x):
+    """指纹用的规范值：浮点取 5 位有效数字（不同机器、JSON 往返的末位差别不影响），字典按键排序"""
+    if isinstance(x, bool) or x is None or isinstance(x, (str, int)):
+        return x
+    if isinstance(x, float):
+        return float(f"{x:.5g}") + 0.0              # + 0.0：-0.0 与 0.0 一样
+    if isinstance(x, Mapping):
+        return {str(k): _canon(v) for k, v in sorted(x.items())}
+    if isinstance(x, (list, tuple, np.ndarray)):
+        return [_canon(v) for v in list(x)]
+    if isinstance(x, (np.floating, np.integer)):
+        return _canon(x.item())
+    return str(x)
+
+
+def fingerprint(part: Mapping, load: Mapping, *, mesh: float, convergence: bool, required, design: Mapping | None) -> str:
+    """一个支架算例的指纹（44.4）：零件的几何与接口（三维装配记的那一份）、支架设计值、远端载荷、网格、收敛核查、要求的安全系数。
+    几何由这些确定性地生成，指纹一样就是同一个算例，可以用已算的结果；任何一项变了就现算。"""
+    body = {"part": {k: v for k, v in part.items() if k != "name"}, "design": design or {}, "load": load,
+            "mesh_mm": mesh, "convergence": convergence, "required": required, "limits": LIMITS}
+    return hashlib.sha256(json.dumps(_canon(body), ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+
+
+def fingerprints(concept: Mapping, build_result: Mapping, cad_result: Mapping, verify_result: Mapping, payload_kg: float,
+                 convergence: bool = True) -> dict[str, str]:
+    """不算有限元，只按同样的输入给每个有载荷接口的支架算指纹：{零件名: 指纹}（给已算的结果补记指纹用）"""
+    factor = dynamic_factor(verify_result)
+    q = build_result["duty"]["initial"]
+    required = next(iter(build_result["picks"].values()))["requirement"].get("safety_factor")
+    parts = cad_result["parts"]
+    return {p["name"]: fingerprint(p, load_on(concept, p, parts, payload_kg, q, factor), mesh=mesh_mm(p), convergence=convergence,
+                                   required=required, design=cad_result.get("design"))
+            for p in parts if p["kind"] == "bracket" and (p.get("interfaces") or {}).get("load")}
 
 
 def summary(r: Mapping) -> str:
@@ -323,9 +369,23 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("out_dir", type=Path, help="整机结果目录（concept-result.json、build-result.json、verify-result.json、cad/）")
     ap.add_argument("--joints", help="只算这些关节的支架，逗号分隔")
     ap.add_argument("-o", "--out", type=Path)
+    ap.add_argument("--add-fingerprints", action="store_true",
+                    help="不算有限元：给 out_dir/fea-result.json 里已算的各项按同样的输入补记指纹（44.4）")
     a = ap.parse_args(argv)
     d = a.out_dir
     cr = json.loads((d / "concept-result.json").read_text(encoding="utf-8"))
+    if a.add_fingerprints:
+        fr = d / "fea-result.json"
+        r = json.loads(fr.read_text(encoding="utf-8"))
+        fps = fingerprints(cr["chosen"], *(json.loads((d / f).read_text(encoding="utf-8"))
+                                           for f in ("build-result.json", "cad/cad-result.json", "verify-result.json")),
+                           float(cr["conditions"]["payload"]))
+        for i in r["items"]:
+            if i["part"] in fps:
+                i["fingerprint"] = fps[i["part"]]
+        fr.write_text(json.dumps(r, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        print(f"补记指纹 {sum('fingerprint' in i for i in r['items'])} / {len(r['items'])} 项", file=sys.stderr)
+        return 0
     r = analyse(cr["chosen"], json.loads((d / "build-result.json").read_text(encoding="utf-8")),
                 json.loads((d / "cad" / "cad-result.json").read_text(encoding="utf-8")),
                 json.loads((d / "verify-result.json").read_text(encoding="utf-8")), d / "cad" / "assembly.step",

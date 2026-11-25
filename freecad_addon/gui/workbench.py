@@ -563,6 +563,9 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         from freecad_addon.gui.ai_design_panel import AiDesignCommand
 
         FreeCADGui.addCommand("FAP_AiDesign", AiDesignCommand())
+        from freecad_addon.gui.robot_design_panel import RobotDesignCommand
+
+        FreeCADGui.addCommand("FAP_RobotDesign", RobotDesignCommand())
         FreeCADGui.addCommand("FAP_Analyses", AnalysesCommand())
         FreeCADGui.addCommand("FAP_Mbd", MbdCommand())
         FreeCADGui.addCommand("FAP_MbdAssembly", MbdAssemblyCommand())
@@ -585,7 +588,7 @@ class AiPartsWorkbench(FreeCADGui.Workbench):
         tools = ["FAP_ChatPanel", "FAP_Selection", "FAP_Browser", "FAP_Connect", "FAP_Checks", "FAP_Bom",
                  "FAP_Restore", "FAP_Bridge", "FAP_Record", "FAP_AiDesign"]
         self.appendToolbar("AI Parts", tools)
-        self.appendMenu("AI Parts", [*[t for t in tools if t != "FAP_AiDesign"], "FAP_Enterprise", "FAP_NewPart", "FAP_AiDesign", "FAP_Analyses", "FAP_Mbd", "FAP_MbdAssembly", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Cam", "FAP_Cfd", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo", "FAP_FirstRun", "FAP_License", "FAP_Help"])
+        self.appendMenu("AI Parts", [*[t for t in tools if t != "FAP_AiDesign"], "FAP_Enterprise", "FAP_NewPart", "FAP_AiDesign", "FAP_RobotDesign", "FAP_Analyses", "FAP_Mbd", "FAP_MbdAssembly", "FAP_Fea", "FAP_Optimize", "FAP_Topo", "FAP_Cam", "FAP_Cfd", "FAP_Twin", "FAP_Publish", "FAP_RecordVideo", "FAP_FirstRun", "FAP_License", "FAP_Help"])
 
     def Activated(self):
         """第一次打开工作台时弹出首次设置（ADR-0066）；以后从菜单再打开。"""
