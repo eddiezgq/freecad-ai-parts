@@ -357,27 +357,73 @@ def _static_once(sysm: System, t=0.0, q=None):
     return rec, info
 
 
+def ctrl_states(sysm):
+    """静平衡、线性化里要随系统一起求的控制器状态下标（《多体动力学》书第 32 章线索第 47 条）：
+    PID 的积分状态只有 ki ≠ 0 时才影响输出（ki = 0 时它的“导数 = 误差”不是平衡条件）；微分滤波、状态空间的状态都算"""
+    ctrl = getattr(sysm, "ctrl", None)
+    if ctrl is None or not ctrl.items:
+        return []
+    idx = []
+    for it in ctrl.items:
+        if "sp" in it:
+            if it["c"].get("ki", 0.0):
+                idx.append(it["o"])
+            if it["filt"]:
+                idx.append(it["o"] + 1)
+        else:
+            idx += list(range(it["o"], it["o"] + it["n"]))
+    return idx
+
+
+def apply_ctrl(sysm, q, qd, t, xc):
+    """控制器输出 → 执行器（静平衡、线性化里与动力学同样计入控制器）"""
+    ctrl = getattr(sysm, "ctrl", None)
+    if ctrl is not None and ctrl.any:
+        sysm.act = ctrl.outputs(t, sysm.measures(q, qd), xc)
+
+
 def _static(sysm: System, t=0.0, q=None):
-    """静平衡：Q(q) − Φ_qᵀλ = 0、Φ(q) = 0（速度为 0）"""
+    """静平衡：Q(q) − Φ_qᵀλ = 0、Φ(q) = 0（速度为 0）。有控制器时执行器力按控制器输出算，
+    要随系统求的控制器状态（PID 积分等）加进未知量，方程是它们的导数为 0（线索第 47 条：原来不计控制器，
+    伺服臂的静平衡“没找到（残差 10.6）”）"""
     q = sysm.q0() if q is None else q
     keep, drop = independent_rows(sysm, q, t)
     rows = _rows(sysm, keep)
     q = assemble(sysm, q, t, rows)
     m = len(rows)
     zero = np.zeros(sysm.n)
+    ctrl = getattr(sysm, "ctrl", None)
+    xc_base = ctrl.x0.copy() if ctrl is not None and ctrl.any else np.zeros(0)
+    ci = ctrl_states(sysm)
+    nc = len(ci)
+
+    def split(x):
+        xc = xc_base.copy()
+        if nc:
+            xc[ci] = x[sysm.n + m:]
+        return x[:sysm.n], x[sysm.n:sysm.n + m], xc
 
     def F(x):
-        qq, lam = x[:sysm.n], x[sysm.n:]
-        return np.concatenate([sysm.Q(qq, zero, t) - sysm.jac(qq, t, rows).T @ lam, sysm.phi(qq, t, rows)])
+        qq, lam, xc = split(x)
+        apply_ctrl(sysm, qq, zero, t, xc)
+        out = [sysm.Q(qq, zero, t) - sysm.jac(qq, t, rows).T @ lam, sysm.phi(qq, t, rows)]
+        if nc:
+            out.append(ctrl.deriv(t, sysm.measures(qq, zero), xc)[ci])
+        return np.concatenate(out)
 
     J0 = sysm.jac(q, t, rows)
+    apply_ctrl(sysm, q, zero, t, xc_base)
     lam0 = np.linalg.lstsq(J0.T, sysm.Q(q, zero, t), rcond=None)[0]
-    x0 = np.concatenate([q, lam0])
-    x = _static_newton(sysm, t, rows, x0) if getattr(sysm, "nlbeams", None) else None
+    x0 = np.concatenate([q, lam0, xc_base[ci]])
+    x = _static_newton(sysm, t, rows, x0) if getattr(sysm, "nlbeams", None) and not nc else None
     if x is None:
         sol = root(F, x0, method="hybr", options={"xtol": 1e-13, "maxfev": 20000})
         x = sol.x
     res = F(x)
+    sysm.static_xc = split(x)[2]
+    if nc and np.max(np.abs(res[sysm.n + m:])) > 1e-8:
+        raise SolveError(f"静平衡没找到：控制器状态没有到稳态（导数残差 {np.max(np.abs(res[sysm.n + m:])):.3g}）")
+    res = res[:sysm.n + m]
     # 力的残差按力的量级判（大变形梁内力上万牛，舍入噪声就有 1e-6 N 级）；约束残差按长度判
     fscale = max(1.0, float(np.max(np.abs(sysm.Q(x[:sysm.n], zero, t)))))
     if not np.all(np.isfinite(res)) or np.max(np.abs(res[:sysm.n])) > max(1e-6, 1e-8 * fscale) \

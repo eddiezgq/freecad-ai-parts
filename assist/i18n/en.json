@@ -3166,5 +3166,7 @@
 "需求原话（自由度、负载、臂展、精度、速度、加工与成本要求……）": "Requirement as written (degrees of freedom, payload, reach, accuracy, speed, machining and cost requirements…)",
 "（第 {} / {} 个）": " ({} / {})",
 "；停在“{}”": "; stopped at “{}”",
-"；结果文件在 {}": "; result files in {}"
+"；结果文件在 {}": "; result files in {}",
+"模型里有 FMU 控制器：它是采样（离散）控制器，线性化不含它，模态和稳定性按没有这个控制器算": "The model has an FMU controller: it is a sampled (discrete) controller, so the linearization leaves it out and modes and stability are computed without it",
+"静平衡没找到：控制器状态没有到稳态（导数残差 {}）": "Static equilibrium not found: the controller states did not reach steady state (derivative residual {})"
 }
