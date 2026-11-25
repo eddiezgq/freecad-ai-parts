@@ -1180,6 +1180,7 @@
 "离心载荷要指明实体与转轴": "A centrifugal load needs a body and an axis of rotation",
 "积分中约束解不回来（分块病态）": "Constraints could not be solved during integration (ill-conditioned partition)",
 "积分中约束雅可比奇异": "Constraint Jacobian became singular during integration",
+"积分卡住：t = {} s 附近求值 {} 次仍推进不到 {} s（步长持续过小）。常见原因：控制器输出贴着限幅来回切换、摩擦粘滑、接触太硬或表达式里有不连续（sign、STEP 太陡）。请检查这一时刻附近的控制器和力元，或改用 HHT 积分器": "Integration stalled: near t = {} s, {} evaluations did not advance {} s (step size persistently too small). Common causes: a controller output switching back and forth at its limit, stick-slip friction, very stiff contact, or a discontinuity in an expression (sign, a too-steep STEP). Check the controllers and force elements near this time, or use the HHT integrator",
 "积分器": "Integrator",
 "积分器 {}。": "Integrator {}.",
 "积分器 {}：{}。": "Integrator {}: {}.",

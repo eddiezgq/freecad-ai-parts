@@ -516,6 +516,27 @@ def _static_newton(sysm, t, rows, x0, iters=60):
     return x if np.max(np.abs(r)) <= 1e-6 else None
 
 
+STALL_RHS = 200_000        # 一个输出间隔的 1 % 都没推进、却已求值这么多次：积分卡住了
+
+
+class _Stall(RuntimeError):
+    """积分步长持续过小（不让 rhs 里的“缩步重试”吞掉）"""
+
+
+def _stall_watch(state, stats, t, dt_out):
+    """《多体动力学》书第 31 章线索第 46 条（问渠 CAD 0.3.8 细则）：解贴着不连续面来回切换时，变步长积分步长持续过小、
+    几乎不前进，原来不提示（书里转台 90 s 算不完）。推进不到输出间隔的 1 % 就已求值 STALL_RHS 次，停下报原因"""
+    mark = state.get("stall_t")
+    if mark is None or t > mark + 0.01 * dt_out:
+        state["stall_t"], state["stall_n"] = t, 0
+        return
+    state["stall_n"] += 1
+    if state["stall_n"] > STALL_RHS:
+        raise _Stall(f"积分卡住：t = {t:.6g} s 附近求值 {STALL_RHS} 次仍推进不到 {0.01 * dt_out:.3g} s（步长持续过小）。"
+                     "常见原因：控制器输出贴着限幅来回切换、摩擦粘滑、接触太硬或表达式里有不连续（sign、STEP 太陡）。"
+                     "请检查这一时刻附近的控制器和力元，或改用 HHT 积分器")
+
+
 def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, q=None, qd=None, t0=0.0):
     q = sysm.q0() if q is None else q.copy()
     keep, drop = independent_rows(sysm, q, t0)
@@ -612,6 +633,7 @@ def _dynamic_loop(v):
     partition, full_state, ctrl, dof, nx = (v[k] for k in ("partition", "full_state", "ctrl", "dof", "nx"))
     t_cur, q_cur, qd_cur, xc_cur, k, seg = (v[k] for k in ("t_cur", "q_cur", "qd_cur", "xc_cur", "k", "seg"))
     t0, h_s, n_s, next_s = v["t0"], v["h_s"], v["n_s"], v["next_s"]
+    dt_out = float(times[1] - times[0]) if len(times) > 1 else 1.0
     while k < steps:
         dep, ind = partition(q_cur, t_cur)
         stats["segments"] += 1
@@ -624,6 +646,7 @@ def _dynamic_loop(v):
 
         def rhs(t, y, dep=dep, ind=ind):
             stats["rhs"] += 1
+            _stall_watch(state, stats, t, dt_out)
             keep_q = state["q"].copy()
             try:
                 if not np.all(np.isfinite(y)):
@@ -656,8 +679,11 @@ def _dynamic_loop(v):
         ill.terminal = True
         ill.direction = -1
         t_eval = [tt for tt in times[k + 1:k1 + 1] if tt <= t_stop + 1e-12]
-        sol = solve_ivp(rhs, (t_cur, t_stop), y0, method=method, t_eval=t_eval, rtol=rtol, atol=atol,
-                        events=ill, dense_output=True)
+        try:
+            sol = solve_ivp(rhs, (t_cur, t_stop), y0, method=method, t_eval=t_eval, rtol=rtol, atol=atol,
+                            events=ill, dense_output=True)
+        except _Stall as exc:
+            raise SolveError(str(exc)) from None
         if sol.status < 0:
             lock = sysm.__dict__.get("_friction_lock")
             if lock:                        # 线索第 29 条：积分失败是因为摩擦自锁，就报自锁
