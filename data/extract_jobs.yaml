@@ -35,9 +35,8 @@ index:
             Max. working stroke, Feed constant, Fy, Fz, Mx, My, Mz, Basic weight, Additional weight per 10 mm stroke,
             Moving load, Dimensions, B1, H1, L1]
   - doc: src-festo-egc-bs
-    terms: [EGC-BS-KF, General technical data, Max. speed, Max. acceleration, Repetition accuracy, Max. feed force,
-            Max. working stroke, Spindle pitch, Fy, Fz, Mx, My, Mz, Basic weight, Additional weight per 10 mm stroke,
-            Moving load, Dimensions, B1, H1, L1]
+    terms: [EGC-BS-KF, Technische Daten, Geschwindigkeit, Beschleunigung, Wiederholgenauigkeit, Vorschubkraft,
+            Arbeitshub, Spindelsteigung, Fy, Fz, Mx, My, Mz, Grundgewicht, Zusatzgewicht, Bewegte Last, Abmessungen, B1, H1, L1]
   - doc: src-schmalz-sng-m
     terms: [SNG-M, Number of needles, Needle diameter, Needle stroke, Plunge angle, Operating pressure, Weight, Dimensions]
   - doc: src-schmalz-spf

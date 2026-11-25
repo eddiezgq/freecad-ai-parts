@@ -323,13 +323,13 @@ sources:
       逐项注明目录页码并链接回 Festo 原网址；目录按官方下载网址逐份下载一次，不遍历、不批量爬取；不转存目录文档、图片、图纸与 CAD。
     documents:
       - id: src-festo-egc-tb
-        title: Festo Toothed belt axes EGC-TB-KF, with recirculating ball bearing guide（电动驱动器目录分册，英文）
-        version: 印“Subject to change – 2019/02”，以 SHA-256 标识（2026-11-25 登记）
-        url: https://ftp.festo.com/public/PNEUMATIC/SOFTWARE_SERVICE/Documentation/2019/EN/EGC-TB_EN.PDF
+        title: Festo Toothed belt axes EGC-TB-KF, with recirculating ball bearing guide（产品目录分册，英文）
+        version: 印 2026/10，以 SHA-256 标识（2026-11-25 登记；ftp.festo.com 的旧版证书链不全，云端下载不了，改用 www.festo.com 的目录）
+        url: https://www.festo.com/media/catalog/204380_documentation.pdf
       - id: src-festo-egc-bs
-        title: Festo Spindle axes EGC-BS-KF, with recirculating ball bearing guide（电动驱动器目录分册，英文）
-        version: 印“Subject to change – 2019/02”，以 SHA-256 标识（2026-11-25 登记）
-        url: https://ftp.festo.com/Public/PNEUMATIC/SOFTWARE_SERVICE/Documentation/2019/EN/EGC-BS_EN.PDF
+        title: Festo Spindelachsen EGC-BS-KF, mit Kugelumlaufführung（产品目录分册，德文；www.festo.com 上没找到同版英文）
+        version: 印 2026/10，以 SHA-256 标识（2026-11-25 登记）
+        url: https://www.festo.com/media/catalog/201447_documentation.pdf
   - id: schmalz
     vendor: J. Schmalz GmbH
     url: https://www.schmalz.com
