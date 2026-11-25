@@ -982,6 +982,26 @@
     "en": "NUM: codes outside the manual's table are refused and named"
    },
    "source": "NUM Flexium Programming Manual M00018EN-03, 5.1.1, 5.1.2"
+  },
+  {
+   "id": "CAM-97",
+   "test": "tests/test_cam_post_num.py::test_num_mill_turn_face_and_cylinder",
+   "category": "post",
+   "title": {
+    "zh": "NUM 车铣：端面 G21、圆柱面 G22 按手册换（G21 / G22 里 X 是半径），回读一致",
+    "en": "NUM mill-turn: face G21 and cylinder G22 per the manual (X is a radius in G21 / G22), read-back matches"
+   },
+   "source": "NUM Flexium Programming Manual M00018EN-03, 5.18, parameter E11005"
+  },
+  {
+   "id": "CAM-98",
+   "test": "tests/test_cam_post_num.py::test_num_cylinder_feed_scaled_to_tool_radius",
+   "category": "post",
+   "title": {
+    "zh": "NUM 圆柱面 G22：Y、进给按当前半径换算（与 FANUC G7.1 用时相同）",
+    "en": "NUM cylinder G22: Y and feed converted to the current radius (same cutting time as FANUC G7.1)"
+   },
+   "source": "NUM Flexium Programming Manual M00018EN-03, 5.18.4"
   }
  ]
 }
