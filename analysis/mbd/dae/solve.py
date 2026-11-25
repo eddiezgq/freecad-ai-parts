@@ -609,6 +609,17 @@ def _static_newton(sysm, t, rows, x0, iters=60):
     return x if np.max(np.abs(r)) <= 1e-6 else None
 
 
+SEG_ROT_RAD = 0.5          # 积分每段里构件最多转过的角度（rad）
+
+
+def _max_angular_speed(sysm, q, qd):
+    w = 0.0
+    for k in range(sysm.nb):
+        p = sysm.rp(q, k)[1]
+        w = max(w, float(np.linalg.norm(2 * E_of(p) @ qd[7 * k + 3:7 * k + 7])))
+    return w
+
+
 STALL_RHS = 200_000        # 一个输出间隔的 1 % 都没推进、却已求值这么多次：积分卡住了
 
 
@@ -735,7 +746,11 @@ def _dynamic_loop(v):
         cond0 = np.linalg.cond(sysm.jac(q_cur, t_cur, rows)[:, dep])
         limit = max(1e3, 10 * cond0)
         k1 = min(steps, k + seg)
-        t_stop = min(float(times[k1]), next_s)
+        # 《多体动力学》书第 7 章线索第 16 条（问渠 CAD 0.3.8 细则）：原来每段固定 T/50，高速转动的自由刚体一段里转大半圈，
+        # 独立坐标（欧拉参数的某个分量）过零变病态，能量悄悄流失或积分报错。每段转角限 SEG_ROT_RAD，段首重选独立坐标
+        w_max = _max_angular_speed(sysm, q_cur, qd_cur)
+        t_rot = t_cur + SEG_ROT_RAD / w_max if w_max > 0 else math.inf
+        t_stop = min(float(times[k1]), next_s, t_rot)
 
         def rhs(t, y, dep=dep, ind=ind):
             stats["rhs"] += 1
