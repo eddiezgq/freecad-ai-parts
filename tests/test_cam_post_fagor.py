@@ -41,7 +41,7 @@ def test_fagor_lathe_written_per_manual(tmp_path, monkeypatch):
         t = _rel(p)
         assert re.match(r"^%\d{4}\n\(WENQUEST CAM\)", t)
         assert "G71 G18 G151 G40 G97 G95" in t and re.search(r"^T1 D1$", t, re.MULTILINE) and "G192 S3000" in t
-        assert not _codes(t) & {b if b[0] == "G" else b for b in BAD}, _codes(t) & set(BAD)
+        assert not _codes(t) & set(BAD), _codes(t) & set(BAD)
         assert not re.search(r"\bG(70|71) [PU]|\bG76\b", t)                 # 车削复合循环不写（发格的 G70 / G71 是单位）
     assert "G33 Z-16.0 K1.5" in "\n".join(_rel(p) for p in progs)
     assert [p["time"]["total_s"] for p in progs] == pytest.approx(base)
@@ -63,11 +63,11 @@ def test_fagor_mill_tool_length_tap_and_home():
 
 def test_round_trip_back_to_fanuc_line_by_line():
     """对照表可逆：FANUC 原文 → 发格 → FANUC，逐行一模一样（顺序号也在）"""
-    for lathe, text in ((True, "%\nO1001 (WENQUEST CAM)\n(X)\nG21 G18 G40 G97 G99\nN10 T0101\nN20 G50 S3000\nN30 G96 S120 M03\n"
-                                "N40 G32 Z-16.0 F1.5\nN50 G01 X40.0 F0.2\nM30\n%\n"),
-                        (False, "%\nO6001 (WENQUEST CAM)\nG21 G17 G40 G49 G80 G90 G94\nT4 M06\nG54\nS400 M03\nG00 X20.0 Y45.0\n"
+    for lathe, text in ((True, ("%\nO1001 (WENQUEST CAM)\n(X)\nG21 G18 G40 G97 G99\nN10 T0101\nN20 G50 S3000\nN30 G96 S120 M03\n"
+                                "N40 G32 Z-16.0 F1.5\nN50 G01 X40.0 F0.2\nM30\n%\n")),
+                        (False, ("%\nO6001 (WENQUEST CAM)\nG21 G17 G40 G49 G80 G90 G94\nT4 M06\nG54\nS400 M03\nG00 X20.0 Y45.0\n"
                                 "G43 Z5.0 H04 M08\nM29 S400\nG98 G84 X20.0 Y45.0 Z-15.0 R3.0 F600.0\nG80\nG00 Z5.0 M09\nM05\n"
-                                "G91 G28 Z0.0\nG90\nM30\n%\n")):
+                                "G91 G28 Z0.0\nG90\nM30\n%\n"))):
         fg = fagor.to_fagor(text, lathe)
         back = fagor.to_fanuc(fg, lathe)
         want = [ln for ln in text.strip().split("\n") if ln != "%"]
