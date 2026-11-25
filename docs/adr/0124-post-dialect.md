@@ -50,3 +50,4 @@
   车铣：G112 是直角坐标 XY 编程、G107 另一套参数，与 FANUC 的 G12.1 / G7.1 不只是开关指令不同，`dialect` 表达不了——没配 `millturn`，带铣削段的程序不出。
 - 核对：L1 回读；L2 独立解释器 rs274（`checks` 记录，程序头写 `CHECKED L2`）；标准题核对程序里每个 G、M 代码都在手册的代码表里（CAM-86）。
 - 还没做：哈斯铣床（按 Mill Operator's Manual）、车铣（要先给 dialect 加“极坐标插补用直角坐标”的写法，另写 ADR）。
+- 2026-11-24 三菱 M800V / M80V：三菱电机 FA 官网手册页公开下载《Programming Manual》车床篇（IB-1501619）、加工中心篇（IB-1501621），按手册做 `mitsubishi-m800-lathe`、`mitsubishi-m800-mill` 两份配置（FANUC 家族 + dialect）：车床 G 代码表 2（前提 #1037 cmdtyp = 3、#1097 刀补 2 位），复合循环不用（G71 凹槽加工随参数 #8110），G12.1 是铣削插补、车铣不出；加工中心 G84 不收（同步攻丝 F 的单位随 #1292、#1268）；冷却 coolant off。标准题 `tests/test_cam_post_mitsubishi.py`（CAM-92、93），含 rs274 一致。
