@@ -1,0 +1,1010 @@
+{
+ "part_type": "robot",
+ "statement": "缝纫车间的裁片上下料机器人：从裁床上逐片取裁片，放到平缝机工位的送料台上。裁片单片质量不超过 100 g，最大 600 mm × 400 mm，在裁床上叠成一叠，一叠最高 100 mm。裁床台面和送料台面同高，离地 850 mm；取料区中心到放料区中心水平距离 1500 mm。机器人不能占用车间通道。\n节拍 3 s/片（取一片、放好、回到取料位）；放料定位精度 ±1 mm；不能损伤布料。\n",
+ "rounds": [
+  {
+   "proposal": {
+    "candidates": [
+     {
+      "base": {
+       "height_mm": 500,
+       "mount": "table"
+      },
+      "end_effector": {
+       "offset_mm": [
+        0,
+        0,
+        -400
+       ],
+       "parent": "z_slide",
+       "type": "vacuum"
+      },
+      "format": "robot-concept/1",
+      "joints": [
+       {
+        "axis": [
+         1,
+         0,
+         0
+        ],
+        "child": "x_carriage",
+        "id": "j1_x",
+        "lead_mm": 150,
+        "origin_mm": [
+         0,
+         0,
+         500
+        ],
+        "parent": "base",
+        "range_mm": [
+         -50,
+         1550
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "z_slide",
+        "id": "j2_z",
+        "lead_mm": 25,
+        "origin_mm": [
+         0,
+         0,
+         0
+        ],
+        "parent": "x_carriage",
+        "range_mm": [
+         -100,
+         100
+        ],
+        "transmission": "ballscrew",
+        "type": "prismatic"
+       }
+      ],
+      "kind": "gantry",
+      "links": [
+       {
+        "id": "x_carriage",
+        "length_mm": 300,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 100,
+         "wall_mm": 5,
+         "width_mm": 150
+        },
+        "shape": "box"
+       },
+       {
+        "id": "z_slide",
+        "length_mm": 400,
+        "material": "6061-T6",
+        "section": {
+         "id_mm": 42,
+         "od_mm": 50
+        },
+        "shape": "tube"
+       }
+      ],
+      "name": "table_gantry_xz_vacuum",
+      "reason": "X-Z 两轴龙门架在台面上方，从取料区直线平移到放料区，不绕弯、没有奇异位置。末端用大面积真空吸盘，不扎布，对布料较温和。",
+      "tasks": [
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         0,
+         0,
+         0
+        ],
+        "move_s": 0.25,
+        "name": "lift_at_pick",
+        "to_mm": [
+         0,
+         0,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         0,
+         0,
+         130
+        ],
+        "move_s": 0.8,
+        "name": "transfer_to_place",
+        "to_mm": [
+         1500,
+         0,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0.1,
+        "from_mm": [
+         1500,
+         0,
+         130
+        ],
+        "move_s": 0.25,
+        "name": "lower_at_place",
+        "to_mm": [
+         1500,
+         0,
+         0
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         1500,
+         0,
+         0
+        ],
+        "move_s": 0.25,
+        "name": "lift_at_place",
+        "to_mm": [
+         1500,
+         0,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         1500,
+         0,
+         130
+        ],
+        "move_s": 0.8,
+        "name": "return_to_pick",
+        "to_mm": [
+         0,
+         0,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0.1,
+        "from_mm": [
+         0,
+         0,
+         130
+        ],
+        "move_s": 0.25,
+        "name": "lower_at_pick",
+        "to_mm": [
+         0,
+         0,
+         0
+        ],
+        "type": "cartesian_move"
+       }
+      ],
+      "workspace": {
+       "points_mm": [
+        [
+         0,
+         0,
+         0
+        ],
+        [
+         1500,
+         0,
+         0
+        ]
+       ]
+      }
+     },
+     {
+      "base": {
+       "height_mm": 350,
+       "mount": "table"
+      },
+      "end_effector": {
+       "offset_mm": [
+        0,
+        0,
+        -10
+       ],
+       "parent": "wrist",
+       "type": "vacuum"
+      },
+      "format": "robot-concept/1",
+      "joints": [
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "link1",
+        "id": "j1",
+        "module_group": "arm_joint",
+        "origin_mm": [
+         0,
+         0,
+         350
+        ],
+        "parent": "base",
+        "range_deg": [
+         -170,
+         170
+        ],
+        "ratio": 50,
+        "transmission": "reducer",
+        "type": "revolute"
+       },
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "link2",
+        "id": "j2",
+        "module_group": "arm_joint",
+        "origin_mm": [
+         550,
+         0,
+         60
+        ],
+        "parent": "link1",
+        "range_deg": [
+         -145,
+         145
+        ],
+        "ratio": 50,
+        "transmission": "reducer",
+        "type": "revolute"
+       },
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "z_slide",
+        "id": "j3_z",
+        "lead_mm": 20,
+        "origin_mm": [
+         550,
+         0,
+         0
+        ],
+        "parent": "link2",
+        "range_mm": [
+         -100,
+         100
+        ],
+        "transmission": "ballscrew",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "wrist",
+        "id": "j4",
+        "origin_mm": [
+         0,
+         0,
+         -300
+        ],
+        "parent": "z_slide",
+        "range_deg": [
+         -200,
+         200
+        ],
+        "ratio": 20,
+        "transmission": "reducer",
+        "type": "revolute"
+       }
+      ],
+      "kind": "serial_arm",
+      "links": [
+       {
+        "id": "link1",
+        "length_mm": 550,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 80,
+         "wall_mm": 4,
+         "width_mm": 100
+        },
+        "shape": "box"
+       },
+       {
+        "id": "link2",
+        "length_mm": 550,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 70,
+         "wall_mm": 3,
+         "width_mm": 80
+        },
+        "shape": "box"
+       },
+       {
+        "id": "z_slide",
+        "length_mm": 300,
+        "material": "6061-T6",
+        "section": {
+         "id_mm": 32,
+         "od_mm": 40
+        },
+        "shape": "tube"
+       },
+       {
+        "id": "wrist",
+        "length_mm": 60,
+        "material": "6061-T6",
+        "section": {
+         "thickness_mm": 10,
+         "width_mm": 100
+        },
+        "shape": "plate"
+       }
+      ],
+      "name": "table_scara_offset_vacuum",
+      "reason": "SCARA（J1、J2 转动，J3 竖直升降，J4 末端转动）装在台面上，基座放在取放连线一侧 600 mm 处。这样直线平移不会穿过基座轴线。J4 在摆动时保持裁片朝向。",
+      "tasks": [
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         -750,
+         600,
+         0
+        ],
+        "move_s": 0.25,
+        "name": "lift_at_pick",
+        "to_mm": [
+         -750,
+         600,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         -750,
+         600,
+         130
+        ],
+        "move_s": 0.8,
+        "name": "transfer_to_place",
+        "to_mm": [
+         750,
+         600,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0.1,
+        "from_mm": [
+         750,
+         600,
+         130
+        ],
+        "move_s": 0.25,
+        "name": "lower_at_place",
+        "to_mm": [
+         750,
+         600,
+         0
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         750,
+         600,
+         0
+        ],
+        "move_s": 0.25,
+        "name": "lift_at_place",
+        "to_mm": [
+         750,
+         600,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         750,
+         600,
+         130
+        ],
+        "move_s": 0.8,
+        "name": "return_to_pick",
+        "to_mm": [
+         -750,
+         600,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0.1,
+        "from_mm": [
+         -750,
+         600,
+         130
+        ],
+        "move_s": 0.25,
+        "name": "lower_at_pick",
+        "to_mm": [
+         -750,
+         600,
+         0
+        ],
+        "type": "cartesian_move"
+       }
+      ],
+      "workspace": {
+       "points_mm": [
+        [
+         -750,
+         600,
+         0
+        ],
+        [
+         750,
+         600,
+         0
+        ]
+       ]
+      }
+     }
+    ],
+    "reason": "推荐 0（台面龙门 X-Z）。\n取舍：\n1）运动：取放同高、相距 1500 mm，只需水平直线加竖直升降，两个移动轴刚好够用。X 轴峰值约 2.5 m/s、加速度约 12.5 m/s²，Z 轴升降约 0.7 m/s。节拍合计 2.8 s，不大于 3.0 s。\n2）精度与奇异：移动轴没有奇异位置，±1 mm 重复定位主要看直线模组本身，选件后核。SCARA 要保证 1500 mm 直线不穿过基座，所以基座偏置 600 mm、臂长 1100 mm。它的 J1、J2 要在 0.8 s 内带着长臂做 12 m/s² 量级的加减速，惯量大，精度和振动更难控制。\n3）占用通道：两个方案都装在台面上，没有落地部分伸进通道。龙门需要台面两端有立柱，台面长度要不小于约 2100 mm，加上立柱占位，这点要现场确认。SCARA 要台面一侧留出基座位置，约 600 mm 以上的宽度。\n4）零件库：库里只有转动件。龙门的直线模组要从公开目录整本导入，SCARA 的 J1、J2、J4 可用库内关节模组，J1 和 J2 已设同一个 module_group。\n5）末端：选真空吸盘，用多吸盘或泡沫大面积垫，接触面软，不穿刺布料。针刺会戳断纤维，伤布风险高，不选。布料透气、会漏气，需要高流量真空和分层措施（如吹气分片，防止一次吸起多片）。抓取力、漏气量和是否伤布，选件后按公开数据核，查不到的记待确认。\n6）Z 轴竖直装滚珠丝杠或带刹车电机，断电时防止末端下滑。",
+    "recommend": 0
+   },
+   "evaluations": [
+    {
+     "items": [
+      {
+       "item": "重复定位精度",
+       "status": "unknown",
+       "limit": "± 1 mm",
+       "note": "选件后按编码器分辨率与减速器回差算（这一步判不了）"
+      },
+      {
+       "item": "取放水平距离",
+       "status": "pass",
+       "value": 1500.0,
+       "limit": "1500 ± 1 mm"
+      },
+      {
+       "item": "取放两处同高",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "0 ± 1 mm",
+       "note": "放料点比取料点高（mm）"
+      },
+      {
+       "item": "节拍",
+       "status": "pass",
+       "value": 2.8,
+       "limit": "≤ 3 s",
+       "note": "6 段直线动作加停留；lift_at_pick 130 mm / 0.25 s（最高 0.69 m/s、11.1 m/s²）；transfer_to_place 1500 mm / 0.8 s（最高 2.50 m/s、12.5 m/s²）；lower_at_place 130 mm / 0.25 s（最高 0.69 m/s、11.1 m/s²）；lift_at_place 130 mm / 0.25 s（最高 0.69 m/s、11.1 m/s²）；return_to_pick 1500 mm / 0.8 s（最高 2.50 m/s、12.5 m/s²）；lower_at_pick 130 mm / 0.25 s（最高 0.69 m/s、11.1 m/s²）"
+      },
+      {
+       "item": "节拍里末端最高速度与加速度",
+       "status": "unknown",
+       "value": "2.50 m/s、12.5 m/s²",
+       "note": "选件后按直线模组或电机的最高速度、推力核（这一步判不了）"
+      },
+      {
+       "item": "抓取力",
+       "status": "unknown",
+       "value": "至少 4.46 N",
+       "note": "单片 100 g ×（g + 12.5 m/s²）× 安全系数 2；选件后按抓手的公开数据核"
+      },
+      {
+       "item": "结构",
+       "status": "pass",
+       "note": "2 根杆件、2 个关节"
+      },
+      {
+       "item": "取料点 (0, 0, 0)",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "放料点 (1500, 0, 0)",
+       "status": "pass",
+       "value": 0.004,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "一叠最高处 (0.0, 0.0, 100.0)",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "动作：lift_at_pick",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：transfer_to_place",
+       "status": "pass",
+       "value": 75.0,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 75.00（° 或 mm）"
+      },
+      {
+       "item": "动作：lower_at_place",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：lift_at_place",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：return_to_pick",
+       "status": "pass",
+       "value": 75.0,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 75.00（° 或 mm）"
+      },
+      {
+       "item": "动作：lower_at_pick",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      }
+     ],
+     "overall": "unknown"
+    },
+    {
+     "items": [
+      {
+       "item": "重复定位精度",
+       "status": "unknown",
+       "limit": "± 1 mm",
+       "note": "选件后按编码器分辨率与减速器回差算（这一步判不了）"
+      },
+      {
+       "item": "取放水平距离",
+       "status": "pass",
+       "value": 1500.0,
+       "limit": "1500 ± 1 mm"
+      },
+      {
+       "item": "取放两处同高",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "0 ± 1 mm",
+       "note": "放料点比取料点高（mm）"
+      },
+      {
+       "item": "节拍",
+       "status": "pass",
+       "value": 2.8,
+       "limit": "≤ 3 s",
+       "note": "6 段直线动作加停留；lift_at_pick 130 mm / 0.25 s（最高 0.69 m/s、11.1 m/s²）；transfer_to_place 1500 mm / 0.8 s（最高 2.50 m/s、12.5 m/s²）；lower_at_place 130 mm / 0.25 s（最高 0.69 m/s、11.1 m/s²）；lift_at_place 130 mm / 0.25 s（最高 0.69 m/s、11.1 m/s²）；return_to_pick 1500 mm / 0.8 s（最高 2.50 m/s、12.5 m/s²）；lower_at_pick 130 mm / 0.25 s（最高 0.69 m/s、11.1 m/s²）"
+      },
+      {
+       "item": "节拍里末端最高速度与加速度",
+       "status": "unknown",
+       "value": "2.50 m/s、12.5 m/s²",
+       "note": "选件后按直线模组或电机的最高速度、推力核（这一步判不了）"
+      },
+      {
+       "item": "抓取力",
+       "status": "unknown",
+       "value": "至少 4.46 N",
+       "note": "单片 100 g ×（g + 12.5 m/s²）× 安全系数 2；选件后按抓手的公开数据核"
+      },
+      {
+       "item": "结构",
+       "status": "pass",
+       "note": "4 根杆件、4 个关节"
+      },
+      {
+       "item": "取料点 (-750, 600, 0)",
+       "status": "fail",
+       "value": 5.46,
+       "limit": "≤ 0.05 mm",
+       "note": "关节行程内够不着"
+      },
+      {
+       "item": "放料点 (750, 600, 0)",
+       "status": "fail",
+       "value": 2.24,
+       "limit": "≤ 0.05 mm",
+       "note": "关节行程内够不着"
+      },
+      {
+       "item": "一叠最高处 (-750.0, 600.0, 100.0)",
+       "status": "fail",
+       "value": 5.19,
+       "limit": "≤ 0.05 mm",
+       "note": "关节行程内够不着"
+      },
+      {
+       "item": "动作：lift_at_pick",
+       "status": "fail",
+       "value": 5.46,
+       "note": "起点够不着"
+      },
+      {
+       "item": "动作：transfer_to_place",
+       "status": "fail",
+       "value": 5.77,
+       "note": "起点够不着"
+      },
+      {
+       "item": "动作：lower_at_place",
+       "status": "fail",
+       "value": 0.73,
+       "note": "起点够不着"
+      },
+      {
+       "item": "动作：lift_at_place",
+       "status": "fail",
+       "value": 2.24,
+       "note": "起点够不着"
+      },
+      {
+       "item": "动作：return_to_pick",
+       "status": "fail",
+       "value": 0.73,
+       "note": "起点够不着"
+      },
+      {
+       "item": "动作：lower_at_pick",
+       "status": "fail",
+       "value": 5.77,
+       "note": "起点够不着"
+      }
+     ],
+     "overall": "fail"
+    }
+   ],
+   "feedback": "构型 0：\n- [待确认] 重复定位精度（要求 ± 1 mm）；选件后按编码器分辨率与减速器回差算（这一步判不了）\n- [待确认] 节拍里末端最高速度与加速度：2.50 m/s、12.5 m/s²；选件后按直线模组或电机的最高速度、推力核（这一步判不了）\n- [待确认] 抓取力：至少 4.46 N；单片 100 g ×（g + 12.5 m/s²）× 安全系数 2；选件后按抓手的公开数据核\n构型 1：\n- [待确认] 重复定位精度（要求 ± 1 mm）；选件后按编码器分辨率与减速器回差算（这一步判不了）\n- [待确认] 节拍里末端最高速度与加速度：2.50 m/s、12.5 m/s²；选件后按直线模组或电机的最高速度、推力核（这一步判不了）\n- [待确认] 抓取力：至少 4.46 N；单片 100 g ×（g + 12.5 m/s²）× 安全系数 2；选件后按抓手的公开数据核\n- [不通过] 取料点 (-750, 600, 0)：5.46（要求 ≤ 0.05 mm）；关节行程内够不着\n- [不通过] 放料点 (750, 600, 0)：2.24（要求 ≤ 0.05 mm）；关节行程内够不着\n- [不通过] 一叠最高处 (-750.0, 600.0, 100.0)：5.19（要求 ≤ 0.05 mm）；关节行程内够不着\n- [不通过] 动作：lift_at_pick：5.46；起点够不着\n- [不通过] 动作：transfer_to_place：5.77；起点够不着\n- [不通过] 动作：lower_at_place：0.73；起点够不着\n- [不通过] 动作：lift_at_place：2.24；起点够不着\n- [不通过] 动作：return_to_pick：0.73；起点够不着\n- [不通过] 动作：lower_at_pick：5.77；起点够不着"
+  }
+ ],
+ "ai": [
+  {
+   "id": "msg_011ChPog2QBZQdjDFrxATFvn",
+   "provider": "claude",
+   "model": "claude-sonnet-5-5",
+   "simulated": false
+  },
+  {
+   "id": "msg_011ChPogyT6jTxUj3hy7jz7S",
+   "provider": "claude",
+   "model": "claude-sonnet-5-5",
+   "simulated": false
+  },
+  {
+   "id": "msg_011ChPohLc5kL5FZeV77M6BC",
+   "provider": "claude",
+   "model": "claude-sonnet-5-5",
+   "simulated": false
+  }
+ ],
+ "conditions": {
+  "kind": "other",
+  "repeatability": 1.0,
+  "for_people": [
+   "不能损伤布料",
+   "机器人不能占用车间通道"
+  ],
+  "cycle": 3.0,
+  "part_mass": 0.1,
+  "part_length": 600.0,
+  "part_width": 400.0,
+  "stack_height": 100.0,
+  "work_height": 850.0,
+  "pick_to_place": 1500.0,
+  "same_height": true
+ },
+ "rejected": [],
+ "missing": [],
+ "quotes": [
+  {
+   "what": "机器人类型",
+   "value": "other",
+   "unit": "",
+   "quote": "裁片上下料机器人"
+  },
+  {
+   "what": "重复定位精度",
+   "value": 1.0,
+   "unit": "mm",
+   "quote": "放料定位精度 ±1 mm"
+  },
+  {
+   "what": "节拍",
+   "value": 3.0,
+   "unit": "s",
+   "quote": "节拍 3 s/片（取一片、放好、回到取料位）"
+  },
+  {
+   "what": "单片最大质量",
+   "value": 0.1,
+   "unit": "kg",
+   "quote": "裁片单片质量不超过 100 g"
+  },
+  {
+   "what": "裁片最大长度",
+   "value": 600.0,
+   "unit": "mm",
+   "quote": "最大 600 mm × 400 mm"
+  },
+  {
+   "what": "裁片最大宽度",
+   "value": 400.0,
+   "unit": "mm",
+   "quote": "最大 600 mm × 400 mm"
+  },
+  {
+   "what": "一叠最高",
+   "value": 100.0,
+   "unit": "mm",
+   "quote": "一叠最高 100 mm"
+  },
+  {
+   "what": "台面离地高度",
+   "value": 850.0,
+   "unit": "mm",
+   "quote": "离地 850 mm"
+  },
+  {
+   "what": "取料区到放料区的水平距离",
+   "value": 1500.0,
+   "unit": "mm",
+   "quote": "取料区中心到放料区中心水平距离 1500 mm"
+  },
+  {
+   "what": "取放两处同高",
+   "value": "是",
+   "unit": "",
+   "quote": "裁床台面和送料台面同高"
+  }
+ ],
+ "questions": [
+  "机器人形式没有指定（串联臂、龙门/直角坐标，还是其他）？请确认，原话只说了“上下料机器人”。",
+  "安装方式和位置没说：装在地面、台面还是吊装？底座相对取料区和放料区放在哪里？这决定臂展要多大。",
+  "取料区中心到放料区中心水平距离是 1500 mm，但这不等于臂展，因为底座位置还没定。请给出底座位置，或允许的占地范围。",
+  "车间通道在哪个方向、离两个工位多远？可用占地范围有多大？",
+  "节拍 3 s/片（取、放、回位）没有对应的设计字段，请确认是否按这个节拍反推关节速度。同时请确认 3 s 里是否包含吸取和释放的动作时间。",
+  "“放料定位精度 ±1 mm”指的是重复定位精度还是绝对定位精度？",
+  "自由度和关节最高角速度原话都没给，请确认是否有要求。",
+  "取料时叠高在 100 mm 内变化，取料高度需要覆盖多大范围？是否允许用视觉或传感器检测叠高？",
+  "裁片抓取方式（真空吸盘、针刺等）和取单片的防叠取办法没说明，需要工程师确认。",
+  "机器人不能占用车间通道：可用的安装空间（占地尺寸、安装位置、与通道的边界）是多少？",
+  "取料时裁片叠高 100 mm 会随取走逐片降低，取料高度是否按叠顶变化处理？一叠是多少片、每叠取完如何换叠？",
+  "裁片布料种类和厚度（是否透气、易起皱、柔软程度）是什么？用于选择吸取/抓取方式以避免损伤布料。",
+  "送料台上放料的姿态/朝向要求（是否需要铺平、对边对齐）？±1 mm 定位精度的基准是什么？"
+ ],
+ "status": "pass",
+ "chosen_round": 1,
+ "chosen_candidate": 0,
+ "chosen": {
+  "base": {
+   "height_mm": 500,
+   "mount": "table"
+  },
+  "end_effector": {
+   "offset_mm": [
+    0,
+    0,
+    -400
+   ],
+   "parent": "z_slide",
+   "type": "vacuum"
+  },
+  "format": "robot-concept/1",
+  "joints": [
+   {
+    "axis": [
+     1,
+     0,
+     0
+    ],
+    "child": "x_carriage",
+    "id": "j1_x",
+    "lead_mm": 150,
+    "origin_mm": [
+     0,
+     0,
+     500
+    ],
+    "parent": "base",
+    "range_mm": [
+     -50,
+     1550
+    ],
+    "transmission": "belt_linear",
+    "type": "prismatic"
+   },
+   {
+    "axis": [
+     0,
+     0,
+     1
+    ],
+    "child": "z_slide",
+    "id": "j2_z",
+    "lead_mm": 25,
+    "origin_mm": [
+     0,
+     0,
+     0
+    ],
+    "parent": "x_carriage",
+    "range_mm": [
+     -100,
+     100
+    ],
+    "transmission": "ballscrew",
+    "type": "prismatic"
+   }
+  ],
+  "kind": "gantry",
+  "links": [
+   {
+    "id": "x_carriage",
+    "length_mm": 300,
+    "material": "6061-T6",
+    "section": {
+     "height_mm": 100,
+     "wall_mm": 5,
+     "width_mm": 150
+    },
+    "shape": "box"
+   },
+   {
+    "id": "z_slide",
+    "length_mm": 400,
+    "material": "6061-T6",
+    "section": {
+     "id_mm": 42,
+     "od_mm": 50
+    },
+    "shape": "tube"
+   }
+  ],
+  "name": "table_gantry_xz_vacuum",
+  "reason": "X-Z 两轴龙门架在台面上方，从取料区直线平移到放料区，不绕弯、没有奇异位置。末端用大面积真空吸盘，不扎布，对布料较温和。",
+  "tasks": [
+   {
+    "dwell_s": 0,
+    "from_mm": [
+     0,
+     0,
+     0
+    ],
+    "move_s": 0.25,
+    "name": "lift_at_pick",
+    "to_mm": [
+     0,
+     0,
+     130
+    ],
+    "type": "cartesian_move"
+   },
+   {
+    "dwell_s": 0,
+    "from_mm": [
+     0,
+     0,
+     130
+    ],
+    "move_s": 0.8,
+    "name": "transfer_to_place",
+    "to_mm": [
+     1500,
+     0,
+     130
+    ],
+    "type": "cartesian_move"
+   },
+   {
+    "dwell_s": 0.1,
+    "from_mm": [
+     1500,
+     0,
+     130
+    ],
+    "move_s": 0.25,
+    "name": "lower_at_place",
+    "to_mm": [
+     1500,
+     0,
+     0
+    ],
+    "type": "cartesian_move"
+   },
+   {
+    "dwell_s": 0,
+    "from_mm": [
+     1500,
+     0,
+     0
+    ],
+    "move_s": 0.25,
+    "name": "lift_at_place",
+    "to_mm": [
+     1500,
+     0,
+     130
+    ],
+    "type": "cartesian_move"
+   },
+   {
+    "dwell_s": 0,
+    "from_mm": [
+     1500,
+     0,
+     130
+    ],
+    "move_s": 0.8,
+    "name": "return_to_pick",
+    "to_mm": [
+     0,
+     0,
+     130
+    ],
+    "type": "cartesian_move"
+   },
+   {
+    "dwell_s": 0.1,
+    "from_mm": [
+     0,
+     0,
+     130
+    ],
+    "move_s": 0.25,
+    "name": "lower_at_pick",
+    "to_mm": [
+     0,
+     0,
+     0
+    ],
+    "type": "cartesian_move"
+   }
+  ],
+  "workspace": {
+   "points_mm": [
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     1500,
+     0,
+     0
+    ]
+   ]
+  }
+ },
+ "chosen_note": ""
+}

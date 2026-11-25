@@ -154,3 +154,16 @@ def test_a_converted_payload_in_the_first_list_does_not_block_a_pick_and_place_d
     c = _Script(first, CELL, {"candidates": [gantry()], "recommend": 0, "reason": "x"})
     r = RD.design(STATEMENT, c)
     assert r["status"] == "pass" and "payload" not in r["conditions"] and r["conditions"]["part_mass"] == pytest.approx(0.1)
+
+
+def test_case_b_replays_from_the_recording():
+    """案例 B 的构型初筛按 CI 上 Claude 的录制回放：1 轮通过，采用两轴龙门，与 out/concept-result.json 一样"""
+    import json
+
+    from ingest.llm_extract import RecordedClient
+
+    r = RD.design(STATEMENT, RecordedClient(RD.RECORDINGS_DIR))
+    saved = json.loads((ROOT / "examples" / "robots" / "sewing-loader" / "out" / "concept-result.json").read_text(encoding="utf-8"))
+    assert r["status"] == "pass" and r["chosen"]["kind"] == "gantry"
+    assert r["chosen"] == saved["chosen"] and r["conditions"] == saved["conditions"]
+    assert next(i for i in r["rounds"][0]["evaluations"][0]["items"] if i["item"] == "节拍")["value"] == pytest.approx(2.8)
