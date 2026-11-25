@@ -3072,5 +3072,6 @@
 "轴行程（各轴零点、上下限）": "axis travels (zero points, limits)",
 "换刀点 X（直径）mm": "Tool change X (diameter) mm",
 "换刀点 Z mm": "Tool change Z mm",
-"换刀点：X{}（直径）Z{}": "Tool change position: X{} (diameter) Z{}"
+"换刀点：X{}（直径）Z{}": "Tool change position: X{} (diameter) Z{}",
+"{} 的手册代码表里没有 {}（ADR-0125），程序不出": "{}: the manual's code table has no {} (ADR-0125), so the program is not output"
 }

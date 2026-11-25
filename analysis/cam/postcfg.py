@@ -60,7 +60,7 @@ def check(cfg: dict, where: str = "") -> dict:
     if dl.get("turn_cycles") == "one_block":
         raise PostConfigError(f"{where + '：' if where else ''}复合循环的单段写法还没按官方手册做，请写 two_block 或 none（ADR-0124）")
     for key, v in dl.items():
-        if key in ("sources", "turn_cycles"):
+        if key in ("sources", "turn_cycles", "codes"):
             continue
         for t in (v if isinstance(v, list) else [v]):
             bad = set(re.findall(r"\{([a-z]+)\}", t)) - set(_PH)
@@ -212,8 +212,30 @@ def _rules(dl: dict, lathe: bool) -> list:
     if dl.get("cylindrical"):
         r += [(re.compile(r"^G07\.1 C0$"), "G07.1 C0", [dl["cylindrical"][1]]),
               (re.compile(rf"^G07\.1 C(?P<r>{_NUM})$"), "G07.1 C{r}", [dl["cylindrical"][0]])]
+    if "rigid_tap" in dl:                     # 刚性攻丝 G84 前面的行（ADR-0125）；[] = 不写
+        r.append((re.compile(r"^M29 S(?P<s>\d+)$"), "M29 S{s}", list(dl["rigid_tap"])))
     del num
     return r
+
+
+def _code_norm(c: str) -> str:
+    a, _, b = c.partition(".")
+    return str(int(a)) + (f".{b}" if b else "")
+
+
+def check_codes(text: str, cfg: dict) -> None:
+    """正式程序里的 G、M 代码都要在这家手册的代码表里（dialect.codes，ADR-0125），否则不出"""
+    codes = (cfg.get("dialect") or {}).get("codes")
+    if not codes:
+        return
+    body = "\n".join(re.sub(r"\([^)]*\)", "", ln) for ln in text.split("\n"))
+    have_g = {_code_norm(x) for x in codes["g"]}
+    have_m = {_code_norm(x) for x in codes["m"]}
+    bad_g = sorted({_code_norm(g) for g in re.findall(r"\bG(\d+(?:\.\d)?)", body)} - have_g, key=float)
+    bad_m = sorted({_code_norm(m) for m in re.findall(r"\bM(\d+)", body)} - have_m, key=float)
+    if bad_g or bad_m:
+        miss = "、".join([f"G{g}" for g in bad_g] + [f"M{m}" for m in bad_m])
+        raise PostConfigError(f"{cfg['name']} 的手册代码表里没有 {miss}（ADR-0125），程序不出")
 
 
 def _split_n(line: str):
@@ -238,7 +260,8 @@ def apply_dialect(lines: list, cfg: dict, lathe: bool) -> list:
                 v = m.groupdict()
                 if "r" in v:
                     v["d"] = num(2.0 * float(v["r"]))
-                out += [pre + _fill(tpl[0], v)] + [_fill(t, v) for t in tpl[1:]]
+                if tpl:                                     # 模板是空的（rigid_tap: []）：这一行不写
+                    out += [pre + _fill(tpl[0], v)] + [_fill(t, v) for t in tpl[1:]]
                 break
         else:
             out.append(ln)
@@ -254,6 +277,17 @@ def undo_dialect(text: str, cfg: dict, lathe: bool) -> str:
     if not rules:
         return text
     lines = text.split("\n")
+    if dl.get("rigid_tap") == []:              # 这家不写 M29：回读时在 G84 前补回 FANUC 的 M29 S（转速取前面最近的 S）
+        fixed, s_last = [], None
+        for ln in lines:
+            body = _split_n(re.sub(r"\s*\(#L\d+\)$", "", ln.strip()))[1]
+            mm = re.search(r"\bS(\d+)\b", body)
+            if re.search(r"\bG84\b", body) and s_last is not None:
+                fixed.append(f"M29 S{s_last}")
+            if mm and not re.search(r"\bG84\b", body):
+                s_last = mm.group(1)
+            fixed.append(ln)
+        lines = fixed
     out, i = [], 0
     while i < len(lines):
         raw = lines[i].strip()
@@ -262,6 +296,8 @@ def undo_dialect(text: str, cfg: dict, lathe: bool) -> str:
         pre, body = _split_n(raw[: len(raw) - len(tail)])
         hit = False
         for _rx, fan, tpl in rules:
+            if not tpl:
+                continue
             m = _tpl_re(tpl[0]).match(body)
             if not m or not all(i + k < len(lines) and _tpl_re(t).match(_split_n(re.sub(r"\s*\(#L\d+\)$", "", lines[i + k].strip()))[1])
                                 for k, t in enumerate(tpl[1:], 1)):
