@@ -99,10 +99,10 @@ def test_fagor_mill_turn_face_and_cylinder(tmp_path, monkeypatch):
     90° → 39.2699、180° → 78.5398），结尾 #… OFF、#CAX OFF、G151；进给照写（#CYL 的 F 也在给定半径上）；回读与仿真刀路一致"""
     t = _rel(_run_fmt(tmp_path, monkeypatch, CYL))
     assert not re.search(r"G12\.1|G13\.1|G0?7\.1|\bG9[89]\b", t)
-    for frag in ("M18\nM45\nS2000\nG152\n#CAX\n#FACE [X,C,Q0]\nG00 X10.0 C-10.0 Z2.0\nG01 Z-3.0 F100.0\nC10.0 F200.0\nG00 Z2.0\n"
-                 "#FACE OFF\n#CAX OFF\nG151\nM46\nM19\nG95",
-                 "G152\n#CAX\n#CYL [Z,C,X25.0,Q0]\nG00 X30.0 C0.0 Z-10.0\nG01 X22.0 F100.0\nC39.2699 F200.0\nC78.5398 Z-20.0\nG00 X30.0\n"
-                 "#CYL OFF\n#CAX OFF\nG151"):
+    for frag in (("M18\nM45\nS2000\nG152\n#CAX\n#FACE [X,C,Q0]\nG00 X10.0 C-10.0 Z2.0\nG01 Z-3.0 F100.0\nC10.0 F200.0\nG00 Z2.0\n"
+                  "#FACE OFF\n#CAX OFF\nG151\nM46\nM19\nG95"),
+                 ("G152\n#CAX\n#CYL [Z,C,X25.0,Q0]\nG00 X30.0 C0.0 Z-10.0\nG01 X22.0 F100.0\nC39.2699 F200.0\nC78.5398 Z-20.0\nG00 X30.0\n"
+                  "#CYL OFF\n#CAX OFF\nG151")):
         assert frag in t, frag
     back = postproc.to_fanuc(t, "fmt", True)
     assert "G07.1 C25.0\nG00 X60.0 C0.0 Z-10.0\nG01 X44.0 F100.0\nC90.0 F200.0\nC180.0 Z-20.0" in back and "G12.1\nG00 X20.0 C-10.0 Z2.0" in back
