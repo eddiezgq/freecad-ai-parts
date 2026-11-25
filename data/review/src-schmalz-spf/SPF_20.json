@@ -1,19 +1,22 @@
 {
-  "agreed": [],
-  "pending": [
-    {
-      "target": "params/gripper_type",
-      "primary": {
-        "value": "suction_cup"
-      },
-      "reason": "只有主抽取报出"
-    }
+  "agreed": [
+    "dims/outer_diameter_mm",
+    "dims/overall_length_mm",
+    "params/cup_diameter_mm",
+    "params/gripper_type",
+    "params/holding_force_n"
   ],
-  "problems": [
-    "包络缺少 dims/overall_length_mm"
+  "pending": [],
+  "problems": [],
+  "notes": [
+    "params/gripper_type = suction_cup 由 Claude（对照数据表原页核对，经张国庆授权） 人工确认",
+    "params/holding_force_n = 16.0 由 Claude（对照数据表原页核对，经张国庆授权） 人工确认",
+    "params/cup_diameter_mm = 21.4 由 Claude（对照数据表原页核对，经张国庆授权） 人工确认",
+    "dims/outer_diameter_mm = 23.3 由 Claude（对照数据表原页核对，经张国庆授权） 人工录入",
+    "dims/overall_length_mm = 11.0 由 Claude（对照数据表原页核对，经张国庆授权） 人工录入"
   ],
-  "notes": [],
   "reviewer": "claude（AI 复核）",
   "primary_model": "claude-sonnet-5-5",
-  "check_model": "claude-opus-5-5"
+  "check_model": "claude-opus-5-5",
+  "component": "gripper.j-schmalz-gmbh.spf-20"
 }
