@@ -237,10 +237,16 @@ def _friction_fixed_point(sysm, q, qd, t, J, rows, jids, Q0, gam, solve, x):
         Fx, Nx = sysm.friction_wrenches(q, qd, react)
         return solve(np.concatenate([Q0 + sysm.Q_extra(q, qd, Fx, Nx), gam])), react
 
+    return _fp_iterate(sysm, t, g, x, "_friction_x")
+
+
+def _fp_iterate(sysm, t, g, x, key):
+    """摩擦不动点 x = g(x) 的通用迭代（g 返回 (新 x, 各运动副反力)）：热启动（上一次的解存在 sysm.<key>）、普通迭代、
+    慢就改 Anderson 加速、增益 ≥ 1 判自锁。加速度（accel）与运动学的反力（kinematic）共用"""
     def small(d, ref):
         return np.max(np.abs(d)) <= FRICTION_TOL * (1 + np.max(np.abs(ref)))
 
-    prev = sysm.__dict__.get("_friction_x")
+    prev = sysm.__dict__.get(key)
     if prev is not None and prev.shape == x.shape:
         x = prev.copy()                  # 从上一次的解出发：积分相邻两步的反力差得很少
     steps = []
@@ -250,7 +256,8 @@ def _friction_fixed_point(sysm, q, qd, t, J, rows, jids, Q0, gam, solve, x):
         steps.append(float(np.max(np.abs(d))))
         x = x1
         if small(d, x1):
-            sysm._friction_x, sysm._friction_lock = x, None
+            setattr(sysm, key, x)
+            sysm._friction_lock = None
             return x
         if k >= FRICTION_ITER_EARLY and _gain(steps) > 0.5:
             break                        # 收敛慢：不再空耗普通迭代，下面按增益分情况
@@ -267,7 +274,8 @@ def _friction_fixed_point(sysm, q, qd, t, J, rows, jids, Q0, gam, solve, x):
         gx, react = g(x)
         f = gx - x
         if small(f, gx):
-            sysm._friction_x, sysm._friction_lock = gx, None
+            setattr(sysm, key, gx)
+            sysm._friction_lock = None
             return gx
         X.append(x.copy())
         G.append(gx.copy())
@@ -390,15 +398,33 @@ def kinematic(sysm: System, t_end, steps):
     if dof != 0:
         raise SolveError(f"运动学分析要自由度为 0（加了驱动以后还剩 {dof} 个自由度）；有自由度的用动力学分析")
     rec = Recorder(sysm)
+    jids = _friction_joints(sysm)
     for t in np.linspace(0.0, t_end, steps + 1):
         q = assemble(sysm, q, t, rows)
         J = sysm.jac(q, t, rows)
         qd = np.linalg.solve(J, sysm.nu(q, t, rows))
         qdd = np.linalg.solve(J, sysm.gamma(q, qd, t, rows))
         Q = sysm.Q(q, qd, t)
-        lam = np.linalg.solve(J.T, Q - sysm.mass(q) @ qdd)
+        rhs0 = Q - sysm.mass(q) @ qdd
+        lam = np.linalg.solve(J.T, rhs0)
+        if jids:
+            lam = _kinematic_friction(sysm, q, qd, t, J, rows, jids, rhs0, lam)
         rec.add(float(t), q, qd, qdd, keep, lam)
     return rec, {"dof": 0, "redundant": [sysm.rows[k].label for k in drop]}
+
+
+def _kinematic_friction(sysm, q, qd, t, J, rows, jids, rhs0, lam):
+    """运动学分析的反力（含驱动力矩）计入运动副摩擦。《多体动力学》书第 20 章线索第 27 条（问渠 CAD 0.3.8 细则）：
+    原来解乘子不走摩擦迭代，曲柄滑块 μ = 0.2 与无摩擦的驱动力矩完全相同、无提示（书里一周最大多 4.12 N·m）；
+    全驱动的模型又不能做动力学分析。现在与加速度一样走摩擦不动点（反力 → 摩擦 → 反力）"""
+    lu = sla.lu_factor(J.T)
+
+    def g(lam_):
+        react = _joint_forces(sysm, q, J, lam_, rows, jids)
+        Fx, Nx = sysm.friction_wrenches(q, qd, react)
+        return sla.lu_solve(lu, rhs0 + sysm.Q_extra(q, qd, Fx, Nx)), react
+
+    return _fp_iterate(sysm, t, g, lam, "_friction_lam")
 
 
 RELAX_ALPHA = 1000.0     # 1/s，静平衡找不到时“过阻尼动力学放松”的质量比例阻尼
