@@ -1,0 +1,57 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-cell/1",
+  "request_key": "85dc1c273d28897ddfea3deca17fa53d32a76e6e923b93de3c29dddb8bb791da",
+  "response": {
+    "id": "msg_011ChPogyT6jTxUj3hy7jz7S",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "cycle": {
+        "quote": "节拍 3 s/片（取一片、放好、回到取料位）",
+        "unit": "s",
+        "value": 3
+      },
+      "part_length": {
+        "quote": "最大 600 mm × 400 mm",
+        "unit": "mm",
+        "value": 600
+      },
+      "part_mass": {
+        "quote": "裁片单片质量不超过 100 g",
+        "unit": "g",
+        "value": 100
+      },
+      "part_width": {
+        "quote": "最大 600 mm × 400 mm",
+        "unit": "mm",
+        "value": 400
+      },
+      "pick_to_place": {
+        "quote": "取料区中心到放料区中心水平距离 1500 mm",
+        "unit": "mm",
+        "value": 1500
+      },
+      "questions": [
+        "机器人不能占用车间通道：可用的安装空间（占地尺寸、安装位置、与通道的边界）是多少？",
+        "取料时裁片叠高 100 mm 会随取走逐片降低，取料高度是否按叠顶变化处理？一叠是多少片、每叠取完如何换叠？",
+        "裁片布料种类和厚度（是否透气、易起皱、柔软程度）是什么？用于选择吸取/抓取方式以避免损伤布料。",
+        "送料台上放料的姿态/朝向要求（是否需要铺平、对边对齐）？±1 mm 定位精度的基准是什么？"
+      ],
+      "same_height": {
+        "quote": "裁床台面和送料台面同高"
+      },
+      "stack_height": {
+        "quote": "一叠最高 100 mm",
+        "unit": "mm",
+        "value": 100
+      },
+      "work_height": {
+        "quote": "离地 850 mm",
+        "unit": "mm",
+        "value": 850
+      }
+    }
+  }
+}

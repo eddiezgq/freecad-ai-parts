@@ -1,0 +1,484 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/4",
+  "request_key": "76b0d331647fc2abfa3f71a355f49c802274c5598ff86f1692ed3bcc3c59e2cb",
+  "response": {
+    "id": "msg_011ChPohLc5kL5FZeV77M6BC",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "candidates": [
+        {
+          "base": {
+            "height_mm": 500,
+            "mount": "table"
+          },
+          "end_effector": {
+            "offset_mm": [
+              0,
+              0,
+              -400
+            ],
+            "parent": "z_slide",
+            "type": "vacuum"
+          },
+          "format": "robot-concept/1",
+          "joints": [
+            {
+              "axis": [
+                1,
+                0,
+                0
+              ],
+              "child": "x_carriage",
+              "id": "j1_x",
+              "lead_mm": 150,
+              "origin_mm": [
+                0,
+                0,
+                500
+              ],
+              "parent": "base",
+              "range_mm": [
+                -50,
+                1550
+              ],
+              "transmission": "belt_linear",
+              "type": "prismatic"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "z_slide",
+              "id": "j2_z",
+              "lead_mm": 25,
+              "origin_mm": [
+                0,
+                0,
+                0
+              ],
+              "parent": "x_carriage",
+              "range_mm": [
+                -100,
+                100
+              ],
+              "transmission": "ballscrew",
+              "type": "prismatic"
+            }
+          ],
+          "kind": "gantry",
+          "links": [
+            {
+              "id": "x_carriage",
+              "length_mm": 300,
+              "material": "6061-T6",
+              "section": {
+                "height_mm": 100,
+                "wall_mm": 5,
+                "width_mm": 150
+              },
+              "shape": "box"
+            },
+            {
+              "id": "z_slide",
+              "length_mm": 400,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 42,
+                "od_mm": 50
+              },
+              "shape": "tube"
+            }
+          ],
+          "name": "table_gantry_xz_vacuum",
+          "reason": "X-Z 两轴龙门架在台面上方，从取料区直线平移到放料区，不绕弯、没有奇异位置。末端用大面积真空吸盘，不扎布，对布料较温和。",
+          "tasks": [
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                0,
+                0,
+                0
+              ],
+              "move_s": 0.25,
+              "name": "lift_at_pick",
+              "to_mm": [
+                0,
+                0,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                0,
+                0,
+                130
+              ],
+              "move_s": 0.8,
+              "name": "transfer_to_place",
+              "to_mm": [
+                1500,
+                0,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0.1,
+              "from_mm": [
+                1500,
+                0,
+                130
+              ],
+              "move_s": 0.25,
+              "name": "lower_at_place",
+              "to_mm": [
+                1500,
+                0,
+                0
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                1500,
+                0,
+                0
+              ],
+              "move_s": 0.25,
+              "name": "lift_at_place",
+              "to_mm": [
+                1500,
+                0,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                1500,
+                0,
+                130
+              ],
+              "move_s": 0.8,
+              "name": "return_to_pick",
+              "to_mm": [
+                0,
+                0,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0.1,
+              "from_mm": [
+                0,
+                0,
+                130
+              ],
+              "move_s": 0.25,
+              "name": "lower_at_pick",
+              "to_mm": [
+                0,
+                0,
+                0
+              ],
+              "type": "cartesian_move"
+            }
+          ],
+          "workspace": {
+            "points_mm": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                1500,
+                0,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "base": {
+            "height_mm": 350,
+            "mount": "table"
+          },
+          "end_effector": {
+            "offset_mm": [
+              0,
+              0,
+              -10
+            ],
+            "parent": "wrist",
+            "type": "vacuum"
+          },
+          "format": "robot-concept/1",
+          "joints": [
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "link1",
+              "id": "j1",
+              "module_group": "arm_joint",
+              "origin_mm": [
+                0,
+                0,
+                350
+              ],
+              "parent": "base",
+              "range_deg": [
+                -170,
+                170
+              ],
+              "ratio": 50,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "link2",
+              "id": "j2",
+              "module_group": "arm_joint",
+              "origin_mm": [
+                550,
+                0,
+                60
+              ],
+              "parent": "link1",
+              "range_deg": [
+                -145,
+                145
+              ],
+              "ratio": 50,
+              "transmission": "reducer",
+              "type": "revolute"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "z_slide",
+              "id": "j3_z",
+              "lead_mm": 20,
+              "origin_mm": [
+                550,
+                0,
+                0
+              ],
+              "parent": "link2",
+              "range_mm": [
+                -100,
+                100
+              ],
+              "transmission": "ballscrew",
+              "type": "prismatic"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "wrist",
+              "id": "j4",
+              "origin_mm": [
+                0,
+                0,
+                -300
+              ],
+              "parent": "z_slide",
+              "range_deg": [
+                -200,
+                200
+              ],
+              "ratio": 20,
+              "transmission": "reducer",
+              "type": "revolute"
+            }
+          ],
+          "kind": "serial_arm",
+          "links": [
+            {
+              "id": "link1",
+              "length_mm": 550,
+              "material": "6061-T6",
+              "section": {
+                "height_mm": 80,
+                "wall_mm": 4,
+                "width_mm": 100
+              },
+              "shape": "box"
+            },
+            {
+              "id": "link2",
+              "length_mm": 550,
+              "material": "6061-T6",
+              "section": {
+                "height_mm": 70,
+                "wall_mm": 3,
+                "width_mm": 80
+              },
+              "shape": "box"
+            },
+            {
+              "id": "z_slide",
+              "length_mm": 300,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 32,
+                "od_mm": 40
+              },
+              "shape": "tube"
+            },
+            {
+              "id": "wrist",
+              "length_mm": 60,
+              "material": "6061-T6",
+              "section": {
+                "thickness_mm": 10,
+                "width_mm": 100
+              },
+              "shape": "plate"
+            }
+          ],
+          "name": "table_scara_offset_vacuum",
+          "reason": "SCARA（J1、J2 转动，J3 竖直升降，J4 末端转动）装在台面上，基座放在取放连线一侧 600 mm 处。这样直线平移不会穿过基座轴线。J4 在摆动时保持裁片朝向。",
+          "tasks": [
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                -750,
+                600,
+                0
+              ],
+              "move_s": 0.25,
+              "name": "lift_at_pick",
+              "to_mm": [
+                -750,
+                600,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                -750,
+                600,
+                130
+              ],
+              "move_s": 0.8,
+              "name": "transfer_to_place",
+              "to_mm": [
+                750,
+                600,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0.1,
+              "from_mm": [
+                750,
+                600,
+                130
+              ],
+              "move_s": 0.25,
+              "name": "lower_at_place",
+              "to_mm": [
+                750,
+                600,
+                0
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                750,
+                600,
+                0
+              ],
+              "move_s": 0.25,
+              "name": "lift_at_place",
+              "to_mm": [
+                750,
+                600,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                750,
+                600,
+                130
+              ],
+              "move_s": 0.8,
+              "name": "return_to_pick",
+              "to_mm": [
+                -750,
+                600,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0.1,
+              "from_mm": [
+                -750,
+                600,
+                130
+              ],
+              "move_s": 0.25,
+              "name": "lower_at_pick",
+              "to_mm": [
+                -750,
+                600,
+                0
+              ],
+              "type": "cartesian_move"
+            }
+          ],
+          "workspace": {
+            "points_mm": [
+              [
+                -750,
+                600,
+                0
+              ],
+              [
+                750,
+                600,
+                0
+              ]
+            ]
+          }
+        }
+      ],
+      "reason": "推荐 0（台面龙门 X-Z）。\n取舍：\n1）运动：取放同高、相距 1500 mm，只需水平直线加竖直升降，两个移动轴刚好够用。X 轴峰值约 2.5 m/s、加速度约 12.5 m/s²，Z 轴升降约 0.7 m/s。节拍合计 2.8 s，不大于 3.0 s。\n2）精度与奇异：移动轴没有奇异位置，±1 mm 重复定位主要看直线模组本身，选件后核。SCARA 要保证 1500 mm 直线不穿过基座，所以基座偏置 600 mm、臂长 1100 mm。它的 J1、J2 要在 0.8 s 内带着长臂做 12 m/s² 量级的加减速，惯量大，精度和振动更难控制。\n3）占用通道：两个方案都装在台面上，没有落地部分伸进通道。龙门需要台面两端有立柱，台面长度要不小于约 2100 mm，加上立柱占位，这点要现场确认。SCARA 要台面一侧留出基座位置，约 600 mm 以上的宽度。\n4）零件库：库里只有转动件。龙门的直线模组要从公开目录整本导入，SCARA 的 J1、J2、J4 可用库内关节模组，J1 和 J2 已设同一个 module_group。\n5）末端：选真空吸盘，用多吸盘或泡沫大面积垫，接触面软，不穿刺布料。针刺会戳断纤维，伤布风险高，不选。布料透气、会漏气，需要高流量真空和分层措施（如吹气分片，防止一次吸起多片）。抓取力、漏气量和是否伤布，选件后按公开数据核，查不到的记待确认。\n6）Z 轴竖直装滚珠丝杠或带刹车电机，断电时防止末端下滑。",
+      "recommend": 0
+    }
+  }
+}
