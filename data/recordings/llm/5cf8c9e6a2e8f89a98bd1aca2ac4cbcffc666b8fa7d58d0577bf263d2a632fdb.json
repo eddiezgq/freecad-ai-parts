@@ -1,0 +1,47 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "5cf8c9e6a2e8f89a98bd1aca2ac4cbcffc666b8fa7d58d0577bf263d2a632fdb",
+  "response": {
+    "id": "msg_011ChQ4U6PhmYnaNYg6PVaTC",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Flat Suction Cups SPF",
+          "printed_text": "Flat Suction Cups SPF",
+          "printed_unit": "",
+          "quote": "Flat Suction Cups SPF",
+          "target": "params/gripper_type",
+          "value": "suction_cup"
+        },
+        {
+          "condition": "-600 mbar, theoretical value, smooth dry workpiece surface",
+          "confidence": 0.85,
+          "page": 4,
+          "printed_label": "Suction force (-600 mbar) [N]*",
+          "printed_text": "16.00",
+          "printed_unit": "N",
+          "quote": "| SPF | 20 | 16.00 | 19.2 | 10.5 | 1.2 | 20 | 4 |",
+          "target": "params/holding_force_n",
+          "value": 16.0
+        },
+        {
+          "confidence": 0.5,
+          "page": 1,
+          "printed_label": "Application",
+          "printed_text": "Handling of cardboards and rigid packaging in top-loading and side-loading machines",
+          "printed_unit": "",
+          "quote": "• Handling of cardboards and rigid packaging in top-loading",
+          "target": "params/suitable_materials",
+          "value": "cardboards and rigid packaging"
+        }
+      ],
+      "model": "SPF 20",
+      "series": "SPF",
+      "vendor": "Schmalz"
+    }
+  }
+}

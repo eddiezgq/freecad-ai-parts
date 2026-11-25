@@ -32,7 +32,7 @@ DEFAULT_MODEL = "claude-sonnet-5-5"
 TOOL_NAME = "record_extraction"
 ROOT = Path(__file__).resolve().parent.parent
 RECORDINGS_DIR = ROOT / "tests" / "recordings" / "llm"
-CATEGORIES = ("servo_motor", "reducer", "drive", "bearing", "adapter")
+CATEGORIES = ("servo_motor", "reducer", "drive", "bearing", "adapter", "linear_module", "gripper")
 
 DIMS = {
     "overall_length_mm": "总长（沿轴向）",
@@ -42,6 +42,7 @@ DIMS = {
     "width_mm": "宽度",
     "height_mm": "高度",
     "depth_mm": "深度",
+    "base_length_mm": "行程 0 mm 时的总长（直线模组行程订货时任选：总长 = 这个数 + 行程，目录写成“L1 = 155 + 行程”的取 155）",
 }
 # 各品类可抽取的整体尺寸（用于生成包络，ADR-0021 第 4 条）
 CATEGORY_DIMS = {
@@ -50,6 +51,8 @@ CATEGORY_DIMS = {
     "drive": ("width_mm", "height_mm", "depth_mm"),
     "bearing": ("outer_diameter_mm",),
     "adapter": ("overall_length_mm", "outer_diameter_mm", "square_mm", "width_mm", "height_mm"),
+    "linear_module": ("overall_length_mm", "base_length_mm", "width_mm", "height_mm"),
+    "gripper": ("overall_length_mm", "outer_diameter_mm", "width_mm", "height_mm"),
 }
 
 # ---------------------------------------------------------------- 字段清单
