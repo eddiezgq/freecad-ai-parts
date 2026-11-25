@@ -1,0 +1,20 @@
+{
+ "format": "cam-post/1",
+ "id": "num-flexium",
+ "name": "NUM Flexium / Flexium+",
+ "family": "num",
+ "kinds": [
+  "lathe",
+  "mill"
+ ],
+ "source": "按 NUM 官网公开的《Flexium Programming Manual》M00018EN-03（num.com/fileadmin/documents/Manuals/Flexium/M00018EN-03_Flexium_Programming_manual.pdf，2026-11-25 下载）写（ADR-0127）：§3.3 程序结构（% 程序号、M02 结束）、§3.2.1.1 T D M06、§5.1.1 / §5.1.2 G、M 代码表（G71 公制、G94 / G95、M08 / M09 冷却）、§5.2 直径编程是机床参数（车床要设成直径编程）、§5.5.3 G96 X S 恒线速（主轴先转）、§5.5.4 G92 S 限速、§5.11.3 长度补偿随 D、§5.12.7 G84 Z K 刚性攻丝、§5.13.2 G38 车螺纹、G52 按测量原点回 Z 零点；车铣、固定循环、子程序、圆弧指令还没做",
+ "program": {
+  "number_digits": 4,
+  "percent": false,
+  "end": "M02"
+ },
+ "cycles": {
+  "drill": false,
+  "turn": false
+ }
+}
