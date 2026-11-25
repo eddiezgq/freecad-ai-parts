@@ -43,12 +43,15 @@ def test_unpublished_items_named_then_usable(tmp_path, monkeypatch):
 @pytest.mark.parametrize("mid,vals", [
     ("HAAS-ST-10", {"X": (400, 30500), "Z": (406, 30500), "rpm": 6000, "kw": 11.2}),
     ("HAAS-VF-2", {"X": (762, 25400), "Y": (406, 25400), "Z": (508, 25400), "rpm": 8100, "kw": 22.4}),
-    ("DN-LYNX-2100A", {"X": (410, 30000), "Z": (340, 36000), "rpm": 6000, "kw": 15.0})])
+    ("DN-LYNX-2100A", {"X": (410, 30000), "Z": (340, 36000), "rpm": 6000, "kw": 15.0}),
+    ("OKUMA-LB3000EXII-L", {"X": (520, 25000), "Z": (565, 30000), "rpm": 5000, "kw": 22.0}),
+    ("DMG-CLX-350-V1", {"X": (485, 30000), "Z": (540, 36000), "rpm": 5000, "kw": 16.5}),
+    ("DMG-CLX-450-V1", {"X": (542, 30000), "Z": (830, 30000), "rpm": 4000, "kw": 25.5})])
 def test_haas_values_from_spec_pages(mid, vals):
     """规格页原文（2026-11-24 浏览器读）：ST-10 行程 X 200（直径 400）、Z 406，快移 30.5 m/min，6000 r/min、11.2 kW；
     VF-2 行程 762 / 406 / 508，快移 25.4 m/min，8100 r/min、22.4 kW，换刀（切削到切削）4.5 s"""
     m = M.model(mid)
-    assert not MM.validate(m) and m["example"] is False and ("haascnc.com" in m["source"] or "dn-solutions.com" in m["source"])
+    assert not MM.validate(m) and m["example"] is False and any(d in m["source"] for d in ("haascnc.com", "dn-solutions.com", "okuma.com", "dmgmori.com"))
     ax = {a["id"]: a for a in m["axes"]}
     for k, (span, rapid) in ((k, v) for k, v in vals.items() if k in ax):
         assert (ax[k]["max"] - ax[k]["min"], ax[k]["rapid"]) == (span, rapid), k

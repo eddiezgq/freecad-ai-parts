@@ -1,0 +1,45 @@
+{
+ "format": "cam-machine/1",
+ "id": "DMG-CLX-450-V1",
+ "name": "DMG MORI CLX 450 V1（固定刀具）数控车床",
+ "example": false,
+ "source": "DMG MORI 官网样本《CLX series》（https://en.dmgmori.com/resource/blob/44538/0f73c6331830365f6e4da7519f9765a1/pt0uk-clx-pdf-data.pdf，36 页，第 22 页 Technical Data，2026-11-24 用公司资料账号下载） CLX 450 V1 列：行程 X 271 mm、Z 830 mm（V1 – V4）；快移 X 30 m/min、Z 30 m/min；主轴最高 4000 rpm、功率 25.5 / 17 kW（40 / 100 % DC）、扭矩 426 / 283 N·m；刀塔 12 工位；数控系统 SINUMERIK ONE。规格页没公开：各轴零点（按 ADR-0106 E2 的约定：X 零点在主轴中心线、直径 0 ~ 2 × 271；Z 工件零点放在行程中间 −415 ~ 415，按实际装夹改）、换刀点、换刀时间、部件外形——按实机填",
+ "kind": "lathe",
+ "controller": {
+  "family": "siemens",
+  "model": "SINUMERIK ONE"
+ },
+ "spindle": {
+  "max_rpm": 4000,
+  "power_kw": 25.5
+ },
+ "axes": [
+  {
+   "id": "X",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    1,
+    0,
+    0
+   ],
+   "min": 0.0,
+   "max": 542,
+   "rapid": 30000.0,
+   "diameter_mode": true
+  },
+  {
+   "id": "Z",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "min": -415.0,
+   "max": 415.0,
+   "rapid": 30000.0
+  }
+ ]
+}
