@@ -24,9 +24,10 @@
     "hnc",
     "heidenhain",
     "okuma",
-    "fagor"
+    "fagor",
+    "num"
    ],
-   "description": "数控系统家族：决定基本语法（G 代码写法、注释符号、子程序、回读规则）；okuma、fagor 见 ADR-0124"
+   "description": "数控系统家族：决定基本语法（G 代码写法、注释符号、子程序、回读规则）；okuma、fagor 见 ADR-0124，num 见 ADR-0127"
   },
   "kinds": {
    "type": "array",
