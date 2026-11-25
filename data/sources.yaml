@@ -348,7 +348,9 @@ sources:
         title: Schmalz Datasheet Needle Grippers SNG-M（产品族数据表，英文）
         version: 网站生成的数据表（2026-11-06 生成），以 SHA-256 标识（2026-11-25 登记）
         url: https://pimmedia.schmalz.com/MAM_Library/Dokumente/Datenblatt_Produktfamilie/0_/038/03853/Datasheet_Needle%20Grippers%20SNG-M_en-EN.pdf
+        sha256: "d073bfff4f4e6c2c5f0cd81d39e0425ad091b002e67d969a1f6f71a5925d35b7"
       - id: src-schmalz-spf
         title: Schmalz Datasheet Flat Suction Cups SPF（产品族数据表，英文）
         version: 网站生成的数据表（2026-07-16 生成），以 SHA-256 标识（2026-11-25 登记）
         url: https://pimmedia.schmalz.com/MAM_Library/Dokumente/Datenblatt_Produktfamilie/0_/051/05137/Datasheet_Flat%20Suction%20Cups%20SPF_en-EN.pdf
+        sha256: "3a68ad764ca487ad765eaa07f614ade5de83d7913492539ebe5a49f472f89606"

@@ -1,0 +1,26 @@
+{
+  "agreed": [
+    "dims/height_mm",
+    "dims/overall_length_mm",
+    "dims/width_mm",
+    "params/mass_kg",
+    "params/needle_count",
+    "params/needle_diameter_mm",
+    "params/operating_pressure_mpa"
+  ],
+  "pending": [
+    {
+      "target": "params/gripper_type",
+      "check": {
+        "value": "needle"
+      },
+      "reason": "只有复核抽取报出"
+    }
+  ],
+  "problems": [],
+  "notes": [],
+  "reviewer": "claude（AI 复核）",
+  "primary_model": "claude-sonnet-5-5",
+  "check_model": "claude-opus-5-5",
+  "component": "gripper.j-schmalz-gmbh.sng-m-4-0.8"
+}
