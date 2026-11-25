@@ -114,6 +114,7 @@ def test_confirm_registers_results_but_not_a_replayed_example(tmp_path):
     import shutil
 
     shutil.copytree(OUT, tmp_path / "out")
+    (tmp_path / "out" / "cad" / "assembly.step").write_text("ISO-10303-21;\nEND-ISO-10303-21;\n", encoding="utf-8")  # 装配 STEP 不入库（.gitignore），这里只验登记
     run = {"out_dir": str(tmp_path), "replay": True, "status": "unknown", "stopped_at": None}
     e = _Ent()
     with pytest.raises(C.ConfirmError, match="录制回放"):
