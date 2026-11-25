@@ -1444,6 +1444,13 @@
           "minimum": 1,
           "maximum": 1000,
           "description": "静平衡分几步加载（外力和重力按 k/N 逐步加，每步从上一步的解起步；大变形用，缺省 1，ADR-0101）"
+        },
+        "dead_point": {
+          "enum": [
+            "continue",
+            "reverse"
+          ],
+          "description": "运动学分析过死点（雅可比奇异）时走哪一支：continue（缺省）原动件推着越过、继续往前；reverse 倒回（牛顿初值取上一时刻的解，0.3.7 及以前的做法）。ADR-0130"
         }
       },
       "required": [
@@ -1943,6 +1950,17 @@
           "source": {
             "type": "string",
             "minLength": 1
+          },
+          "restitution": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "恢复系数 e（0–1）。给了就按 Carvalho–Martins / Gonthier 律由 e 和碰撞速度算阻尼（各速度、质量下实际 e 一致），damping_n_s_per_mm 不再用；不给照原来的常值阻尼（实际 e 随速度、质量变）。《多体动力学》书线索第 31 条，ADR-0130"
+          },
+          "min_impact_speed_mm_s": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "给了 restitution 时：碰撞速度低于它按完全非弹性处理（落下的零件能停住），缺省 1 mm/s。ADR-0130"
           }
         },
         "required": [
@@ -1962,7 +1980,7 @@
         "oneOf": [
           {
             "type": "object",
-            "description": "连续 PID：e = 设定 − 测量；u = kp·e + ki∫e + kd·de/dt，限幅、抗积分饱和（饱和且误差同向时停积分）",
+            "description": "连续 PID：e = 设定 − 测量；u = kp·e + ki∫e + kd·de/dt，限幅、抗积分饱和（反算法，T_t 见 antiwindup_tracking_s）",
             "properties": {
               "id": {
                 "$ref": "#/$defs/id"
@@ -2008,6 +2026,11 @@
               "source": {
                 "type": "string",
                 "minLength": 1
+              },
+              "antiwindup_tracking_s": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "限幅时抗积分饱和（反算法）的跟踪时间常数 T_t：ż = e + (u − u_raw)/(ki·T_t)，缺省 0.05 s。ADR-0130"
               }
             },
             "required": [

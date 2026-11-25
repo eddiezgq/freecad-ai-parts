@@ -221,6 +221,7 @@ def run_model(model: dict, base_dir=None):
     if tb:
         messages.append("按时间函数（STEP、STEP5、HAVSIN）的过渡点分段积分，必经时刻 {} 个：{}".format(
             len(tb), "、".join(f"{x:.6g} s" for x in tb[:12]) + ("……" if len(tb) > 12 else "")))
+    messages += getattr(sysm, "init_velocity_notes", [])
     if info.get("redundant"):
         messages.append("删掉了 {} 条冗余约束（反力里这些方向的分量不唯一，标为不完整）：{}".format(
             len(info["redundant"]), "、".join(info["redundant"])))
