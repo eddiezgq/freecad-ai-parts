@@ -197,6 +197,7 @@ def run_model(model: dict, base_dir=None):
             return hht.dynamic(sysm_, t_end_, steps_, alpha=float(an.get("hht_alpha", -0.1)), **kw)
     else:
         dyn = S.dynamic
+    S.check_structure(sysm, sysm.q0(), 0.0)          # 问渠 CAD 0.3.6 细则 C3：锁死在分析入口报出来
     messages = []
     stab = None
     if typ == "kinematic":
@@ -219,6 +220,10 @@ def run_model(model: dict, base_dir=None):
     if info.get("redundant"):
         messages.append("删掉了 {} 条冗余约束（反力里这些方向的分量不唯一，标为不完整）：{}".format(
             len(info["redundant"]), "、".join(info["redundant"])))
+    nr = getattr(sysm, "near_redundant", None)
+    if nr:
+        messages.append("运动副近冗余：{} 这组约束的奇异值只有最大值的 {:.2g}（制造误差级），按冗余处理；"
+                        "被删约束在运动中实际拉开多少，见“约束残差（全部约束）”核查".format("、".join(nr["joints"]), nr["sigma_rel"]))
     bodies, joints, motions, reqs, energy, meas, cont = _series(rec, sysm)
     flex = bodies.pop("_flex")
     act = bodies.pop("_act", {})
@@ -236,10 +241,16 @@ def run_model(model: dict, base_dir=None):
             verification.append({"key": "energy_drift", "name": "能量守恒", "value": None, "limit": ENERGY_LIMIT,
                                  "status": UNKNOWN, "note": "有驱动、阻尼或外力，系统不守恒，不判"})
     dof_g = M.grubler(sysm)
-    verification.append({"key": "dof", "name": "自由度（雅可比秩算）与 Grübler 公式", "value": info["dof"], "grubler": dof_g,
+    # 问渠 CAD 0.3.6 细则 C3：原来比的是“秩算自由度”和“Grübler + 冗余数”，冗余数 = 约束数 − 秩，两边按定义恒等，永远通过。
+    # 改成比两个独立算出的数：起始位形和结束位形上只看运动副的结构自由度——相同说明冗余是结构上的；不同说明碰上了奇异位形
+    s0 = S.structural(sysm, sysm.q0(), 0.0)
+    s1 = S.structural(sysm, np.asarray(rec.q[-1]), float(rec.t[-1])) if len(rec.t) > 1 else s0
+    verification.append({"key": "dof", "name": "结构自由度（只看运动副的秩，起始与结束位形各算一次）", "value": s0["dof"],
+                         "end_value": s1["dof"], "grubler": dof_g + len(sysm.motions), "drives": len(sysm.motions),
                          "redundant": len(info.get("redundant", [])),
-                         "status": PASS if info["dof"] == dof_g + len(info.get("redundant", [])) else UNKNOWN,
-                         "note": "雅可比秩算出的自由度 = Grübler 自由度 + 冗余约束数时通过；不等说明有奇异位形，请检查模型"})
+                         "status": PASS if s0["dof"] == s1["dof"] else UNKNOWN,
+                         "note": "两个位形的结构自由度相同时通过（冗余是结构上的）；不同说明运动中经过奇异位形，请检查模型。"
+                                 "Grübler 数只作参考（有冗余约束时它偏小）"})
     data = {"model": model["name"], "analysis": typ, "dof": info["dof"], "redundant_constraints": info.get("redundant", []),
             "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas,
             "contacts": cont, "flex": flex, "actuators": act, "energy": energy,
