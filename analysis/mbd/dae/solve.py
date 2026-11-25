@@ -428,6 +428,39 @@ def _static_newton(sysm, t, rows, x0, iters=60):
     return x if np.max(np.abs(r)) <= 1e-6 else None
 
 
+def time_breaks(sysm):
+    """模型里所有时间表达式（力、驱动、控制器设定值……）中 STEP / STEP5 / HAVSIN 的过渡区间"""
+    from analysis.mbd.dae.expr import Expr
+
+    out, seen = [], set()
+
+    def walk(o, depth):
+        if depth > 6 or id(o) in seen:
+            return
+        seen.add(id(o))
+        if isinstance(o, Expr):
+            out.extend(o.time_breaks())
+        elif isinstance(o, dict):
+            for x in o.values():
+                walk(x, depth + 1)
+        elif isinstance(o, (list, tuple)):
+            for x in o:
+                walk(x, depth + 1)
+        elif callable(o) and getattr(o, "__closure__", None):        # 力元把表达式包在闭包里
+            for c in o.__closure__:
+                try:
+                    walk(c.cell_contents, depth + 1)
+                except ValueError:                                  # 空的闭包格
+                    pass
+        elif type(o).__module__.startswith("analysis.mbd") and hasattr(o, "__dict__"):
+            for x in vars(o).values():
+                walk(x, depth + 1)
+
+    for name in ("forces", "motions", "rows", "ctrl"):
+        walk(getattr(sysm, name, None), 0)
+    return sorted(set(out))
+
+
 def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, q=None, qd=None, t0=0.0):
     q = sysm.q0() if q is None else q.copy()
     keep, drop = independent_rows(sysm, q, t0)
@@ -510,6 +543,8 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
     rec.ctrl.append(dict(getattr(sysm, "act", {})))
     k = 0                                   # 已记录到 times[k]
     seg = max(1, steps // 50)               # 每段最多这么多个输出点就重新挑一次分块
+    breaks = [b for b in time_breaks(sysm) if b[1] > t0 and b[0] < t0 + t_end]
+    stats["time_breaks"] = sorted({x for b in breaks for x in b if t0 < x < t0 + t_end})
     try:
         return _dynamic_loop(locals())
     finally:
@@ -524,6 +559,7 @@ def _dynamic_loop(v):
     partition, full_state, ctrl, dof, nx = (v[k] for k in ("partition", "full_state", "ctrl", "dof", "nx"))
     t_cur, q_cur, qd_cur, xc_cur, k, seg = (v[k] for k in ("t_cur", "q_cur", "qd_cur", "xc_cur", "k", "seg"))
     t0, h_s, n_s, next_s = v["t0"], v["h_s"], v["n_s"], v["next_s"]
+    breaks, must = v["breaks"], v["stats"]["time_breaks"]
     while k < steps:
         dep, ind = partition(q_cur, t_cur)
         stats["segments"] += 1
@@ -532,7 +568,11 @@ def _dynamic_loop(v):
         cond0 = np.linalg.cond(sysm.jac(q_cur, t_cur, rows)[:, dep])
         limit = max(1e3, 10 * cond0)
         k1 = min(steps, k + seg)
-        t_stop = min(float(times[k1]), next_s)
+        # 线索第 24 条：时间函数的过渡点是必经时刻（分段积分，过点重新起步），过渡区间里最大步长不超过过渡宽度
+        next_b = next((x for x in must if x > t_cur + 1e-12), math.inf)
+        t_stop = min(float(times[k1]), next_s, next_b)
+        inside = [b[1] - b[0] for b in breaks if b[0] - 1e-12 <= t_cur < b[1] - 1e-12]
+        max_step = min(inside) if inside else math.inf
 
         def rhs(t, y, dep=dep, ind=ind):
             stats["rhs"] += 1
@@ -569,7 +609,7 @@ def _dynamic_loop(v):
         ill.direction = -1
         t_eval = [tt for tt in times[k + 1:k1 + 1] if tt <= t_stop + 1e-12]
         sol = solve_ivp(rhs, (t_cur, t_stop), y0, method=method, t_eval=t_eval, rtol=rtol, atol=atol,
-                        events=ill, dense_output=True)
+                        events=ill, dense_output=True, max_step=max_step)
         if sol.status < 0:
             raise SolveError(f"积分失败：{sol.message}")
         for n_, tt in enumerate(sol.t):

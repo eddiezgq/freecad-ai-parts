@@ -378,6 +378,31 @@ class Expr:
     def __call__(self, t: float, env=None) -> float:
         return _eval(self.tree, Jet(t, 1.0, 0.0), env).v
 
+    def time_breaks(self):
+        """以 time 为自变量的 STEP / STEP5 / HAVSIN 的过渡区间 [(x0, x1)]（x0、x1 是常数时）。
+        《多体动力学》书第 18 章线索第 24 条：变步长积分不知道这些过渡点，3 ms 的力脉冲会被一步跨过"""
+        out = []
+        _breaks(self.tree, out)
+        return out
+
+
+def _breaks(node, out):
+    if node[0] == "call":
+        if node[1].lower() in ("step", "step5", "havsin") and node[2][0] == ("time",):
+            x0, x1 = node[2][1], node[2][3]
+            if not (_uses(x0, "time") or _uses(x0, "var") or _uses(x1, "time") or _uses(x1, "var")):
+                a, b = _eval(x0, Jet(0.0)).v, _eval(x1, Jet(0.0)).v
+                if b > a:
+                    out.append((float(a), float(b)))
+        for a in node[2]:
+            _breaks(a, out)
+    elif node[0] == "spline":
+        _breaks(node[2], out)
+    else:
+        for x in node[1:]:
+            if isinstance(x, tuple):
+                _breaks(x, out)
+
 
 def _uses(node, kind) -> bool:
     if node[0] == kind:
