@@ -29,14 +29,7 @@ index:
     terms: [Single-Row Deep Groove Ball Bearings, "6000", "6001", "6200", "6201", "6202", "608", Boundary Dimensions,
             Basic Load Ratings, Limiting Speeds, Abutment and Fillet Dimensions, Mass]
 
-  # 直线模组与抓手（ADR-0129，ADR-0115 44.5.3）
-  - doc: src-festo-egc-tb
-    terms: [EGC-TB-KF, General technical data, Max. speed, Max. acceleration, Repetition accuracy, Max. feed force,
-            Max. working stroke, Feed constant, Fy, Fz, Mx, My, Mz, Basic weight, Additional weight per 10 mm stroke,
-            Moving load, Dimensions, B1, H1, L1]
-  - doc: src-festo-egc-bs
-    terms: [EGC-BS-KF, Technische Daten, Geschwindigkeit, Beschleunigung, Wiederholgenauigkeit, Vorschubkraft,
-            Arbeitshub, Spindelsteigung, Fy, Fz, Mx, My, Mz, Grundgewicht, Zusatzgewicht, Bewegte Last, Abmessungen, B1, H1, L1]
+  # 直线模组与抓手（ADR-0129，ADR-0115 44.5.3）。费斯托目录对脚本返回 403，不经云端下载与抽取，由 ingest/festo_egc.py 对照原页录入
   - doc: src-schmalz-sng-m
     terms: [SNG-M, Number of needles, Needle diameter, Needle stroke, Plunge angle, Operating pressure, Weight, Dimensions]
   - doc: src-schmalz-spf
