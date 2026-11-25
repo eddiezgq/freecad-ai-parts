@@ -1,0 +1,57 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-schmalz-spf",
+    "sha256": "3a68ad764ca487ad765eaa07f614ade5de83d7913492539ebe5a49f472f89606",
+    "pages": 6
+  },
+  "category": "gripper",
+  "vendor": "J. Schmalz GmbH",
+  "model": "SPF 40",
+  "series": "SPF",
+  "extractor": {
+    "model": "claude-sonnet-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011ChQ4WADgukg3vQwBRW5sW"
+  },
+  "items": [
+    {
+      "target": "params/gripper_type",
+      "value": {
+        "value": "suction_cup",
+        "source": {
+          "doc": "src-schmalz-spf",
+          "page": 1
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "Flat Suction Cups (Round)",
+        "unit": "",
+        "label": "Flat Suction Cups (Round)",
+        "quote": "Flat Suction Cups (Round)"
+      },
+      "issues": [
+        "枚举映射：'Flat Suction Cups (Round)' → suction_cup，未自动核对"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "工况 'Suction force at -600 mbar, theoretical, smooth dry workpiece surface' 在第 4 页找不到",
+      "target": "params/holding_force_n",
+      "page": 4,
+      "printed": {
+        "text": "49.50",
+        "unit": "N",
+        "label": "Suction force (-600 mbar) [N]*",
+        "quote": "| SPF | 40 | 49.50 | 62.5 | 25.0 | 5.1 | 70 | 6 |"
+      }
+    }
+  ],
+  "missing_key_fields": [
+    "params/mass_kg"
+  ]
+}

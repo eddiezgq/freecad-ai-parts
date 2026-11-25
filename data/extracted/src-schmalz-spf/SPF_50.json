@@ -1,0 +1,68 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-schmalz-spf",
+    "sha256": "3a68ad764ca487ad765eaa07f614ade5de83d7913492539ebe5a49f472f89606",
+    "pages": 6
+  },
+  "category": "gripper",
+  "vendor": "J. Schmalz GmbH",
+  "model": "SPF 50",
+  "series": "SPF",
+  "extractor": {
+    "model": "claude-sonnet-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011ChQ4WjmZFbxNwVig5rXFw"
+  },
+  "items": [
+    {
+      "target": "params/gripper_type",
+      "value": {
+        "value": "suction_cup",
+        "source": {
+          "doc": "src-schmalz-spf",
+          "page": 1
+        },
+        "method": "extracted",
+        "confidence": 0.9,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "Flat Suction Cups (Round)",
+        "unit": "",
+        "label": "Flat Suction Cups (Round)",
+        "quote": "Flat Suction Cups (Round)"
+      },
+      "issues": [
+        "枚举映射：'Flat Suction Cups (Round)' → suction_cup，未自动核对"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/holding_force_n",
+      "page": 4,
+      "printed": {
+        "text": "74.20",
+        "unit": "N",
+        "label": "Suction force (-600 mbar) [N]*",
+        "quote": "| SPF | 50 | 74.20 | 87.4 | 44.0 | 8.0 | 75 | 6 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/cup_diameter_mm",
+      "page": 6,
+      "printed": {
+        "text": "51.4",
+        "unit": "mm",
+        "label": "Ds [mm]",
+        "quote": "| SPF | 50 | 11.0 | 17.5 | 21.6 | 53.9 | 51.4 | 16.0 | 7.0 | 3.5 |"
+      }
+    }
+  ],
+  "missing_key_fields": [
+    "params/mass_kg"
+  ]
+}

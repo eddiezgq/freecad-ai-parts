@@ -1,0 +1,95 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-schmalz-spf",
+    "sha256": "3a68ad764ca487ad765eaa07f614ade5de83d7913492539ebe5a49f472f89606",
+    "pages": 6
+  },
+  "category": "gripper",
+  "vendor": "Schmalz",
+  "model": "SPF 10",
+  "series": "SPF",
+  "extractor": {
+    "model": "claude-opus-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011ChQ4ZNJYjUQ6uNbrRAgmi"
+  },
+  "items": [
+    {
+      "target": "params/holding_force_n",
+      "value": {
+        "value": 4.41,
+        "condition": "-600 mbar",
+        "source": {
+          "doc": "src-schmalz-spf",
+          "page": 4
+        },
+        "method": "extracted",
+        "confidence": 0.85,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "4.41",
+        "unit": "N",
+        "label": "Suction force (-600 mbar) [N]*",
+        "quote": "| SPF | 10 | 4.41 | 5.2 | 3.5 | 0.3 | 8 | 4 |"
+      },
+      "issues": [
+        "叫法 'Suction force (-600 mbar) [N]*' 在表头，数值在该列",
+        "工况 '-600 mbar' 不在同一行，取自本页其他位置（表头或脚注），须核对",
+        "该行有多个数值，须核对型号列"
+      ]
+    },
+    {
+      "target": "params/cup_diameter_mm",
+      "value": {
+        "value": 10.5,
+        "source": {
+          "doc": "src-schmalz-spf",
+          "page": 6
+        },
+        "method": "extracted",
+        "confidence": 0.8,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "10.5",
+        "unit": "mm",
+        "label": "Ds [mm]",
+        "quote": "| SPF | 10 | 5.5 | 7.2 | 9.6 | 12.0 | 10.5 | 8.5 | 4.2 | 1.0 |"
+      },
+      "issues": [
+        "叫法 'Ds [mm]' 在表头，数值在该列",
+        "该行有多个数值，须核对型号列"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/gripper_type",
+      "page": 1,
+      "printed": {
+        "text": "Round flat suction cup",
+        "unit": "",
+        "label": "Flat Suction Cups",
+        "quote": "• Round flat suction cup for usage in cardboard box and tray"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/suitable_materials",
+      "page": 1,
+      "printed": {
+        "text": "cardboards and rigid packaging",
+        "unit": "",
+        "label": "Application",
+        "quote": "• Handling of cardboards and rigid packaging in top-loading"
+      }
+    }
+  ],
+  "missing_key_fields": [
+    "params/gripper_type",
+    "params/mass_kg"
+  ]
+}

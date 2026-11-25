@@ -538,27 +538,73 @@ def _static_once(sysm: System, t=0.0, q=None):
     return rec, info
 
 
+def ctrl_states(sysm):
+    """静平衡、线性化里要随系统一起求的控制器状态下标（《多体动力学》书第 32 章线索第 47 条）：
+    PID 的积分状态只有 ki ≠ 0 时才影响输出（ki = 0 时它的“导数 = 误差”不是平衡条件）；微分滤波、状态空间的状态都算"""
+    ctrl = getattr(sysm, "ctrl", None)
+    if ctrl is None or not ctrl.items:
+        return []
+    idx = []
+    for it in ctrl.items:
+        if "sp" in it:
+            if it["c"].get("ki", 0.0):
+                idx.append(it["o"])
+            if it["filt"]:
+                idx.append(it["o"] + 1)
+        else:
+            idx += list(range(it["o"], it["o"] + it["n"]))
+    return idx
+
+
+def apply_ctrl(sysm, q, qd, t, xc):
+    """控制器输出 → 执行器（静平衡、线性化里与动力学同样计入控制器）"""
+    ctrl = getattr(sysm, "ctrl", None)
+    if ctrl is not None and ctrl.any:
+        sysm.act = ctrl.outputs(t, sysm.measures(q, qd), xc)
+
+
 def _static(sysm: System, t=0.0, q=None):
-    """静平衡：Q(q) − Φ_qᵀλ = 0、Φ(q) = 0（速度为 0）"""
+    """静平衡：Q(q) − Φ_qᵀλ = 0、Φ(q) = 0（速度为 0）。有控制器时执行器力按控制器输出算，
+    要随系统求的控制器状态（PID 积分等）加进未知量，方程是它们的导数为 0（线索第 47 条：原来不计控制器，
+    伺服臂的静平衡“没找到（残差 10.6）”）"""
     q = sysm.q0() if q is None else q
     keep, drop = independent_rows(sysm, q, t)
     rows = _rows(sysm, keep)
     q = assemble(sysm, q, t, rows)
     m = len(rows)
     zero = np.zeros(sysm.n)
+    ctrl = getattr(sysm, "ctrl", None)
+    xc_base = ctrl.x0.copy() if ctrl is not None and ctrl.any else np.zeros(0)
+    ci = ctrl_states(sysm)
+    nc = len(ci)
+
+    def split(x):
+        xc = xc_base.copy()
+        if nc:
+            xc[ci] = x[sysm.n + m:]
+        return x[:sysm.n], x[sysm.n:sysm.n + m], xc
 
     def F(x):
-        qq, lam = x[:sysm.n], x[sysm.n:]
-        return np.concatenate([sysm.Q(qq, zero, t) - sysm.jac(qq, t, rows).T @ lam, sysm.phi(qq, t, rows)])
+        qq, lam, xc = split(x)
+        apply_ctrl(sysm, qq, zero, t, xc)
+        out = [sysm.Q(qq, zero, t) - sysm.jac(qq, t, rows).T @ lam, sysm.phi(qq, t, rows)]
+        if nc:
+            out.append(ctrl.deriv(t, sysm.measures(qq, zero), xc)[ci])
+        return np.concatenate(out)
 
     J0 = sysm.jac(q, t, rows)
+    apply_ctrl(sysm, q, zero, t, xc_base)
     lam0 = np.linalg.lstsq(J0.T, sysm.Q(q, zero, t), rcond=None)[0]
-    x0 = np.concatenate([q, lam0])
-    x = _static_newton(sysm, t, rows, x0) if getattr(sysm, "nlbeams", None) else None
+    x0 = np.concatenate([q, lam0, xc_base[ci]])
+    x = _static_newton(sysm, t, rows, x0) if getattr(sysm, "nlbeams", None) and not nc else None
     if x is None:
         sol = root(F, x0, method="hybr", options={"xtol": 1e-13, "maxfev": 20000})
         x = sol.x
     res = F(x)
+    sysm.static_xc = split(x)[2]
+    if nc and np.max(np.abs(res[sysm.n + m:])) > 1e-8:
+        raise SolveError(f"静平衡没找到：控制器状态没有到稳态（导数残差 {np.max(np.abs(res[sysm.n + m:])):.3g}）")
+    res = res[:sysm.n + m]
     # 力的残差按力的量级判（大变形梁内力上万牛，舍入噪声就有 1e-6 N 级）；约束残差按长度判
     fscale = max(1.0, float(np.max(np.abs(sysm.Q(x[:sysm.n], zero, t)))))
     if not np.all(np.isfinite(res)) or np.max(np.abs(res[:sysm.n])) > max(1e-6, 1e-8 * fscale) \
@@ -640,6 +686,17 @@ def time_breaks(sysm):
     for name in ("forces", "motions", "rows", "ctrl"):
         walk(getattr(sysm, name, None), 0)
     return sorted(set(out))
+
+
+SEG_ROT_RAD = 0.5          # 积分每段里构件最多转过的角度（rad）
+
+
+def _max_angular_speed(sysm, q, qd):
+    w = 0.0
+    for k in range(sysm.nb):
+        p = sysm.rp(q, k)[1]
+        w = max(w, float(np.linalg.norm(2 * E_of(p) @ qd[7 * k + 3:7 * k + 7])))
+    return w
 
 
 STALL_RHS = 200_000        # 一个输出间隔的 1 % 都没推进、却已求值这么多次：积分卡住了
@@ -771,9 +828,13 @@ def _dynamic_loop(v):
         cond0 = np.linalg.cond(sysm.jac(q_cur, t_cur, rows)[:, dep])
         limit = max(1e3, 10 * cond0)
         k1 = min(steps, k + seg)
+        # 《多体动力学》书第 7 章线索第 16 条（问渠 CAD 0.3.8 细则）：原来每段固定 T/50，高速转动的自由刚体一段里转大半圈，
+        # 独立坐标（欧拉参数的某个分量）过零变病态，能量悄悄流失或积分报错。每段转角限 SEG_ROT_RAD，段首重选独立坐标
+        w_max = _max_angular_speed(sysm, q_cur, qd_cur)
+        t_rot = t_cur + SEG_ROT_RAD / w_max if w_max > 0 else math.inf
         # 线索第 24 条：时间函数的过渡点是必经时刻（分段积分，过点重新起步），过渡区间里最大步长不超过过渡宽度
         next_b = next((x for x in must if x > t_cur + 1e-12), math.inf)
-        t_stop = min(float(times[k1]), next_s, next_b)
+        t_stop = min(float(times[k1]), next_s, t_rot, next_b)
         inside = [b[1] - b[0] for b in breaks if b[0] - 1e-12 <= t_cur < b[1] - 1e-12]
         max_step = min(inside) if inside else math.inf
 

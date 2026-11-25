@@ -1,0 +1,57 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "fc08db07b0bf0d2a7eaafbcae0dcaf129001808fbd60210894297231ad8675ae",
+  "response": {
+    "id": "msg_011ChQ4UiW6qhn2cqMcP9Dtf",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Flat Suction Cups SPF",
+          "printed_text": "Round flat suction cup SPF",
+          "printed_unit": "",
+          "quote": "• Round flat suction cup SPF (2) with soft, flexible sealing lip",
+          "target": "params/gripper_type",
+          "value": "suction_cup"
+        },
+        {
+          "condition": "-600 mbar",
+          "confidence": 0.8,
+          "page": 4,
+          "printed_label": "Suction force (-600 mbar) [N]*",
+          "printed_text": "22.70",
+          "printed_unit": "N",
+          "quote": "| SPF | 25 | 22.70 | 27.1 | 17.0 | 1.7 | 30 | 4 |",
+          "target": "params/holding_force_n",
+          "value": 22.7
+        },
+        {
+          "confidence": 0.55,
+          "page": 6,
+          "printed_label": "Ds [mm]",
+          "printed_text": "26.4",
+          "printed_unit": "mm",
+          "quote": "| SPF | 25 | 7.5 | 10.5 | 15.1 | 28.0 | 26.4 | 11.0 | 4.6 | 2.0 |",
+          "target": "params/cup_diameter_mm",
+          "value": 26.4
+        },
+        {
+          "confidence": 0.5,
+          "page": 6,
+          "printed_label": "H [mm]",
+          "printed_text": "11.0",
+          "printed_unit": "mm",
+          "quote": "| SPF | 25 | 7.5 | 10.5 | 15.1 | 28.0 | 26.4 | 11.0 | 4.6 | 2.0 |",
+          "target": "dims/height_mm",
+          "value": 11.0
+        }
+      ],
+      "model": "SPF 25",
+      "series": "SPF",
+      "vendor": "J. Schmalz GmbH"
+    }
+  }
+}
