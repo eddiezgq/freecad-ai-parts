@@ -95,7 +95,7 @@ def _run_fmt(tmp_path, monkeypatch, cyl_moves=None, cfg=None):
 
 
 def test_fagor_mill_turn_face_and_cylinder(tmp_path, monkeypatch):
-    """车铣（ADR-0129）：端面 G12.1 → G152、#CAX、#FACE [X,C,Q0]（X 半径、C mm），圆柱面 G7.1 C25 → #CYL [Z,C,X25.0,Q0]（C = 角度 × π ÷ 180 × 25：
+    """车铣（ADR-0131）：端面 G12.1 → G152、#CAX、#FACE [X,C,Q0]（X 半径、C mm），圆柱面 G7.1 C25 → #CYL [Z,C,X25.0,Q0]（C = 角度 × π ÷ 180 × 25：
     90° → 39.2699、180° → 78.5398），结尾 #… OFF、#CAX OFF、G151；进给照写（#CYL 的 F 也在给定半径上）；回读与仿真刀路一致"""
     t = _rel(_run_fmt(tmp_path, monkeypatch, CYL))
     assert not re.search(r"G12\.1|G13\.1|G0?7\.1|\bG9[89]\b", t)

@@ -67,7 +67,8 @@ def build(model: dict, base_dir=None) -> System:
             raise ModelError(f"构件 {b['id']} 的惯性张量不是正定的（主惯量 {ev.round(9).tolist()}）")
         bodies.append(Body(b["id"], float(b["mass_kg"]), J, _v(b["cm_mm"], "cm_mm") * MM,
                            v0=_v(b.get("v0_mm_s", [0, 0, 0]), "v0_mm_s") * MM,
-                           w0=_v(b.get("w0_deg_s", [0, 0, 0]), "w0_deg_s") * DEG))
+                           w0=_v(b.get("w0_deg_s", [0, 0, 0]), "w0_deg_s") * DEG,
+                           v0_given="v0_mm_s" in b, w0_given="w0_deg_s" in b))
     sysm = System(bodies, g)
     idx = {b.name: k for k, b in enumerate(bodies)}
     idx["ground"] = -1
@@ -488,7 +489,8 @@ def _flex_body(b):
         raise ModelError(f"柔性构件 {b['id']}：{exc}") from exc
     J = fx.mass_v(np.zeros(fx.nm))[1]
     return Body(b["id"], fx.mass, J, cm, v0=_v(b.get("v0_mm_s", [0, 0, 0]), "v0_mm_s") * MM,
-                w0=_v(b.get("w0_deg_s", [0, 0, 0]), "w0_deg_s") * DEG, flex=fx)
+                w0=_v(b.get("w0_deg_s", [0, 0, 0]), "w0_deg_s") * DEG, flex=fx,
+                v0_given="v0_mm_s" in b, w0_given="w0_deg_s" in b)
 
 
 def _node(bodies, b, P, where):

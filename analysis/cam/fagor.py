@@ -8,7 +8,7 @@
 - `check_codes(text, lathe, extra_m)`：发格程序里每个 G、M 代码都要在手册 §1.5、§1.6 的表里且是本表用到的，否则不出；
   坐标最多 4 位小数（§1.3.1，毫米 ±5.4）。
 
-车铣（ADR-0129）：FANUC `G12.1` … `G13.1` ↔ `G152` `#CAX` `#FACE [X,C,Q0]` … `#FACE OFF` `#CAX OFF` `G151`（X 半径、C mm）；
+车铣（ADR-0131）：FANUC `G12.1` … `G13.1` ↔ `G152` `#CAX` `#FACE [X,C,Q0]` … `#FACE OFF` `#CAX OFF` `G151`（X 半径、C mm）；
 `G07.1 C半径` … `G07.1 C0` ↔ `G152` `#CAX` `#CYL [Z,C,X半径,Q0]` … `#CYL OFF` `#CAX OFF` `G151`（X 半径、C = 角度 × π ÷ 180 × 半径）。
 """
 
@@ -90,7 +90,7 @@ def _mt_line(body: str, trafo: list, to_fg: bool) -> str:
 def to_fagor(text: str, lathe: bool) -> str:
     lines = text.rstrip("\n").split("\n")
     out, i, head_done, gline_done, tool, want_h, z_now = [], 0, False, False, None, False, None
-    trafo = None                                                # 车铣块（ADR-0129）
+    trafo = None                                                # 车铣块（ADR-0131）
     while i < len(lines):
         pre, body, tail = _split(lines[i])
         if lathe and body and not body.startswith("("):
@@ -303,13 +303,13 @@ def check_codes(text: str, lathe: bool, extra_m=()) -> None:
     bad_m = sorted({norm(m) for m in re.findall(r"\bM(\d+)", body)} - have_m, key=float)
     if bad_g or bad_m:
         miss = "、".join([f"G{g}" for g in bad_g] + [f"M{m}" for m in bad_m])
-        mt = (" 发格的 C 分度 + Y 轴铣还没做（ADR-0129）。" if "19" in bad_g else
-              " 发格车铣只按 ADR-0129 换端面、圆柱面。" if any(g in ("12.1", "13.1", "7.1") for g in bad_g) else "")
+        mt = (" 发格的 C 分度 + Y 轴铣还没做（ADR-0131）。" if "19" in bad_g else
+              " 发格车铣只按 ADR-0131 换端面、圆柱面。" if any(g in ("12.1", "13.1", "7.1") for g in bad_g) else "")
         raise FagorError(f"发格程序里有手册代码表外（或还没按手册做）的 {miss}，程序不出。{mt}")
     sharp = sorted({ln.strip() for ln in body.split("\n") if ln.strip().startswith("#")} - {"#CAX", "#CAX OFF", _ON["polar"], *_OFF.values()}
                    - {ln.strip() for ln in body.split("\n") if re.fullmatch(rf"#CYL \[Z,C,X{_NUM},Q0\]|#MCS Z0", ln.strip())})
     if sharp:
-        raise FagorError(f"发格程序里有本表没收的 # 指令 {'、'.join(sharp[:3])}，程序不出（ADR-0129）")
+        raise FagorError(f"发格程序里有本表没收的 # 指令 {'、'.join(sharp[:3])}，程序不出（ADR-0131）")
     long_ = sorted({w for w in re.findall(r"\b([XYZCIJKR]-?\d+\.\d{5,})", body)})
     if long_:
         raise FagorError(f"发格毫米坐标最多 4 位小数（§1.3.1），{'、'.join(long_[:5])} 超了，程序不出")

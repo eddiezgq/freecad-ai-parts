@@ -1,0 +1,127 @@
+{
+  "why": "抓手型式不在枚举里",
+  "instance": {
+    "id": "test.gripper.test-vendor.ng-4-08",
+    "category": "gripper",
+    "vendor": "Test Vendor",
+    "model": "NG 4 0.8",
+    "status": "active",
+    "license": "params-only",
+    "params": {
+      "gripper_type": {
+        "value": "magnet",
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "needle_count": {
+        "value": 4,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "needle_diameter_mm": {
+        "value": 0.8,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "needle_stroke_mm": {
+        "value": 3,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "operating_pressure_mpa": {
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true,
+        "min": 0.4,
+        "max": 0.6
+      },
+      "mass_kg": {
+        "value": 0.08,
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      },
+      "suitable_materials": {
+        "value": [
+          "composite textiles",
+          "fleece"
+        ],
+        "source": {
+          "doc": "src-test-fixture",
+          "page": 1
+        },
+        "method": "manual",
+        "confidence": 1,
+        "reviewed": true
+      }
+    },
+    "ports": [],
+    "envelope": {
+      "parts": [
+        {
+          "shape": "box",
+          "label": "body",
+          "z_start_mm": -40,
+          "length_mm": {
+            "value": 46,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "width_mm": {
+            "value": 28,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          },
+          "height_mm": {
+            "value": 34,
+            "source": {
+              "doc": "src-test-fixture",
+              "page": 1
+            },
+            "method": "manual",
+            "confidence": 1,
+            "reviewed": true
+          }
+        }
+      ]
+    }
+  }
+}
