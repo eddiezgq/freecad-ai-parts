@@ -125,6 +125,8 @@ class Body:
     v0: np.ndarray = field(default_factory=lambda: np.zeros(3))
     w0: np.ndarray = field(default_factory=lambda: np.zeros(3))
     flex: object = None            # D6：柔性构件的 FlexData（analysis/mbd/dae/flex.py）
+    v0_given: bool = False         # 模型里写了 v0_mm_s / w0_deg_s（线索第 22 条：没写的分量由运动副补全，不当成 0 去凑）
+    w0_given: bool = False
 
 
 @dataclass
