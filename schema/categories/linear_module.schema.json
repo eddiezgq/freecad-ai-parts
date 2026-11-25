@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/linear_module.schema.json",
+  "title": "品类：直线模组（linear_module）",
+  "description": "由 component.schema.json 按 category 引用（ADR-0127）。约束该品类的参数名（只允许列出的参数）；接口数据只放在端口里（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。 直线模组是导轨、滑台、驱动（滚珠丝杠、同步带、直线电机、齿轮齿条）做成一体的单轴，电机另配。一个型号对应一个有效行程（厂商按行程分型号或在型号里写行程时，每个行程一条）；质量是这个行程下的本体质量。负载、推力、允许力矩照厂商给的写，水平与垂直分开；厂商只给水平的，垂直不写（不按水平折算）。电机安装法兰、滑台与底座的孔位多只在图纸里，查得到才写端口，查不到不写，整机装配时这几处接口判待确认。",
+  "x-key-fields": [
+    "drive_type",
+    "stroke_mm",
+    "max_speed_m_s",
+    "mass_kg"
+  ],
+  "properties": {
+    "params": {
+      "type": "object",
+      "properties": {
+        "drive_type": {
+          "allOf": [
+            {
+              "$ref": "../common/param-value.schema.json#/$defs/string"
+            },
+            {
+              "properties": {
+                "value": {
+                  "enum": [
+                    "ballscrew",
+                    "belt",
+                    "linear_motor",
+                    "rack_pinion"
+                  ]
+                }
+              }
+            }
+          ],
+          "description": "驱动方式"
+        },
+        "stroke_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "有效行程"
+        },
+        "lead_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "每转行程：滚珠丝杠写导程，同步带、齿轮齿条写主动轮每转的行程（带轮周长）"
+        },
+        "max_speed_m_s": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "滑台最高速度；厂商按行程或转速给不同值时 condition 写条件"
+        },
+        "max_accel_m_s2": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "最大加速度（厂商给了才写）"
+        },
+        "rated_thrust_n": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "额定推力"
+        },
+        "repeatability_mm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "重复定位精度（写 ± 后面的数）"
+        },
+        "max_load_horizontal_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "水平安装时最大负载"
+        },
+        "max_load_vertical_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "垂直安装时最大负载（厂商给了才写）"
+        },
+        "moment_roll_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "滑台允许力矩：绕运动方向（滚转）；静态或动态写在 condition"
+        },
+        "moment_pitch_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "滑台允许力矩：绕水平、垂直于运动方向的轴（俯仰）；静态或动态写在 condition"
+        },
+        "moment_yaw_nm": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "滑台允许力矩：绕竖直轴（偏摆）；静态或动态写在 condition"
+        },
+        "mass_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "本体质量（这个行程下，不含电机）"
+        },
+        "carriage_mass_kg": {
+          "$ref": "../common/param-value.schema.json#/$defs/number",
+          "description": "运动部分（滑台）质量（厂商给了才写）"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
