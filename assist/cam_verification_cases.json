@@ -932,6 +932,26 @@
     "en": "Fagor: codes outside the manual's table are refused and named"
    },
    "source": "Fagor CNCelite Programming manual §1.5, §1.6; ADR-0126"
+  },
+  {
+   "id": "CAM-92",
+   "test": "tests/test_cam_post_mitsubishi.py::test_mitsubishi_lathe_codes_in_manual_table",
+   "category": "post",
+   "title": {
+    "zh": "三菱车床：代码都在三菱手册的 G 代码表 2 里，复合循环不用，回读一致",
+    "en": "Mitsubishi lathe: every code is in G code list 2 of the Mitsubishi manual, no multiple repetitive cycles, read-back matches"
+   },
+   "source": "Mitsubishi M800V/M80V Programming Manual (Lathe System) IB-1501619, 3.4.3, 9.1, 13.3.1"
+  },
+  {
+   "id": "CAM-93",
+   "test": "tests/test_cam_post_mitsubishi.py::test_mitsubishi_mill_slot_and_drill_release_tapping_refused",
+   "category": "must",
+   "title": {
+    "zh": "三菱加工中心：开槽、钻孔能出；攻丝 F 单位随参数变，带攻丝的程序不出、点名 G84",
+    "en": "Mitsubishi machining center: slot and drill programs output; tapping refused and G84 named (F unit depends on parameters)"
+   },
+   "source": "Mitsubishi M800V/M80V Programming Manual (Machining Center System) IB-1501621, 3.4.2, 12.2, 13.1.4"
   }
  ]
 }
