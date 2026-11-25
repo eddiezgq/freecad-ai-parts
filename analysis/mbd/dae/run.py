@@ -370,7 +370,7 @@ def _run_linear(model, sysm, typ):
                      "status": PASS if resid <= RESID_LIMIT_M else FAIL},
                     {"key": "equilibrium", "name": "工作点是平衡点（静止时各构件加速度近零）",
                      "value": wp["alpha_rad_s2"], "a_mm_s2": wp["a_mm_s2"], "body": wp["body"],
-                     "limit": {"alpha_rad_s2": EQ_ALPHA_LIMIT, "a_mm_s2": EQ_ACC_LIMIT},
+                     "limit": EQ_ALPHA_LIMIT, "limit_a_mm_s2": EQ_ACC_LIMIT,
                      "status": (PASS if wp["equilibrium"] else FAIL) if wp["static"] else UNKNOWN,
                      **({} if wp["static"] else {"note": "工作点有速度（稳态运动），不要求是平衡点，不判"})},
                     stab_item]
