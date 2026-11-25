@@ -116,7 +116,14 @@ def run_study(study: dict, keep_dir: str | None = None) -> dict:
         ccx = find_ccx()
         if ccx is None:
             return result.failed("fea", MODULE["version"], study, "本机没有 CalculiX（ccx）")
-        data, limits = S.run(study, ccx, keep_dir)
+        from analysis.fea import facesig
+
+        try:                                            # ADR-0125：几何改过时按面签名重新认面，认不准就不算
+            used, refs = facesig.reconcile(study)
+        except facesig.FaceRefError as exc:
+            return result.failed("fea", MODULE["version"], study, str(exc))
+        data, limits = S.run(used, ccx, keep_dir)
+        data["face_references"] = refs
     except (S.StudyInvalid, materials.MissingData, ValueError, RuntimeError, KeyError) as exc:
         return result.failed("fea", MODULE["version"], study, f"没有算出：{exc}")
     return result.make("fea", MODULE["version"], study, data, limitations=limits,
