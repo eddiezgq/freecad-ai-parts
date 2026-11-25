@@ -301,6 +301,27 @@ def _stability(sysm, q, t):
                    "status": PASS if not unstable else FAIL, "note": note}
 
 
+EQ_ALPHA_LIMIT = 1e-3     # rad/s²：静止工作点上构件角加速度超过它，就不算平衡点（线索第 48 条）
+EQ_ACC_LIMIT = 1.0        # mm/s²（约 1e-4 g）
+
+
+def _working_point(sysm, q, qd, qdd):
+    """工作点各刚体的加速度：最大线加速度、最大角加速度和所在构件；静止（速度近零）时据此判是不是平衡点"""
+    a_max, al_max, who = 0.0, 0.0, None
+    v_max, w_max = 0.0, 0.0
+    for k in range(sysm.nb):
+        p = q[7 * k + 3:7 * k + 7]
+        a = float(np.linalg.norm(qdd[7 * k:7 * k + 3]))
+        al = float(np.linalg.norm(2 * G_of(p) @ qdd[7 * k + 3:7 * k + 7]))
+        v_max = max(v_max, float(np.linalg.norm(qd[7 * k:7 * k + 3])))
+        w_max = max(w_max, float(np.linalg.norm(2 * G_of(p) @ qd[7 * k + 3:7 * k + 7])))
+        if al / EQ_ALPHA_LIMIT + a / EQ_ACC_LIMIT > al_max / EQ_ALPHA_LIMIT + a_max / EQ_ACC_LIMIT:
+            a_max, al_max, who = a, al, sysm.bodies[k].name
+    static = v_max <= 1e-6 and w_max <= 1e-9
+    return {"static": static, "equilibrium": a_max <= EQ_ACC_LIMIT and al_max <= EQ_ALPHA_LIMIT,
+            "a_mm_s2": a_max, "alpha_rad_s2": al_max, "body": who}
+
+
 def _run_linear(model, sysm, typ):
     from analysis.mbd.dae import linear as L
     an = model["analysis"]
@@ -334,11 +355,25 @@ def _run_linear(model, sysm, typ):
     act = bodies.pop("_act", {})
     resid = max(rec.resid) if rec.resid else 0.0
     unstable = [m for m in lin["modes"] if m["eigenvalue"][0] > 1e-6 * max(1.0, abs(complex(*m["eigenvalue"])))]
+    wp = _working_point(sysm, q, qd, qdd)
+    stab_item = {"key": "stability", "name": "工作点稳定性（特征值实部都不大于 0）", "value": len(unstable),
+                 "status": PASS if not unstable else FAIL,
+                 "note": "有实部为正的特征值说明工作点不稳定（例如倒立摆顶点），这是结论不是计算错误"}
+    if wp["static"] and not wp["equilibrium"]:
+        # 《多体动力学》书第 32 章线索第 48 条（问渠 CAD 0.3.8 细则）：原来不查工作点是不是平衡点，
+        # 软关节柔性臂零位（弹簧不受力、角加速度 24.5 rad/s²）照样线性化、稳定性判通过，第一阶频率差 18 %
+        stab_item |= {"status": UNKNOWN, "note": "工作点不是平衡点（静止但有加速度），在这里线性化没有意义，稳定性不判"}
+        messages.append("工作点不是平衡点：静止时构件“{}”的加速度 {:.3g} mm/s²、角加速度 {:.3g} rad/s²，"
+                        "模态和稳定性只在平衡点上才有意义。请改用 static_then_linear（先找静平衡再线性化），"
+                        "或确认这就是想要的工作点".format(wp["body"], wp["a_mm_s2"], wp["alpha_rad_s2"]))
     verification = [{"key": "constraint_residual", "name": "约束残差（工作点）", "value": resid, "limit": RESID_LIMIT_M,
                      "status": PASS if resid <= RESID_LIMIT_M else FAIL},
-                    {"key": "stability", "name": "工作点稳定性（特征值实部都不大于 0）", "value": len(unstable),
-                     "status": PASS if not unstable else FAIL,
-                     "note": "有实部为正的特征值说明工作点不稳定（例如倒立摆顶点），这是结论不是计算错误"}]
+                    {"key": "equilibrium", "name": "工作点是平衡点（静止时各构件加速度近零）",
+                     "value": wp["alpha_rad_s2"], "a_mm_s2": wp["a_mm_s2"], "body": wp["body"],
+                     "limit": {"alpha_rad_s2": EQ_ALPHA_LIMIT, "a_mm_s2": EQ_ACC_LIMIT},
+                     "status": (PASS if wp["equilibrium"] else FAIL) if wp["static"] else UNKNOWN,
+                     **({} if wp["static"] else {"note": "工作点有速度（稳态运动），不要求是平衡点，不判"})},
+                    stab_item]
     if lin["redundant"]:
         messages.append("删掉了 {} 条冗余约束：{}".format(len(lin["redundant"]), "、".join(lin["redundant"])))
     data = {"model": model["name"], "analysis": typ, "dof": lin["dof"], "redundant_constraints": lin["redundant"],
