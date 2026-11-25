@@ -1,0 +1,45 @@
+{
+ "format": "cam-machine/1",
+ "id": "OKUMA-LB3000EXII-L",
+ "name": "Okuma LB3000 EX II（L，无尾座 T 规格）数控车床",
+ "example": false,
+ "source": "大隈官网样本《SPACE TURN LB3000 EX II》（https://www.okuma.com/files/documents/space_turn_lb3000_ex2_e__18a__700_jan2021.pdf，Jan 2021，第 15 页 Machine Specifications，2026-11-24 下载）LB3000 EX (L) T 列：行程 X 260 mm、Z 565 mm；快移 X 25 m/min、Z 30 m/min；主轴 45 ~ 5000 min⁻¹、22 / 15 kW（30 分钟 / 连续）；V12 刀塔 12 把；数控系统 OSP-P300LA。规格页没公开：各轴零点（按 ADR-0106 E2 的约定：X 零点在主轴中心线、直径 0 ~ 2 × 260；Z 工件零点放在行程中间 −282.5 ~ 282.5，按实际装夹改）、换刀点、换刀时间（样本只写转塔每工位 0.1 s）、部件外形——按实机填",
+ "kind": "lathe",
+ "controller": {
+  "family": "other",
+  "model": "Okuma OSP-P300LA"
+ },
+ "spindle": {
+  "max_rpm": 5000,
+  "power_kw": 22.0
+ },
+ "axes": [
+  {
+   "id": "X",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    1,
+    0,
+    0
+   ],
+   "min": 0.0,
+   "max": 520.0,
+   "rapid": 25000.0,
+   "diameter_mode": true
+  },
+  {
+   "id": "Z",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "min": -282.5,
+   "max": 282.5,
+   "rapid": 30000.0
+  }
+ ]
+}
