@@ -1,0 +1,121 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-schmalz-spf",
+    "sha256": "3a68ad764ca487ad765eaa07f614ade5de83d7913492539ebe5a49f472f89606",
+    "pages": 6
+  },
+  "category": "gripper",
+  "vendor": "Schmalz",
+  "model": "SPF 40",
+  "series": "SPF",
+  "extractor": {
+    "model": "claude-opus-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011ChQ4e3w93zwn8WpfXfxPu"
+  },
+  "items": [
+    {
+      "target": "params/suitable_materials",
+      "value": {
+        "value": "cardboards and rigid packaging",
+        "source": {
+          "doc": "src-schmalz-spf",
+          "page": 1
+        },
+        "method": "extracted",
+        "confidence": 0.6,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "cardboards and rigid packaging",
+        "unit": "",
+        "label": "Handling of",
+        "quote": "• Handling of cardboards and rigid packaging in top-loading"
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/gripper_type",
+      "page": 1,
+      "printed": {
+        "text": "Round flat suction cup",
+        "unit": "",
+        "label": "Flat Suction Cups",
+        "quote": "• Round flat suction cup for usage in cardboard box and tray"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/holding_force_n",
+      "page": 4,
+      "printed": {
+        "text": "49.50",
+        "unit": "N",
+        "label": "Suction force (-600 mbar) [N]*",
+        "quote": "| SPF | 40 | 49.50 | 62.5 | 25.0 | 5.1 | 70 | 6 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/cup_diameter_mm",
+      "page": 6,
+      "printed": {
+        "text": "41.4",
+        "unit": "mm",
+        "label": "Ds [mm]",
+        "quote": "| SPF | 40 | 11.0 | 17.5 | 21.6 | 43.7 | 41.4 | 15.0 | 7.0 | 2.5 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "dims/outer_diameter_mm",
+      "page": 6,
+      "printed": {
+        "text": "41.4",
+        "unit": "mm",
+        "label": "Ds [mm]",
+        "quote": "| SPF | 40 | 11.0 | 17.5 | 21.6 | 43.7 | 41.4 | 15.0 | 7.0 | 2.5 |"
+      }
+    },
+    {
+      "reason": "工况 '吸盘本体（elastomer part）尺寸表' 在第 6 页找不到",
+      "target": "dims/height_mm",
+      "page": 6,
+      "printed": {
+        "text": "15.0",
+        "unit": "mm",
+        "label": "H [mm]",
+        "quote": "| SPF | 40 | 11.0 | 17.5 | 21.6 | 43.7 | 41.4 | 15.0 | 7.0 | 2.5 |"
+      }
+    },
+    {
+      "target": "dims/height_mm",
+      "page": 6,
+      "printed": {
+        "text": "23",
+        "unit": "mm",
+        "label": "H [mm]",
+        "quote": "| SPF 40 ED-65 G1/4- AG | 6.1 | 41.4 | 43.7 | G1/4\"-M | 23 | 10.0 | 17 | 2.5 |"
+      },
+      "reason": "同一 target 有互相矛盾的值"
+    },
+    {
+      "target": "dims/height_mm",
+      "page": 6,
+      "printed": {
+        "text": "33",
+        "unit": "mm",
+        "label": "H [mm]",
+        "quote": "| SPF 40 ED-65 G1/4- IG | 6.1 | 41.4 | 43.7 | G1/4\"-F | 33 | 12.0 | 17 | 2.5 |"
+      },
+      "reason": "同一 target 有互相矛盾的值"
+    }
+  ],
+  "missing_key_fields": [
+    "params/gripper_type",
+    "params/mass_kg"
+  ]
+}

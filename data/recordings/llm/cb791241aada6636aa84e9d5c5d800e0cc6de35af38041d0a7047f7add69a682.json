@@ -1,0 +1,100 @@
+{
+  "model": "claude-opus-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "cb791241aada6636aa84e9d5c5d800e0cc6de35af38041d0a7047f7add69a682",
+  "response": {
+    "id": "msg_011ChQ4e3w93zwn8WpfXfxPu",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Flat Suction Cups",
+          "printed_text": "Round flat suction cup",
+          "printed_unit": "",
+          "quote": "• Round flat suction cup for usage in cardboard box and tray",
+          "target": "params/gripper_type",
+          "value": "suction_cup"
+        },
+        {
+          "condition": "-600 mbar",
+          "confidence": 0.85,
+          "page": 4,
+          "printed_label": "Suction force (-600 mbar) [N]*",
+          "printed_text": "49.50",
+          "printed_unit": "N",
+          "quote": "| SPF | 40 | 49.50 | 62.5 | 25.0 | 5.1 | 70 | 6 |",
+          "target": "params/holding_force_n",
+          "value": 49.5
+        },
+        {
+          "confidence": 0.8,
+          "page": 6,
+          "printed_label": "Ds [mm]",
+          "printed_text": "41.4",
+          "printed_unit": "mm",
+          "quote": "| SPF | 40 | 11.0 | 17.5 | 21.6 | 43.7 | 41.4 | 15.0 | 7.0 | 2.5 |",
+          "target": "params/cup_diameter_mm",
+          "value": 41.4
+        },
+        {
+          "confidence": 0.6,
+          "page": 6,
+          "printed_label": "Ds [mm]",
+          "printed_text": "41.4",
+          "printed_unit": "mm",
+          "quote": "| SPF | 40 | 11.0 | 17.5 | 21.6 | 43.7 | 41.4 | 15.0 | 7.0 | 2.5 |",
+          "target": "dims/outer_diameter_mm",
+          "value": 41.4
+        },
+        {
+          "condition": "SPF 40 ED-65 G1/4- AG",
+          "confidence": 0.75,
+          "page": 6,
+          "printed_label": "H [mm]",
+          "printed_text": "23",
+          "printed_unit": "mm",
+          "quote": "| SPF 40 ED-65 G1/4- AG | 6.1 | 41.4 | 43.7 | G1/4\"-M | 23 | 10.0 | 17 | 2.5 |",
+          "target": "dims/height_mm",
+          "value": 23
+        },
+        {
+          "condition": "SPF 40 ED-65 G1/4- IG",
+          "confidence": 0.75,
+          "page": 6,
+          "printed_label": "H [mm]",
+          "printed_text": "33",
+          "printed_unit": "mm",
+          "quote": "| SPF 40 ED-65 G1/4- IG | 6.1 | 41.4 | 43.7 | G1/4\"-F | 33 | 12.0 | 17 | 2.5 |",
+          "target": "dims/height_mm",
+          "value": 33
+        },
+        {
+          "condition": "吸盘本体（elastomer part）尺寸表",
+          "confidence": 0.6,
+          "page": 6,
+          "printed_label": "H [mm]",
+          "printed_text": "15.0",
+          "printed_unit": "mm",
+          "quote": "| SPF | 40 | 11.0 | 17.5 | 21.6 | 43.7 | 41.4 | 15.0 | 7.0 | 2.5 |",
+          "target": "dims/height_mm",
+          "value": 15.0
+        },
+        {
+          "confidence": 0.6,
+          "page": 1,
+          "printed_label": "Handling of",
+          "printed_text": "cardboards and rigid packaging",
+          "printed_unit": "",
+          "quote": "• Handling of cardboards and rigid packaging in top-loading",
+          "target": "params/suitable_materials",
+          "value": "cardboards and rigid packaging"
+        }
+      ],
+      "model": "SPF 40",
+      "series": "SPF",
+      "vendor": "Schmalz"
+    }
+  }
+}

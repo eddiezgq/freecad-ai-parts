@@ -1,0 +1,46 @@
+[
+ {
+  "page": 1,
+  "tables": 0,
+  "chars": 1239,
+  "head": [
+   "Needle Grippers",
+   "Needle Grippers SNG-M"
+  ],
+  "terms": [
+   "SNG-M",
+   "Needle stroke",
+   "Plunge angle"
+  ]
+ },
+ {
+  "page": 2,
+  "tables": 4,
+  "chars": 1221,
+  "head": [
+   "Needle Grippers",
+   "Needle Grippers SNG-M"
+  ],
+  "terms": [
+   "SNG-M",
+   "Number of needles",
+   "Needle diameter",
+   "Needle stroke",
+   "Operating pressure",
+   "Weight"
+  ]
+ },
+ {
+  "page": 3,
+  "tables": 1,
+  "chars": 384,
+  "head": [
+   "Needle Grippers",
+   "Needle Grippers SNG-M"
+  ],
+  "terms": [
+   "SNG-M",
+   "Needle stroke"
+  ]
+ }
+]
