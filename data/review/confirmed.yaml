@@ -4936,3 +4936,357 @@ confirmations:
   quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
   date: '2026-11-18'
+# 施迈茨数据表（ADR-0127，44.5.3）：两次抽取引用了原文，但型号印成“SPF | 40”两格、针的行程与刺入角印在第 1 页说明里，按列核对没对上；
+# Claude 逐项对照数据表原页（第 1、4、6 页的表）核对后录入。第 6 页的列：Dmax(S)、Ds、H 依次是型号后第 4、5、6 个数。
+- doc: src-schmalz-sng-m
+  model: SNG-M 4 0.8
+  target: params/gripper_type
+  value: 'needle'
+  page: 1
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: 'Needle Grippers SNG-M'
+- doc: src-schmalz-sng-m
+  model: SNG-M 4 0.8
+  target: params/needle_stroke_mm
+  value: 3.0
+  page: 1
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: 'Needle stroke 3 mm'
+- doc: src-schmalz-sng-m
+  model: SNG-M 4 0.8
+  target: params/needle_angle_deg
+  value: 30.0
+  page: 1
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: 'Plunge angle 30°'
+- doc: src-schmalz-spf
+  model: SPF 10
+  target: params/gripper_type
+  value: 'suction_cup'
+  page: 1
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: 'Flat Suction Cups (Round)'
+- doc: src-schmalz-spf
+  model: SPF 10
+  target: params/holding_force_n
+  value: 4.41
+  page: 4
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 10 | 4.41 | 5.2 | 3.5 | 0.3 | 8 | 4 |'
+  condition: 真空度 -600 mbar 下的理论吸力，光滑干燥的工件表面，不含安全系数（数据表脚注）
+- doc: src-schmalz-spf
+  model: SPF 10
+  target: params/cup_diameter_mm
+  value: 10.5
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 10 | 5.5 | 7.2 | 9.6 | 12.0 | 10.5 | 8.5 | 4.2 | 1.0 |'
+- doc: src-schmalz-spf
+  model: SPF 10
+  target: dims/outer_diameter_mm
+  value: 12.0
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 10 | 5.5 | 7.2 | 9.6 | 12.0 | 10.5 | 8.5 | 4.2 | 1.0 |'
+- doc: src-schmalz-spf
+  model: SPF 10
+  target: dims/overall_length_mm
+  value: 8.5
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 10 | 5.5 | 7.2 | 9.6 | 12.0 | 10.5 | 8.5 | 4.2 | 1.0 |'
+- doc: src-schmalz-spf
+  model: SPF 15
+  target: params/gripper_type
+  value: 'suction_cup'
+  page: 1
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: 'Flat Suction Cups (Round)'
+- doc: src-schmalz-spf
+  model: SPF 15
+  target: params/holding_force_n
+  value: 9.81
+  page: 4
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 15 | 9.81 | 11.0 | 7.9 | 0.8 | 13 | 4 |'
+  condition: 真空度 -600 mbar 下的理论吸力，光滑干燥的工件表面，不含安全系数（数据表脚注）
+- doc: src-schmalz-spf
+  model: SPF 15
+  target: params/cup_diameter_mm
+  value: 16.4
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 15 | 7.5 | 10.4 | 13.0 | 18.5 | 16.4 | 10.0 | 4.6 | 1.5 |'
+- doc: src-schmalz-spf
+  model: SPF 15
+  target: dims/outer_diameter_mm
+  value: 18.5
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 15 | 7.5 | 10.4 | 13.0 | 18.5 | 16.4 | 10.0 | 4.6 | 1.5 |'
+- doc: src-schmalz-spf
+  model: SPF 15
+  target: dims/overall_length_mm
+  value: 10.0
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 15 | 7.5 | 10.4 | 13.0 | 18.5 | 16.4 | 10.0 | 4.6 | 1.5 |'
+- doc: src-schmalz-spf
+  model: SPF 20
+  target: params/gripper_type
+  value: 'suction_cup'
+  page: 1
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: 'Flat Suction Cups (Round)'
+- doc: src-schmalz-spf
+  model: SPF 20
+  target: params/holding_force_n
+  value: 16.0
+  page: 4
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 20 | 16.00 | 19.2 | 10.5 | 1.2 | 20 | 4 |'
+  condition: 真空度 -600 mbar 下的理论吸力，光滑干燥的工件表面，不含安全系数（数据表脚注）
+- doc: src-schmalz-spf
+  model: SPF 20
+  target: params/cup_diameter_mm
+  value: 21.4
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 20 | 7.5 | 10.5 | 15.1 | 23.3 | 21.4 | 11.0 | 4.6 | 2.0 |'
+- doc: src-schmalz-spf
+  model: SPF 20
+  target: dims/outer_diameter_mm
+  value: 23.3
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 20 | 7.5 | 10.5 | 15.1 | 23.3 | 21.4 | 11.0 | 4.6 | 2.0 |'
+- doc: src-schmalz-spf
+  model: SPF 20
+  target: dims/overall_length_mm
+  value: 11.0
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 20 | 7.5 | 10.5 | 15.1 | 23.3 | 21.4 | 11.0 | 4.6 | 2.0 |'
+- doc: src-schmalz-spf
+  model: SPF 25
+  target: params/gripper_type
+  value: 'suction_cup'
+  page: 1
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: 'Flat Suction Cups (Round)'
+- doc: src-schmalz-spf
+  model: SPF 25
+  target: params/holding_force_n
+  value: 22.7
+  page: 4
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 25 | 22.70 | 27.1 | 17.0 | 1.7 | 30 | 4 |'
+  condition: 真空度 -600 mbar 下的理论吸力，光滑干燥的工件表面，不含安全系数（数据表脚注）
+- doc: src-schmalz-spf
+  model: SPF 25
+  target: params/cup_diameter_mm
+  value: 26.4
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 25 | 7.5 | 10.5 | 15.1 | 28.0 | 26.4 | 11.0 | 4.6 | 2.0 |'
+- doc: src-schmalz-spf
+  model: SPF 25
+  target: dims/outer_diameter_mm
+  value: 28.0
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 25 | 7.5 | 10.5 | 15.1 | 28.0 | 26.4 | 11.0 | 4.6 | 2.0 |'
+- doc: src-schmalz-spf
+  model: SPF 25
+  target: dims/overall_length_mm
+  value: 11.0
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 25 | 7.5 | 10.5 | 15.1 | 28.0 | 26.4 | 11.0 | 4.6 | 2.0 |'
+- doc: src-schmalz-spf
+  model: SPF 30
+  target: params/gripper_type
+  value: 'suction_cup'
+  page: 1
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: 'Flat Suction Cups (Round)'
+- doc: src-schmalz-spf
+  model: SPF 30
+  target: params/holding_force_n
+  value: 29.5
+  page: 4
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 30 | 29.50 | 35.3 | 22.5 | 2.6 | 35 | 6 |'
+  condition: 真空度 -600 mbar 下的理论吸力，光滑干燥的工件表面，不含安全系数（数据表脚注）
+- doc: src-schmalz-spf
+  model: SPF 30
+  target: params/cup_diameter_mm
+  value: 31.4
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 30 | 7.5 | 10.5 | 15.1 | 33.6 | 31.4 | 12.0 | 4.6 | 2.5 |'
+- doc: src-schmalz-spf
+  model: SPF 30
+  target: dims/outer_diameter_mm
+  value: 33.6
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 30 | 7.5 | 10.5 | 15.1 | 33.6 | 31.4 | 12.0 | 4.6 | 2.5 |'
+- doc: src-schmalz-spf
+  model: SPF 30
+  target: dims/overall_length_mm
+  value: 12.0
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 30 | 7.5 | 10.5 | 15.1 | 33.6 | 31.4 | 12.0 | 4.6 | 2.5 |'
+- doc: src-schmalz-spf
+  model: SPF 40
+  target: params/gripper_type
+  value: 'suction_cup'
+  page: 1
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: 'Flat Suction Cups (Round)'
+- doc: src-schmalz-spf
+  model: SPF 40
+  target: params/holding_force_n
+  value: 49.5
+  page: 4
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 40 | 49.50 | 62.5 | 25.0 | 5.1 | 70 | 6 |'
+  condition: 真空度 -600 mbar 下的理论吸力，光滑干燥的工件表面，不含安全系数（数据表脚注）
+- doc: src-schmalz-spf
+  model: SPF 40
+  target: params/cup_diameter_mm
+  value: 41.4
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 40 | 11.0 | 17.5 | 21.6 | 43.7 | 41.4 | 15.0 | 7.0 | 2.5 |'
+- doc: src-schmalz-spf
+  model: SPF 40
+  target: dims/outer_diameter_mm
+  value: 43.7
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 40 | 11.0 | 17.5 | 21.6 | 43.7 | 41.4 | 15.0 | 7.0 | 2.5 |'
+- doc: src-schmalz-spf
+  model: SPF 40
+  target: dims/overall_length_mm
+  value: 15.0
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 40 | 11.0 | 17.5 | 21.6 | 43.7 | 41.4 | 15.0 | 7.0 | 2.5 |'
+- doc: src-schmalz-spf
+  model: SPF 50
+  target: params/gripper_type
+  value: 'suction_cup'
+  page: 1
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: 'Flat Suction Cups (Round)'
+- doc: src-schmalz-spf
+  model: SPF 50
+  target: params/holding_force_n
+  value: 74.2
+  page: 4
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 50 | 74.20 | 87.4 | 44.0 | 8.0 | 75 | 6 |'
+  condition: 真空度 -600 mbar 下的理论吸力，光滑干燥的工件表面，不含安全系数（数据表脚注）
+- doc: src-schmalz-spf
+  model: SPF 50
+  target: params/cup_diameter_mm
+  value: 51.4
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 50 | 11.0 | 17.5 | 21.6 | 53.9 | 51.4 | 16.0 | 7.0 | 3.5 |'
+- doc: src-schmalz-spf
+  model: SPF 50
+  target: dims/outer_diameter_mm
+  value: 53.9
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 50 | 11.0 | 17.5 | 21.6 | 53.9 | 51.4 | 16.0 | 7.0 | 3.5 |'
+- doc: src-schmalz-spf
+  model: SPF 50
+  target: dims/overall_length_mm
+  value: 16.0
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 50 | 11.0 | 17.5 | 21.6 | 53.9 | 51.4 | 16.0 | 7.0 | 3.5 |'
+- doc: src-schmalz-spf
+  model: SPF 60
+  target: params/gripper_type
+  value: 'suction_cup'
+  page: 1
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: 'Flat Suction Cups (Round)'
+- doc: src-schmalz-spf
+  model: SPF 60
+  target: params/holding_force_n
+  value: 107.0
+  page: 4
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 60 | 107.00 | 135.0 | 65.0 | 12.7 | 75 | 6 |'
+  condition: 真空度 -600 mbar 下的理论吸力，光滑干燥的工件表面，不含安全系数（数据表脚注）
+- doc: src-schmalz-spf
+  model: SPF 60
+  target: params/cup_diameter_mm
+  value: 61.2
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 60 | 10.5 | 17.5 | 22.1 | 65.0 | 61.2 | 18.1 | 7.5 | 5.1 |'
+- doc: src-schmalz-spf
+  model: SPF 60
+  target: dims/outer_diameter_mm
+  value: 65.0
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 60 | 10.5 | 17.5 | 22.1 | 65.0 | 61.2 | 18.1 | 7.5 | 5.1 |'
+- doc: src-schmalz-spf
+  model: SPF 60
+  target: dims/overall_length_mm
+  value: 18.1
+  page: 6
+  confirmed_by: Claude（对照数据表原页核对，经张国庆授权）
+  date: '2026-11-25'
+  quote: '| SPF | 60 | 10.5 | 17.5 | 22.1 | 65.0 | 61.2 | 18.1 | 7.5 | 5.1 |'
