@@ -182,9 +182,57 @@ BLUE, GREY, YEL = "0.24 0.47 0.67 1", "0.8 0.82 0.84 1", "0.95 0.72 0.02 1"
 EQ = 'solref="0.002 1" solimp="0.95 0.99 0.001"'
 
 
-def mjcf(mid, given=None):
+LOOP_MIDS = ("C-LNK-4BAR", "C-LNK-SLIDER")      # 用 connect 软约束闭环的机构
+LOOP_GAP_REL = 1e-3                              # 闭环允许拉开：最短构件的 0.1 %
+LOOP_TAU_MAX = 0.002                             # 缺省（MuJoCo solref 的时间常数）
+DT_MAX = 0.0002
+
+
+def _links(mid, p):
+    if mid == "C-LNK-4BAR":
+        return [p["crank_m"], p["coupler_m"], p["rocker_m"]]
+    return [p["crank_m"], p["rod_m"]]
+
+
+def loop_tau(mid, given, w_max):
+    """闭环软约束的时间常数 τ 与步长 h。《多体动力学》书第 17 章线索第 23 条（问渠 CAD 0.3.8 细则）：MuJoCo 的参考加速度不含 J̇q̇，
+    闭合点的向心加速度只能靠约束拉开来补，穿透 ≈ τ²·|J̇q̇|（实测是这个估计的 0.79–0.92 倍）；缺省 τ = 2 ms 时
+    600 rpm 拉开 1.1 mm、驱动力矩逐点误差 12 %。按 τ²·a_c ≤ 最短构件的 0.1 % 选 τ，a_c 取 ω²·（运动构件长度之和，偏大的估计），
+    步长 h ≤ τ/2。返回 (τ, h)"""
+    if mid not in LOOP_MIDS or not w_max:
+        return LOOP_TAU_MAX, DT_MAX
+    p = params(mid, given)
+    links = _links(mid, p)
+    a_c = w_max ** 2 * sum(links)
+    tau = min(LOOP_TAU_MAX, math.sqrt(LOOP_GAP_REL * min(links) / a_c))
+    return tau, min(DT_MAX, tau / 2)
+
+
+def loop_gap(mid, given, q):
+    """闭环两点的实际距离（m），q：关节名 → 转角 / 位移序列（MuJoCo 的关节坐标，转角绕 −Y）"""
+    import numpy as np
+
+    p = params(mid, given)
+    if mid == "C-LNK-4BAR":
+        a, b, c, d = p["crank_m"], p["coupler_m"], p["rocker_m"], p["ground_m"]
+        t1, t2 = np.asarray(q["crank"]), np.asarray(q["crank"]) + np.asarray(q["coupler"])
+        e1 = np.c_[a * np.cos(t1) + b * np.cos(t2), a * np.sin(t1) + b * np.sin(t2)]
+        t4 = np.asarray(q["rocker"])
+        e2 = np.c_[d + c * np.cos(t4), c * np.sin(t4)]
+        return np.linalg.norm(e1 - e2, axis=1)
+    if mid == "C-LNK-SLIDER":
+        r, L, e = p["crank_m"], p["rod_m"], p["offset_m"]
+        t1, t2 = np.asarray(q["crank"]), np.asarray(q["crank"]) + np.asarray(q["rod"])
+        e1 = np.c_[r * np.cos(t1) + L * np.cos(t2), r * np.sin(t1) + L * np.sin(t2)]
+        e2 = np.c_[np.asarray(q["slider"]), np.full(len(t1), e)]
+        return np.linalg.norm(e1 - e2, axis=1)
+    return None
+
+
+def mjcf(mid, given=None, loop_tau_s=None, timestep_s=None):
     p = params(mid, given)
     body, eq = [], []
+    EQL = EQ if loop_tau_s is None else f'solref="{loop_tau_s!r} 1" solimp="0.95 0.99 0.001"'
     if mid == "C-LNK-4BAR":
         a, b, c, d, w, t = (p[k] for k in ("crank_m", "coupler_m", "rocker_m", "ground_m", "link_width_m", "link_thickness_m"))
         body.append('<body name="crank"><joint name="crank" {h}/>{g}<body name="coupler" pos="{a} 0 0"><joint name="coupler" {h}/>{g2}'
@@ -193,7 +241,7 @@ def mjcf(mid, given=None):
         body.append('<body name="rocker" pos="{d} 0 0"><joint name="rocker" {h}/>{g}<site name="rocker_end" pos="{c} 0 0"/></body>'.format(
             d=d, h=HINGE_Y, g=_bar("rocker", c, w, t, BLUE), c=c))
         # 用两个点（site）定义连接：约束“两点重合”，与模型的零位无关
-        eq.append(f'<connect site1="coupler_end" site2="rocker_end" {EQ}/>')
+        eq.append(f'<connect site1="coupler_end" site2="rocker_end" {EQL}/>')
     elif mid == "C-LNK-SLIDER":
         r, l, e, w, t = (p[k] for k in ("crank_m", "rod_m", "offset_m", "link_width_m", "link_thickness_m"))
         body.append('<body name="crank"><joint name="crank" {h}/>{g}<body name="rod" pos="{r} 0 0"><joint name="rod" {h}/>{g2}'
@@ -201,7 +249,7 @@ def mjcf(mid, given=None):
                                                                          g2=_bar("rod", l, w, t, GREY), l=l))
         body.append(f'<body name="slider" pos="0 0 {e}"><joint name="slider" type="slide" axis="1 0 0"/>'
                     f'<geom type="box" size="{1.2 * w} {1.5 * t} {w}" density="{RHO}" rgba="{BLUE}"/><site name="pin" pos="0 0 0"/></body>')
-        eq.append(f'<connect site1="rod_end" site2="pin" {EQ}/>')
+        eq.append(f'<connect site1="rod_end" site2="pin" {EQL}/>')
     elif mid == "C-CAM-DISC":
         r0, rr, h, t = (p[k] for k in ("base_radius_m", "roller_radius_m", "lift_m", "thickness_m"))
         body.append(f'<body name="cam"><joint name="cam" {HINGE_Y}/>{_disc(r0 + h / 2, t, BLUE)}</body>')
@@ -248,9 +296,9 @@ def mjcf(mid, given=None):
         raise ValueError(f"零件库里没有可做动力学的机构“{mid}”")
     ten, teq = _ratio_tendons(mid, p)
     eq += teq
-    return ('<mujoco model="{m}"><compiler angle="degree" autolimits="true"/><option timestep="0.0002"/>'
+    return ('<mujoco model="{m}"><compiler angle="degree" autolimits="true"/><option timestep="{h!r}"/>'
             '<worldbody>{b}</worldbody>{t}<equality>{e}</equality></mujoco>').format(
-        m=mid, b="".join(body), t=f"<tendon>{''.join(ten)}</tendon>" if ten else "", e="".join(eq))
+        m=mid, h=timestep_s or DT_MAX, b="".join(body), t=f"<tendon>{''.join(ten)}</tendon>" if ten else "", e="".join(eq))
 
 
 def initial(mid, given, q_driver):
