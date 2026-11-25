@@ -87,7 +87,7 @@ NUM（瑞士）在官网公开了编程手册：**《Flexium Programming Manual�
    - L2：换回的 FANUC 程序交 LinuxCNC rs274 解释器能读（有 rs274 才跑）。
    - 记录写进 `assist/cam_verification_cases.json`，目录 CAM-94 起。
 7. 帮助（中、英）加“NUM Flexium”一节；STATUS、ADR-0106 E3 记一笔。
-8. 不做：车铣、双主轴、多通道、五轴、NUM 固定循环（G81–G89 的 ER / EH 写法、G63–G66 车削循环）、子程序、圆弧指令、L3（NUM 的模拟软件另找）。
+8. 不做：车铣（2026-11-25 已按 ADR-0128 做端面、圆柱面）、双主轴、多通道、五轴、NUM 固定循环（G81–G89 的 ER / EH 写法、G63–G66 车削循环）、子程序、圆弧指令、L3（NUM 的模拟软件另找）。
 
 ## 实现记录（2026-11-25）
 
