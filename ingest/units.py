@@ -27,6 +27,7 @@ SUFFIX_UNITS: dict[str, str] = {
     "_nm_per_a": "N*m/A",
     "_kgm2": "kg*m**2",
     "_m_s2": "m/s**2",
+    "_m_s": "m/s",                 # 直线速度（直线模组，ADR-0129）
     "_mpa": "MPa",
     "_arcmin": "arcmin",
     "_ratio": "dimensionless",
@@ -80,6 +81,7 @@ def _clean(unit: str) -> str:
     u = re.sub(r"^[×x]\s*10\s*-\s*(\d+)", r"*10^-\1 ", u)  # “×10-4 kg·m²”：上标压平后的写法
     u = re.sub(r"(?i)(?<![A-Za-z])A\s*rms(?![A-Za-z])", "A", u) if "/" in u else u  # “Nm/Arms”
     u = re.sub(r"(?<![A-Za-z])kg\s*m\s*(?:\^|²)?2?(?![A-Za-z0-9])", "kg*m^2", u) if re.search(r"kg\s*m\s*(\^?2|²)", u) else u
+    u = re.sub(r"(?<=/s)\s*2$", "^2", u)  # “m/s2”：PDF 文字层把上标 ² 压平（ADR-0129）
     u = u.replace("⁻¹", "^-1").replace("²", "^2").replace("³", "^3").replace("·", "*").replace("×", "*")
     u = re.sub(r"\s*\*\s*", "*", u)
     return u.lstrip("*")  # “×10⁻⁴ kg·m²”这类前置乘号写法

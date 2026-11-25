@@ -1,0 +1,79 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-schmalz-spf",
+    "sha256": "3a68ad764ca487ad765eaa07f614ade5de83d7913492539ebe5a49f472f89606",
+    "pages": 6
+  },
+  "category": "gripper",
+  "vendor": "J. Schmalz GmbH",
+  "model": "SPF 30",
+  "series": "SPF",
+  "extractor": {
+    "model": "claude-sonnet-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011ChQ4VTq5MV2kK3cZPEx9x"
+  },
+  "items": [],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/gripper_type",
+      "page": 1,
+      "printed": {
+        "text": "Round flat suction cup",
+        "unit": "",
+        "label": "Flat Suction Cups SPF",
+        "quote": "• Round flat suction cup for usage in cardboard box and tray"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/holding_force_n",
+      "page": 4,
+      "printed": {
+        "text": "29.50",
+        "unit": "N",
+        "label": "Suction force (-600 mbar) [N]*",
+        "quote": "| SPF | 30 | 29.50 | 35.3 | 22.5 | 2.6 | 35 | 6 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/cup_diameter_mm",
+      "page": 6,
+      "printed": {
+        "text": "31.4",
+        "unit": "mm",
+        "label": "Ds [mm]",
+        "quote": "| SPF | 30 | 7.5 | 10.5 | 15.1 | 33.6 | 31.4 | 12.0 | 4.6 | 2.5 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "dims/outer_diameter_mm",
+      "page": 6,
+      "printed": {
+        "text": "33.6",
+        "unit": "mm",
+        "label": "Dmax(S) [mm]**",
+        "quote": "| SPF | 30 | 7.5 | 10.5 | 15.1 | 33.6 | 31.4 | 12.0 | 4.6 | 2.5 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "dims/height_mm",
+      "page": 6,
+      "printed": {
+        "text": "12.0",
+        "unit": "mm",
+        "label": "H [mm]",
+        "quote": "| SPF | 30 | 7.5 | 10.5 | 15.1 | 33.6 | 31.4 | 12.0 | 4.6 | 2.5 |"
+      }
+    }
+  ],
+  "missing_key_fields": [
+    "params/gripper_type",
+    "params/mass_kg"
+  ]
+}

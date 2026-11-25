@@ -154,8 +154,14 @@ def run(setup: dict) -> dict:
         spec, mid = _spec(setup.get("model") or {})
         slides = _slide_joints(spec)
         internal = _internal(setup, slides)
+        loop_tau = None
         if mid is not None:
-            internal = mechanisms.prepare_setup(mid, (setup.get("model") or {}).get("params"), internal)
+            given = (setup.get("model") or {}).get("params")
+            internal = mechanisms.prepare_setup(mid, given, internal)
+            if mid in mechanisms.LOOP_MIDS:
+                # 线索第 23 条：闭环软约束的 τ 按驱动转速选，闭合点拉开不超过最短构件的 0.1 %
+                loop_tau, h = mechanisms.loop_tau(mid, given, _drive_speed_max(internal, mechanisms.DRIVER[mid]))
+                spec = core.load_spec(xml=mechanisms.mjcf(mid, given, loop_tau_s=loop_tau, timestep_s=h))
         summ, ch, _anim = core.simulate(spec, internal)
     except (SetupError, core.SetupError, KeyError, TypeError, ValueError) as exc:
         return result.failed("mbd", MODULE["version"], setup, f"设置有误：{exc}")
@@ -185,7 +191,21 @@ def run(setup: dict) -> dict:
                 over.append(f"{out} 与 {inp} 的传动比约束最大偏差 {val:.3g} {unit}，超过 {lim:g} {unit}")
         if devs:
             data["coupling_max_dev"] = devs
-    messages = []
+    messages, lims = [], list(LIMITATIONS)
+    if mid in mechanisms.LOOP_MIDS:
+        given = (setup.get("model") or {}).get("params")
+        names = [j for j in ("crank", "coupler", "rocker", "rod", "slider") if "q." + j in ch]
+        gap = mechanisms.loop_gap(mid, given, {j: ch["q." + j] for j in names})
+        k = int(gap.argmax())
+        lim_mm = mechanisms.LOOP_GAP_REL * min(mechanisms._links(mid, mechanisms.params(mid, given))) * 1000
+        data["loop"] = {"max_gap_mm": round(float(gap[k]) * 1000, 6), "t_s": round(float(ch["t"][k]), 6),
+                        "limit_mm": lim_mm, "tau_s": loop_tau}
+        lims.append("闭环（连杆与摇杆 / 滑块的连接）是软约束：闭合点会拉开约 τ² × 闭合点向心加速度，"
+                    f"τ 按驱动转速自动选（本次 {loop_tau * 1000:.3g} ms），实际最大拉开见 data.loop")
+        if gap[k] * 1000 > lim_mm:
+            messages.append("闭环拉开 {:.3g} mm（t = {:.3g} s），超过最短构件的 0.1 %（{:.3g} mm）："
+                            "驱动力矩和铰链反力的误差可能超过 1 %；可加密时间步，或改用 DAE 内核（model 格式）".format(
+                                gap[k] * 1000, ch["t"][k], lim_mm))
     if mid == "C-BLT-BELT":
         # 线索第 38 条：带传动按主动轮力矩峰值核打滑、给出轴上拉力；没给初拉力、摩擦系数判 unknown
         bc = mechanisms.belt_check((setup.get("model") or {}).get("params"), float(abs(ch["drive.pulley1"]).max()))
@@ -212,8 +232,24 @@ def run(setup: dict) -> dict:
         data["static_error"] = str(exc)[:200]
     import mujoco
 
-    return result.make("mbd", MODULE["version"], setup, data, limitations=LIMITATIONS, messages=messages,
+    return result.make("mbd", MODULE["version"], setup, data, limitations=lims, messages=messages,
                        solver={"name": "MuJoCo", "version": mujoco.__version__}, elapsed_s=time.time() - t0)
+
+
+def _drive_speed_max(internal, driver):
+    """主动件的最大转速（rad/s 或 m/s）估计：匀速取给定值，正弦取幅值 × 2πf，点到点取平均速度的两倍"""
+    w = 0.0
+    for d in internal.get("drives") or []:
+        if d["joint"] != driver:
+            continue
+        if d["kind"] == "speed":
+            w = max(w, abs(d["value"]))
+        elif d["kind"] == "sine":
+            w = max(w, abs(d["amp"]) * 2 * math.pi * d["freq"])
+        elif d["kind"] == "move":
+            q0 = float((internal.get("initial") or {}).get(driver, 0.0))
+            w = max(w, 2 * abs(d["to"] - q0) / max(d["t1"] - d["t0"], 1e-9))
+    return w
 
 
 def requirement(res: Mapping, joint: str, *, base: Mapping | None = None) -> dict:

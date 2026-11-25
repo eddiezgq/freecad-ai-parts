@@ -1,0 +1,233 @@
+{
+  "category": "linear_module",
+  "envelope": {
+    "parts": [
+      {
+        "height_mm": {
+          "condition": "H1（含滑台）",
+          "confidence": 1.0,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-festo-egc-bs",
+            "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 26 页原文“M5 9 M5 5 76,5 27 62 17,5 15 46”",
+            "page": 26
+          },
+          "value": 76.5
+        },
+        "label": "body（行程 0 mm；选定行程后长度加行程）",
+        "length_mm": {
+          "condition": "L1，标准滑台 GK/GP，行程 0 mm；行程 ≥ 1477 mm 时 L1 为 236（加长约 40 mm），另加行程与两端行程余量",
+          "confidence": 1.0,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-festo-egc-bs",
+            "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 26 页原文“80 GK/GP < 1477 196 101”",
+            "page": 26
+          },
+          "value": 196
+        },
+        "shape": "box",
+        "width_mm": {
+          "condition": "B1",
+          "confidence": 1.0,
+          "method": "manual",
+          "reviewed": true,
+          "source": {
+            "doc": "src-festo-egc-bs",
+            "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 25 页原文“82 72,6 22 40 60 35 46,75 1 48 8 @18”",
+            "page": 25
+          },
+          "value": 82
+        },
+        "z_start_mm": 0
+      }
+    ]
+  },
+  "id": "linear_module.festo-se-co-kg.egc-80-bs-kf-20p-gk",
+  "license": "params-only",
+  "model": "EGC-80-BS-KF-20P-GK",
+  "note": "参数取自厂商公开目录 src-festo-egc-bs（ADR-0040），对照原页逐项录入（ingest/festo_egc.py）；行程订货时任选，选定行程后的质量与长度由选型代码按基本值加算",
+  "params": {
+    "carriage_mass_kg": {
+      "condition": "运动质量（Bewegte Masse），标准滑台 GK/GP",
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 12 页原文“EGC-...-GK/-GP 400 740 2400 8600”",
+        "page": 12
+      },
+      "value": 0.74
+    },
+    "drive_type": {
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 1 页原文“Spindelachsen EGC-BS-KF”",
+        "page": 1
+      },
+      "value": "ballscrew"
+    },
+    "force_lateral_n": {
+      "condition": "参考寿命 5000 km 下的最大允许值（动态；几项同时作用时还要满足载荷比较系数 fv ≤ 1）；标准滑台 GK/GP",
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 15 页原文“Fymax. [N] 1850 3050 6890 15200”",
+        "page": 15
+      },
+      "value": 3050
+    },
+    "force_normal_n": {
+      "condition": "参考寿命 5000 km 下的最大允许值（动态；几项同时作用时还要满足载荷比较系数 fv ≤ 1）；标准滑台 GK/GP",
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 15 页原文“Fzmax. [N] 1850 3050 6890 15200”",
+        "page": 15
+      },
+      "value": 3050
+    },
+    "lead_mm": {
+      "condition": "丝杠导程",
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 11 页原文“Spindelsteigung [mm/U] 10 10 20 10 25 40”",
+        "page": 11
+      },
+      "value": 20
+    },
+    "mass_kg": {
+      "condition": "行程 0 mm 的基本质量（含滑台），标准滑台 GK/GP",
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 12 页原文“EGC-...-GK/-GP 1500 2700 12500 30000”",
+        "page": 12
+      },
+      "value": 2.7
+    },
+    "mass_per_10mm_stroke_kg": {
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 12 页原文“Gewichtszuschlag pro 10 mm Hub 50 80 190 390”",
+        "page": 12
+      },
+      "value": 0.08
+    },
+    "max_accel_m_s2": {
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 11 页原文“Max. Beschleunigung [m/s2] 15”",
+        "page": 11
+      },
+      "value": 15
+    },
+    "max_speed_m_s": {
+      "condition": "短行程时的最高运行速度（第 19 页速度—行程曲线的平台值）；行程长了随行程下降，转速与速度与行程有关（数据表注 4）",
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 11 页原文“bei max. Verfahrgeschwindigkeit2) [m/s] 0,5 0,5 1 0,6 1,5 2”",
+        "page": 11
+      },
+      "value": 1
+    },
+    "max_stroke_mm": {
+      "condition": "工作行程上限，标准滑台 GK/GP",
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 11 页原文“EGC-...-GK/-GP [mm] 50 ... 1000 50 ... 2000 50 ... 2500 50 ... 3000”",
+        "page": 11
+      },
+      "value": 2000
+    },
+    "max_thrust_n": {
+      "condition": "最大进给力；进给力影响寿命（目录第 17 页）",
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 11 页原文“Max. Vorschubkraft Fx1) [N] 400 650 1500 3000”",
+        "page": 11
+      },
+      "value": 650
+    },
+    "moment_pitch_nm": {
+      "condition": "My；参考寿命 5000 km 下的最大允许值（动态；几项同时作用时还要满足载荷比较系数 fv ≤ 1）；标准滑台 GK/GP",
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 15 页原文“EGC-...-GK/-GP [Nm] 51 97 380 1157”",
+        "page": 15
+      },
+      "value": 97
+    },
+    "moment_roll_nm": {
+      "condition": "参考寿命 5000 km 下的最大允许值（动态；几项同时作用时还要满足载荷比较系数 fv ≤ 1）；标准滑台 GK/GP",
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 15 页原文“Mxmax. [Nm] 16 36 144 529”",
+        "page": 15
+      },
+      "value": 36
+    },
+    "moment_yaw_nm": {
+      "condition": "Mz（目录与 My 同列）；参考寿命 5000 km 下的最大允许值（动态；几项同时作用时还要满足载荷比较系数 fv ≤ 1）；标准滑台 GK/GP",
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 15 页原文“EGC-...-GK/-GP [Nm] 51 97 380 1157”",
+        "page": 15
+      },
+      "value": 97
+    },
+    "repeatability_mm": {
+      "confidence": 1.0,
+      "method": "manual",
+      "reviewed": true,
+      "source": {
+        "doc": "src-festo-egc-bs",
+        "note": "对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 11 页原文“Wiederholgenauigkeit [mm] ±0,02”",
+        "page": 11
+      },
+      "value": 0.02
+    }
+  },
+  "ports": [],
+  "status": "active",
+  "vendor": "Festo SE & Co. KG"
+}
