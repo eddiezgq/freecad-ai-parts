@@ -122,12 +122,32 @@ def _rows(sysm, idx):
 
 
 def initial_velocity(sysm: System, q, t, rows):
-    """初速度：构件给的 v0、ω0 与运动副初速度，按最小改动投影到速度约束上"""
+    """初速度：构件给的 v0、ω0 与运动副初速度，投影到速度约束上。
+
+    《多体动力学》书第 13 章线索第 22 条（问渠 CAD 0.3.8 细则）：原来在（质心速度, 欧拉参数变化率）空间里不加权地
+    最小二乘修正，没写的 ω0 当成 0 去凑——刚体摆只给质心速度 1 m/s、质心距铰点 0.1 m 时，开始的质心速度变成 0.038 m/s，
+    无提示；结果还随长度单位变。现在：
+    1. 模型里写了的分量（v0_mm_s、w0_deg_s）当硬条件，没写的由运动副补全；相容就原样保留用户给的速度；
+    2. 不相容时只对给了的分量按动能加权投影（与坐标、单位无关），没给的由运动副补全，并在
+       sysm.init_velocity_notes 里记下哪个构件被改了多少，由 run_model 报出。
+    """
     qd0 = np.zeros(sysm.n)
+    given = []
     for k, b in enumerate(sysm.bodies):
         p = sysm.rp(q, k)[1]
         qd0[7 * k:7 * k + 3] = b.v0
         qd0[7 * k + 3:7 * k + 7] = 0.5 * E_of(p).T @ b.w0
+        if b.v0_given:
+            for c in range(3):
+                row = np.zeros(sysm.n)
+                row[7 * k + c] = 1.0
+                given.append((row, b.v0[c]))
+        if b.w0_given:
+            Ew = 2 * E_of(p)                       # ω（地面系）= 2 E(p) ṗ
+            for c in range(3):
+                row = np.zeros(sysm.n)
+                row[7 * k + 3:7 * k + 7] = Ew[c]
+                given.append((row, b.w0[c]))
     J, nu = sysm.jac(q, t, rows), sysm.nu(q, t, rows)
     extra_J, extra_v = [], []
     for info in sysm.joints.values():
@@ -156,16 +176,68 @@ def initial_velocity(sysm: System, q, t, rows):
     if extra_J:
         J = np.vstack([J, np.array(extra_J)])
         nu = np.concatenate([nu, extra_v])
-    r = nu - J @ qd0
-    corr = np.linalg.lstsq(J, r, rcond=None)[0]
-    qd = qd0 + corr
+    W = sysm.mass(q)
+    sysm.init_velocity_notes = []
+    if given:
+        Jg = np.vstack([J, np.array([g[0] for g in given])])
+        ng = np.concatenate([nu, [g[1] for g in given]])
+        qd = _weighted_projection(W, Jg, ng, qd0)
+        if np.max(np.abs(Jg @ qd - ng), initial=0) <= 1e-8:
+            return qd                              # 用户给的全部保留
+    # 不相容：只对用户给了的分量按动能加权（质心速度权 m，角速度权地面系惯量），没给的由运动副补全；
+    # 再加一个很小的整体动能权保证唯一
+    Wg = np.zeros_like(W)
+    for k, b in enumerate(sysm.bodies):
+        p = sysm.rp(q, k)[1]
+        if b.v0_given:
+            Wg[7 * k:7 * k + 3, 7 * k:7 * k + 3] += b.mass * np.eye(3)
+        if b.w0_given:
+            A, Ew = A_of(p), 2 * E_of(p)
+            Wg[7 * k + 3:7 * k + 7, 7 * k + 3:7 * k + 7] += Ew.T @ (A @ b.J @ A.T) @ Ew
+    if not given:
+        Wg = W
+    qd = _weighted_projection(Wg + INIT_W_REG * W, J, nu, qd0)
     if np.max(np.abs(J @ qd - nu), initial=0) > 1e-8:
         raise SolveError("初速度和运动副、驱动不相容（运动副初速度与驱动冲突，或给了被约束住的速度）")
+    for k, b in enumerate(sysm.bodies):
+        p = sysm.rp(q, k)[1]
+        v, w = qd[7 * k:7 * k + 3], 2 * E_of(p) @ qd[7 * k + 3:7 * k + 7]
+        dv = float(np.linalg.norm(v - b.v0)) if b.v0_given else 0.0
+        dw = float(np.linalg.norm(w - b.w0)) if b.w0_given else 0.0
+        if dv > INIT_V_TOL * max(1.0, float(np.linalg.norm(b.v0))) or dw > INIT_W_TOL * max(1.0, float(np.linalg.norm(b.w0))):
+            sysm.init_velocity_notes.append(
+                "构件“{}”给的初速度与运动副不相容，按动能加权投影改成：质心速度 {} mm/s（给的 {}），"
+                "角速度 {} °/s（给的 {}）".format(b.name, _fmt3(v * 1e3), _fmt3(b.v0 * 1e3) if b.v0_given else "未给",
+                                                  _fmt3(np.degrees(w)), _fmt3(np.degrees(b.w0)) if b.w0_given else "未给"))
     return qd
 
 
+INIT_V_TOL = 1e-6        # 相对（m/s 下限 1）：给的初速度被改动超过它就报
+INIT_W_TOL = 1e-6
+INIT_W_REG = 1e-9      # 没给的分量上的动能权（相对），只为解唯一
+
+
+def _fmt3(x):
+    return "(" + ", ".join(f"{float(c):.4g}" for c in x) + ")"
+
+
+def _weighted_projection(W, A, b, x0):
+    """min (x − x0)ᵀ W (x − x0)，A x = b：W 是质量阵（动能加权）。W 在欧拉参数的径向上是奇异的，
+    但 A 里有欧拉参数归一的速度约束，KKT 阵一般可逆；冗余行用最小二乘"""
+    n, m = W.shape[0], A.shape[0]
+    K = np.block([[W, A.T], [A, np.zeros((m, m))]])
+    rhs = np.concatenate([np.zeros(n), b - A @ x0])
+    sol = np.linalg.lstsq(K, rhs, rcond=None)[0]
+    return x0 + sol[:n]
+
+
 # ---------------------------------------------------------------- 加速度与反力
-FRICTION_ITER = 30
+FRICTION_ITER = 30           # 普通不动点迭代次数；不收敛再按增益分情况（线索第 29 条）
+FRICTION_ITER_MAX = 400
+FRICTION_LOCK_GAIN = 0.9        # 增益到这里算“接近自锁”：积分失败时报自锁，算完时提示
+FRICTION_ITER_EARLY = 10        # 普通迭代到第 10 次时增益 > 0.5 就提前改用加速
+FRICTION_AA_DEPTH = 5
+FRICTION_TOL = 1e-12
 SPARSE_N = 120              # D8：坐标数到这个数以上，线性方程用稀疏 LU（雅可比、KKT 阵都很稀）
 
 
@@ -214,17 +286,100 @@ def accel(sysm: System, q, qd, t, rows, J=None):
     x = solve(np.concatenate([Q0, gam]))
     jids = _friction_joints(sysm)
     if jids:
-        # 摩擦力随约束反力变：不动点迭代（反力 → 摩擦 → 反力），一般 3~6 次收敛
-        for _ in range(FRICTION_ITER):
-            react = _joint_forces(sysm, q, J, x[sysm.n:], rows, jids)
-            Fx, Nx = sysm.friction_wrenches(q, qd, react)
-            Qf = Q0 + sysm.Q_extra(q, qd, Fx, Nx)
-            x1 = solve(np.concatenate([Qf, gam]))
-            done = np.max(np.abs(x1 - x)) <= 1e-12 * (1 + np.max(np.abs(x1)))
-            x = x1
-            if done:
-                break
+        x = _friction_fixed_point(sysm, q, qd, t, J, rows, jids, Q0, gam, solve, x)
     return x[:sysm.n], x[sysm.n:]
+
+
+def _friction_fixed_point(sysm, q, qd, t, J, rows, jids, Q0, gam, solve, x):
+    """摩擦力随约束反力变：不动点 x = g(x)（反力 → 摩擦 → 反力）。
+
+    一般 3~6 次收敛。《多体动力学》书第 20 章线索第 29 条（问渠 CAD 0.3.8 细则）：原来最多 30 次、不收敛不报，
+    μ 大时收敛很慢（μ = 1.5 要 355 次，30 次时差 11 %），增益 ≥ 1（自锁）时根本没有解，照样给出 30 次后的数。
+    现在：从上一次的解出发普通迭代（最多 FRICTION_ITER 次，慢就提前停）；没收敛改 Anderson 加速；
+    加速后仍不收敛时看普通迭代估出的增益——≥ 1 是没有解（自锁），报“可能自锁”；< 1 记进 sysm.friction_log，
+    由 run_model 报“摩擦迭代不收敛”。
+    """
+    def g(x_):
+        react = _joint_forces(sysm, q, J, x_[sysm.n:], rows, jids)
+        Fx, Nx = sysm.friction_wrenches(q, qd, react)
+        return solve(np.concatenate([Q0 + sysm.Q_extra(q, qd, Fx, Nx), gam])), react
+
+    def small(d, ref):
+        return np.max(np.abs(d)) <= FRICTION_TOL * (1 + np.max(np.abs(ref)))
+
+    prev = sysm.__dict__.get("_friction_x")
+    if prev is not None and prev.shape == x.shape:
+        x = prev.copy()                  # 从上一次的解出发：积分相邻两步的反力差得很少
+    steps = []
+    for k in range(FRICTION_ITER):
+        x1, react = g(x)
+        d = x1 - x
+        steps.append(float(np.max(np.abs(d))))
+        x = x1
+        if small(d, x1):
+            sysm._friction_x, sysm._friction_lock = x, None
+            return x
+        if k >= FRICTION_ITER_EARLY and _gain(steps) > 0.5:
+            break                        # 收敛慢：不再空耗普通迭代，下面按增益分情况
+    rate = _gain(steps)
+    log = sysm.__dict__.setdefault("friction_log", {"slow": 0, "fail": 0, "t_first": None, "joint": None, "rate": 0.0,
+                                                        "gain_max": 0.0, "gain_t": None, "gain_joint": None})
+    log["slow"] += 1
+    if rate > log["gain_max"]:
+        # 增益趋近 1 时不动点的摩擦力趋于无穷（τ ≈ a / (1 − 增益)），机构接近卡死；记下最接近的时刻
+        log["gain_max"], log["gain_t"], log["gain_joint"] = rate, float(t), _max_friction_joint(sysm, react)
+    # Anderson 加速（深度 FRICTION_AA_DEPTH），对线性收缩的不动点几步就到；增益 ≥ 1 也先试，真有解就会收敛，没解才判自锁
+    X, G = [], []
+    for _ in range(FRICTION_ITER_MAX - FRICTION_ITER):
+        gx, react = g(x)
+        f = gx - x
+        if small(f, gx):
+            sysm._friction_x, sysm._friction_lock = gx, None
+            return gx
+        X.append(x.copy())
+        G.append(gx.copy())
+        X, G = X[-FRICTION_AA_DEPTH - 1:], G[-FRICTION_AA_DEPTH - 1:]
+        if len(X) == 1:
+            x = gx
+            continue
+        F = np.array([gg - xx for gg, xx in zip(G, X, strict=True)]).T
+        dF = F[:, 1:] - F[:, :-1]
+        dG = np.array(G).T[:, 1:] - np.array(G).T[:, :-1]
+        gam_, *_ = np.linalg.lstsq(dF, F[:, -1], rcond=None)
+        x = G[-1] - dG @ gam_
+    if rate >= 1.0:
+        # 增益 ≥ 1：摩擦力越算越大，没有解——机构在这里卡死。照样往下积分只会得到越来越大的假数（原来 μ = 2.0 给 35203 N·m）。
+        # 积分器试步时碰上会把它当“步太大”缩步；真走到这里积分就会失败，dynamic 再用 friction_lock 报出原因
+        msg = (f"可能自锁：t = {float(t):.6g} s 运动副摩擦的迭代增益约 {rate:.3g}（≥ 1，摩擦力越算越大，没有解），"
+               f"摩擦最大的是运动副“{_max_friction_joint(sysm, react)}”。机构在这个位置会卡死；请检查摩擦系数、销半径，"
+               "或确认这就是要找的自锁位置")
+        sysm._friction_lock = msg
+        raise SolveError(msg)
+    log["fail"] += 1
+    log["rate"] = max(log["rate"], rate)
+    if log["t_first"] is None:
+        log["t_first"] = float(t)
+        log["joint"] = _max_friction_joint(sysm, react)
+    return x
+
+
+def _gain(steps):
+    """普通迭代最后几步修正量的几何平均缩小率：线性收缩时就是不动点映射的增益。
+    用几何平均而不是相邻比的中位数——迭代常常一大一小交替（相邻比 2.0、0.27 交替，实际每步缩到 0.73）"""
+    w = [x for x in steps[-6:] if x > 0]
+    if len(w) < 2:
+        return 0.0
+    return float((w[-1] / w[0]) ** (1.0 / (len(w) - 1)))
+
+
+def _max_friction_joint(sysm, react):
+    best, val = None, -1.0
+    for jid, (F, _) in react.items():
+        fr = sysm.joints[jid]["friction"]
+        v = max(fr["ms"], fr["md"]) * float(np.linalg.norm(F))
+        if v > val:
+            best, val = jid, v
+    return best
 
 
 def reactions(sysm: System, q, t, rows_idx, lam):
@@ -290,7 +445,33 @@ class Recorder:
         self.react.append(r)
         self.motion.append(m)
         self.energy.append(s.energy(q, qd))
-        self.resid.append(float(np.max(np.abs(s.phi(q, t)), initial=0.0)))
+        ph = s.phi(q, t)
+        self.resid.append(float(np.max(np.abs(ph), initial=0.0)))
+        _check_dropped(s, q, t, ph, rows_idx)
+
+
+DROPPED_STOP = 1e-5        # m（角度类约束是 rad）：删掉的“冗余”约束拉开到这个数就停（近冗余的制造误差级远小于它）
+
+
+def _check_dropped(sysm, q, t, ph, rows_idx):
+    """《多体动力学》书第 35 章线索第 52 条（问渠 CAD 0.3.8 细则）：初始位形奇异（例如三点共线）时，独立约束看起来像冗余，
+    被删掉照算——双摆加一个本应锁死的接地转动副，删掉 4 条约束、积分完成、约束残差 2.0。
+    真冗余的约束在运动中自动满足；被删的约束拉开了，说明它不是冗余：停下，报奇异位形 / 锁死和运动副"""
+    keep = set(rows_idx)
+    dropped = [k for k in range(len(sysm.rows)) if k not in keep]
+    if not dropped:
+        return
+    k = max(dropped, key=lambda i: abs(ph[i]))
+    if abs(ph[k]) <= DROPPED_STOP:
+        return
+    row = sysm.rows[k]
+    dof = structural(sysm, q, t)["dof"]
+    gap = f"{abs(ph[k]):.3g}（方向约束，无量纲）" if row.kind in ("dot1", "dot2", "norm") else f"{abs(ph[k]) * 1000:.4g} mm"
+    raise SolveError(
+        f"机构锁死或开始时在奇异位形：开始时按冗余删掉的约束“{row.label}”到 t = {t:.6g} s 拉开了 {gap}"
+        f"——真冗余的约束会自动满足，它不是冗余。现在只看运动副的结构自由度是 {dof}。"
+        f"开始位形多半是奇异位形（例如三个铰点共线），离开它机构就动不了。请检查运动副“{row.joint or row.label}”的位置，"
+        "或换一个不奇异的初始位形")
 
 
 # ---------------------------------------------------------------- 分析
@@ -428,6 +609,27 @@ def _static_newton(sysm, t, rows, x0, iters=60):
     return x if np.max(np.abs(r)) <= 1e-6 else None
 
 
+STALL_RHS = 200_000        # 一个输出间隔的 1 % 都没推进、却已求值这么多次：积分卡住了
+
+
+class _Stall(RuntimeError):
+    """积分步长持续过小（不让 rhs 里的“缩步重试”吞掉）"""
+
+
+def _stall_watch(state, stats, t, dt_out):
+    """《多体动力学》书第 31 章线索第 46 条（问渠 CAD 0.3.8 细则）：解贴着不连续面来回切换时，变步长积分步长持续过小、
+    几乎不前进，原来不提示（书里转台 90 s 算不完）。推进不到输出间隔的 1 % 就已求值 STALL_RHS 次，停下报原因"""
+    mark = state.get("stall_t")
+    if mark is None or t > mark + 0.01 * dt_out:
+        state["stall_t"], state["stall_n"] = t, 0
+        return
+    state["stall_n"] += 1
+    if state["stall_n"] > STALL_RHS:
+        raise _Stall(f"积分卡住：t = {t:.6g} s 附近求值 {STALL_RHS} 次仍推进不到 {0.01 * dt_out:.3g} s（步长持续过小）。"
+                     "常见原因：控制器输出贴着限幅来回切换、摩擦粘滑、接触太硬或表达式里有不连续（sign、STEP 太陡）。"
+                     "请检查这一时刻附近的控制器和力元，或改用 HHT 积分器")
+
+
 def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, q=None, qd=None, t0=0.0):
     q = sysm.q0() if q is None else q.copy()
     keep, drop = independent_rows(sysm, q, t0)
@@ -524,6 +726,7 @@ def _dynamic_loop(v):
     partition, full_state, ctrl, dof, nx = (v[k] for k in ("partition", "full_state", "ctrl", "dof", "nx"))
     t_cur, q_cur, qd_cur, xc_cur, k, seg = (v[k] for k in ("t_cur", "q_cur", "qd_cur", "xc_cur", "k", "seg"))
     t0, h_s, n_s, next_s = v["t0"], v["h_s"], v["n_s"], v["next_s"]
+    dt_out = float(times[1] - times[0]) if len(times) > 1 else 1.0
     while k < steps:
         dep, ind = partition(q_cur, t_cur)
         stats["segments"] += 1
@@ -536,6 +739,7 @@ def _dynamic_loop(v):
 
         def rhs(t, y, dep=dep, ind=ind):
             stats["rhs"] += 1
+            _stall_watch(state, stats, t, dt_out)
             keep_q = state["q"].copy()
             try:
                 if not np.all(np.isfinite(y)):
@@ -568,9 +772,21 @@ def _dynamic_loop(v):
         ill.terminal = True
         ill.direction = -1
         t_eval = [tt for tt in times[k + 1:k1 + 1] if tt <= t_stop + 1e-12]
-        sol = solve_ivp(rhs, (t_cur, t_stop), y0, method=method, t_eval=t_eval, rtol=rtol, atol=atol,
-                        events=ill, dense_output=True)
+        try:
+            sol = solve_ivp(rhs, (t_cur, t_stop), y0, method=method, t_eval=t_eval, rtol=rtol, atol=atol,
+                            events=ill, dense_output=True)
+        except _Stall as exc:
+            raise SolveError(str(exc)) from None
         if sol.status < 0:
+            lock = sysm.__dict__.get("_friction_lock")
+            if lock:                        # 线索第 29 条：积分失败是因为摩擦自锁，就报自锁
+                raise SolveError(lock)
+            fl = sysm.__dict__.get("friction_log") or {}
+            if fl.get("gain_max", 0.0) >= FRICTION_LOCK_GAIN:
+                raise SolveError(f"可能自锁：t = {fl['gain_t']:.6g} s 起运动副摩擦的迭代增益到 {fl['gain_max']:.3g}"
+                                 f"（接近 1，摩擦力趋于无穷），摩擦最大的是运动副“{fl['gain_joint']}”，积分在 "
+                                 f"t = {t_cur:.6g} s 后走不下去。机构在这里会卡死；请检查摩擦系数、销半径，"
+                                 "或确认这就是要找的自锁位置")
             raise SolveError(f"积分失败：{sol.message}")
         for n_, tt in enumerate(sol.t):
             state["q"] = rec.q[-1].copy()       # 牛顿迭代从上一个记录点起步（积分器的最后一次求值可能在更后面）

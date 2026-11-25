@@ -185,6 +185,18 @@ def run(setup: dict) -> dict:
                 over.append(f"{out} 与 {inp} 的传动比约束最大偏差 {val:.3g} {unit}，超过 {lim:g} {unit}")
         if devs:
             data["coupling_max_dev"] = devs
+    messages = []
+    if mid == "C-BLT-BELT":
+        # 线索第 38 条：带传动按主动轮力矩峰值核打滑、给出轴上拉力；没给初拉力、摩擦系数判 unknown
+        bc = mechanisms.belt_check((setup.get("model") or {}).get("params"), float(abs(ch["drive.pulley1"]).max()))
+        data["belt"] = {k: (round(v, 6) if isinstance(v, float) else v) for k, v in bc.items()}
+        if bc["status"] == "fail":
+            messages.append("带会打滑：主动轮力矩峰值 {:.3g} N·m 超过打滑极限 {:.3g} N·m（初拉力、摩擦系数、包角 {:.1f}° 决定），"
+                            "传动比 1:{:.3g} 的结果不成立；加大初拉力或包角".format(
+                                float(abs(ch["drive.pulley1"]).max()), bc["torque_limit_driver_nm"], bc["wrap_small_deg"],
+                                mechanisms.ratio("C-BLT-BELT", (setup.get("model") or {}).get("params"))))
+        elif bc["status"] == "unknown":
+            messages.append("带传动按刚性传动比算，打滑没有核查：没给初拉力 initial_tension_n、摩擦系数 mu")
     if over:
         return result.failed("mbd", MODULE["version"], setup,
                              "传动比约束没守住，结果不可信：" + "；".join(over) + "。可减小负载、加密时间步，或改用 DAE 内核（model 格式）")
@@ -200,7 +212,7 @@ def run(setup: dict) -> dict:
         data["static_error"] = str(exc)[:200]
     import mujoco
 
-    return result.make("mbd", MODULE["version"], setup, data, limitations=LIMITATIONS,
+    return result.make("mbd", MODULE["version"], setup, data, limitations=LIMITATIONS, messages=messages,
                        solver={"name": "MuJoCo", "version": mujoco.__version__}, elapsed_s=time.time() - t0)
 
 
