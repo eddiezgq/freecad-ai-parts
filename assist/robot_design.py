@@ -6,6 +6,8 @@
    自由度、安装方式、臂展（安装面上 r = 臂展的点要够得着且不在奇异位置）、关节模组复用；重复定位精度这时判不了（选件后按编码器与回差算），记待确认。
 3. 一个都没通过，把每个构型没通过的项交回 AI 改，最多 4 轮。有通过的就停：采用 AI 推荐的那个（推荐的没通过就采用第一个通过的）。
 
+取放类需求（AI 列的类型不是串联臂、移动底盘）再问一次节拍与取放条件，初筛加取放点与节拍（assist.robot_cell，ADR-0115 44.5.1）。
+
 “能在普通数控车铣上加工”“成本尽量低”这类要求代码判不了，记进“交给人看的要求”，不影响通过与否。
 每一轮的提议原文、初筛结论都留下。AI 不给零件数据与质量；校核全由代码做。纯函数部分不联网；调用 AI 的客户端由调用方给。
 """
@@ -21,6 +23,7 @@ from typing import Any
 
 from analysis.robot import kinematics as K
 from analysis.robot import screen
+from assist import robot_cell
 from assist.fea_draft import _in_statement, _value_with_unit
 
 PROMPT_VERSION = "robot-design/4"            # /2：提示里给出一体化模组的装配要点（ADR-0115 44.3 之二）；/3：按装法分开的留长（沉头孔后的板厚）；/4：螺钉从管孔里装要的最小管径
@@ -147,6 +150,7 @@ def check_conditions(ti: Any, statement: str) -> tuple[dict, list[str], list[str
 def _cond_text(c: dict) -> str:
     names = {"kind": "机器人类型", "dof": "自由度", "payload": "末端负载 kg", "reach": "臂展 mm", "repeatability": "重复定位精度 ± mm", "joint_speed": "关节最高角速度 rpm",
              "mount": "安装", "module_reuse": "同一种关节模组重复使用", "for_people": "交给人看的要求（代码不判）"}
+    names.update(robot_cell.NAMES)
     return "\n".join(f"- {names.get(k, k)}：{v if not isinstance(v, list) else '；'.join(v)}" for k, v in c.items())
 
 
@@ -164,7 +168,7 @@ def proposal_request(cond: dict, history: list[dict], *, model: str = DEFAULT_MO
                 f"程序初筛的结论（每个构型没通过和待确认的项）：\n{last['feedback']}")
     return {"model": model, "prompt_version": PROMPT_VERSION, "system": SYSTEM_PROPOSAL,
             "user": (f"设计条件（已核对，标准单位）：\n{_cond_text(cond)}\n\n杆件材料只能从材料库里选（写 id）：\n{_materials()}"
-                     f"\n\n{actuator_notes()}{prev}"),
+                     f"\n\n{robot_cell.notes(cond) if 'cycle' in cond else actuator_notes()}{prev}"),
             "tool": PROPOSAL_TOOL}
 
 
@@ -229,11 +233,17 @@ def evaluate(concept: Any, cond: dict) -> dict:
     if "reach" in cond:                                  # 臂展点由程序按需求加：安装面上 x = 臂展
         pts = list(((c.get("workspace") or {}).get("points_mm")) or [])
         c["workspace"] = {"points_mm": [[cond["reach"], 0.0, 0.0]] + pts}
-    rep = screen(c, cond.get("payload"))
+    cell: list[dict] = []
+    if "pick_to_place" in cond:                          # 取放类：取放点、一叠最高处、节拍（ADR-0115 44.5.1）
+        cell, extra = robot_cell.points(c, cond)
+        if extra:
+            c["workspace"] = {"points_mm": list(((c.get("workspace") or {}).get("points_mm")) or []) + extra}
+        cell += robot_cell.cycle(c, cond)
+    rep = screen(c, cond.get("payload", cond.get("part_mass")))
     if rep["items"] and rep["items"][0]["item"] == "结构" and rep["items"][0]["status"] == "fail":
         return {"items": rep["items"], "overall": "fail", "screen": rep}
     m = K.build(c)
-    if "kind" in cond and c.get("kind") != cond["kind"]:
+    if "kind" in cond and c.get("kind") != cond["kind"] and not ("cycle" in cond and c.get("kind") != "mobile_base"):
         items.append(_item("机器人类型", "fail", c.get("kind"), cond["kind"]))
     if "dof" in cond and m.tool_link:
         n = len(K.chain(m))
@@ -258,9 +268,16 @@ def evaluate(concept: Any, cond: dict) -> dict:
     if "repeatability" in cond:
         items.append(_item("重复定位精度", "unknown", None, f"± {cond['repeatability']:g} mm",
                            "选件后按编码器分辨率与减速器回差算（这一步判不了）"))
+    items += cell
+    n_ws = len(((concept.get("workspace") or {}).get("points_mm")) or [])
     for it in rep["items"]:
         if it["item"].startswith("工作空间点 1 ") and "reach" in cond:
             it = {**it, "item": f"臂展点（安装面上 r = {cond['reach']:g} mm）"}
+        elif "pick_to_place" in cond:
+            for k, what in ((1, "取料点"), (2, "放料点"), (n_ws + 1, "一叠最高处")):
+                if it["item"].startswith(f"工作空间点 {k} "):
+                    it = {**it, "item": f"{what}{it['item'][len(f'工作空间点 {k}'):]}"}
+                    break
         items.append(it)
     st = {i["status"] for i in items}
     return {"items": items, "overall": "fail" if "fail" in st else "unknown" if "unknown" in st else "pass", "screen": rep}
@@ -298,6 +315,20 @@ def design(statement: str, client, *, model: str = DEFAULT_MODEL, max_rounds: in
     cond, rej, miss, quotes = check_conditions(r["tool_input"], statement)
     out.update(conditions=cond, rejected=rej, missing=miss, quotes=quotes,
                questions=[q for q in (r["tool_input"] or {}).get("questions") or [] if isinstance(q, str)])
+    if robot_cell.applies(cond):                         # 取放类的负载在取放条件里按原话的单位再列（单片质量）
+        rej[:] = [x for x in rej if not x.startswith("末端负载")]
+        cond.pop("payload", None)
+        quotes[:] = [q for q in quotes if q["what"] != "末端负载"]
+    if robot_cell.applies(cond) and not miss and not rej:
+        say("AI 列节拍与取放条件")
+        r = client.complete(robot_cell.cell_request(statement, model=model))
+        out["ai"].append({k: r[k] for k in ("id", "provider", "model", "simulated") if k in r})
+        c2, rej2, miss2, q2 = robot_cell.check_cell(r["tool_input"], statement)
+        cond.update(c2)
+        rej += rej2
+        miss += miss2
+        quotes += q2
+        out["questions"] += [q for q in (r["tool_input"] or {}).get("questions") or [] if isinstance(q, str)]
     if miss or rej:
         out["status"] = "needs_input"
         return out
