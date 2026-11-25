@@ -8,9 +8,9 @@
     "id": {
       "type": "string",
       "description": "<品类>.<厂商>.<型号>，全小写；虚构测试组件以 test. 开头，永不进入正式库",
-      "pattern": "^(test\\.)?(servo_motor|reducer|drive|bearing|adapter|fastener|custom_part|purchased_part|stepper_motor|smart_actuator)\\.[a-z0-9]+(-[a-z0-9]+)*\\.[a-z0-9]+([.-][a-z0-9]+)*$"
+      "pattern": "^(test\\.)?(servo_motor|reducer|drive|bearing|adapter|fastener|custom_part|purchased_part|stepper_motor|smart_actuator|linear_module|gripper)\\.[a-z0-9]+(-[a-z0-9]+)*\\.[a-z0-9]+([.-][a-z0-9]+)*$"
     },
-    "category": {"enum": ["servo_motor", "reducer", "drive", "bearing", "adapter", "fastener", "custom_part", "purchased_part", "stepper_motor", "smart_actuator"]},
+    "category": {"enum": ["servo_motor", "reducer", "drive", "bearing", "adapter", "fastener", "custom_part", "purchased_part", "stepper_motor", "smart_actuator", "linear_module", "gripper"]},
     "vendor": {"type": "string", "minLength": 1, "description": "厂商名称（原文）"},
     "model": {"type": "string", "minLength": 1, "description": "厂商完整型号（原文）"},
     "series": {"type": "string"},
@@ -50,17 +50,21 @@
     {"if": {"properties": {"category": {"const": "purchased_part"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?purchased_part\\."}}}},
     {"if": {"properties": {"category": {"const": "stepper_motor"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?stepper_motor\\."}}}},
     {"if": {"properties": {"category": {"const": "smart_actuator"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?smart_actuator\\."}}}},
+    {"if": {"properties": {"category": {"const": "linear_module"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?linear_module\\."}}}},
+    {"if": {"properties": {"category": {"const": "gripper"}}}, "then": {"properties": {"id": {"pattern": "^(test\\.)?gripper\\."}}}},
     {"if": {"properties": {"category": {"const": "servo_motor"}}, "required": ["category"]}, "then": {"$ref": "categories/servo_motor.schema.json"}},
     {"if": {"properties": {"category": {"const": "reducer"}}, "required": ["category"]}, "then": {"$ref": "categories/reducer.schema.json"}},
     {"if": {"properties": {"category": {"const": "drive"}}, "required": ["category"]}, "then": {"$ref": "categories/drive.schema.json"}},
     {"if": {"properties": {"category": {"const": "bearing"}}, "required": ["category"]}, "then": {"$ref": "categories/bearing.schema.json"}},
     {"if": {"properties": {"category": {"const": "adapter"}}, "required": ["category"]}, "then": {"$ref": "categories/adapter.schema.json"}},
-    {"if": {"not": {"properties": {"category": {"enum": ["custom_part", "purchased_part"]}}, "required": ["category"]}},
+    {"if": {"not": {"properties": {"category": {"enum": ["custom_part", "purchased_part", "linear_module", "gripper"]}}, "required": ["category"]}},
      "then": {"properties": {"ports": {"minItems": 1}}}},
     {"if": {"properties": {"category": {"const": "custom_part"}}, "required": ["category"]}, "then": {"$ref": "categories/custom_part.schema.json"}},
     {"if": {"properties": {"category": {"const": "purchased_part"}}, "required": ["category"]}, "then": {"$ref": "categories/purchased_part.schema.json"}},
     {"if": {"properties": {"category": {"const": "stepper_motor"}}, "required": ["category"]}, "then": {"$ref": "categories/stepper_motor.schema.json"}},
-    {"if": {"properties": {"category": {"const": "smart_actuator"}}, "required": ["category"]}, "then": {"$ref": "categories/smart_actuator.schema.json"}}
+    {"if": {"properties": {"category": {"const": "smart_actuator"}}, "required": ["category"]}, "then": {"$ref": "categories/smart_actuator.schema.json"}},
+    {"if": {"properties": {"category": {"const": "linear_module"}}, "required": ["category"]}, "then": {"$ref": "categories/linear_module.schema.json"}},
+    {"if": {"properties": {"category": {"const": "gripper"}}, "required": ["category"]}, "then": {"$ref": "categories/gripper.schema.json"}}
   ],
   "$defs": {
     "envelope": {
