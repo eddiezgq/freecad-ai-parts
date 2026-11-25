@@ -3166,5 +3166,7 @@
 "需求原话（自由度、负载、臂展、精度、速度、加工与成本要求……）": "Requirement as written (degrees of freedom, payload, reach, accuracy, speed, machining and cost requirements…)",
 "（第 {} / {} 个）": " ({} / {})",
 "；停在“{}”": "; stopped at “{}”",
-"；结果文件在 {}": "; result files in {}"
+"；结果文件在 {}": "; result files in {}",
+"{}（方向约束，无量纲）": "{} (orientation constraint, dimensionless)",
+"机构锁死或开始时在奇异位形：开始时按冗余删掉的约束“{}”到 t = {} s 拉开了 {}——真冗余的约束会自动满足，它不是冗余。现在只看运动副的结构自由度是 {}。开始位形多半是奇异位形（例如三个铰点共线），离开它机构就动不了。请检查运动副“{}”的位置，或换一个不奇异的初始位形": "Mechanism locked, or it started in a singular position: the constraint “{}”, dropped as redundant at the start, had opened up by t = {} s by {}. A truly redundant constraint stays satisfied by itself, so it is not redundant. Looking at the joints only, the structural degrees of freedom are now {}. The starting position is most likely singular (for example three pivots in a line), and the mechanism cannot move once it leaves it. Check the position of joint “{}”, or use a non-singular initial position"
 }

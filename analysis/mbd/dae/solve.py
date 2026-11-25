@@ -290,7 +290,33 @@ class Recorder:
         self.react.append(r)
         self.motion.append(m)
         self.energy.append(s.energy(q, qd))
-        self.resid.append(float(np.max(np.abs(s.phi(q, t)), initial=0.0)))
+        ph = s.phi(q, t)
+        self.resid.append(float(np.max(np.abs(ph), initial=0.0)))
+        _check_dropped(s, q, t, ph, rows_idx)
+
+
+DROPPED_STOP = 1e-5        # m（角度类约束是 rad）：删掉的“冗余”约束拉开到这个数就停（近冗余的制造误差级远小于它）
+
+
+def _check_dropped(sysm, q, t, ph, rows_idx):
+    """《多体动力学》书第 35 章线索第 52 条（问渠 CAD 0.3.8 细则）：初始位形奇异（例如三点共线）时，独立约束看起来像冗余，
+    被删掉照算——双摆加一个本应锁死的接地转动副，删掉 4 条约束、积分完成、约束残差 2.0。
+    真冗余的约束在运动中自动满足；被删的约束拉开了，说明它不是冗余：停下，报奇异位形 / 锁死和运动副"""
+    keep = set(rows_idx)
+    dropped = [k for k in range(len(sysm.rows)) if k not in keep]
+    if not dropped:
+        return
+    k = max(dropped, key=lambda i: abs(ph[i]))
+    if abs(ph[k]) <= DROPPED_STOP:
+        return
+    row = sysm.rows[k]
+    dof = structural(sysm, q, t)["dof"]
+    gap = f"{abs(ph[k]):.3g}（方向约束，无量纲）" if row.kind in ("dot1", "dot2", "norm") else f"{abs(ph[k]) * 1000:.4g} mm"
+    raise SolveError(
+        f"机构锁死或开始时在奇异位形：开始时按冗余删掉的约束“{row.label}”到 t = {t:.6g} s 拉开了 {gap}"
+        f"——真冗余的约束会自动满足，它不是冗余。现在只看运动副的结构自由度是 {dof}。"
+        f"开始位形多半是奇异位形（例如三个铰点共线），离开它机构就动不了。请检查运动副“{row.joint or row.label}”的位置，"
+        "或换一个不奇异的初始位形")
 
 
 # ---------------------------------------------------------------- 分析
