@@ -3166,5 +3166,6 @@
 "需求原话（自由度、负载、臂展、精度、速度、加工与成本要求……）": "Requirement as written (degrees of freedom, payload, reach, accuracy, speed, machining and cost requirements…)",
 "（第 {} / {} 个）": " ({} / {})",
 "；停在“{}”": "; stopped at “{}”",
-"；结果文件在 {}": "; result files in {}"
+"；结果文件在 {}": "; result files in {}",
+"积分卡住：t = {} s 附近求值 {} 次仍推进不到 {} s（步长持续过小）。常见原因：控制器输出贴着限幅来回切换、摩擦粘滑、接触太硬或表达式里有不连续（sign、STEP 太陡）。请检查这一时刻附近的控制器和力元，或改用 HHT 积分器": "Integration stalled: near t = {} s, {} evaluations did not advance {} s (step size persistently too small). Common causes: a controller output switching back and forth at its limit, stick-slip friction, very stiff contact, or a discontinuity in an expression (sign, a too-steep STEP). Check the controllers and force elements near this time, or use the HHT integrator"
 }
