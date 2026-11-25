@@ -146,3 +146,11 @@ def test_arm_requests_are_unchanged():
     keys = {p.stem for p in RD.RECORDINGS_DIR.glob("*.json")}
     statement = (ROOT / "examples" / "robots" / "teaching-arm" / "requirement.txt").read_text(encoding="utf-8")
     assert request_key(RD.conditions_request(statement)) in keys
+
+
+def test_a_converted_payload_in_the_first_list_does_not_block_a_pick_and_place_design():
+    """CI 上真实 AI 第一次把“100 g”写成负载 0.1 kg（换算过的数不收）：取放类的负载改由取放条件按原话单位列，不挡设计"""
+    first = dict(COND, payload=_v(0.1, "kg", "裁片单片质量不超过 100 g"))
+    c = _Script(first, CELL, {"candidates": [gantry()], "recommend": 0, "reason": "x"})
+    r = RD.design(STATEMENT, c)
+    assert r["status"] == "pass" and "payload" not in r["conditions"] and r["conditions"]["part_mass"] == pytest.approx(0.1)

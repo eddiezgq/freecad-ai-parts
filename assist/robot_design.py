@@ -315,6 +315,10 @@ def design(statement: str, client, *, model: str = DEFAULT_MODEL, max_rounds: in
     cond, rej, miss, quotes = check_conditions(r["tool_input"], statement)
     out.update(conditions=cond, rejected=rej, missing=miss, quotes=quotes,
                questions=[q for q in (r["tool_input"] or {}).get("questions") or [] if isinstance(q, str)])
+    if robot_cell.applies(cond):                         # 取放类的负载在取放条件里按原话的单位再列（单片质量）
+        rej[:] = [x for x in rej if not x.startswith("末端负载")]
+        cond.pop("payload", None)
+        quotes[:] = [q for q in quotes if q["what"] != "末端负载"]
     if robot_cell.applies(cond) and not miss and not rej:
         say("AI 列节拍与取放条件")
         r = client.complete(robot_cell.cell_request(statement, model=model))
