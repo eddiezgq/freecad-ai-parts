@@ -6,7 +6,7 @@
 #   id:             来源唯一标识，如 harmonic-drive
 #   vendor:         厂商或组织名称
 #   url:            产品目录或下载页
-#   categories:     覆盖的品类：servo_motor | reducer | drive | bearing | fastener | electronic | cutting_tool
+#   categories:     覆盖的品类：servo_motor | reducer | drive | bearing | fastener | electronic | cutting_tool | linear_module | gripper
 #   license:        params-only（仅提取公开目录参数，ADR-0040） | open（开源许可，注明许可证） | partner（厂商授权）
 #                   | pending（待定） | withdrawn（厂商异议后撤回，数据已删除）
 #   terms_url:      使用条款页面
@@ -308,3 +308,47 @@ sources:
     license: pending
     terms_checked: false
     terms_note: 2026-11-19 条款页面由脚本渲染，本会话读不到正文，待人工查看。
+  # 直线模组与抓手（ADR-0127，ADR-0115 44.5.3）
+  - id: festo
+    vendor: Festo SE & Co. KG
+    url: https://www.festo.com
+    terms_url: https://www.festo.com/us/en/e/legal/terms-of-use-id_65609
+    categories: [linear_module]
+    license: params-only
+    terms_checked: true
+    terms_note: >-
+      2026-11-25 查（Festo Corporation 美国站使用条款，Effective October 2017）：网站内容受版权保护，不得复制、分发、修改或制作衍生作品；
+      禁止用 robot、spider 等自动方式访问或监视、复制网站材料；适用纽约州法律。
+      结论（按 ADR-0040，项目负责人授权 Claude 判断，与 Harmonic Drive、安川同样处理）：只收公开产品目录里的参数与外形尺寸，
+      逐项注明目录页码并链接回 Festo 原网址；目录按官方下载网址逐份下载一次，不遍历、不批量爬取；不转存目录文档、图片、图纸与 CAD。
+    documents:
+      - id: src-festo-egc-tb
+        title: Festo Toothed belt axes EGC-TB-KF, with recirculating ball bearing guide（电动驱动器目录分册，英文）
+        version: 印“Subject to change – 2019/02”，以 SHA-256 标识（2026-11-25 登记）
+        url: https://ftp.festo.com/public/PNEUMATIC/SOFTWARE_SERVICE/Documentation/2019/EN/EGC-TB_EN.PDF
+      - id: src-festo-egc-bs
+        title: Festo Spindle axes EGC-BS-KF, with recirculating ball bearing guide（电动驱动器目录分册，英文）
+        version: 印“Subject to change – 2019/02”，以 SHA-256 标识（2026-11-25 登记）
+        url: https://ftp.festo.com/Public/PNEUMATIC/SOFTWARE_SERVICE/Documentation/2019/EN/EGC-BS_EN.PDF
+  - id: schmalz
+    vendor: J. Schmalz GmbH
+    url: https://www.schmalz.com
+    terms_url: https://www.schmalz.com/en-si/disclaimer
+    categories: [gripper]
+    license: params-only
+    terms_checked: true
+    terms_note: >-
+      2026-11-25 查：Disclaimer 页写网站文字、图片、图形受版权保护，未经书面许可不得复制、另作他用或交给第三方，下载用于自己设计的除外；
+      没有关于自动访问的条款，页上没有日期。销售条款（GTCT，2026-04）另说产品文档版权归施迈茨，不得提供给第三方。
+      结论（按 ADR-0040，项目负责人授权 Claude 判断）：只收公开数据表里的参数与外形尺寸（针数、针径、行程、气压、吸力、直径、高度、质量），
+      逐项注明数据表与页码并链接回施迈茨原网址；数据表逐份下载一次，不遍历、不批量爬取；不转存数据表文档、图片与 CAD。
+      施迈茨数据表是网站按需生成的（页上印生成日期），重新下载 SHA-256 可能不同，以登记时固定的值为准。
+    documents:
+      - id: src-schmalz-sng-m
+        title: Schmalz Datasheet Needle Grippers SNG-M（产品族数据表，英文）
+        version: 网站生成的数据表（2026-11-06 生成），以 SHA-256 标识（2026-11-25 登记）
+        url: https://pimmedia.schmalz.com/MAM_Library/Dokumente/Datenblatt_Produktfamilie/0_/038/03853/Datasheet_Needle%20Grippers%20SNG-M_en-EN.pdf
+      - id: src-schmalz-spf
+        title: Schmalz Datasheet Flat Suction Cups SPF（产品族数据表，英文）
+        version: 网站生成的数据表（2026-07-16 生成），以 SHA-256 标识（2026-11-25 登记）
+        url: https://pimmedia.schmalz.com/MAM_Library/Dokumente/Datenblatt_Produktfamilie/0_/051/05137/Datasheet_Flat%20Suction%20Cups%20SPF_en-EN.pdf

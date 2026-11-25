@@ -148,3 +148,14 @@ def test_pressure_and_acceleration_fields_for_fea_drafting():
     assert to_standard(9.81, "m/s²", "acceleration_m_s2") == pytest.approx(9.81)
     with pytest.raises(UnitError):
         to_standard(2, "g", "acceleration_m_s2")       # “2 g”会被当成克：拒收，不猜
+
+
+def test_linear_speed_field_for_linear_modules():
+    """直线模组（ADR-0127）：直线速度标准单位 m/s，字段后缀 _m_s 不被当成时间 _s；PDF 文字层里的“m/s2”认作 m/s²"""
+    assert to_standard(1800, "mm/s", "max_speed_m_s") == pytest.approx(1.8)
+    assert to_standard(5, "m/s", "max_speed_m_s") == 5
+    assert to_standard(50, "m/s2", "max_accel_m_s2") == 50
+    assert to_standard(4, "bar", "operating_pressure_mpa") == pytest.approx(0.4)
+    for unit, field in (("s", "max_speed_m_s"), ("m/s", "max_accel_m_s2"), ("rpm", "max_speed_m_s")):
+        with pytest.raises(UnitError):
+            to_standard(1.0, unit, field)

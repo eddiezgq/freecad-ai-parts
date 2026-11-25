@@ -178,6 +178,26 @@ def envelope(category: str, values: dict) -> tuple[list[dict] | None, list[str]]
         if w and h:
             return [_part("box", 0, "body", length_mm=v("dims/overall_length_mm"), width_mm=w, height_mm=h)], []
         return None, ["dims/outer_diameter_mm、dims/square_mm 或 dims/width_mm + dims/height_mm"]
+    if category == "linear_module":
+        # 外框：沿运动方向（z）的总长 × 截面宽 × 高（ADR-0127）。行程任选的型号只有行程 0 mm 的总长：
+        # 包络按这个长度出，标签写明“选定行程后加行程”，由选型与装配按选定行程加长
+        miss = need("dims/width_mm", "dims/height_mm")
+        length = v("dims/overall_length_mm") or v("dims/base_length_mm")
+        if miss or length is None:
+            return None, miss + ([] if length else ["dims/overall_length_mm 或 dims/base_length_mm"])
+        label = "body" if "dims/overall_length_mm" in values else "body（行程 0 mm；选定行程后长度加行程）"
+        return [_part("box", 0, label, length_mm=length, width_mm=v("dims/width_mm"), height_mm=v("dims/height_mm"))], []
+    if category == "gripper":
+        if "dims/overall_length_mm" not in values:
+            return None, ["dims/overall_length_mm"]
+        if "dims/outer_diameter_mm" in values:
+            return [_part("cylinder", 0, "body", length_mm=v("dims/overall_length_mm"),
+                          diameter_mm=v("dims/outer_diameter_mm"))], []
+        miss = need("dims/width_mm", "dims/height_mm")
+        if miss:
+            return None, ["dims/outer_diameter_mm 或 " + " + ".join(miss)]
+        return [_part("box", 0, "body", length_mm=v("dims/overall_length_mm"), width_mm=v("dims/width_mm"),
+                      height_mm=v("dims/height_mm"))], []
     return None, [f"不支持的品类 {category}"]
 
 
@@ -210,6 +230,8 @@ _ENVELOPE_DIMS = {
     "bearing": {"dims/outer_diameter_mm"},
     "adapter": {"dims/overall_length_mm", "dims/outer_diameter_mm", "dims/square_mm", "dims/width_mm",
                 "dims/height_mm"},
+    "linear_module": {"dims/overall_length_mm", "dims/base_length_mm", "dims/width_mm", "dims/height_mm"},
+    "gripper": {"dims/overall_length_mm", "dims/outer_diameter_mm", "dims/width_mm", "dims/height_mm"},
 }
 
 
