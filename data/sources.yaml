@@ -308,7 +308,7 @@ sources:
     license: pending
     terms_checked: false
     terms_note: 2026-11-19 条款页面由脚本渲染，本会话读不到正文，待人工查看。
-  # 直线模组与抓手（ADR-0128，ADR-0115 44.5.3）
+  # 直线模组与抓手（ADR-0129，ADR-0115 44.5.3）
   - id: festo
     vendor: Festo SE & Co. KG
     url: https://www.festo.com

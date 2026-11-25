@@ -3167,7 +3167,6 @@
 "（第 {} / {} 个）": " ({} / {})",
 "；停在“{}”": "; stopped at “{}”",
 "；结果文件在 {}": "; result files in {}",
-" NUM 车铣还没做（ADR-0127）。": " NUM mill-turn is not done yet (ADR-0127).",
 "G97 S{} 不是 G96 X{} S{} 算出来的转速，换不回去": "G97 S{} is not the speed computed from G96 X{} S{}; cannot convert back",
 "NUM 攻丝只认 M29 S / G98 G84 X Y Z R F / G80 这一组：{}": "NUM tapping only accepts the M29 S / G98 G84 X Y Z R F / G80 group: {}",
 "NUM 的 %9000 以上程序号可能被 NUM 或机床厂占用（§3.3.3），程序号 {} 不能用": "NUM program numbers %9000 and above may be used by NUM or the machine builder (§3.3.3); program number {} cannot be used",
@@ -3183,6 +3182,14 @@
 "{}NUM 的 G70 / G71 是英制 / 公制，固定循环的参数另有一套（ER、EH……），请关掉 cycles（ADR-0127）": "{}on NUM G70 / G71 are inch / metric and canned cycles take different parameters (ER, EH, ...); turn cycles off (ADR-0127)",
 "{}NUM 的写法已按官方编程手册固定（ADR-0127），不收 dialect": "{}NUM syntax is fixed per the official programming manual (ADR-0127); dialect is not accepted",
 "{}NUM 的子程序（G77 H）还没做，请关掉 subprograms（ADR-0127）": "{}NUM subroutines (G77 H) are not done yet; turn subprograms off (ADR-0127)",
-"{}NUM 车铣、双主轴、多通道还没做（ADR-0127）": "{}NUM mill-turn, twin spindle and multi-channel are not done yet (ADR-0127)",
-"NUM 程序回读不了：{}": "NUM program cannot be read back: {}"
+"NUM 程序回读不了：{}": "NUM program cannot be read back: {}",
+" NUM 的 C 分度 + Y 轴铣还没做（ADR-0128）。": " NUM C indexing + Y-axis milling is not done yet (ADR-0128).",
+" NUM 车铣只按 ADR-0128 换端面、圆柱面。": " NUM mill-turn is only converted for face and cylinder machining (ADR-0128).",
+"G01 没有进给：{}": "G01 has no feed: {}",
+"NUM 圆柱面 G22 里同一个 G01 段 X、C 都变：路径与 FANUC G7.1 不同，不出（ADR-0128）：{}": "In NUM cylinder mode G22 a G01 block moves both X and C: the path differs from FANUC G7.1; not output (ADR-0128): {}",
+"NUM 车铣块里只换 G00 / G01、X、Z、C、F：{}": "Inside a NUM mill-turn block only G00 / G01, X, Z, C, F are converted: {}",
+"NUM 车铣块里这一段换不回 FANUC 写法：{}": "This line in a NUM mill-turn block cannot be converted back to FANUC syntax: {}",
+"NUM（µm 系统）直线轴最多 3 位小数、C 最多 4 位（§5.1.4），{} 超了，程序不出": "NUM (µm system) allows at most 3 decimals on linear axes and 4 on C (§5.1.4); {} exceed this; the program is not output",
+"进 NUM 圆柱面 G22 前 C 的位置不知道，Y 算不出来（ADR-0128）：{}": "The C position before NUM cylinder mode G22 is unknown, so Y cannot be computed (ADR-0128): {}",
+"{}NUM 的 B 轴车铣、双主轴、多通道还没做（ADR-0128；端面、圆柱面车铣可以）": "{}NUM B-axis mill-turn, twin spindle and multi-channel are not done yet (ADR-0128; face and cylinder mill-turn are supported)"
 }

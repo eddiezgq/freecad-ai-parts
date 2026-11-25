@@ -179,7 +179,7 @@ def envelope(category: str, values: dict) -> tuple[list[dict] | None, list[str]]
             return [_part("box", 0, "body", length_mm=v("dims/overall_length_mm"), width_mm=w, height_mm=h)], []
         return None, ["dims/outer_diameter_mm、dims/square_mm 或 dims/width_mm + dims/height_mm"]
     if category == "linear_module":
-        # 外框：沿运动方向（z）的总长 × 截面宽 × 高（ADR-0128）。行程任选的型号只有行程 0 mm 的总长：
+        # 外框：沿运动方向（z）的总长 × 截面宽 × 高（ADR-0129）。行程任选的型号只有行程 0 mm 的总长：
         # 包络按这个长度出，标签写明“选定行程后加行程”，由选型与装配按选定行程加长
         miss = need("dims/width_mm", "dims/height_mm")
         length = v("dims/overall_length_mm") or v("dims/base_length_mm")

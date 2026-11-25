@@ -4936,7 +4936,7 @@ confirmations:
   quote: Table 6.6 Tolerance Class Symbols：Omitted — ISO Normal（代号不带精度符号）
   confirmed_by: Claude（对照规格书原页核对，经张国庆授权）
   date: '2026-11-18'
-# 施迈茨数据表（ADR-0128，44.5.3）：两次抽取引用了原文，但型号印成“SPF | 40”两格、针的行程与刺入角印在第 1 页说明里，按列核对没对上；
+# 施迈茨数据表（ADR-0129，44.5.3）：两次抽取引用了原文，但型号印成“SPF | 40”两格、针的行程与刺入角印在第 1 页说明里，按列核对没对上；
 # Claude 逐项对照数据表原页（第 1、4、6 页的表）核对后录入。第 6 页的列：Dmax(S)、Ds、H 依次是型号后第 4、5、6 个数。
 - doc: src-schmalz-sng-m
   model: SNG-M 4 0.8

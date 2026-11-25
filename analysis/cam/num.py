@@ -6,7 +6,11 @@ M00018EN-03_Flexium_Programming_manual.pdf；下面的 § 是这本手册的章�
 
 - `to_num(text, lathe)`：FANUC 写法 → NUM 写法（`postproc.render` 里 `postcfg.finish` 之后）。
 - `to_fanuc(text, lathe)`：NUM 写法 → FANUC 写法（回读前；行尾的 `(#Ln)` 行号标记跟着走）。
-- `check_codes(text, lathe, extra_m)`：NUM 程序里每个 G、M 代码都要在手册 §5.1.1、§5.1.2 的表里且是本表用到的，否则不出。
+- `check_codes(text, lathe, extra_m)`：NUM 程序里每个 G、M 代码都要在手册 §5.1.1、§5.1.2 的表里且是本表用到的，否则不出；
+  坐标位数按 §5.1.4（直线轴 3 位小数、C 4 位，ADR-0128）。
+
+车铣（ADR-0128）：FANUC `G12.1` … `G13.1` ↔ NUM `G21` … `G20`（端面直角坐标，X 半径、Y = 虚拟 C）；
+`G07.1 C半径` … `G07.1 C0` ↔ `G22 (CYL R半径)` … `G20`（圆柱面，X 半径、Y = 角度 × π ÷ 180 × 当前半径，带 C 的进给按长度比换）。
 """
 
 from __future__ import annotations
@@ -18,6 +22,7 @@ import re
 CODES_G = {"0": "5.6", "1": "5.7.1", "17": "5.4", "18": "5.4", "38": "5.13.2", "40": "5.11.4", "52": "5.16", "54": "5.16",
            "71": "5.1.1", "80": "5.12.2", "84": "5.12.7", "90": "5.3", "92": "5.5.4", "94": "5.10", "95": "5.10", "96": "5.5.3",
            "97": "5.5.2"}
+CODES_G_LATHE = {"20": "5.18.1", "21": "5.18.3", "22": "5.18.4"}          # 车床 C 轴坐标（ADR-0128）
 CODES_M = {"0": "5.1.2", "1": "5.1.2", "2": "3.3.1", "3": "5.5.1", "4": "5.5.1", "5": "5.5.1", "6": "5.11.1", "7": "5.1.2",
            "8": "5.1.2", "9": "5.1.2", "19": "5.5.6"}
 MANUAL = "NUM Flexium Programming Manual M00018EN-03"
@@ -75,11 +80,137 @@ def _fmt(v: float) -> str:
     return s + "0" if s.endswith(".") else s
 
 
+def _f3(v: float) -> str:
+    """NUM 直线轴：µm 系统 3 位小数（§5.1.4）"""
+    s = f"{v:.3f}".rstrip("0")
+    s = s + "0" if s.endswith(".") else s
+    return "0.0" if s == "-0.0" else s
+
+
+def _pos(body: str, st: dict) -> None:
+    """记下 FANUC 程序当前的 X（直径）、Z、C 与模态（G00 / G01、F）"""
+    for t in body.split():
+        if t in ("G00", "G01"):
+            st["g"] = t
+        elif t[:1] in "XZCF" and re.fullmatch(_NUM, t[1:]):
+            st[t[0].lower()] = float(t[1:])
+
+
+def _cyl_feed(f: float, dz: float, dth: float, r: float, big_r: float) -> float:
+    """FANUC 圆柱插补的 F 在半径 R 的展开面上，NUM G22 的 F 在当前半径 r 上：同一段用时相同（ADR-0128 第 2 条）"""
+    lf, ln = math.hypot(dz, big_r * dth), math.hypot(dz, r * dth)
+    return f if lf == 0 else f * ln / lf
+
+
+def _mt_to_num(body: str, st: dict, trafo: list) -> str:
+    """车铣块里的一段：FANUC（X 直径、C）→ NUM（X 半径、Y）"""
+    tok = body.split()
+    if any(not (t in ("G00", "G01") or (t[:1] in "XZCF" and re.fullmatch(_NUM, t[1:]))) for t in tok):
+        raise NumError(f"NUM 车铣块里只换 G00 / G01、X、Z、C、F：{body}")
+    old = dict(st)
+    _pos(body, st)
+    w = {t[0]: t for t in tok if t[0] in "XZCF"}
+    out = [t for t in tok if t in ("G00", "G01")]
+    if trafo[0] == "polar":                       # §5.18.3：X 半径（E11005：直径只在 G20 下）、Y = 端面上的虚拟 C
+        out += [f"X{_f3(st['x'] / 2)}"] if "X" in w else []
+        out += [f"Y{w['C'][1:]}"] if "C" in w else []
+        out += [w[a] for a in "ZF" if a in w]
+        return " ".join(out)
+    big_r = trafo[1]                              # §5.18.4：Y = θ · X（X 半径）
+    moved_x = "X" in w and abs(st["x"] - (old.get("x") or 0.0)) > 5e-4
+    moved_c = "C" in w and (old.get("c") is None or abs(st["c"] - old["c"]) > 5e-4)
+    feed = st.get("g") == "G01"
+    if feed and moved_x and moved_c:
+        raise NumError(f"NUM 圆柱面 G22 里同一个 G01 段 X、C 都变：路径与 FANUC G7.1 不同，不出（ADR-0128）：{body}")
+    if ("X" in w or "C" in w) and st.get("c") is None:
+        raise NumError(f"进 NUM 圆柱面 G22 前 C 的位置不知道，Y 算不出来（ADR-0128）：{body}")
+    r = st["x"] / 2
+    if "X" in w:
+        out.append(f"X{_f3(r)}")
+    if "C" in w or (moved_x and abs(st["c"]) > 5e-4):
+        out.append(f"Y{_f3(math.radians(st['c']) * r)}")
+    if "Z" in w:
+        out.append(w["Z"])
+    if feed and (moved_x or moved_c or "Z" in w):
+        if st.get("f") is None:
+            raise NumError(f"G01 没有进给：{body}")
+        dth = math.radians(st["c"] - old["c"]) if moved_c else 0.0
+        fn = _f3(_cyl_feed(st["f"], st.get("z", 0.0) - (old.get("z") or 0.0), dth, r, big_r))
+        if fn != trafo[2]:
+            out.append(f"F{fn}")
+            trafo[2] = fn
+    return " ".join(out)
+
+
+def _mt_to_fanuc(body: str, st: dict, trafo: list) -> str:
+    """车铣块里的一段：NUM（X 半径、Y）→ FANUC（X 直径、C），_mt_to_num 的逆"""
+    tok = body.split()
+    if any(not (t in ("G00", "G01") or (t[:1] in "XYZF" and re.fullmatch(_NUM, t[1:]))) for t in tok):
+        raise NumError(f"NUM 车铣块里这一段换不回 FANUC 写法：{body}")
+    w = {t[0]: t for t in tok if t[0] in "XYZF"}
+    out = [t for t in tok if t in ("G00", "G01")]
+    for t in out:
+        st["g"] = t
+    old = dict(st)
+    if "X" in w:
+        st["x"] = 2 * float(w["X"][1:])
+        out.append(f"X{_fmt(st['x'])}")
+    if trafo[0] == "polar":
+        out += [f"C{w['Y'][1:]}"] if "Y" in w else []
+        out += [w[a] for a in "ZF" if a in w]
+        return " ".join(out)
+    r = st["x"] / 2
+    moved_c = False
+    if "Y" in w:
+        c = round(math.degrees(float(w["Y"][1:]) / r), 6) if r > 0 else 0.0
+        if old.get("c") is None or abs(c - old["c"]) > 5e-4:
+            out.append(f"C{_fmt(c)}")
+            moved_c = old.get("c") is not None
+        st["c"] = c
+    if "Z" in w:
+        st["z"] = float(w["Z"][1:])
+        out.append(w["Z"])
+    if "F" in w:
+        trafo[2] = float(w["F"][1:])
+    if st.get("g") == "G01" and trafo[2] is not None and len(out) > (1 if out and out[0] in ("G00", "G01") else 0):
+        dth = math.radians(st["c"] - old["c"]) if moved_c else 0.0
+        dz = st.get("z", 0.0) - (old.get("z") or 0.0)
+        lf, ln = math.hypot(dz, trafo[1] * dth), math.hypot(dz, r * dth)
+        f = _fmt(round(trafo[2] if ln == 0 else trafo[2] * lf / ln, 3))
+        if f != st.get("f_out"):
+            out.append(f"F{f}")
+            st["f_out"] = f
+    return " ".join(out)
+
+
 def to_num(text: str, lathe: bool) -> str:
     lines = text.rstrip("\n").split("\n")
     out, i, head_done, gline_done, tool, want_h, z_now, limit = [], 0, False, False, None, False, None, None
+    st, trafo = {}, None                                     # 车铣（ADR-0128）：FANUC 当前位置、车铣块状态
     while i < len(lines):
         pre, body, tail = _split(lines[i])
+        if lathe and not _is_comment(body) and body != "%":
+            m7 = re.fullmatch(rf"G07\.1 C({_NUM})", body)
+            handled = True
+            if body == "G12.1":
+                trafo, st["c"] = ["polar"], None
+                out.append(f"{pre}G21{tail}")
+            elif m7 and float(m7.group(1)) != 0:
+                trafo = ["cyl", float(m7.group(1)), None]
+                out.append(f"{pre}G22 (CYL R{m7.group(1)}){tail}")
+            elif trafo and (body == "G13.1" or (m7 and float(m7.group(1)) == 0)):
+                if trafo[0] == "polar":
+                    st["c"] = None
+                trafo = None
+                out.append(f"{pre}G20{tail}")
+            elif trafo:
+                out.append(pre + _mt_to_num(body, st, trafo) + tail)
+            else:
+                _pos(body, st)
+                handled = False
+            if handled:
+                i += 1
+                continue
         if body == "%":
             i += 1
             continue
@@ -115,7 +246,7 @@ def to_num(text: str, lathe: bool) -> str:
                 raise NumError(f"NUM 攻丝只认 M29 S / G98 G84 X Y Z R F / G80 这一组：{body}")
             s = mt.group(1)
             x, y, z, r, f = m84.groups()
-            k = _fmt(float(f) / int(s))
+            k = _f3(float(f) / int(s))                         # K053（§5.1.4）
             if f"{float(k) * int(s):.1f}" != f"{float(f):.1f}":
                 raise NumError(f"攻丝螺距 F{f} ÷ S{s} 写成 K 后换不回原来的 F，不出：{nxt[0][1]}")
             out += [f"{pre}G00 X{x} Y{y}{tail}", f"G00 Z{r}{tail}", f"{nxt[0][0]}S{s} G84 Z{z} K{k}{nxt[0][2]}",
@@ -188,8 +319,31 @@ def to_fanuc(text: str, lathe: bool) -> str:
     """回读前：NUM 写法 → FANUC 写法（to_num 的逆）"""
     lines = text.rstrip("\n").split("\n")
     out, i, gline_done, want_h, limit = [], 0, False, None, None
+    st, trafo = {}, None
     while i < len(lines):
         pre, body, tail = _split(lines[i])
+        if lathe and gline_done and not _is_comment(body):
+            m22 = re.fullmatch(rf"G22 \(CYL R({_NUM})\)", body)
+            handled = True
+            if body == "G21":
+                trafo, st["c"] = ["polar"], None
+                out.append(f"{pre}G12.1{tail}")
+            elif m22:
+                trafo = ["cyl", float(m22.group(1)), st.get("f")]
+                st["f_out"] = None
+                out.append(f"{pre}G07.1 C{m22.group(1)}{tail}")
+            elif body == "G20" and trafo:
+                out.append(pre + ("G13.1" if trafo[0] == "polar" else "G07.1 C0") + tail)
+                if trafo[0] == "polar":
+                    st["c"] = None
+                trafo = None
+            elif trafo:
+                out.append(pre + _mt_to_fanuc(body, st, trafo) + tail)
+            else:
+                handled = False
+            if handled:
+                i += 1
+                continue
         m = re.fullmatch(r"%(\d+)\s*(.*)", body)
         if m and not out:
             out.append(f"O{int(m.group(1)):04d}" + (f" {m.group(2)}" if m.group(2) else "") + tail)
@@ -272,8 +426,10 @@ def to_fanuc(text: str, lathe: bool) -> str:
                 tok = ["G43"] + tok[: k + 1] + [f"H{want_h:02d}"] + tok[k + 1:]
                 body = " ".join(tok)
                 want_h = None
-        if re.search(r"\bG(38|52|71|84|92)\b|\bG96 X|\bD\d|\bK\d", body):
+        if re.search(r"\bG(2[0-2]|38|52|71|84|92)\b|\bG96 X|\bD\d|\bK\d", body):
             raise NumError(f"NUM 程序这一行换不回 FANUC 写法：{body}")
+        if lathe:
+            _pos(body, st)
         out.append(pre + body + tail)
         i += 1
     return "\n".join(out) + "\n"
@@ -288,11 +444,16 @@ def check_codes(text: str, lathe: bool, extra_m=()) -> None:
         return str(int(a)) + (f".{b}" if b else "")
 
     have_m = set(CODES_M) | {norm(m) for m in extra_m}
-    bad_g = sorted({norm(g) for g in re.findall(r"\bG(\d+(?:\.\d)?)", body) if norm(g) not in CODES_G}, key=float)
+    have_g = {**CODES_G, **(CODES_G_LATHE if lathe else {})}
+    bad_g = sorted({norm(g) for g in re.findall(r"\bG(\d+(?:\.\d)?)", body) if norm(g) not in have_g}, key=float)
     bad_m = sorted({norm(m) for m in re.findall(r"\bM(\d+)", body)} - have_m, key=float)
     if re.search(r"\bG92\b(?! S\d)", body):
         bad_g = sorted(set(bad_g) | {"92"}, key=float)
     if bad_g or bad_m:
         miss = "、".join([f"G{g}" for g in bad_g] + [f"M{m}" for m in bad_m])
-        mt = " NUM 车铣还没做（ADR-0127）。" if any(g in ("12.1", "13.1", "7.1") for g in bad_g) else ""
+        mt = (" NUM 的 C 分度 + Y 轴铣还没做（ADR-0128）。" if "19" in bad_g else
+              " NUM 车铣只按 ADR-0128 换端面、圆柱面。" if any(g in ("12.1", "13.1", "7.1") for g in bad_g) else "")
         raise NumError(f"NUM 程序里有手册代码表外（或还没按手册做）的 {miss}，程序不出。{mt}")
+    long_ = sorted({w for w in re.findall(r"\b([XYZIJKUW]-?\d+\.\d{4,}|C-?\d+\.\d{5,})", body)})
+    if long_:
+        raise NumError(f"NUM（µm 系统）直线轴最多 3 位小数、C 最多 4 位（§5.1.4），{'、'.join(long_[:5])} 超了，程序不出")
