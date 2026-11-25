@@ -165,7 +165,10 @@ def initial_velocity(sysm: System, q, t, rows):
 
 
 # ---------------------------------------------------------------- 加速度与反力
-FRICTION_ITER = 30
+FRICTION_ITER = 30           # 普通不动点迭代次数；不收敛再按增益分情况（线索第 29 条）
+FRICTION_ITER_MAX = 400
+FRICTION_AA_DEPTH = 5
+FRICTION_TOL = 1e-12
 SPARSE_N = 120              # D8：坐标数到这个数以上，线性方程用稀疏 LU（雅可比、KKT 阵都很稀）
 
 
@@ -214,17 +217,80 @@ def accel(sysm: System, q, qd, t, rows, J=None):
     x = solve(np.concatenate([Q0, gam]))
     jids = _friction_joints(sysm)
     if jids:
-        # 摩擦力随约束反力变：不动点迭代（反力 → 摩擦 → 反力），一般 3~6 次收敛
-        for _ in range(FRICTION_ITER):
-            react = _joint_forces(sysm, q, J, x[sysm.n:], rows, jids)
-            Fx, Nx = sysm.friction_wrenches(q, qd, react)
-            Qf = Q0 + sysm.Q_extra(q, qd, Fx, Nx)
-            x1 = solve(np.concatenate([Qf, gam]))
-            done = np.max(np.abs(x1 - x)) <= 1e-12 * (1 + np.max(np.abs(x1)))
-            x = x1
-            if done:
-                break
+        x = _friction_fixed_point(sysm, q, qd, t, J, rows, jids, Q0, gam, solve, x)
     return x[:sysm.n], x[sysm.n:]
+
+
+def _friction_fixed_point(sysm, q, qd, t, J, rows, jids, Q0, gam, solve, x):
+    """摩擦力随约束反力变：不动点 x = g(x)（反力 → 摩擦 → 反力）。
+
+    一般 3~6 次收敛。《多体动力学》书第 20 章线索第 29 条（问渠 CAD 0.3.8 细则）：原来最多 30 次、不收敛不报，
+    μ 大时收敛很慢（μ = 1.5 要 355 次，30 次时差 11 %），增益 ≥ 1（自锁）时根本没有解，照样给出 30 次后的数。
+    现在：先普通迭代 FRICTION_ITER 次；没收敛就用相邻修正量之比估计增益——增益 < 1 改 Anderson 加速继续，
+    增益 ≥ 1 或加速后仍不收敛就记下来（sysm.friction_log），由 run_model 报“可能自锁”或“摩擦迭代不收敛”。
+    """
+    def g(x_):
+        react = _joint_forces(sysm, q, J, x_[sysm.n:], rows, jids)
+        Fx, Nx = sysm.friction_wrenches(q, qd, react)
+        return solve(np.concatenate([Q0 + sysm.Q_extra(q, qd, Fx, Nx), gam])), react
+
+    def small(d, ref):
+        return np.max(np.abs(d)) <= FRICTION_TOL * (1 + np.max(np.abs(ref)))
+
+    steps = []
+    for _ in range(FRICTION_ITER):
+        x1, react = g(x)
+        d = x1 - x
+        steps.append(float(np.max(np.abs(d))))
+        x = x1
+        if small(d, x1):
+            return x
+    rate = _gain(steps)
+    log = sysm.__dict__.setdefault("friction_log", {"slow": 0, "fail": 0, "lock": 0, "t_first": None, "joint": None,
+                                                        "rate": 0.0})
+    log["slow"] += 1
+    if rate < 1.0:
+        # Anderson 加速（深度 FRICTION_AA_DEPTH），对线性收缩的不动点几步就到
+        X, G = [], []
+        for _ in range(FRICTION_ITER_MAX - FRICTION_ITER):
+            gx, react = g(x)
+            f = gx - x
+            if small(f, gx):
+                return gx
+            X.append(x.copy())
+            G.append(gx.copy())
+            X, G = X[-FRICTION_AA_DEPTH - 1:], G[-FRICTION_AA_DEPTH - 1:]
+            if len(X) == 1:
+                x = gx
+                continue
+            F = np.array([gg - xx for gg, xx in zip(G, X, strict=True)]).T
+            dF = F[:, 1:] - F[:, :-1]
+            dG = np.array(G).T[:, 1:] - np.array(G).T[:, :-1]
+            gam_, *_ = np.linalg.lstsq(dF, F[:, -1], rcond=None)
+            x = G[-1] - dG @ gam_
+    lock = rate >= 1.0
+    log["lock" if lock else "fail"] += 1
+    log["rate"] = max(log["rate"], rate)
+    if log["t_first"] is None:
+        log["t_first"] = float(t)
+        log["joint"] = _max_friction_joint(sysm, react)
+    return x
+
+
+def _gain(steps):
+    """普通迭代最后几步的修正量之比（中位数）：线性收缩时就是不动点映射的增益"""
+    r = [b / a for a, b in zip(steps[-6:-1], steps[-5:], strict=True) if a > 0]
+    return float(np.median(r)) if r else 0.0
+
+
+def _max_friction_joint(sysm, react):
+    best, val = None, -1.0
+    for jid, (F, _) in react.items():
+        fr = sysm.joints[jid]["friction"]
+        v = max(fr["ms"], fr["md"]) * float(np.linalg.norm(F))
+        if v > val:
+            best, val = jid, v
+    return best
 
 
 def reactions(sysm: System, q, t, rows_idx, lam):

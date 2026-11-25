@@ -240,6 +240,9 @@ def run_model(model: dict, base_dir=None):
         else:
             verification.append({"key": "energy_drift", "name": "能量守恒", "value": None, "limit": ENERGY_LIMIT,
                                  "status": UNKNOWN, "note": "有驱动、阻尼或外力，系统不守恒，不判"})
+    fl = _friction_check(sysm, messages)
+    if fl is not None:
+        verification.append(fl)
     dof_g = M.grubler(sysm)
     # 问渠 CAD 0.3.6 细则 C3：原来比的是“秩算自由度”和“Grübler + 冗余数”，冗余数 = 约束数 − 秩，两边按定义恒等，永远通过。
     # 改成比两个独立算出的数：起始位形和结束位形上只看运动副的结构自由度——相同说明冗余是结构上的；不同说明碰上了奇异位形
@@ -266,6 +269,24 @@ def run_model(model: dict, base_dir=None):
                             "这是结论，不是计算错误。要找稳定平衡可换初始位置，或用 static_then_dynamic 加扰动和阻尼".format(
                                 stab["value"], stab["max_real"]))
     return data, messages
+
+
+def _friction_check(sysm, messages):
+    """运动副摩擦的不动点迭代有没有收敛（《多体动力学》书线索第 29 条，问渠 CAD 0.3.8 细则）"""
+    if not any(info.get("friction") for info in sysm.joints.values()):
+        return None
+    log = sysm.__dict__.get("friction_log") or {}
+    lock, fail = log.get("lock", 0), log.get("fail", 0)
+    item = {"key": "friction_iteration", "name": "运动副摩擦迭代收敛（摩擦力与约束反力一致）", "value": lock + fail,
+            "limit": 0, "status": PASS if lock + fail == 0 else FAIL}
+    if lock:
+        messages.append("可能自锁：t = {:.6g} s 起运动副摩擦的迭代增益约 {:.3g}（≥ 1，摩擦力越算越大，没有解），"
+                        "摩擦最大的是运动副“{}”。这一段的驱动力矩、反力不可信；请检查摩擦系数、销半径，"
+                        "或这个位置本来就会卡死".format(log["t_first"], log["rate"], log["joint"]))
+    elif fail:
+        messages.append("摩擦迭代不收敛：t = {:.6g} s 起共 {} 次，摩擦最大的是运动副“{}”，这些时刻的结果不可信".format(
+            log["t_first"], fail, log["joint"]))
+    return item
 
 
 def _plant_inputs(model, sysm):
