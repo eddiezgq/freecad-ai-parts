@@ -5,16 +5,21 @@
 
 - `to_fagor(text, lathe)`：FANUC 写法 → 发格写法（`postproc.render` 里 `postcfg.finish` 之后）。
 - `to_fanuc(text, lathe)`：发格写法 → FANUC 写法（回读前；行尾的 `(#Ln)` 行号标记跟着走）。
-- `check_codes(text, lathe, extra_m)`：发格程序里每个 G、M 代码都要在手册 §1.5、§1.6 的表里且是本表用到的，否则不出。
+- `check_codes(text, lathe, extra_m)`：发格程序里每个 G、M 代码都要在手册 §1.5、§1.6 的表里且是本表用到的，否则不出；
+  坐标最多 4 位小数（§1.3.1，毫米 ±5.4）。
+
+车铣（ADR-0129）：FANUC `G12.1` … `G13.1` ↔ `G152` `#CAX` `#FACE [X,C,Q0]` … `#FACE OFF` `#CAX OFF` `G151`（X 半径、C mm）；
+`G07.1 C半径` … `G07.1 C0` ↔ `G152` `#CAX` `#CYL [Z,C,X半径,Q0]` … `#CYL OFF` `#CAX OFF` `G151`（X 半径、C = 角度 × π ÷ 180 × 半径）。
 """
 
 from __future__ import annotations
 
+import math
 import re
 
 # 手册 §1.5（G）、§1.6（M）里有、问渠CAM 会写的代码：代码 → 章节
 CODES_G = {"0": "8.1", "1": "8.2", "2": "8.3", "3": "8.3", "17": "4.2", "18": "4.2", "33": "10.1", "40": "13.1", "54": "5.5",
-           "63": "10.3", "71": "3.1", "80": "1.5", "90": "3.2", "94": "6.2", "95": "6.2", "96": "7.2.2", "97": "7.2.2", "151": "3.4",
+           "63": "10.3", "71": "3.1", "80": "1.5", "90": "3.2", "94": "6.2", "95": "6.2", "96": "7.2.2", "97": "7.2.2", "151": "3.4", "152": "3.4",
            "192": "7.2.1"}
 CODES_M = {"0": "14.2", "1": "14.3", "2": "1.2.1", "3": "7.3", "4": "7.3", "5": "7.3", "6": "6.14", "19": "7.5", "30": "1.2.1"}
 MANUAL = "CNCelite 8058/8060/8065/8070 Programming manual"
@@ -53,11 +58,60 @@ def _sub(tokens: list, old: str, new: str | None) -> list:
     return out
 
 
+_NUM = r"-?\d+(?:\.\d*)?"
+_ON = {"polar": "#FACE [X,C,Q0]"}
+_OFF = {"polar": "#FACE OFF", "cyl": "#CYL OFF"}
+
+
+def _f4(v: float) -> str:
+    """发格毫米坐标：4 位小数（§1.3.1）"""
+    s = f"{v:.4f}".rstrip("0")
+    s = s + "0" if s.endswith(".") else s
+    return "0.0" if s == "-0.0" else s
+
+
+def _mt_line(body: str, trafo: list, to_fg: bool) -> str:
+    """车铣块里的一段：FANUC（X 直径、C）↔ 发格（X 半径、C mm）；只换 G00 / G01、X、Z、C、F"""
+    tok = body.split()
+    if any(not (t in ("G00", "G01") or (t[:1] in "XZCF" and re.fullmatch(_NUM, t[1:]))) for t in tok):
+        raise FagorError(f"发格车铣块里只换 G00 / G01、X、Z、C、F：{body}")
+    out = []
+    for t in tok:
+        if t[0] == "X":
+            v = float(t[1:])
+            t = f"X{_f4(v / 2)}" if to_fg else f"X{_f4(v * 2)}"
+        elif t[0] == "C" and trafo[0] == "cyl":                  # §18.1.5：C 按 mm（给定半径上的展开长度）
+            v, r = float(t[1:]), trafo[1]
+            t = f"C{_f4(math.radians(v) * r)}" if to_fg else f"C{_f4(math.degrees(v / r))}"
+        out.append(t)
+    return " ".join(out)
+
+
 def to_fagor(text: str, lathe: bool) -> str:
     lines = text.rstrip("\n").split("\n")
     out, i, head_done, gline_done, tool, want_h, z_now = [], 0, False, False, None, False, None
+    trafo = None                                                # 车铣块（ADR-0129）
     while i < len(lines):
         pre, body, tail = _split(lines[i])
+        if lathe and body and not body.startswith("("):
+            m7 = re.fullmatch(rf"G07\.1 C({_NUM})", body)
+            handled = True
+            if body == "G12.1":                                # §3.4 G152、§18.1.1 #CAX、§18.1.3 #FACE
+                trafo = ["polar"]
+                out += [f"{pre}G152{tail}", f"#CAX{tail}", f"{_ON['polar']}{tail}"]
+            elif m7 and float(m7.group(1)) != 0:               # §18.1.5 #CYL [Z,C,X半径,Q0]
+                trafo = ["cyl", float(m7.group(1))]
+                out += [f"{pre}G152{tail}", f"#CAX{tail}", f"#CYL [Z,C,X{m7.group(1)},Q0]{tail}"]
+            elif trafo and (body == "G13.1" or (m7 and float(m7.group(1)) == 0)):
+                out += [f"{pre}{_OFF[trafo[0]]}{tail}", f"#CAX OFF{tail}", f"G151{tail}"]
+                trafo = None
+            elif trafo:
+                out.append(pre + _mt_line(body, trafo, True) + tail)
+            else:
+                handled = False
+            if handled:
+                i += 1
+                continue
         if body == "%":
             i += 1
             continue
@@ -139,8 +193,28 @@ def to_fanuc(text: str, lathe: bool) -> str:
     """回读前：发格写法 → FANUC 写法（to_fagor 的逆）"""
     lines = text.rstrip("\n").split("\n")
     out, i, gline_done, want_h = [], 0, False, None
+    trafo = None
     while i < len(lines):
         pre, body, tail = _split(lines[i])
+        if lathe and gline_done and body == "G152" and i + 2 < len(lines):
+            b1, b2 = _split(lines[i + 1])[1], _split(lines[i + 2])[1]
+            mc = re.fullmatch(rf"#CYL \[Z,C,X({_NUM}),Q0\]", b2)
+            if b1 == "#CAX" and (b2 == _ON["polar"] or mc):
+                trafo = ["cyl", float(mc.group(1))] if mc else ["polar"]
+                out.append(pre + (f"G07.1 C{mc.group(1)}" if mc else "G12.1") + tail)
+                i += 3
+                continue
+        if trafo and body == _OFF[trafo[0]] and i + 2 < len(lines):
+            if _split(lines[i + 1])[1] != "#CAX OFF" or _split(lines[i + 2])[1] != "G151":
+                raise FagorError(f"发格车铣块的结尾要是 {body} / #CAX OFF / G151")
+            out.append(pre + ("G13.1" if trafo[0] == "polar" else "G07.1 C0") + tail)
+            trafo = None
+            i += 3
+            continue
+        if trafo and body and not body.startswith("("):
+            out.append(pre + _mt_line(body, trafo, False) + tail)
+            i += 1
+            continue
         m = re.fullmatch(r"%(\d+)", body)
         if m and not out:
             nb = _split(lines[i + 1])[1] if i + 1 < len(lines) else ""
@@ -208,7 +282,7 @@ def to_fanuc(text: str, lathe: bool) -> str:
                 tok = ["G43"] + tok[: k + 1] + [f"H{want_h:02d}"] + tok[k + 1:]
                 body = " ".join(tok)
                 want_h = None
-        left = re.search(r"#|\bG151\b|\bG192\b|\bG63\b|\bD\d", body)
+        left = re.search(r"#|\bG15[12]\b|\bG192\b|\bG63\b|\bD\d", body)
         if left:
             raise FagorError(f"发格程序这一行换不回 FANUC 写法：{body}")
         out.append(pre + body + tail)
@@ -229,5 +303,13 @@ def check_codes(text: str, lathe: bool, extra_m=()) -> None:
     bad_m = sorted({norm(m) for m in re.findall(r"\bM(\d+)", body)} - have_m, key=float)
     if bad_g or bad_m:
         miss = "、".join([f"G{g}" for g in bad_g] + [f"M{m}" for m in bad_m])
-        mt = " 发格车铣还没做（ADR-0126）。" if any(g in ("12.1", "13.1", "7.1") for g in bad_g) else ""
+        mt = (" 发格的 C 分度 + Y 轴铣还没做（ADR-0129）。" if "19" in bad_g else
+              " 发格车铣只按 ADR-0129 换端面、圆柱面。" if any(g in ("12.1", "13.1", "7.1") for g in bad_g) else "")
         raise FagorError(f"发格程序里有手册代码表外（或还没按手册做）的 {miss}，程序不出。{mt}")
+    sharp = sorted({ln.strip() for ln in body.split("\n") if ln.strip().startswith("#")} - {"#CAX", "#CAX OFF", _ON["polar"], *_OFF.values()}
+                   - {ln.strip() for ln in body.split("\n") if re.fullmatch(rf"#CYL \[Z,C,X{_NUM},Q0\]|#MCS Z0", ln.strip())})
+    if sharp:
+        raise FagorError(f"发格程序里有本表没收的 # 指令 {'、'.join(sharp[:3])}，程序不出（ADR-0129）")
+    long_ = sorted({w for w in re.findall(r"\b([XYZCIJKR]-?\d+\.\d{5,})", body)})
+    if long_:
+        raise FagorError(f"发格毫米坐标最多 4 位小数（§1.3.1），{'、'.join(long_[:5])} 超了，程序不出")
