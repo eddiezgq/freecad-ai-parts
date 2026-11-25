@@ -1,0 +1,112 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-schmalz-spf",
+    "sha256": "3a68ad764ca487ad765eaa07f614ade5de83d7913492539ebe5a49f472f89606",
+    "pages": 6
+  },
+  "category": "gripper",
+  "vendor": "J. Schmalz GmbH",
+  "model": "SPF 20",
+  "series": "Flat Suction Cups SPF",
+  "extractor": {
+    "model": "claude-opus-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011ChQ4av6GeM3oJuDAHHv1X"
+  },
+  "items": [],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/gripper_type",
+      "page": 1,
+      "printed": {
+        "text": "Flat Suction Cups (Round)",
+        "unit": "",
+        "label": "Flat Suction Cups",
+        "quote": "Flat Suction Cups (Round)"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/holding_force_n",
+      "page": 4,
+      "printed": {
+        "text": "16.00",
+        "unit": "N",
+        "label": "Suction force (-600 mbar) [N]*",
+        "quote": "| SPF | 20 | 16.00 | 19.2 | 10.5 | 1.2 | 20 | 4 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "params/cup_diameter_mm",
+      "page": 6,
+      "printed": {
+        "text": "21.4",
+        "unit": "mm",
+        "label": "Ds [mm]",
+        "quote": "| SPF | 20 | 7.5 | 10.5 | 15.1 | 23.3 | 21.4 | 11.0 | 4.6 | 2.0 |"
+      }
+    },
+    {
+      "reason": "数值不在目标型号所在的列",
+      "target": "dims/outer_diameter_mm",
+      "page": 6,
+      "printed": {
+        "text": "21.4",
+        "unit": "mm",
+        "label": "Ds [mm]",
+        "quote": "| SPF | 20 | 7.5 | 10.5 | 15.1 | 23.3 | 21.4 | 11.0 | 4.6 | 2.0 |"
+      }
+    },
+    {
+      "reason": "工况 'suction cup SPF 20 (elastomer part)' 在第 6 页找不到",
+      "target": "dims/height_mm",
+      "page": 6,
+      "printed": {
+        "text": "11.0",
+        "unit": "mm",
+        "label": "H [mm]",
+        "quote": "| SPF | 20 | 7.5 | 10.5 | 15.1 | 23.3 | 21.4 | 11.0 | 4.6 | 2.0 |"
+      }
+    },
+    {
+      "reason": "值 ['cardboards', 'rigid packaging'] 与印出的文字 'cardboards and rigid packaging' 不一致",
+      "target": "params/suitable_materials",
+      "page": 1,
+      "printed": {
+        "text": "cardboards and rigid packaging",
+        "unit": "",
+        "label": "Handling of",
+        "quote": "• Handling of cardboards and rigid packaging in top-loading"
+      }
+    },
+    {
+      "target": "dims/overall_length_mm",
+      "page": 6,
+      "printed": {
+        "text": "17",
+        "unit": "mm",
+        "label": "H [mm]",
+        "quote": "| SPF 20 ED-65 G1/8- AG | 4.1 | 21.4 | 23.3 | G1/8\"-M | 17 | 7.5 | 14 | 2.0 |"
+      },
+      "reason": "同一 target 有互相矛盾的值"
+    },
+    {
+      "target": "dims/overall_length_mm",
+      "page": 6,
+      "printed": {
+        "text": "25",
+        "unit": "mm",
+        "label": "H [mm]",
+        "quote": "| SPF 20 ED-65 G1/8- IG | 4.1 | 21.4 | 23.3 | G1/8\"-F | 25 | 8.0 | 14 | 2.0 |"
+      },
+      "reason": "同一 target 有互相矛盾的值"
+    }
+  ],
+  "missing_key_fields": [
+    "params/gripper_type",
+    "params/mass_kg"
+  ]
+}
