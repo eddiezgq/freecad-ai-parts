@@ -3166,5 +3166,6 @@
 "需求原话（自由度、负载、臂展、精度、速度、加工与成本要求……）": "Requirement as written (degrees of freedom, payload, reach, accuracy, speed, machining and cost requirements…)",
 "（第 {} / {} 个）": " ({} / {})",
 "；停在“{}”": "; stopped at “{}”",
-"；结果文件在 {}": "; result files in {}"
+"；结果文件在 {}": "; result files in {}",
+"能量核查不通过：守恒系统的总能量相对漂移 {}（限值 {}），积分结果不可信。请收紧 rtol、增加输出步数，或检查高速转动、很硬的力元": "Energy check failed: the total energy of this conservative system drifted by {} (limit {}); the integration result is not reliable. Tighten rtol, add output steps, or check fast rotation and very stiff force elements"
 }

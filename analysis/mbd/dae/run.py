@@ -237,6 +237,9 @@ def run_model(model: dict, base_dir=None):
             drift = max(abs(x - tot[0]) for x in tot) / scale
             verification.append({"key": "energy_drift", "name": "能量守恒（无驱动、无阻尼、无外力时的相对漂移）", "value": drift,
                                  "limit": ENERGY_LIMIT, "status": PASS if drift <= ENERGY_LIMIT else FAIL})
+            if drift > ENERGY_LIMIT:            # 线索第 16 条：能量核查不通过时原来结果仍标“完成”，看不出不可信
+                messages.append(f"能量核查不通过：守恒系统的总能量相对漂移 {drift:.3g}（限值 {ENERGY_LIMIT:.0e}），积分结果不可信。"
+                                "请收紧 rtol、增加输出步数，或检查高速转动、很硬的力元")
         else:
             verification.append({"key": "energy_drift", "name": "能量守恒", "value": None, "limit": ENERGY_LIMIT,
                                  "status": UNKNOWN, "note": "有驱动、阻尼或外力，系统不守恒，不判"})
