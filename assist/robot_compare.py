@@ -62,6 +62,21 @@ def _ratio(payload, mass) -> str:
     return _num(payload / mass, 2) if payload is not None and mass else MISSING
 
 
+def _thin_note(thin: Mapping | None) -> str:
+    """减薄做没做（thin-result.json，ADR-0115 第 9 步）"""
+    if not thin:
+        return "支架有减薄的余地；减薄后负载自重比会提高。减薄要另定方案。"
+    done = [t for t in thin.get("trials") or [] if t.get("accepted")]
+    if not done:
+        return "按第 9 步试过减薄，没有一件合格，板厚未变（thin-result.json）。"
+    last = {}
+    for t in done:
+        last.setdefault(t["part"], [t["from_mm"], t["to_mm"]])[1] = t["to_mm"]
+    parts = "、".join(f"{k} {_num(a, 0)} → {_num(b, 0)} mm" for k, (a, b) in sorted(last.items()))
+    return (f"以上已是按第 9 步减薄之后的结果（{parts}，thin-result.json）；"
+            "基座等桌面固定方式设计好、按真实固定点算过再定。")
+
+
 def page(res: Mapping, ref: Mapping, bom: Mapping | None = None) -> str:
     o = ours(res)
     rows = []
@@ -112,7 +127,7 @@ def page(res: Mapping, ref: Mapping, bom: Mapping | None = None) -> str:
         if items and all(x.get("safety_yield") and x.get("safety_fatigue") for x in items):
             line += (f"支架有限元里对屈服的安全系数最低 {_num(min(x['safety_yield'] for x in items), 1)}、"
                      f"对弯曲疲劳最低 {_num(min(x['safety_fatigue'] for x in items), 1)}，要求 1.2（fea-result.json），"
-                     "支架有减薄的余地；减薄后负载自重比会提高。减薄要另定方案。")
+                     + _thin_note(res.get("thin")))
         out.append(line)
     om = next((r for r in ref["robots"] if r["vendor"] == "ROBOTIS"), None)
     if om and om.get("mass_kg") and o.get("mass_kg"):

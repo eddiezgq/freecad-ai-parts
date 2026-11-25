@@ -1,0 +1,49 @@
+{
+ "format": "cam-post/1",
+ "id": "haas-lathe",
+ "name": "Haas lathe (Haas Control)",
+ "family": "fanuc",
+ "kinds": [
+  "lathe"
+ ],
+ "source": "按 Haas 官网在线《Lathe Operator's Manual》写（ADR-0106 E3）；车铣（G112 / G107 的坐标写法与 FANUC 不同）、复合循环还没做",
+ "program": {
+  "number_digits": 5
+ },
+ "dialect": {
+  "tool_call_lathe": "T{n}{oo}",
+  "turn_cycles": "none",
+  "sources": [
+   {
+    "item": "tool_call_lathe",
+    "doc": "Haas Lathe Operator's Manual（Haas 官网在线版）",
+    "version": "在线版，2026-11-24 查",
+    "section": "11.1 Basic Programming：“T101 selects the tool, the offset 1”",
+    "url": "https://www.haascnc.com/service/online-operator-s-manuals/lathe-operator-s-manual/lathe---programming.html"
+   },
+   {
+    "item": "turn_cycles",
+    "doc": "Haas Lathe Operator's Manual（Haas 官网在线版）",
+    "version": "在线版，2026-11-24 查",
+    "section": "16 G-Codes / G71：D 只用于单段写法，FANUC 两段写法没写；复合循环不用、出直线段",
+    "url": "https://www.haascnc.com/service/codes-settings.type=gcode.machine=lathe.value=G71.html"
+   },
+   {
+    "item": "program.number_digits",
+    "doc": "Haas Lathe Operator's Manual（Haas 官网在线版）",
+    "version": "在线版，2026-11-24 查",
+    "section": "11.1 Basic Programming：“Onnnnn format … followed by a 5-digit number”",
+    "url": "https://www.haascnc.com/service/online-operator-s-manuals/lathe-operator-s-manual/lathe---programming.html"
+   }
+  ]
+ },
+ "checks": [
+  {
+   "level": "L2",
+   "tool": "LinuxCNC 2.9.4 rs274",
+   "date": "2026-11-24",
+   "by": "问渠CAM 标准题",
+   "evidence": "tests/test_cam_post_haas.py"
+  }
+ ]
+}

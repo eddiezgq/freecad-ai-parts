@@ -345,3 +345,23 @@ def test_saying_all_convergence_checks_passed_is_true_when_they_did():
     assert R.check_text("All checks passed.", fx, False, r) is not None
     _s, r2 = R.load_fixture("rj201-torque")                         # 应力收敛没通过：不能这么说
     assert R.check_text("Both mesh-convergence checks passed.", R.facts(r2), False, r2) is not None
+
+
+@pytest.mark.parametrize("text,ok", [
+    ("反力平衡核查未通过。", False),                                     # 反方向：这一项其实通过了（《有限元》书第 49 章线索第 42 条）
+    ("The reaction balance check failed.", False),
+    ("最大应力的网格收敛核查没有通过。", True),                           # 这一项确实没通过，是实话
+    ("若反力平衡核查没通过，就要检查约束。", True),                       # 条件句
+    ("分析步 s1 的可信度不通过，本步结果不能视为已收敛或可信。", True),     # 整体确实没全过
+])
+def test_reverse_verdicts_are_judged_per_item(text, ok):
+    """问渠 CAD 0.3.6 细则 B4：说某项“没通过”而它实际通过，也要退回"""
+    _s, r = R.load_fixture("rj201-torque")
+    why = R.check_text(text, R.facts(r), False, r)
+    assert (why is None) == ok, why
+
+
+def test_saying_checks_failed_when_all_passed_is_rejected():
+    _s, r = R.load_fixture("rj201-torque")
+    assert R.check_text("可信度核查没有通过。", R.facts(r), True, r) is not None
+    assert R.check_text("可信度核查全部通过之前不要用这个结果。", R.facts(r), True, r) is None

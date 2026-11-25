@@ -43,8 +43,8 @@
    "name": "j2 U 形支架",
    "qty": 1,
    "material": "6061-T6",
-   "mass_kg": 0.1156,
-   "mass_source": "三维模型体积 42830.4 mm³ × 6061-T6 密度"
+   "mass_kg": 0.0912,
+   "mass_source": "三维模型体积 33791.4 mm³ × 6061-T6 密度"
   },
   {
    "kind": "made",
@@ -61,8 +61,8 @@
    "name": "j3 U 形支架",
    "qty": 1,
    "material": "6061-T6",
-   "mass_kg": 0.1156,
-   "mass_source": "三维模型体积 42830.4 mm³ × 6061-T6 密度"
+   "mass_kg": 0.0912,
+   "mass_source": "三维模型体积 33791.4 mm³ × 6061-T6 密度"
   },
   {
    "kind": "made",
@@ -79,8 +79,8 @@
    "name": "j4 U 形支架",
    "qty": 1,
    "material": "6061-T6",
-   "mass_kg": 0.1156,
-   "mass_source": "三维模型体积 42830.4 mm³ × 6061-T6 密度"
+   "mass_kg": 0.0912,
+   "mass_source": "三维模型体积 33791.4 mm³ × 6061-T6 密度"
   },
   {
    "kind": "made",
@@ -121,29 +121,29 @@
   {
    "kind": "made",
    "drawing_no": "TA-12",
-   "name": "杆件 upper_arm（tube，长 46.4 mm）",
+   "name": "杆件 upper_arm（tube，长 47.4 mm）",
    "qty": 1,
    "material": "6061-T6",
-   "mass_kg": 0.0265,
-   "mass_source": "三维模型体积 9815.8 mm³ × 6061-T6 密度"
+   "mass_kg": 0.0271,
+   "mass_source": "三维模型体积 10029.5 mm³ × 6061-T6 密度"
   },
   {
    "kind": "made",
    "drawing_no": "TA-13",
-   "name": "杆件 forearm（tube，长 46.4 mm）",
+   "name": "杆件 forearm（tube，长 47.4 mm）",
    "qty": 1,
    "material": "6061-T6",
-   "mass_kg": 0.0265,
-   "mass_source": "三维模型体积 9815.8 mm³ × 6061-T6 密度"
+   "mass_kg": 0.0271,
+   "mass_source": "三维模型体积 10029.5 mm³ × 6061-T6 密度"
   },
   {
    "kind": "made",
    "drawing_no": "TA-14",
-   "name": "杆件 wrist（tube，长 51.5 mm）",
+   "name": "杆件 wrist（tube，长 52.4 mm）",
    "qty": 1,
    "material": "6061-T6",
-   "mass_kg": 0.0294,
-   "mass_source": "三维模型体积 10884 mm³ × 6061-T6 密度"
+   "mass_kg": 0.03,
+   "mass_source": "三维模型体积 11097.6 mm³ × 6061-T6 密度"
   },
   {
    "kind": "made",
@@ -160,26 +160,17 @@
    "kind": "fastener",
    "name": "ISO 4762 内六角圆柱头螺钉 M2.5",
    "grip_mm": 3.0,
-   "qty": 32,
+   "qty": 80,
    "parts": [
     "j1 舵盘法兰",
+    "j2 U 形支架",
     "j2 壳体底座",
+    "j3 U 形支架",
     "j3 壳体底座",
+    "j4 U 形支架",
     "j4 壳体底座",
     "j5 舵盘法兰",
     "j5 壳体底座"
-   ],
-   "note": "长度待定：模组上螺纹孔的深度不在零件库，登记后才能定"
-  },
-  {
-   "kind": "fastener",
-   "name": "ISO 4762 内六角圆柱头螺钉 M2.5",
-   "grip_mm": 4.0,
-   "qty": 48,
-   "parts": [
-    "j2 U 形支架",
-    "j3 U 形支架",
-    "j4 U 形支架"
    ],
    "note": "长度待定：模组上螺纹孔的深度不在零件库，登记后才能定"
   },
@@ -198,8 +189,8 @@
   "一体化关节模组还要一个总线控制器（如 U2D2 一类的总线转接）与直流电源；库里没有这两类，未列入"
  ],
  "purchased_mass_kg": 0.825,
- "made_mass_kg": 1.1582,
- "total_mass_kg": 1.9832,
- "assembly_mass_kg": 1.9832,
+ "made_mass_kg": 1.0868,
+ "total_mass_kg": 1.9118,
+ "assembly_mass_kg": 1.9118,
  "fastener_mass": "未计（螺钉长度待定）"
 }

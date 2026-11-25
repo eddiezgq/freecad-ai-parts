@@ -36,10 +36,12 @@ def plan(case_dir: Path, replay: Path | None, provider: str | None) -> list[tupl
     design = [str(case_dir / "requirement.txt"), "-o", str(cr)]
     design += ["--replay", str(replay)] if replay else (["--provider", provider] if provider else [])
     who = "AI（回放录制）+ 代码" if replay else "AI（真实调用）+ 代码"
+    pp = case_dir / "plates.json"                        # 减薄定下的板厚（第 9 步）；没有就按设计缺省值
+    plates = ["--plates", str(pp)] if pp.exists() else []
     return [
         (STEPS[0], who, lambda: robot_design.main(design)),
         (STEPS[1], "代码", lambda: robot_build.main([str(cr), "-o", str(br)])),
-        (STEPS[2], "代码", lambda: robot_cad.main([str(cr), str(br), "-o", str(cad)])),
+        (STEPS[2], "代码", lambda: robot_cad.main([str(cr), str(br), "-o", str(cad)] + plates)),
         (STEPS[3], "代码", lambda: robot_verify.main([str(cr), str(br), str(cad / "cad-result.json"), "-o", str(vr)])),
         (STEPS[4], "代码", lambda: robot_fea.main([str(o), "-o", str(o / "fea-result.json")])),
         (STEPS[5], "代码", lambda: robot_report.main([str(o)])),

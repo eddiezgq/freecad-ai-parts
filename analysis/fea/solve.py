@@ -170,7 +170,9 @@ def face_tris(gmsh, tag):
 # 面力按真实的二阶曲面（位置、法向随点变化）积分：曲面上的压力合力与解析值一致（ADR-0093 F2；F1 按角点平面分配时，
 # 厚壁圆筒内压的合力有 1.7 × 10⁻⁴ 倍总压力的轴向残量）。平面三角形上与原来的“角点 0、边中点各 1/3”完全相同。
 _A1, _A2 = (6 - math.sqrt(15)) / 21, (6 + math.sqrt(15)) / 21
-_W0, _W1, _W2 = 9 / 80, (155 + math.sqrt(15)) / 2400, (155 - math.sqrt(15)) / 2400
+# 权重配对：a₁ = (6 − √15)/21 配 (155 − √15)/2400，a₂ = (6 + √15)/21 配 (155 + √15)/2400（Radon 1948；Strang & Fix 表 4.1）。
+# 原来两组对调，规则只精确到 1 次——《有限元》书第 10 章线索第 19 条（问渠 CAD 0.3.6 细则 B1）。
+_W0, _W1, _W2 = 9 / 80, (155 - math.sqrt(15)) / 2400, (155 + math.sqrt(15)) / 2400
 _T6_GAUSS = [(1 / 3, 1 / 3, _W0)] + [(x, y, _W1) for x, y in ((_A1, _A1), (1 - 2 * _A1, _A1), (_A1, 1 - 2 * _A1))] + \
             [(x, y, _W2) for x, y in ((_A2, _A2), (1 - 2 * _A2, _A2), (_A2, 1 - 2 * _A2))]
 
@@ -186,12 +188,35 @@ def _t6(xi, eta):
 _T6_TAB = [(*_t6(x, y), w) for x, y, w in _T6_GAUSS]
 
 
-def tri_points(tris, P):
+def _subdivided(rule, levels):
+    """参考三角形均分成 4^levels 个小三角形，每个上用同一规则；给被积函数有折点的载荷用（轴承载荷的半圈边界）"""
+    tris = [((0.0, 0.0), (1.0, 0.0), (0.0, 1.0))]
+    for _ in range(levels):
+        nxt = []
+        for a, b, c in tris:
+            ab, bc, ca = [((p[0] + q[0]) / 2, (p[1] + q[1]) / 2) for p, q in ((a, b), (b, c), (c, a))]
+            nxt += [(a, ab, ca), (ab, b, bc), (ca, bc, c), (ab, bc, ca)]
+        tris = nxt
+    out = []
+    for a, b, c in tris:
+        ar = abs((b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1]))     # 小三角形面积 / 参考三角形面积 × 1
+        for x, y, w in rule:
+            out.append((a[0] + x * (b[0] - a[0]) + y * (c[0] - a[0]), a[1] + x * (b[1] - a[1]) + y * (c[1] - a[1]), w * ar))
+    return out
+
+
+# 轴承载荷 p0·max(cosθ, 0) 在受压半圈的边界上有折点，7 点规则在跨边界的三角形上不精确（侧向合力漏出约 4e-6 倍载荷）；
+# 这类载荷改用每个三角形均分 16 份的规则（0.3.6 细则 B1 连带：权重改对后，原来碰巧抵消的误差不再抵消）
+_T6_TAB_FINE = [(*_t6(x, y), w) for x, y, w in _subdivided(_T6_GAUSS, 2)]
+
+
+def tri_points(tris, P, tab=None):
     """每个高斯点：(三角形下标, 形函数值, 位置, 单位法向, 面积权 w·|J|)。法向的朝向同角点 (b − a) × (c − a)"""
     out = []
+    tab = _T6_TAB if tab is None else tab
     for k, tri in enumerate(tris):
         X = np.array([P[int(n)] for n in tri])
-        for N, dxi, deta, w in _T6_TAB:
+        for N, dxi, deta, w in tab:
             x, t1, t2 = N @ X, dxi @ X, deta @ X
             n = np.cross(t1, t2)
             j = float(np.linalg.norm(n))
@@ -269,6 +294,21 @@ def _nset(w, name, nodes):
     ns = sorted(nodes)
     for i in range(0, len(ns), 12):
         w.write(",".join(str(int(n)) for n in ns[i:i + 12]) + "\n")
+
+
+def _sliding(tris, P, vals):
+    """给定位移是“滑动支承”吗：只限一个分量、值为 0、面是平面且法向就是这个分量的方向。滑动支承和对称面一样，不排除评估区域"""
+    if len(vals) != 1 or abs(next(iter(vals.values()))) > 0 or not len(tris):
+        return False
+    ns = np.array([q[3] for q in tri_points(tris, P)])
+    m = ns.mean(0)
+    if np.linalg.norm(m) < 1e-12:
+        return False
+    m = m / np.linalg.norm(m)
+    if np.min(np.abs(ns @ m)) < 1 - 1e-6:
+        return False
+    ax = next(iter(vals)) - 1
+    return abs(m[ax]) > 1 - 1e-6
 
 
 def write_inp(path, ntags, xyz, tets, fixed_nodes, cyl_supports, nodal_forces, mat, reactions=False, extra=None):
@@ -531,7 +571,8 @@ def _prep_body(gmsh, body, setup, tmp):
             vals = {i + 1: float(l[k]) for i, k in enumerate(("ux_mm", "uy_mm", "uz_mm")) if k in l}
             dsp.append((nodes, vals))
             sup_dofs.append((l, set(nodes), tuple(vals)))
-            constrained |= nodes
+            if not _sliding(tris, P, vals):
+                constrained |= nodes
             continue
         if t == "symmetry":
             ns = np.array([q[3] for q in tri_points(tris, P)])
@@ -547,7 +588,8 @@ def _prep_body(gmsh, body, setup, tmp):
                 b = np.cross(m, [1, 0, 0] if abs(m[0]) < 0.9 else [0, 1, 0])
                 rect.append((nodes, m, b, [1]))
                 sup_dofs.append((l, set(nodes), (1, 2, 3)))
-            constrained |= nodes
+            # 对称面不是真支承（面上应力就是整体结构内部的应力），不计入评估时排除的“约束面”——
+            # 《有限元》书第 41 章线索第 35 条（问渠 CAD 0.3.6 细则 B2）：原来排除了对称面 1.5h，带孔板的孔边最大应力被漏掉
             continue
         if t == "mass":                                    # 附加质量：按节点面积分（ADR-0093 补充十）
             na = {n: a for n, a in nodal_areas(tris, P).items() if a > 0}
@@ -594,6 +636,7 @@ def _prep_body(gmsh, body, setup, tmp):
             if not fm or abs(np.dot(F, d)) > 1e-6 * fm:
                 raise ValueError("轴承载荷必须是垂直于轴线的径向力")
             fh = F / fm
+            pts = tri_points(tris, P, _T6_TAB_FINE)
             c2 = sum(max(float(np.dot(-n, fh)), 0.0) ** 2 * wj for _k, _N, _x, n, wj in pts)
             p0 = fm / c2
             add(consistent_loads(tris, P, lambda x, n, p0=p0, fh=fh: p0 * max(float(np.dot(-n, fh)), 0.0) * (-n), pts))
@@ -1280,6 +1323,11 @@ def solve_bodies(bodies, setup, ccx, workdir=None):
              "vm_peak_all_mpa": round(float(allvm[ia]), 3), "vm_peak_all_at": [round(float(x), 3) for x in allp[ia]],
              "u_max_mm": round(float(umag.max()), 6), "u_max_at": [round(float(x), 3) for x in pos[jmax]],
              "applied_force_n": [round(float(x), 3) for x in sum(forces.values(), np.zeros(3))]}
+    if not ok[ia] and allvm[ia] > 1.1 * allvm[ie]:
+        over = 100 * (allvm[ia] / allvm[ie] - 1)
+        stats["vm_peak_excluded_note"] = (
+            f"全部节点的最大应力 {allvm[ia]:.4g} MPa 在支承面附近（评估时排除的区域，见 vm_peak_all_at），比评估最大应力 "
+            f"{allvm[ie]:.4g} MPa 大 {over:.0f}%；支承处的应力受边界条件影响，评估不计，但真实结构在那里怎么受力要单独确认")
     if len(Bs) > 1:
         stats["vm_max_body"] = Bs[int(node_body[ie])]["id"]
     if nonlin:
