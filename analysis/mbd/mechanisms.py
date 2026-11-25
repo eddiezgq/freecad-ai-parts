@@ -41,14 +41,49 @@ LABELS = {"crank": "曲柄", "coupler": "连杆", "rocker": "摇杆", "rod": "�
           "pulley2": "从动带轮", "screw": "丝杠", "nut": "螺母（滑台）"}
 
 
+# 没有缺省值的可选参数（不给就不核查、判 unknown——不编造参数）
+OPTIONAL = {"C-BLT-BELT": ("initial_tension_n", "mu", "ea_n")}
+
+
 def params(mid, given=None):
     if mid not in DEFAULTS:
         raise ValueError(f"零件库里没有可做动力学的机构“{mid}”")
     p = dict(DEFAULTS[mid])
+    opt = OPTIONAL.get(mid, ())
     for k, v in (given or {}).items():
-        if k in p and v not in (None, ""):
+        if (k in p or k in opt) and v not in (None, ""):
             p[k] = float(v)
     return p
+
+
+def belt_check(given, torque_driver_nm):
+    """带传动的打滑、蠕滑与轴上拉力（《多体动力学》书第 24 章线索第 38 条，问渠 CAD 0.3.8 细则）。
+    原来库里的带只按传动比 1:2 刚性传动：30 N·m 照样传，而 μ 0.3、初拉力 150 N 时欧拉极限只有其 1/4；带轮轴上没有带的拉力。
+    给了初拉力 F0、摩擦系数 μ（ea_n 可选）就核：小带轮包角 α，打滑时 F1/F2 = e^{μα}，有效拉力极限 ΔF = 2F0(e^{μα} − 1)/(e^{μα} + 1)；
+    工作时 F1 = F0 + F/2、F2 = F0 − F/2（F = 主动轮力矩 / r1）；速比计蠕滑 (1 + ε₁)/(1 + ε₂)·D2/D1（ε = F/EA）；
+    轴上拉力 = 紧边、松边拉力的合力。没给就判 unknown"""
+    p = params("C-BLT-BELT", given)
+    D1, D2, a = p["d1_m"], p["d2_m"], p["center_m"]
+    beta = math.asin((D2 - D1) / (2 * a))
+    alpha = math.pi - 2 * beta                       # 小带轮包角
+    out = {"wrap_small_deg": math.degrees(alpha)}
+    if "initial_tension_n" not in p or "mu" not in p:
+        return out | {"status": "unknown", "note": "没给初拉力 initial_tension_n 和摩擦系数 mu，打滑、轴上拉力未核查"}
+    F0, mu = p["initial_tension_n"], p["mu"]
+    k = math.exp(mu * alpha)
+    dF_max = 2 * F0 * (k - 1) / (k + 1)
+    F = abs(torque_driver_nm) / (D1 / 2)
+    F1, F2 = F0 + F / 2, F0 - F / 2
+    # 两边直线段与中心线夹 β：紧边、松边拉力的合力（作用在两个带轮轴上，大小相同、方向相反）
+    shaft = math.sqrt(F1 * F1 + F2 * F2 + 2 * F1 * F2 * math.cos(2 * beta))
+    out |= {"slip_ratio_e_mu_alpha": k, "effective_pull_limit_n": dF_max, "torque_limit_driver_nm": dF_max * D1 / 2,
+            "torque_limit_driven_nm": dF_max * D2 / 2, "effective_pull_n": F, "tight_side_n": F1, "slack_side_n": F2,
+            "shaft_load_n": shaft, "safety_factor": dF_max / F if F > 0 else math.inf,
+            "status": "pass" if F <= dF_max else "fail"}
+    if "ea_n" in p:
+        e1, e2 = F1 / p["ea_n"], F2 / p["ea_n"]
+        out["transmission_ratio_with_creep"] = (1 + e1) / (1 + e2) * D2 / D1
+    return out
 
 
 # ---------------------------------------------------------------- 运动学（与零件库 generators/c_mech.py 相同的公式，测试互核）
