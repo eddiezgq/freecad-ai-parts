@@ -3,7 +3,7 @@
   "type": "object",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/gripper.schema.json",
   "title": "品类：抓手（gripper）",
-  "description": "由 component.schema.json 按 category 引用（ADR-0127）。约束该品类的参数名（只允许列出的参数）；接口数据只放在端口里（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。 机器人末端抓手：真空吸盘、面状真空（海绵吸盘）、针刺抓手、夹爪。保持力只写厂商给的数（condition 写真空度、气压、表面等条件）；厂商没给保持力的（多数针刺抓手），不写，抓取力的校核判待确认，不按针数估。适用材料照厂商原话写（suitable_materials），代码不据此判伤不伤工件，只摘给人看。气源接口、安装法兰查得到才写端口。",
+  "description": "由 component.schema.json 按 category 引用（ADR-0128）。约束该品类的参数名（只允许列出的参数）；接口数据只放在端口里（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。 机器人末端抓手：真空吸盘、面状真空（海绵吸盘）、针刺抓手、夹爪。保持力只写厂商给的数（condition 写真空度、气压、表面等条件）；厂商没给保持力的（多数针刺抓手），不写，抓取力的校核判待确认，不按针数估。适用材料照厂商原话写（suitable_materials），代码不据此判伤不伤工件，只摘给人看。气源接口、安装法兰查得到才写端口。",
   "x-key-fields": [
     "gripper_type",
     "mass_kg"

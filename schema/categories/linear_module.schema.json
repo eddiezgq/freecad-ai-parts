@@ -3,7 +3,7 @@
   "type": "object",
   "$id": "https://github.com/eddiezgq/freecad-ai-parts/schema/categories/linear_module.schema.json",
   "title": "品类：直线模组（linear_module）",
-  "description": "由 component.schema.json 按 category 引用（ADR-0127）。约束该品类的参数名（只允许列出的参数）；接口数据只放在端口里（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。 直线模组是导轨、滑台、驱动（滚珠丝杠、同步带、直线电机、齿轮齿条）做成一体的单轴，电机另配。行程有两种给法：厂商按行程分型号的，每个行程一条，写 stroke_mm，mass_kg 是这个行程下的本体质量；行程在订货时任选的（如费斯托 EGC），一个尺寸一条，写 max_stroke_mm，mass_kg 写行程 0 mm 时的基本质量、mass_per_10mm_stroke_kg 写每加 10 mm 行程增加的质量，选定行程后的质量由选型代码按这两项算。负载、推力、允许力矩照厂商给的写，水平与垂直分开；厂商只给水平的，垂直不写（不按水平折算）。电机安装法兰、滑台与底座的孔位多只在图纸里，查得到才写端口，查不到不写，整机装配时这几处接口判待确认。",
+  "description": "由 component.schema.json 按 category 引用（ADR-0128）。约束该品类的参数名（只允许列出的参数）；接口数据只放在端口里（ADR-0014）。x-key-fields 列出关键参数：缺失时组件仍可入库，但进入复核，相关校验结果为 unknown。 直线模组是导轨、滑台、驱动（滚珠丝杠、同步带、直线电机、齿轮齿条）做成一体的单轴，电机另配。行程有两种给法：厂商按行程分型号的，每个行程一条，写 stroke_mm，mass_kg 是这个行程下的本体质量；行程在订货时任选的（如费斯托 EGC），一个尺寸一条，写 max_stroke_mm，mass_kg 写行程 0 mm 时的基本质量、mass_per_10mm_stroke_kg 写每加 10 mm 行程增加的质量，选定行程后的质量由选型代码按这两项算。负载、推力、允许力矩照厂商给的写，水平与垂直分开；厂商只给水平的，垂直不写（不按水平折算）。电机安装法兰、滑台与底座的孔位多只在图纸里，查得到才写端口，查不到不写，整机装配时这几处接口判待确认。",
   "x-key-fields": [
     "drive_type",
     "max_speed_m_s",
