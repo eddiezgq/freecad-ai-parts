@@ -902,6 +902,36 @@
     "en": "Code not in the manual's table: program withheld, code named"
    },
    "source": "ADR-0125 dialect.codes"
+  },
+  {
+   "id": "CAM-89",
+   "test": "tests/test_cam_post_fagor.py::test_fagor_lathe_written_per_manual",
+   "category": "post",
+   "title": {
+    "zh": "发格车床：按发格官方编程手册写（G71 公制、G151、G192、T D、G33 K），回读一致",
+    "en": "Fagor lathe: written per the Fagor programming manual (G71 metric, G151, G192, T D, G33 K), read-back matches"
+   },
+   "source": "Fagor CNCelite 8058/8060/8065/8070 Programming manual, §1.5, §3.1, §3.4, §6.13–6.15, §7.2.1, §10.1"
+  },
+  {
+   "id": "CAM-90",
+   "test": "tests/test_cam_post_fagor.py::test_fagor_mill_tool_length_tap_and_home",
+   "category": "post",
+   "title": {
+    "zh": "发格铣床：长度补偿随 D、G63 刚性攻丝、#MCS 回 Z 零点，回读一致",
+    "en": "Fagor mill: length offset via D, G63 rigid tapping, #MCS Z home, read-back matches"
+   },
+   "source": "Fagor CNCelite 8058/8060/8065/8070 Programming manual, §5.1, §6.13, §10.3, §13.2"
+  },
+  {
+   "id": "CAM-91",
+   "test": "tests/test_cam_post_fagor.py::test_code_outside_manual_table_refused",
+   "category": "must",
+   "title": {
+    "zh": "发格：手册代码表外的代码不出、点名",
+    "en": "Fagor: codes outside the manual's table are refused and named"
+   },
+   "source": "Fagor CNCelite Programming manual §1.5, §1.6; ADR-0126"
   }
  ]
 }

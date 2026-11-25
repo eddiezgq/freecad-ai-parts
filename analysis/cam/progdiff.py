@@ -22,11 +22,13 @@ _TAG = re.compile(r"\(#L(\d+)\)")
 
 
 def detect(text: str) -> str:
-    """认数控系统家族：BEGIN PGM → 海德汉；西门子特有的字（DIAMON、SUPA、G331、LIMS=、分号注释开头）→ 西门子；%号开头 → 华中；其余 FANUC"""
+    """认数控系统家族：BEGIN PGM → 海德汉；西门子特有的字（DIAMON、SUPA、G331、LIMS=、分号注释开头）→ 西门子；发格特有的写法（#MCS、G151、G192、T 刀号 D 刀补 M6，ADR-0126）→ 发格；%号开头 → 华中；其余 FANUC"""
     if re.search(r"^\s*\d*\s*BEGIN PGM", text, re.MULTILINE):
         return "heidenhain"
     if re.search(r"\b(DIAMON|SUPA|G331|LIMS=)", text) or re.search(r"^\s*;", text, re.MULTILINE):
         return "siemens"
+    if re.search(r"#MCS\b|\bG151\b|\bG192\b|\bT\d+ D\d+ M6\b", text):
+        return "fagor"
     if re.search(r"^%\d+", text, re.MULTILINE):
         return "hnc"
     return "fanuc"

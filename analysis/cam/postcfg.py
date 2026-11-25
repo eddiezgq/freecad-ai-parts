@@ -32,6 +32,9 @@ DEFAULTS["heidenhain"] = {"program": {"number_digits": 8, "percent": False, "end
                           "tool_change": {"before": [], "after": [], "optional_stop": False},
                           "coolant": "flood", "cycles": {"drill": False, "turn": False}, "subprograms": False}
 DEFAULTS["gsk"] = DEFAULTS["fanuc"]
+# 发格（ADR-0126）：按 FANUC 写好再换成发格写法；固定循环、子程序、冷却 M 代码不写（发格另有一套或由机床厂定）
+DEFAULTS["fagor"] = {**DEFAULTS["fanuc"], "program": {"number_digits": 4, "percent": False, "end": "M30"}, "coolant": "off",
+                     "cycles": {"drill": False, "turn": False}}
 DEFAULTS["hnc"] = DEFAULTS["fanuc"]
 
 
@@ -52,9 +55,21 @@ def check(cfg: dict, where: str = "") -> dict:
         raise PostConfigError(f"{where + '：' if where else ''}后处理配置不符合 cam-post/1：" +
                               "；".join(f"{'/'.join(map(str, e.absolute_path)) or '（顶层）'}：{e.message}" for e in errs[:5]))
     fam = cfg["family"]
-    if fam in ("okuma", "fagor"):              # ADR-0124：家族的基本写法要按厂商官方编程手册做（ADR-0106 E3 工业级标准）
+    if fam == "okuma":                         # ADR-0124：家族的基本写法要按厂商官方编程手册做（ADR-0106 E3 工业级标准）
         raise PostConfigError(f"{where + '：' if where else ''}{fam} 家族的基本写法要按厂商官方编程手册做，手册还没到，还不能用（ADR-0106 E3）")
     dl = cfg.get("dialect") or {}
+    if fam == "fagor":                         # ADR-0126 第 4 条
+        w = where + "：" if where else ""
+        if dl:
+            raise PostConfigError(f"{w}发格的写法已按官方编程手册固定（ADR-0126），不收 dialect")
+        if (cfg.get("cycles") or {}).get("turn") or (cfg.get("cycles") or {}).get("drill"):
+            raise PostConfigError(f"{w}发格的 G70 / G71 是英制 / 公制，固定循环的参数另有一套，请关掉 cycles（ADR-0126）")
+        if cfg.get("subprograms"):
+            raise PostConfigError(f"{w}发格的子程序（%L、#CALL）还没做，请关掉 subprograms（ADR-0126）")
+        if cfg.get("coolant", "off") != "off":
+            raise PostConfigError(f"{w}发格手册的 M 代码表里没有冷却，冷却的 M 代码由机床厂定：coolant 写 off，按机床说明书写进换刀后动作（ADR-0126）")
+        if cfg.get("millturn") or cfg.get("twin") or cfg.get("channels"):
+            raise PostConfigError(f"{w}发格车铣、双主轴、多通道还没做（ADR-0126）")
     if dl and fam not in ISO:
         raise PostConfigError(f"{where + '：' if where else ''}写法差别（dialect）只用于 ISO 家族（fanuc / gsk / hnc，ADR-0124）")
     if dl.get("turn_cycles") == "one_block":

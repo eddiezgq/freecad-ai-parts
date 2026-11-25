@@ -3073,5 +3073,19 @@
 "换刀点 X（直径）mm": "Tool change X (diameter) mm",
 "换刀点 Z mm": "Tool change Z mm",
 "换刀点：X{}（直径）Z{}": "Tool change position: X{} (diameter) Z{}",
-"{} 的手册代码表里没有 {}（ADR-0125），程序不出": "{}: the manual's code table has no {} (ADR-0125), so the program is not output"
+"{} 的手册代码表里没有 {}（ADR-0125），程序不出": "{}: the manual's code table has no {} (ADR-0125), so the program is not output",
+" 发格车铣还没做（ADR-0126）。": " Fagor mill-turn is not done yet (ADR-0126).",
+"发格攻丝只认 M29 S / G98 G84 X Y Z R F / G80 这一组：{}": "Fagor tapping only accepts the M29 S / G98 G84 X Y Z R F / G80 group: {}",
+"发格攻丝这一组前后对不上（R、转速）：{}": "Fagor tapping group is inconsistent (R, speed): {}",
+"发格的刀补号是每把刀自己的 D1 ~ D8，{} 的刀补号与刀号不同，换不了": "Fagor tool offsets are each tool's own D1 to D8; {} has an offset number different from the tool number and cannot be converted",
+"发格的长度补偿随 D1 生效，换刀后第一次 Z 移动要是 G43 … H{}：{}": "On Fagor the length offset takes effect with D1; the first Z move after a tool change must be G43 … H{}: {}",
+"发格程序这一行换不回 FANUC 写法：{}": "This Fagor program line cannot be converted back to FANUC syntax: {}",
+"发格程序里有手册代码表外（或还没按手册做）的 {}，程序不出。{}": "The Fagor program contains {}, which is outside the manual's code table (or not yet done per the manual); the program is not output.{}",
+"车螺纹这一段没有螺距：{}": "This threading block has no pitch: {}",
+"{}发格手册的 M 代码表里没有冷却，冷却的 M 代码由机床厂定：coolant 写 off，按机床说明书写进换刀后动作（ADR-0126）": "{}the Fagor manual's M-code table has no coolant codes; coolant M codes are set by the machine builder: set coolant to off and put them in the after-tool-change actions per the machine manual (ADR-0126)",
+"{}发格的 G70 / G71 是英制 / 公制，固定循环的参数另有一套，请关掉 cycles（ADR-0126）": "{}on Fagor G70 / G71 are inch / metric and canned cycles take different parameters; turn cycles off (ADR-0126)",
+"{}发格的写法已按官方编程手册固定（ADR-0126），不收 dialect": "{}Fagor syntax is fixed per the official programming manual (ADR-0126); dialect is not accepted",
+"{}发格的子程序（%L、#CALL）还没做，请关掉 subprograms（ADR-0126）": "{}Fagor subroutines (%L, #CALL) are not done yet; turn subprograms off (ADR-0126)",
+"{}发格车铣、双主轴、多通道还没做（ADR-0126）": "{}Fagor mill-turn, twin spindle and multi-channel are not done yet (ADR-0126)",
+"发格程序回读不了：{}": "Fagor program cannot be read back: {}"
 }
