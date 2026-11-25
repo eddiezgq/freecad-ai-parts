@@ -475,7 +475,7 @@ def _check_dropped(sysm, q, t, ph, rows_idx):
 
 
 # ---------------------------------------------------------------- 分析
-def kinematic(sysm: System, t_end, steps):
+def kinematic(sysm: System, t_end, steps, branch="continue"):
     q = sysm.q0()
     keep, drop = independent_rows(sysm, q, 0.0)
     rows = _rows(sysm, keep)
@@ -483,15 +483,84 @@ def kinematic(sysm: System, t_end, steps):
     if dof != 0:
         raise SolveError(f"运动学分析要自由度为 0（加了驱动以后还剩 {dof} 个自由度）；有自由度的用动力学分析")
     rec = Recorder(sysm)
-    for t in np.linspace(0.0, t_end, steps + 1):
-        q = assemble(sysm, q, t, rows)
+    # 《多体动力学》书第 5 章线索第 13 条（问渠 CAD 0.3.8 细则）：原来牛顿初值取上一时刻的解，过死点（雅可比奇异）时走“倒回”
+    # 那一支——摇杆驱动的曲柄摇杆 2 s 曲柄来回摆、转 0 圈，无提示。现在初值按速度外推（原动件推着越过死点，脚踏缝纫机、
+    # 内燃机要的是这一支），branch="reverse" 保留原来的走法；雅可比行列式变号就记一次经过死点，报时刻和运动副
+    ts = np.linspace(0.0, t_end, steps + 1)
+    q_prev, qd, det_prev, dead = None, None, None, []
+    for n, t in enumerate(ts):
+        if branch == "continue" and n >= 2:
+            guess = q + (q - q_prev)                         # 割线外推（= 速度外推，采样点落在死点上也有定义）
+        elif branch == "continue" and n == 1 and qd is not None:
+            guess = q + qd * (t - ts[0])
+        else:
+            guess = q
+        try:
+            q_new = assemble(sysm, guess, t, rows)
+        except SolveError:
+            q_new = assemble(sysm, q, t, rows)               # 外推越界装不上：退回上一时刻的解起步
+        q_prev, q = q, q_new
         J = sysm.jac(q, t, rows)
-        qd = np.linalg.solve(J, sysm.nu(q, t, rows))
-        qdd = np.linalg.solve(J, sysm.gamma(q, qd, t, rows))
-        Q = sysm.Q(q, qd, t)
-        lam = np.linalg.solve(J.T, Q - sysm.mass(q) @ qdd)
+        sv = np.linalg.svd(J, compute_uv=False)
+        sign, logdet = np.linalg.slogdet(J)
+        det = sign * math.exp(logdet) if sign else 0.0
+        if det_prev is not None and det_prev * det < 0:
+            tc = float(ts[n - 1] + (t - ts[n - 1]) * det_prev / (det_prev - det))
+            dead.append({"t_s": tc, "joints": _singular_joints(sysm, q, t, rows), "collinear": _collinear(sysm, q)})
+        if det != 0.0:
+            det_prev = det
+        if sv[-1] < KIN_SINGULAR * sv[0] and q_prev is not None:
+            qd = (q - q_prev) / (t - ts[n - 1])              # 正好落在死点上：速度由运动副定不了，用相邻两点差分
+            qdd = np.linalg.lstsq(J, sysm.gamma(q, qd, t, rows), rcond=None)[0]
+            lam = np.linalg.lstsq(J.T, sysm.Q(q, qd, t) - sysm.mass(q) @ qdd, rcond=None)[0]
+        else:
+            qd = np.linalg.solve(J, sysm.nu(q, t, rows))
+            qdd = np.linalg.solve(J, sysm.gamma(q, qd, t, rows))
+            Q = sysm.Q(q, qd, t)
+            lam = np.linalg.solve(J.T, Q - sysm.mass(q) @ qdd)
         rec.add(float(t), q, qd, qdd, keep, lam)
-    return rec, {"dof": 0, "redundant": [sysm.rows[k].label for k in drop]}
+    return rec, {"dof": 0, "redundant": [sysm.rows[k].label for k in drop], "dead_points": dead, "branch": branch}
+
+
+KIN_SINGULAR = 1e-10     # 运动学雅可比最小 / 最大奇异值低于它：采样点正好落在死点上
+
+
+def _collinear(sysm, q):
+    """死点处共线的两根杆：在连接两个运动构件的铰上，两根杆各自“另一个铰 → 这个铰”的方向最接近共线的那一处。
+    返回 (杆 1, 杆 2, 铰) 或 None"""
+    pts = {}                                      # 构件下标 → [(铰名, 地面系位置)]
+    for jid, info in sysm.joints.items():
+        for b, s_ in ((info["i"], info.get("si")), (info["j"], info.get("sj"))):
+            if b >= 0 and s_ is not None:
+                r, p = sysm.rp(q, b)
+                pts.setdefault(b, []).append((jid, r + A_of(p) @ np.asarray(s_, float)))
+    best, out = 0.05, None
+    for jid, info in sysm.joints.items():
+        bi, bj = info["i"], info["j"]
+        if bi < 0 or bj < 0:
+            continue
+        dirs = []
+        for b in (bi, bj):
+            here = next(x for n_, x in pts[b] if n_ == jid)
+            others = [x for n_, x in pts[b] if n_ != jid and np.linalg.norm(x - here) > 1e-9]
+            if not others:
+                break
+            v = here - others[0]
+            dirs.append(v / np.linalg.norm(v))
+        if len(dirs) < 2:
+            continue
+        sine = float(np.linalg.norm(np.cross(dirs[0], dirs[1])))
+        if sine < best:
+            best, out = sine, (sysm.bodies[bi].name, sysm.bodies[bj].name, jid)
+    return out
+
+
+def _singular_joints(sysm, q, t, rows):
+    """雅可比最接近奇异的方向上分量大的约束行 → 所在运动副（死点处共线的那几根杆连着的铰）"""
+    J = sysm.jac(q, t, rows)
+    U, _, _ = np.linalg.svd(J)
+    u = np.abs(U[:, -1])
+    return sorted({rows[i].joint or rows[i].label for i in np.nonzero(u > 0.2 * u.max())[0]})
 
 
 RELAX_ALPHA = 1000.0     # 1/s，静平衡找不到时“过阻尼动力学放松”的质量比例阻尼
