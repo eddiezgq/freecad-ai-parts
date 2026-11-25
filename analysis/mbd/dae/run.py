@@ -221,6 +221,7 @@ def run_model(model: dict, base_dir=None):
         dp = info["dead_points"]
         messages.append("经过死点 {} 次（雅可比奇异；缺省让原动件推着越过死点继续往前走）：{}".format(
             len(dp), "；".join(_dead_txt(x) for x in dp)))
+    messages += getattr(sysm, "init_velocity_notes", [])
     if info.get("redundant"):
         messages.append("删掉了 {} 条冗余约束（反力里这些方向的分量不唯一，标为不完整）：{}".format(
             len(info["redundant"]), "、".join(info["redundant"])))
