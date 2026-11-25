@@ -3166,5 +3166,10 @@
 "需求原话（自由度、负载、臂展、精度、速度、加工与成本要求……）": "Requirement as written (degrees of freedom, payload, reach, accuracy, speed, machining and cost requirements…)",
 "（第 {} / {} 个）": " ({} / {})",
 "；停在“{}”": "; stopped at “{}”",
-"；结果文件在 {}": "; result files in {}"
+"；结果文件在 {}": "; result files in {}",
+"接近自锁：t = {:.6g} s 运动副摩擦的迭代增益到 {:.3g}（1 就卡死），摩擦最大的是运动副“{}”；这附近的驱动力矩、反力对摩擦系数非常敏感": "Close to self-locking: at t = {:.6g} s the joint-friction iteration gain reached {:.3g} (1 means jammed); the joint with the most friction is “{}”. Near here the drive torque and reactions are very sensitive to the friction coefficient",
+"摩擦迭代不收敛：t = {:.6g} s 起共 {} 次，摩擦最大的是运动副“{}”，这些时刻的结果不可信": "Friction iteration did not converge: from t = {:.6g} s, {} times; the joint with the most friction is “{}”. Results at those instants are not reliable",
+"运动副摩擦迭代收敛（摩擦力与约束反力一致）": "Joint friction iteration converged (friction forces consistent with reactions)",
+"可能自锁：t = {} s 起运动副摩擦的迭代增益到 {}（接近 1，摩擦力趋于无穷），摩擦最大的是运动副“{}”，积分在 t = {} s 后走不下去。机构在这里会卡死；请检查摩擦系数、销半径，或确认这就是要找的自锁位置": "Possible self-locking: from t = {} s the joint-friction iteration gain reached {} (close to 1, friction tends to infinity); the joint with the most friction is “{}”, and integration cannot continue past t = {} s. The mechanism jams here; check the friction coefficients and pin radii, or confirm this is the self-locking position you are looking for",
+"可能自锁：t = {} s 运动副摩擦的迭代增益约 {}（≥ 1，摩擦力越算越大，没有解），摩擦最大的是运动副“{}”。机构在这个位置会卡死；请检查摩擦系数、销半径，或确认这就是要找的自锁位置": "Possible self-locking: at t = {} s the joint-friction iteration gain is about {} (≥ 1, friction keeps growing, no solution); the joint with the most friction is “{}”. The mechanism jams in this position; check the friction coefficients and pin radii, or confirm this is the self-locking position you are looking for"
 }
