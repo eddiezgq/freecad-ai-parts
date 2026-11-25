@@ -3166,5 +3166,9 @@
 "需求原话（自由度、负载、臂展、精度、速度、加工与成本要求……）": "Requirement as written (degrees of freedom, payload, reach, accuracy, speed, machining and cost requirements…)",
 "（第 {} / {} 个）": " ({} / {})",
 "；停在“{}”": "; stopped at “{}”",
-"；结果文件在 {}": "; result files in {}"
+"；结果文件在 {}": "; result files in {}",
+"工作点是平衡点（静止时各构件加速度近零）": "Operating point is an equilibrium (accelerations near zero at rest)",
+"工作点不是平衡点（静止但有加速度），在这里线性化没有意义，稳定性不判": "The operating point is not an equilibrium (at rest but accelerating); linearizing here is meaningless, so stability is not judged",
+"工作点有速度（稳态运动），不要求是平衡点，不判": "The operating point is moving (steady motion); it need not be an equilibrium, not judged",
+"工作点不是平衡点：静止时构件“{}”的加速度 {:.3g} mm/s²、角加速度 {:.3g} rad/s²，模态和稳定性只在平衡点上才有意义。请改用 static_then_linear（先找静平衡再线性化），或确认这就是想要的工作点": "The operating point is not an equilibrium: at rest, body “{}” has acceleration {:.3g} mm/s² and angular acceleration {:.3g} rad/s². Modes and stability are only meaningful at an equilibrium. Use static_then_linear (find the static equilibrium first, then linearize), or confirm this is the operating point you want"
 }
