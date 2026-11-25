@@ -3166,5 +3166,6 @@
 "需求原话（自由度、负载、臂展、精度、速度、加工与成本要求……）": "Requirement as written (degrees of freedom, payload, reach, accuracy, speed, machining and cost requirements…)",
 "（第 {} / {} 个）": " ({} / {})",
 "；停在“{}”": "; stopped at “{}”",
-"；结果文件在 {}": "; result files in {}"
+"；结果文件在 {}": "; result files in {}",
+"构件“{}”给的初速度与运动副不相容，按动能加权投影改成：质心速度 {} mm/s（给的 {}），角速度 {} °/s（给的 {}）": "The initial velocity given for body “{}” is not compatible with the joints; projected with kinetic-energy weighting to: centre-of-mass velocity {} mm/s (given {}), angular velocity {} °/s (given {})"
 }
