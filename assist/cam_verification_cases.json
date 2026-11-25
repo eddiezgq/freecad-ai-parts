@@ -952,6 +952,36 @@
     "en": "Mitsubishi machining center: slot and drill programs output; tapping refused and G84 named (F unit depends on parameters)"
    },
    "source": "Mitsubishi M800V/M80V Programming Manual (Machining Center System) IB-1501621, 3.4.2, 12.2, 13.1.4"
+  },
+  {
+   "id": "CAM-94",
+   "test": "tests/test_cam_post_num.py::test_num_lathe_written_per_manual",
+   "category": "post",
+   "title": {
+    "zh": "NUM 车床：按 NUM 官方编程手册写（% 程序号、G71 公制、G92 S、G97 + G96 X、T D M06、G38 K、M02），回读一致",
+    "en": "NUM lathe: written per the NUM programming manual (% number, G71 metric, G92 S, G97 + G96 X, T D M06, G38 K, M02), read-back matches"
+   },
+   "source": "NUM Flexium Programming Manual M00018EN-03, 3.3, 5.1.1, 5.2, 5.5.3, 5.5.4, 5.11.1, 5.13.2"
+  },
+  {
+   "id": "CAM-95",
+   "test": "tests/test_cam_post_num.py::test_num_mill_tool_length_tap_and_home",
+   "category": "post",
+   "title": {
+    "zh": "NUM 铣床：长度补偿随 D、G84 Z K 刚性攻丝、G52 回 Z 零点，回读一致",
+    "en": "NUM mill: length offset via D, G84 Z K rigid tapping, G52 Z home, read-back matches"
+   },
+   "source": "NUM Flexium Programming Manual M00018EN-03, 3.2.1.1, 5.11.3, 5.12.1, 5.12.7"
+  },
+  {
+   "id": "CAM-96",
+   "test": "tests/test_cam_post_num.py::test_code_outside_manual_table_refused",
+   "category": "must",
+   "title": {
+    "zh": "NUM：手册代码表外的代码不出、点名",
+    "en": "NUM: codes outside the manual's table are refused and named"
+   },
+   "source": "NUM Flexium Programming Manual M00018EN-03, 5.1.1, 5.1.2"
   }
  ]
 }

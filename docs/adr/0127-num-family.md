@@ -88,3 +88,11 @@ NUM（瑞士）在官网公开了编程手册：**《Flexium Programming Manual�
    - 记录写进 `assist/cam_verification_cases.json`，目录 CAM-94 起。
 7. 帮助（中、英）加“NUM Flexium”一节；STATUS、ADR-0106 E3 记一笔。
 8. 不做：车铣、双主轴、多通道、五轴、NUM 固定循环（G81–G89 的 ER / EH 写法、G63–G66 车削循环）、子程序、圆弧指令、L3（NUM 的模拟软件另找）。
+
+## 实现记录（2026-11-25）
+
+- 按施工细则做完：`analysis/cam/num.py`（对照表、换回、手册代码表）、`postcfg`（NUM 缺省与限制）、`postproc`（写完换成 NUM 写法、回读先换回；
+  模块名在 `postproc` 里与格式化函数 `num` 重名，按 `numcnc` 引入）、`progdiff`（认 NUM）、内置配置 `num-flexium.json`。
+- 标准题 `tests/test_cam_post_num.py`（13 个，CAM-94 ~ 96）：车、铣能出、回读一致；车削、铣削时间与 FANUC（同样关掉循环）相同；对照表往返逐行一致；
+  恒线速转速按公式、受限速；不按手册的写法（G96 后没有 X、程序号 ≥ 9000、H 号不是刀号、G02 / G04 / G92 X）拒出；车铣拒出；配置限制；
+  progdiff 认 NUM、与 FANUC 刀路一致；L2 LinuxCNC rs274 回读一致。
