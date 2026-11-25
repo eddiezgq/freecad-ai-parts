@@ -35,6 +35,9 @@ DEFAULTS["gsk"] = DEFAULTS["fanuc"]
 # 发格（ADR-0126）：按 FANUC 写好再换成发格写法；固定循环、子程序、冷却 M 代码不写（发格另有一套或由机床厂定）
 DEFAULTS["fagor"] = {**DEFAULTS["fanuc"], "program": {"number_digits": 4, "percent": False, "end": "M30"}, "coolant": "off",
                      "cycles": {"drill": False, "turn": False}}
+# NUM（ADR-0127）：按 FANUC 写好再换成 NUM 写法；固定循环、子程序不写（NUM 另有一套）；冷却 M08 / M09 照写；程序结束 M02
+DEFAULTS["num"] = {**DEFAULTS["fanuc"], "program": {"number_digits": 4, "percent": False, "end": "M02"},
+                   "cycles": {"drill": False, "turn": False}}
 DEFAULTS["hnc"] = DEFAULTS["fanuc"]
 
 
@@ -70,6 +73,16 @@ def check(cfg: dict, where: str = "") -> dict:
             raise PostConfigError(f"{w}发格手册的 M 代码表里没有冷却，冷却的 M 代码由机床厂定：coolant 写 off，按机床说明书写进换刀后动作（ADR-0126）")
         if cfg.get("millturn") or cfg.get("twin") or cfg.get("channels"):
             raise PostConfigError(f"{w}发格车铣、双主轴、多通道还没做（ADR-0126）")
+    if fam == "num":                           # ADR-0127 第 4 条
+        w = where + "：" if where else ""
+        if dl:
+            raise PostConfigError(f"{w}NUM 的写法已按官方编程手册固定（ADR-0127），不收 dialect")
+        if (cfg.get("cycles") or {}).get("turn") or (cfg.get("cycles") or {}).get("drill"):
+            raise PostConfigError(f"{w}NUM 的 G70 / G71 是英制 / 公制，固定循环的参数另有一套（ER、EH……），请关掉 cycles（ADR-0127）")
+        if cfg.get("subprograms"):
+            raise PostConfigError(f"{w}NUM 的子程序（G77 H）还没做，请关掉 subprograms（ADR-0127）")
+        if cfg.get("millturn") or cfg.get("twin") or cfg.get("channels"):
+            raise PostConfigError(f"{w}NUM 车铣、双主轴、多通道还没做（ADR-0127）")
     if dl and fam not in ISO:
         raise PostConfigError(f"{where + '：' if where else ''}写法差别（dialect）只用于 ISO 家族（fanuc / gsk / hnc，ADR-0124）")
     if dl.get("turn_cycles") == "one_block":
