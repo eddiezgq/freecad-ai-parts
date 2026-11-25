@@ -57,3 +57,15 @@ def test_haas_mill_turn_not_output():
     """车铣（动力刀）程序：哈斯的 G112 用直角坐标 XY、G107 另一套参数，还没按手册做——不出、写明原因"""
     p = MT._run_mt("haas-lathe")
     assert p["release"] is None and any("millturn" in c["text"] for c in p["checks"] if c["level"] == "error")
+
+
+def test_haas_lathe_config_has_manual_code_table():
+    """哈斯车床配置带手册代码表（ADR-0125）：出程序时就查，表外的不出；表与本题用到的代码一致"""
+    import json
+
+    from analysis.cam import postcfg
+
+    cfg = json.loads((postcfg.BUILTIN / "haas-lathe.json").read_text(encoding="utf-8"))
+    codes = cfg["dialect"]["codes"]
+    assert HAAS_G <= set(codes["g"]) and HAAS_M <= set(codes["m"])
+    assert any(s["item"] == "codes" and "haascnc.com" in s["url"] for s in cfg["dialect"]["sources"])
