@@ -81,8 +81,8 @@ def check(cfg: dict, where: str = "") -> dict:
             raise PostConfigError(f"{w}NUM 的 G70 / G71 是英制 / 公制，固定循环的参数另有一套（ER、EH……），请关掉 cycles（ADR-0127）")
         if cfg.get("subprograms"):
             raise PostConfigError(f"{w}NUM 的子程序（G77 H）还没做，请关掉 subprograms（ADR-0127）")
-        if cfg.get("millturn") or cfg.get("twin") or cfg.get("channels"):
-            raise PostConfigError(f"{w}NUM 车铣、双主轴、多通道还没做（ADR-0127）")
+        if (cfg.get("millturn") or {}).get("b_tool_comp") or cfg.get("twin") or cfg.get("channels"):
+            raise PostConfigError(f"{w}NUM 的 B 轴车铣、双主轴、多通道还没做（ADR-0128；端面、圆柱面车铣可以）")
     if dl and fam not in ISO:
         raise PostConfigError(f"{where + '：' if where else ''}写法差别（dialect）只用于 ISO 家族（fanuc / gsk / hnc，ADR-0124）")
     if dl.get("turn_cycles") == "one_block":
