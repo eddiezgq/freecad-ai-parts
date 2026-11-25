@@ -27,6 +27,9 @@ MODULES = sorted([*ROOT.glob("analysis/fea/*.py"), ROOT / "assist/fea_report.py"
                   ROOT / "freecad_addon/core/ai_design.py", ROOT / "freecad_addon/gui/ai_design_panel.py",
                   ROOT / "freecad_addon/fc/ai_design_doc.py", ROOT / "assist/shaft_design.py", ROOT / "assist/shaft_model.py",
                   ROOT / "assist/design.py",
+                  # 问渠 CAD「AI 设计整机」（ADR-0115 44.4）
+                  ROOT / "freecad_addon/core/robot_design.py", ROOT / "freecad_addon/gui/robot_design_panel.py",
+                  ROOT / "freecad_addon/fc/robot_doc.py",
                   # 问渠CAM（ADR-0104 产品化第 3 步）
                   *ROOT.glob("analysis/cam/*.py"), ROOT / "assist/cam_process.py", ROOT / "assist/cam_edition.py",
                   ROOT / "freecad_addon/core/cam_study.py", ROOT / "freecad_addon/fc/cam_doc.py", ROOT / "freecad_addon/fc/cam_fc.py",
