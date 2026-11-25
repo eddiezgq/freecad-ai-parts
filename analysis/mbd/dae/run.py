@@ -201,7 +201,7 @@ def run_model(model: dict, base_dir=None):
     messages = []
     stab = None
     if typ == "kinematic":
-        rec, info = S.kinematic(sysm, t_end, steps)
+        rec, info = S.kinematic(sysm, t_end, steps, branch=an.get("dead_point", "continue"))   # ADR-0130
     elif typ == "static":
         rec, info = S.static(sysm, load_steps=int(an.get("load_steps", 1)))
         stab = _stability(sysm, rec.q[-1], rec.t[-1])
