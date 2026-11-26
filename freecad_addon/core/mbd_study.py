@@ -99,7 +99,7 @@ def write_report(model, data, out_dir, client=None, lang=None):
     (out_dir / "result.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
     (out_dir / "model.json").write_text(json.dumps(model, ensure_ascii=False), encoding="utf-8")
     data = json.loads(json.dumps(data))
-    ex = mbd_report.explain(data, mbd_report.facts(data), client) if client else None
+    ex = mbd_report.explain(data, mbd_report.facts(data), client, mbd_model=model) if client else None
     got = mbd_report.build_docx(model, data, out_dir / "report.docx", explanation=ex, lang=lang)
     got["explanation"] = ex or {"paragraphs": [], "rejected": []}
     return got
