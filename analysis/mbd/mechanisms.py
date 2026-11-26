@@ -396,3 +396,72 @@ def prepare_setup(mid, given, setup):
         a, b = initial(mid, given, q0 + 1e-6), initial(mid, given, q0 - 1e-6)
         s["initial_qd"] = {k: (a[k] - b[k]) / 2e-6 * w0 for k in a}
     return s
+
+
+# ---------------------------------------------------------------- 闭环机构的精确力矩（线索第 71 条）
+DAE_RATIO = 50.0          # 一转（一个周期）时间 / 给定运动约束的时间常数 小于它：力矩改由 DAE 内核算
+
+
+def dae_model(mid, given, setup):
+    """闭环机构（LOOP_MIDS）按 MuJoCo 模型的构件、质量、惯量写成 mbd-model/1：构件的质心、惯量取 MuJoCo 在初始位形算的值
+    （不另算一套几何），树上的关节照搬，connect 软约束换成转动副（平面机构，轴同其他铰）。主动件只能是匀速或正弦驱动"""
+    import mujoco
+    import numpy as np
+
+    from analysis.mbd import core
+
+    p = params(mid, given)
+    model = mujoco.MjModel.from_xml_string(mjcf(mid, p))
+    data = mujoco.MjData(model)
+    for name, v in (setup.get("initial") or {}).items():
+        data.qpos[model.jnt_qposadr[core._jid(model, name)]] = float(v)
+    mujoco.mj_forward(model, data)
+
+    def bname(b):
+        return "ground" if b == 0 else mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_BODY, b)
+
+    bodies = []
+    for b in range(1, model.nbody):
+        R = data.ximat[b].reshape(3, 3)
+        J = R @ np.diag(model.body_inertia[b]) @ R.T
+        bodies.append({"id": bname(b), "mass_kg": float(model.body_mass[b]), "cm_mm": (data.xipos[b] * 1000).tolist(),
+                       "inertia_kg_m2": {"ixx": J[0, 0], "iyy": J[1, 1], "izz": J[2, 2], "ixy": J[0, 1], "ixz": J[0, 2], "iyz": J[1, 2]}})
+    joints, hinge_axis = [], [0.0, -1.0, 0.0]
+    for j in range(model.njnt):
+        b = int(model.jnt_bodyid[j])
+        typ = {int(mujoco.mjtJoint.mjJNT_HINGE): "revolute", int(mujoco.mjtJoint.mjJNT_SLIDE): "translational"}[int(model.jnt_type[j])]
+        ax = data.xaxis[j].tolist()
+        if typ == "revolute":
+            hinge_axis = ax
+        joints.append({"id": mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_JOINT, j), "type": typ,
+                       "body_i": bname(int(model.body_parentid[b])), "body_j": bname(b),
+                       "point_mm": (data.xanchor[j] * 1000).tolist(), "axis": ax})
+    for e in range(model.neq):
+        s1, s2 = int(model.eq_obj1id[e]), int(model.eq_obj2id[e])
+        joints.append({"id": f"loop{e + 1}", "type": "revolute", "body_i": bname(int(model.site_bodyid[s1])),
+                       "body_j": bname(int(model.site_bodyid[s2])), "point_mm": (data.site_xpos[s1] * 1000).tolist(), "axis": hinge_axis})
+    drv = DRIVER[mid]
+    d = next(x for x in setup["drives"] if x["joint"] == drv)
+    if d["kind"] == "speed":
+        motion = {"id": "drive", "joint": drv, "dof": "rotation", "speed": d["value"] * 60 / (2 * math.pi)}
+    else:
+        motion = {"id": "drive", "joint": drv, "dof": "rotation",
+                  "function": f"{math.degrees(d['amp'])!r}*sin(2*PI*{d['freq']!r}*time)"}
+    g = (np.asarray(model.opt.gravity) * 1000).tolist() if setup.get("gravity", True) else [0.0, 0.0, 0.0]
+    n = max(1, round(setup["duration_s"] * setup["sample_hz"]))
+    return {"format": "mbd-model/1", "name": f"{mid}（DAE）", "gravity_mm_s2": g, "bodies": bodies, "joints": joints,
+            "motions": [motion], "analysis": {"type": "kinematic", "end_time_s": setup["duration_s"], "output_steps": n}}
+
+
+def dae_route(mid, setup, dt, w_max):
+    """该不该改由 DAE 算力矩：闭环机构、只有主动件一个匀速或正弦驱动、没有附加负载 / 外力 / 摩擦，
+    且一转时间与给定运动约束的时间常数之比小于 DAE_RATIO。返回 (是否, 比值)"""
+    from analysis.mbd import core
+
+    if mid not in LOOP_MIDS or not w_max:
+        return False, None
+    ratio = 2 * math.pi / w_max / core.tau_of(dt)
+    drives = setup.get("drives") or []
+    ok = (len(drives) == 1 and drives[0]["joint"] == DRIVER[mid] and drives[0]["kind"] in ("speed", "sine")
+          and not setup.get("payloads") and not setup.get("forces") and not setup.get("friction"))
+    return ok and ratio < DAE_RATIO, ratio
