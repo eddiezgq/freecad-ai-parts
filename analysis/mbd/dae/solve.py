@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import math
 
 import numpy as np
@@ -535,6 +536,7 @@ def kinematic(sysm: System, t_end, steps, branch="continue"):
     ts = np.linspace(0.0, t_end, steps + 1)
     jids = _friction_joints(sysm)
     q_prev, qd, det_prev, dead = None, None, None, []
+    stopped = None
     for n, t in enumerate(ts):
         if branch == "continue" and n >= 2:
             guess = q + (q - q_prev)                         # 割线外推（= 速度外推，采样点落在死点上也有定义）
@@ -545,7 +547,14 @@ def kinematic(sysm: System, t_end, steps, branch="continue"):
         try:
             q_new = assemble(sysm, guess, t, rows)
         except SolveError:
-            q_new = assemble(sysm, q, t, rows)               # 外推越界装不上：退回上一时刻的解起步
+            try:
+                q_new = assemble(sysm, q, t, rows)           # 外推越界装不上：退回上一时刻的解起步
+            except SolveError as exc:
+                if n == 0:
+                    raise
+                # 线索第 14、75 条：装不上时报时刻、驱动和原因，已算好的结果照常返回
+                stopped = _assembly_failure(sysm, q, float(ts[n - 1]), float(t), rows, str(exc))
+                break
         q_prev, q = q, q_new
         J = sysm.jac(q, t, rows)
         sv = np.linalg.svd(J, compute_uv=False)
@@ -569,7 +578,74 @@ def kinematic(sysm: System, t_end, steps, branch="continue"):
             if jids:
                 lam = _kinematic_friction(sysm, q, qd, t, J, rows, jids, rhs0, lam)
         rec.add(float(t), q, qd, qdd, keep, lam)
-    return rec, {"dof": 0, "redundant": [sysm.rows[k].label for k in drop], "dead_points": dead, "branch": branch}
+    info = {"dof": 0, "redundant": [sysm.rows[k].label for k in drop], "dead_points": dead, "branch": branch}
+    if stopped:
+        info["stopped"] = stopped
+    # 线索第 75 条：每个输出步驱动转得太多时，牛顿迭代可能“接上”了相隔整圈的位形（误报死点、曲线失真），算完也要提示
+    t_last = float(stopped["t_s"]) if stopped else float(ts[-1])
+    vals = [[v for _, _, v, u in _drive_values(sysm, float(x)) if u == "°"] for x in ts if x <= t_last]
+    step_deg = max((abs(a - b) for va, vb in itertools.pairwise(vals) for a, b in zip(va, vb, strict=True)), default=0.0)
+    if step_deg > KIN_STEP_DEG:
+        info["coarse_step_deg"] = step_deg
+    return rec, info
+
+
+KIN_STEP_DEG = 30.0      # 一个输出步里构件转过超过这个角度：步长太大（线索第 75 条）
+
+
+def _drive_values(sysm, t):
+    """各驱动在 t 时的值：转角驱动给度，移动驱动给 mm"""
+    out = []
+    for mid, mo in sysm.motions.items():
+        v = sysm.rows[mo["row"]].fn(t)
+        rot = mo["dof"] == "rotation"
+        out.append((mid, mo["joint"], math.degrees(v) if rot else v * 1000, "°" if rot else " mm"))
+    return out
+
+
+def _assembly_failure(sysm, q_ok, t_ok, t_bad, rows, raw):
+    """运动学分析走到 t_bad 装配不上（《多体动力学》书线索第 14、75 条，问渠 CAD 0.3.9 细则）。
+    原来只报“装配不上：约束‘rocker 欧拉参数归一’残差 0.00267”——不说时刻、驱动，指向的约束不是原因，已算好的结果也不返回。
+    现在二分找到最后能装上的时刻；那里雅可比接近奇异就是机构的极限位置（两支解合在一起），说“驱动超出机构的运动范围”
+    并给出极限时的驱动值；不奇异而每个输出步转得太多，就说步长太大。返回 {t_s, t_fail_s, reason, message}"""
+    lo, hi, q_lo = t_ok, t_bad, q_ok
+    for _ in range(40):
+        mid = 0.5 * (lo + hi)
+        try:
+            q_lo, lo = assemble(sysm, q_lo, mid, rows), mid
+        except SolveError:
+            hi = mid
+        if hi - lo < 1e-9 * max(1.0, abs(t_bad)):
+            break
+    J = sysm.jac(q_lo, lo, rows)
+    sv = np.linalg.svd(J, compute_uv=False)
+    drv = _drive_values(sysm, lo)
+    dtxt = "、".join(f"驱动 {m}（运动副 {j}）{v:.4g}{u}" for m, j, v, u in drv) or "（没有驱动）"
+    step_rot = max((abs(a - b) for (_, _, a, u), (_, _, b, _) in zip(drv, _drive_values(sysm, t_ok), strict=True)
+                    if u == "°"), default=0.0)
+    if sv[-1] < 1e-3 * sv[0]:
+        reason = "limit"
+        msg = (f"运动学分析在 t ≈ {lo:.4g} s 走不下去：机构到了极限位置（两支解在这里合在一起，再往前没有解），"
+               f"此时 {dtxt}。驱动超出了机构的运动范围——例如曲柄不能整周转、摇杆只能在一段角度里摆；"
+               f"请减小驱动的行程，或把驱动挂到能整周转的构件上。0–{lo:.4g} s 的结果照常给出")
+    elif step_rot > KIN_STEP_DEG or _max_rot_deg(sysm, q_ok, q_lo) > KIN_STEP_DEG:
+        reason = "step"
+        msg = (f"运动学分析在 t ≈ {lo:.4g} s 装配不上：一个输出步里驱动转了约 {step_rot:.0f}°（超过 {KIN_STEP_DEG:.0f}°），"
+               f"步长相对转速太大，牛顿迭代接不上。此时 {dtxt}。请加密输出点（output_steps），或检查转速、减速比是否写反。"
+               f"0–{t_ok:.4g} s 的结果照常给出")
+    else:
+        reason = "assembly"
+        msg = (f"运动学分析在 t ≈ {lo:.4g} s 装配不上（{raw}），此时 {dtxt}。0–{t_ok:.4g} s 的结果照常给出")
+    return {"t_s": lo, "t_fail_s": t_bad, "reason": reason, "message": msg}
+
+
+def _max_rot_deg(sysm, qa, qb):
+    w = 0.0
+    for k in range(sysm.nb):
+        pa, pb = sysm.rp(qa, k)[1], sysm.rp(qb, k)[1]
+        c = min(1.0, abs(float(pa @ pb)) / (np.linalg.norm(pa) * np.linalg.norm(pb)))
+        w = max(w, math.degrees(2 * math.acos(c)))
+    return w
 
 
 KIN_SINGULAR = 1e-10     # 运动学雅可比最小 / 最大奇异值低于它：采样点正好落在死点上
