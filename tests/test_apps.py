@@ -32,7 +32,11 @@ def test_cobot_joint():
     s = _steps("cobot_joint")
     _no_crash(s)
     assert "手算 Σm·g·r 92.5" in s["动力学"]["summary"]  # 重力矩与手算一致
-    assert s["选型 j2"]["status"] == "unknown" and "CSF-32-100-2UH" in s["选型 j2"]["summary"]
+    # 问渠 CAD 0.3.9（《多体动力学》书第 40 章线索第 5 条）：肩关节再算“往上抬”（峰值 124.1 N·m），需求取两个方向的包络，
+    # 零件库没有满足包络的组合（往上抬时 C4 电机侧连续扭矩超额定）——原来只算往下放，这里是 unknown。如实报不通过，
+    # 后面的步骤按只满足往下放的组合（仍是 CSF-32-100-2UH）继续
+    assert s["选型 j2"]["status"] == "fail" and "往上抬不满足" in s["选型 j2"]["summary"]
+    assert "CSF-32-100-2UH" in s["选型 j2"]["summary"]
     assert "（手算 11.4）" in s["动力学：腕关节 j4"]["summary"] and "CSF-17" in s["选型 j4"]["summary"]  # 腕关节（ADR-0062）
     assert s["数字孪生：减速器"]["status"] == "ok" and "剩余约" in s["数字孪生：减速器"]["summary"]  # 额定寿命 11-15 按样本补录（ADR-0094）
     assert s["发布到工厂"]["status"] == "skip"
@@ -61,8 +65,10 @@ def test_cobot_arm():
     关节扭矩与动力学的重力矩一致；Dunkerley 合成频率低于每一个分量；输出轴承寿命按样本公式给出。"""
     s = _steps("cobot_arm")
     _no_crash(s)
-    for j in ("j1", "j2", "j3", "j4", "j5", "j6"):
+    for j in ("j1", "j3", "j4", "j5", "j6"):
         assert s[f"选型 {j}"]["status"] in ("ok", "unknown"), s[f"选型 {j}"]["summary"]
+    # 0.3.9（线索第 5 条）：肩 j2 按两个方向的包络，零件库供不了（往上抬 C4 超额定），如实报不通过、按往下放的组合继续
+    assert s["选型 j2"]["status"] == "fail" and "往上抬不满足" in s["选型 j2"]["summary"]
     assert "CSF-32-100-2UH" in s["选型 j2"]["summary"]
     assert "CSF-32-100-2UH" in s["选型 j1"]["summary"]                      # 第二版：j1 按输出轴承寿命 ≥ 35000 h 选（ADR-0094）
     assert "不满足" not in s["输出轴承寿命"]["summary"]

@@ -29,7 +29,8 @@ SOURCES = [
 ]
 ASSUMPTIONS = [
     "肩关节最不利工况：大臂、小臂水平伸直（重力矩最大），满载 5 kg + 腕部三个模组 2.626 kg 集中在小臂末端",
-    "运动：肩、肘各转 90°，用时 1.0 s，加减速各占 25%（最高 120°/s，低于数据表的 180°/s）",
+    ("运动：肩、肘各转 90°，用时 1.0 s，加减速各占 25%（最高 120°/s，低于数据表的 180°/s）；从水平往下放、往上抬两个方向都算，"
+     "选型需求取包络（往上抬时加速段要同时克服重力，峰值更大）"),
     "供电按控制柜 200 V 三相交流、EtherCAT 总线（零件库里的伺服是 200 V 交流；真实协作臂多用 48 V 直流关节）",
     "工作制：每天 16 小时，按动力学这一段动作重复（数字孪生的运行记录是仿真工况，不是现场数据）",
     "腕关节 j4（wrist 1）最不利工况：d5、d6 沿同一方向水平伸出（力臂取上界 199.3 mm），第 5、6 节按均布杆、负载 5 kg 在末端；转 90° 用时 1.0 s",
@@ -89,6 +90,15 @@ def main(argv=None):
                 f"肘 j3 峰值 {d['j3']['peak']:.1f} N·m；水平伸直重力矩 {g['j2']:.1f} N·m（手算 Σm·g·r {hand:.1f}）",
                 j2=d["j2"], j3=d["j3"], gravity=g, hand_gravity_j2=hand)
         out["mbd"] = r
+        # 线索第 5 条：同一段动作反过来——从水平往上抬（肩 +90°、肘 −90°），需求取两个方向的包络
+        up = analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": [
+            {"joint": "j2", "kind": "move", "to": 90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
+            {"joint": "j3", "kind": "move", "to": -90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
+            {"joint": "j1", "kind": "hold"}]})
+        du = {x["joint"]: x for x in up["data"]["drives"]}
+        run.add("动力学：往上抬", "ok", f"肩 j2 峰值 {du['j2']['peak']:.1f} N·m、均方根 {du['j2']['rms']:.1f} N·m；"
+                f"肘 j3 峰值 {du['j3']['peak']:.1f} N·m（选型取往下放与往上抬的包络）", j2=du["j2"], j3=du["j3"])
+        out["mbd_up"] = up
         # 腕关节 j4：单独一段“臂”——腕 2、腕 3 两节沿同一方向伸出（上界），末端带满载（ADR-0062）
         w = analysis.run("mbd", {"model": {"kind": "arm", "base_height_mm": 0, "links": [{"length_mm": 199.3, "mass_kg": 1.665}],
                                            "payload_kg": 5}, "duration_s": 1.4, "sample_hz": 100, "drives": [
@@ -111,18 +121,30 @@ def main(argv=None):
             if res is None:
                 continue
             req = mbd.requirement(res, jj, base=base)
+            down, note = req, ""
+            if j in ("j2", "j3") and out.get("mbd_up"):
+                req = C.envelope({"往下放": req, "往上抬": mbd.requirement(out["mbd_up"], jj, base=base)})
             req["id"] = f"cobot-{j}"
             cands = C.compose(req, top=20)
+            if not cands and req is not down:
+                # 两个方向的包络零件库供不了（书第 40 章：往上抬时肩关节 C4 电机侧连续扭矩超额定）：如实报不通过，
+                # 后面的步骤按只满足往下放的组合继续演示，并写明
+                down["id"] = f"cobot-{j}-down"
+                cands = C.compose(down, top=20)
+                note = "两个方向的包络零件库里没有能满足的组合（往上抬不满足）；下面按只满足往下放的组合继续——"
             if not cands:
                 run.add(f"选型 {j}", "fail", "零件库里没有能满足的组合")
                 continue
             best = cands[0]
             names = "、".join(c["component"].split(".")[-1].upper() for c in best.system["components"])
             light = _lightest(cands)
-            run.add(f"选型 {j}", "ok" if best.report["overall"] == "pass" else "unknown",
-                    f"需求 连续 {req['output_torque_cont_nm']:.1f} / 峰值 {req['output_torque_peak_nm']:.1f} N·m、{req['output_speed_rpm']:.1f} rpm → "
+            used = down if note else req
+            run.add(f"选型 {j}", "fail" if note else "ok" if best.report["overall"] == "pass" else "unknown",
+                    note + f"需求 连续 {used['output_torque_cont_nm']:.1f} / 峰值 {used['output_torque_peak_nm']:.1f} N·m、"
+                    f"{used['output_speed_rpm']:.1f} rpm → "
                     f"{names}；{C.checks_text(best.report)}；共 {len(cands)} 个候选" + (f"，外购件最轻的是 {light}" if light else ""),
-                    requirement=req, system=best.system, report=best.report)
+                    requirement=used, envelope=req, system=best.system, report=best.report)
+            req = used
             out[j] = {"req": req, "system": best.system, "report": best.report}
     run.guard("选型", select)
 
