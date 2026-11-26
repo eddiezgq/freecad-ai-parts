@@ -10,6 +10,7 @@
 
 车铣（ADR-0131）：FANUC `G12.1` … `G13.1` ↔ `G152` `#CAX` `#FACE [X,C,Q0]` … `#FACE OFF` `#CAX OFF` `G151`（X 半径、C mm）；
 `G07.1 C半径` … `G07.1 C0` ↔ `G152` `#CAX` `#CYL [Z,C,X半径,Q0]` … `#CYL OFF` `#CAX OFF` `G151`（X 半径、C = 角度 × π ÷ 180 × 半径）。
+C 分度 + Y 轴铣（ADR-0133）：`G00 C角度` `G19` … `G18` ↔ `#CAX` `G00 C(0–360)` `G19` … `G18` `#CAX OFF`（发格普通回转轴绝对值的正负号是转向，§3.2.1）。
 """
 
 from __future__ import annotations
@@ -18,7 +19,7 @@ import math
 import re
 
 # 手册 §1.5（G）、§1.6（M）里有、问渠CAM 会写的代码：代码 → 章节
-CODES_G = {"0": "8.1", "1": "8.2", "2": "8.3", "3": "8.3", "17": "4.2", "18": "4.2", "33": "10.1", "40": "13.1", "54": "5.5",
+CODES_G = {"0": "8.1", "1": "8.2", "2": "8.3", "3": "8.3", "17": "4.2", "18": "4.2", "19": "4.2", "33": "10.1", "40": "13.1", "54": "5.5",
            "63": "10.3", "71": "3.1", "80": "1.5", "90": "3.2", "94": "6.2", "95": "6.2", "96": "7.2.2", "97": "7.2.2", "151": "3.4", "152": "3.4",
            "192": "7.2.1"}
 CODES_M = {"0": "14.2", "1": "14.3", "2": "1.2.1", "3": "7.3", "4": "7.3", "5": "7.3", "6": "6.14", "19": "7.5", "30": "1.2.1"}
@@ -87,12 +88,34 @@ def _mt_line(body: str, trafo: list, to_fg: bool) -> str:
     return " ".join(out)
 
 
+def _has_c(body: str) -> bool:
+    return any(t[:1] == "C" and re.fullmatch(_NUM, t[1:]) for t in body.split())
+
+
 def to_fagor(text: str, lathe: bool) -> str:
     lines = text.rstrip("\n").split("\n")
     out, i, head_done, gline_done, tool, want_h, z_now = [], 0, False, False, None, False, None
     trafo = None                                                # 车铣块（ADR-0131）
+    idx = False                                                 # C 分度 + Y 轴铣（ADR-0133）
     while i < len(lines):
         pre, body, tail = _split(lines[i])
+        if lathe and body and not body.startswith("(") and not trafo:
+            mc = re.fullmatch(rf"G00 C({_NUM})", body)
+            if mc:                                              # §18.1.1 #CAX；§3.2.1 正负号是转向 → 0 ≤ C < 360
+                if i + 1 >= len(lines) or _split(lines[i + 1])[1] != "G19":
+                    raise FagorError(f"发格车铣块外的 C 只认分度铣开头的 G00 C / G19（ADR-0133）：{body}")
+                v = round(float(mc.group(1)) % 360.0, 4) % 360.0
+                out += [f"{pre}#CAX{tail}", f"G00 C{_f4(v)}{tail}"]
+                idx = True
+                i += 1
+                continue
+            if idx and body == "G18":
+                out += [f"{pre}G18{tail}", f"#CAX OFF{tail}"]
+                idx = False
+                i += 1
+                continue
+            if _has_c(body) and not re.fullmatch(rf"G07\.1 C{_NUM}", body):
+                raise FagorError(f"发格车铣块外的 C 只认分度铣开头的 G00 C / G19（ADR-0133）：{body}")
         if lathe and body and not body.startswith("("):
             m7 = re.fullmatch(rf"G07\.1 C({_NUM})", body)
             handled = True
@@ -193,9 +216,21 @@ def to_fanuc(text: str, lathe: bool) -> str:
     """回读前：发格写法 → FANUC 写法（to_fagor 的逆）"""
     lines = text.rstrip("\n").split("\n")
     out, i, gline_done, want_h = [], 0, False, None
-    trafo = None
+    trafo, idx = None, False
     while i < len(lines):
         pre, body, tail = _split(lines[i])
+        if lathe and not trafo and body == "#CAX" and i + 2 < len(lines):     # 分度铣（ADR-0133）
+            _pc, bc, tc = _split(lines[i + 1])
+            if re.fullmatch(rf"G00 C{_NUM}", bc) and _split(lines[i + 2])[1] == "G19":
+                out.append(pre + bc + tc)
+                idx = True
+                i += 2
+                continue
+        if idx and body == "G18" and i + 1 < len(lines) and _split(lines[i + 1])[1] == "#CAX OFF":
+            out.append(pre + body + tail)
+            idx = False
+            i += 2
+            continue
         if lathe and gline_done and body == "G152" and i + 2 < len(lines):
             b1, b2 = _split(lines[i + 1])[1], _split(lines[i + 2])[1]
             mc = re.fullmatch(rf"#CYL \[Z,C,X({_NUM}),Q0\]", b2)
@@ -303,8 +338,7 @@ def check_codes(text: str, lathe: bool, extra_m=()) -> None:
     bad_m = sorted({norm(m) for m in re.findall(r"\bM(\d+)", body)} - have_m, key=float)
     if bad_g or bad_m:
         miss = "、".join([f"G{g}" for g in bad_g] + [f"M{m}" for m in bad_m])
-        mt = (" 发格的 C 分度 + Y 轴铣还没做（ADR-0131）。" if "19" in bad_g else
-              " 发格车铣只按 ADR-0131 换端面、圆柱面。" if any(g in ("12.1", "13.1", "7.1") for g in bad_g) else "")
+        mt = (" 发格车铣只按 ADR-0131 换端面、圆柱面。" if any(g in ("12.1", "13.1", "7.1") for g in bad_g) else "")
         raise FagorError(f"发格程序里有手册代码表外（或还没按手册做）的 {miss}，程序不出。{mt}")
     sharp = sorted({ln.strip() for ln in body.split("\n") if ln.strip().startswith("#")} - {"#CAX", "#CAX OFF", _ON["polar"], *_OFF.values()}
                    - {ln.strip() for ln in body.split("\n") if re.fullmatch(rf"#CYL \[Z,C,X{_NUM},Q0\]|#MCS Z0", ln.strip())})

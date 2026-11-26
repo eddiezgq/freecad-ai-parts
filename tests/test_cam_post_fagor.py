@@ -110,10 +110,43 @@ def test_fagor_mill_turn_face_and_cylinder(tmp_path, monkeypatch):
                     "Fagor mill-turn: #CAX, #FACE, #CYL per the manual (radius made explicit with G152), read-back matches"), "pass", "pass")
 
 
+def _run_index(tmp_path, monkeypatch, angle):
+    d = tmp_path / "posts"
+    d.mkdir(exist_ok=True)
+    monkeypatch.setenv("FAP_POSTS", str(d))
+    (d / "fmt.json").write_text(json.dumps(FMT), encoding="utf-8")
+    mv = MT.MT.flat_moves({"angle": angle, "r_outer": 25.0, "depth": 3.0,
+                           "shape": {"type": "slot", "a": [0.0, -10.0], "b": [0.0, -30.0], "width": 12.0}}, 6.0, 3.0, 200.0, 100.0)
+    live = {"right": [{"tool": {"n": 10, "d": 6.0}, "spindle": {"rpm": 3000}, "title": "平底槽", "interp": {"index": angle}, "moves": mv}]}
+    r = cam.run({"mode": "turn", "machine": "EX-MT-CY", "segments": [[40, 30], [50, 40]], "live_ops": live, "post": "fmt",
+                 "machine_sim": {"tools": {"10": {"tool": "EM6", "length_mm": 40}}, "chuck": {"jaw_len": 15, "jaw_d": 80}}})
+    return r["data"]["programs"][0]
+
+
+@pytest.mark.parametrize("angle,c", [(90.0, "C90.0"), (-60.0, "C300.0")])
+def test_fagor_c_index_y_mill(tmp_path, monkeypatch, angle, c):
+    """C 分度 + Y 轴铣（ADR-0133）：Ø50 上宽 12、深 3 的长圆平底槽；主轴当 C 轴先 #CAX（§18.1.1），完了 #CAX OFF；G19 同 FANUC（§4.2.1），
+    X 在 G151 下仍是直径（§3.4）；分度角写成 0–360（发格普通回转轴绝对值的正负号是转向，§3.2.1：FANUC C-60 是 300° 的位置）；
+    去料与积分值差 < 1%；回读与仿真刀路一致"""
+    p = _run_index(tmp_path, monkeypatch, angle)
+    assert p["sim"]["mill_removed_mm3"] == pytest.approx(MT._keyway_volume(w=12.0), rel=0.01)
+    t = _rel(p)
+    assert f"M45\nS3000\n#CAX\nG00 {c}\nG19" in t and "G00 Y0.0\nG18\n#CAX OFF\nM46" in t and not re.search(r"\bC-", t)
+    assert "G00 X54.0 Y0.0 Z-10.0" in t                    # X 直径（Ø54 = 外圆 Ø50 外 2 mm）
+    back = postproc.to_fanuc(t, "fmt", True)
+    assert f"S3000\nG00 {c}\nG19" in back and "G18\nM46" in back and "#" not in back
+    with pytest.raises(fagor.FagorError, match="ADR-0133"):
+        fagor.to_fagor("O1001\nG21 G18 G40 G97 G99\nG01 C30.0 F100.0\nM30\n", True)
+    if angle < 0:
+        record_verdict(("发格 C 分度 + Y 轴铣：#CAX 后分度、G19 同 FANUC，负分度角写成 0–360（发格的正负号是转向），回读一致",
+                        ("Fagor C-axis indexing + Y-axis milling: #CAX then index, G19 as FANUC, negative index angles written as 0-360 "
+                         "(the sign is the direction on Fagor), read-back matches")),
+                       "pass", "pass")
+
+
 def test_fagor_mill_turn_refusals(tmp_path, monkeypatch):
-    """不出：C 分度 + Y 轴铣（G19）、B 轴车铣配置、内置配置没写车铣行、坐标超过 4 位小数（§1.3.1）、本表外的 # 指令"""
-    with pytest.raises(fagor.FagorError, match="C 分度"):
-        fagor.check_codes("G71 G18\nG00 C30.0\nG19\nM30\n", True)
+    """不出：B 轴车铣配置、内置配置没写车铣行、坐标超过 4 位小数（§1.3.1）、本表外的 # 指令；G19 已按 ADR-0133 收"""
+    fagor.check_codes("G71 G18\n#CAX\nG00 C30.0\nG19\nG18\n#CAX OFF\nM30\n", True)
     with pytest.raises(postcfg.PostConfigError, match="B 轴车铣"):
         postcfg.check({**FMT, "millturn": {**FMT["millturn"], "b_tool_comp": ["M99"]}}, "t")
     assert MT._run_mt("fagor-8065")["release"] is None
@@ -121,8 +154,8 @@ def test_fagor_mill_turn_refusals(tmp_path, monkeypatch):
         fagor.check_codes("G71 G18\nG01 X10.12345 F0.1\nM30\n", True)
     with pytest.raises(fagor.FagorError, match="# 指令"):
         fagor.check_codes("G71 G18\n#FACE [X,C]\nM30\n", True)
-    record_verdict(("发格车铣：没做的（C 分度 + Y 轴铣、B 轴）和超位数的不出、点名",
-                    "Fagor mill-turn: unsupported cases (C indexing + Y-axis milling, B axis) and excess decimals are refused and named"),
+    record_verdict(("发格车铣：没做的（B 轴）和超位数的不出、点名",
+                    "Fagor mill-turn: unsupported cases (B axis) and excess decimals are refused and named"),
                    "error", "error")
 
 
