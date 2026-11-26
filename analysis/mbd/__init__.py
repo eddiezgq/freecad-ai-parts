@@ -169,7 +169,13 @@ def run(setup: dict) -> dict:
                 # 线索第 23 条：闭环软约束的 τ 按驱动转速选，闭合点拉开不超过最短构件的 0.1 %
                 loop_tau, h = mechanisms.loop_tau(mid, given, _drive_speed_max(internal, mechanisms.DRIVER[mid]))
                 spec = core.load_spec(xml=mechanisms.mjcf(mid, given, loop_tau_s=loop_tau, timestep_s=h))
+                internal["dt"] = min(float(internal.get("dt") or h), h)
         summ, ch, _anim = core.simulate(spec, internal)
+        dae, dae_ratio = None, None
+        if mid is not None:
+            go, dae_ratio = mechanisms.dae_route(mid, internal, summ["timestep_s"], _drive_speed_max(internal, mechanisms.DRIVER[mid]))
+            if go and not setup.get("reactions"):
+                dae = _dae_drive(mid, (setup.get("model") or {}).get("params"), internal, ch)
     except (SetupError, core.SetupError, KeyError, TypeError, ValueError) as exc:
         return result.failed("mbd", MODULE["version"], setup, f"设置有误：{exc}")
     drives, series = [], {"t_s": _downsample(ch["t"])}
@@ -185,6 +191,14 @@ def run(setup: dict) -> dict:
                      "drive": _downsample(ch["drive." + j])}
         if slide:
             series[j]["accel"] = _downsample(ch["qdd." + j] * 1000)
+    if dae is not None:
+        # 线索第 71 条：一转时间只有给定运动约束时间常数的几十倍时，MuJoCo 的软约束跟不上（平缝机 5000 rpm 峰值 +49 %、
+        # 恒速一转平均功率 367 W），主动件的力矩、功率改用 DAE 内核的精确值，MuJoCo 只出动画和其余关节的运动
+        drv = mechanisms.DRIVER[mid]
+        d0 = next(x for x in drives if x["joint"] == drv)
+        d0.update(dae["stats"])
+        series[drv].update(dae["series"])
+        series["t_s"] = dae["series_t"]
     data = {"drives": drives, "series": series, "tracking_error": summ["tracking_error_max"],
             "timestep_s": summ["timestep_s"], "settle_window_s": summ["settle_window_s"]}
     reactions, keep = {}, core.settled_mask(ch["t"], internal.get("drives") or [], summ["timestep_s"])
@@ -228,6 +242,16 @@ def run(setup: dict) -> dict:
             messages.append("闭环拉开 {:.3g} mm（t = {:.3g} s），超过最短构件的 0.1 %（{:.3g} mm）："
                             "驱动力矩和铰链反力的误差可能超过 1 %；可加密时间步，或改用 DAE 内核（model 格式）".format(
                                 gap[k] * 1000, ch["t"][k], lim_mm))
+    if dae is not None:
+        data["force_solver"] = {"driver": mechanisms.DRIVER[mid], "name": "DAE", "rev_over_tau": round(dae_ratio, 3)}
+        lims.append("主动件的驱动力矩、功率由 DAE 内核按给定运动精确算出（一转时间只有给定运动约束时间常数的 "
+                    f"{dae_ratio:.3g} 倍，MuJoCo 软约束跟不上）；动画和其余关节的运动仍来自 MuJoCo")
+    else:
+        messages += _loop_checks(mid, internal, data, setup)
+    if dae is None and dae_ratio is not None and dae_ratio < mechanisms.DAE_RATIO:
+        messages.append(f"一转时间只有给定运动约束时间常数的 {dae_ratio:.3g} 倍（小于 {mechanisms.DAE_RATIO:g}），MuJoCo 软约束跟不上，驱动力矩可能偏差"
+                        "超过 1 %；这次因为有附加负载、外力、摩擦、反力输出或非匀速驱动没有改用 DAE 内核，"
+                        "要精确值请用 model 格式（DAE 内核）")
     if mid == "C-BLT-BELT":
         # 线索第 38 条：带传动按主动轮力矩峰值核打滑、给出轴上拉力；没给初拉力、摩擦系数判 unknown
         bc = mechanisms.belt_check((setup.get("model") or {}).get("params"), float(abs(ch["drive.pulley1"]).max()))
@@ -256,6 +280,66 @@ def run(setup: dict) -> dict:
 
     return result.make("mbd", MODULE["version"], setup, data, limitations=lims, messages=messages,
                        solver={"name": "MuJoCo", "version": mujoco.__version__}, elapsed_s=time.time() - t0)
+
+
+TRACK_DEG = 1.0           # 给定运动的跟踪误差超过它要提示（线索第 71 条）
+CYCLE_MEAN_REL = 0.02     # 恒速一转平均力矩超过峰值的这个比例：数值耗散（纯惯性、重力的机构应为 0）
+
+
+def _loop_checks(mid, internal, data, setup):
+    """MuJoCo 路线的两项核对（线索第 71 条）：给定运动的跟踪误差；闭环机构恒速时最后一整转的平均力矩
+    （没有外力、摩擦时，惯性力和重力一转做功为 0，平均力矩不为 0 就是软约束和积分耗散的能量）"""
+    from analysis.mbd import mechanisms
+
+    out = []
+    te = math.degrees(float(data.get("tracking_error") or 0.0))
+    if te > TRACK_DEG:
+        out.append(f"给定运动的最大跟踪误差 {te:.3g}°（超过 {TRACK_DEG:g}°）：MuJoCo 的给定运动是软约束，驱动力矩会有偏差，"
+                   "可加密时间步，或改用 DAE 内核（model 格式）")
+    if mid not in mechanisms.LOOP_MIDS or setup.get("forces") or setup.get("friction"):
+        return out
+    drv = mechanisms.DRIVER[mid]
+    d = next((x for x in internal.get("drives") or [] if x["joint"] == drv), None)
+    if d is None or d["kind"] != "speed" or len(internal.get("drives") or []) != 1:
+        return out
+    try:
+        sw = energy_swing({"data": data}, drv)
+    except SetupError:
+        return out
+    peak = next(x for x in data["drives"] if x["joint"] == drv)["peak_settled"] or 0.0
+    if peak and abs(sw["mean_torque_nm"]) > CYCLE_MEAN_REL * peak:
+        out.append("恒速时最后一整转的平均驱动力矩 {:.3g} N·m（峰值的 {:.0%}）：没有外力和摩擦时应为 0，这是软约束和积分耗散的"
+                   "能量，驱动力矩待确认；可加密时间步，或改用 DAE 内核（model 格式）".format(
+                       sw["mean_torque_nm"], abs(sw["mean_torque_nm"]) / peak))
+    return out
+
+
+def _dae_drive(mid, given, internal, ch):
+    """闭环机构主动件的力矩、功率用 DAE 内核算（运动学分析），统计口径同 core.simulate"""
+    import numpy as np
+
+    from analysis.mbd import mechanisms
+    from analysis.mbd.dae import model as dmodel
+    from analysis.mbd.dae import run as drun
+    from analysis.mbd.dae import solve as dsolve
+
+    m = mechanisms.dae_model(mid, given, internal)
+    try:
+        out, _msgs = drun.run_model(m)
+    except (dmodel.ModelError, dsolve.SolveError) as exc:
+        raise ValueError(f"高速闭环机构改用 DAE 内核算力矩时出错：{exc}") from exc
+    t = np.asarray(out["times_s"], float)
+    tau = np.asarray(out["motions"]["drive"]["effort"], float)
+    d = next(x for x in internal["drives"] if x["joint"] == mechanisms.DRIVER[mid])
+    qd = (np.full_like(t, d["value"]) if d["kind"] == "speed"
+          else d["amp"] * 2 * math.pi * d["freq"] * np.cos(2 * math.pi * d["freq"] * t))
+    p = tau * qd
+    stats = {"peak": float(np.max(np.abs(tau))), "rms": float(np.sqrt(np.mean(tau ** 2))), "peak_settled": float(np.max(np.abs(tau))),
+             "speed_max": float(np.max(np.abs(qd))) * RPM, "power_peak_w": float(np.max(np.abs(p))), "power_mean_w": float(np.mean(p))}
+    q0 = float((internal.get("initial") or {}).get(mechanisms.DRIVER[mid], 0.0))
+    q = q0 + (d["value"] * t if d["kind"] == "speed" else d["amp"] * np.sin(2 * math.pi * d["freq"] * t))
+    return {"stats": stats, "series_t": _downsample(t),
+            "series": {"q": _downsample(np.degrees(q)), "speed": _downsample(qd * RPM), "drive": _downsample(tau)}}
 
 
 def _drive_speed_max(internal, driver):

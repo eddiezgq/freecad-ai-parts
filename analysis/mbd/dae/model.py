@@ -129,7 +129,8 @@ def build(model: dict, base_dir=None) -> System:
             for c in range(3):
                 add("sph", "xyz"[c], s_i=si, s_j=sj, k=c)
         if typ in ("revolute", "cylindrical", "translational", "fixed"):
-            f, gg, h = frame_from_axis(jt["axis"]) if typ != "fixed" else frame_from_axis([0, 0, 1])
+            # 《多体动力学》书线索第 58 条（问渠 CAD 0.3.9 细则）：零向量轴原来抛数值库的“array must not contain infs or NaNs”
+            f, gg, h = frame_from_axis(_unit(jt["axis"], f"运动副 {jid} 的轴")) if typ != "fixed" else frame_from_axis([0, 0, 1])
             info.update(f=f, g=gg, h=h)
             add("dot1", "f_i·h_j", a_i=f, a_j=h) if typ != "fixed" else add("dot1", "f_i·g_j", a_i=f, a_j=gg)
             add("dot1", "g_i·h_j", a_i=gg, a_j=h)
