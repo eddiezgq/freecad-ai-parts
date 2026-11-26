@@ -459,6 +459,44 @@ def reactions(sysm: System, q, t, rows_idx, lam):
     return out, motions
 
 
+def self_stress(sysm: System, q, t, rel_tol=1e-8):
+    """自平衡力系：全部约束（含按冗余删掉的行）雅可比左零空间的每个基向量 y（Jᵀy = 0）——给反力加上任意倍的 y，
+    运动方程照样满足。《多体动力学》书第 19 章线索第 26 条（问渠 CAD 0.3.9 细则）：原来“完整”只看本运动副有没有删行，
+    平行四边形删的 7 行都在支点 O1–O3，曲柄—连杆铰 A1–A3 标“完整”，而自平衡力系 (e, −2, 1) 正作用在 A1–A3。
+    返回 (各运动副是否唯一 {jid: bool}, 力系表 [{jid: {"force", "torque"}}]，每个力系按最大分量归一)"""
+    rows = list(sysm.rows)
+    J = sysm.jac(q, t, rows)
+    if J.shape[0] == 0:
+        return {jid: True for jid in sysm.joints}, []
+    U, sv, _ = np.linalg.svd(J, full_matrices=True)
+    tol = max(J.shape) * np.finfo(float).eps * max(sv[0], 1.0) * 1e3
+    Y = U[:, int(np.sum(sv > tol)):]
+    if Y.shape[1] == 0:
+        return {jid: True for jid in sysm.joints}, []
+    idx = {id(r): k for k, r in enumerate(rows)}
+    wrench = {}
+    for jid, info in sysm.joints.items():
+        ks = [idx[id(sysm.rows[r])] for r in info["rows"]]
+        jb = info["j"] if info["j"] >= 0 else info["i"]
+        s_ = info["sj"] if info["j"] >= 0 else info["si"]
+        W = []
+        for c in range(Y.shape[1]):
+            gen = -J[ks].T @ Y[ks, c] if ks else np.zeros(sysm.n)
+            F, Nn = _gen_to_wrench(sysm, q, jb, gen)
+            sw = A_of(sysm.rp(q, jb)[1]) @ s_
+            W.append((F, Nn - np.cross(sw, F)))
+        wrench[jid] = W
+    scale = max((float(np.linalg.norm(np.r_[F, T])) for W in wrench.values() for F, T in W), default=0.0) or 1.0
+    unique = {jid: all(np.linalg.norm(np.r_[F, T]) <= rel_tol * scale for F, T in W) for jid, W in wrench.items()}
+    systems = []
+    for c in range(Y.shape[1]):
+        part = {jid: W[c] for jid, W in wrench.items() if np.linalg.norm(np.r_[W[c][0], W[c][1]]) > rel_tol * scale}
+        m = max((float(np.max(np.abs(np.r_[F, T]))) for F, T in part.values()), default=0.0)
+        if m > 0:
+            systems.append({jid: {"force": (F / m).tolist(), "torque": (T / m).tolist()} for jid, (F, T) in part.items()})
+    return unique, systems
+
+
 def _gen_to_wrench(sysm, q, b, gen):
     F = gen[7 * b:7 * b + 3]
     Qp = gen[7 * b + 3:7 * b + 7]

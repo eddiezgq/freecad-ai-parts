@@ -179,6 +179,36 @@ def _conservative(sysm) -> bool:
     return True
 
 
+def _force_elements(sysm, rec):
+    """弹簧、衬套、扭簧作用在 body_j 上的力（地面系，N）和对连接点的力矩（N·m）（线索第 26 条：原来衬套力不输出）。
+    做法：只留这一个力元、重力置零，调用同一个 body_wrenches（不另写一份力元公式）"""
+    out = {}
+    kinds = ("spring", "bushing", "rspring")
+    items = [(kind, f) for kind, f in sysm.forces if kind in kinds]
+    if not items:
+        return out
+    saved_f, saved_g = sysm.forces, sysm.g
+    try:
+        sysm.g = np.zeros(3)
+        for kind, f in items:
+            b = f["j"] if f["j"] >= 0 else f["i"]
+            sj = f.get("s_j") if f["j"] >= 0 else f.get("s_i")
+            sysm.forces = [(kind, f)]
+            Fs, Ts = [], []
+            for q, qd, t in zip(rec.q, rec.qd, rec.t, strict=True):
+                q, qd = np.asarray(q), np.asarray(qd)
+                F, N = sysm.body_wrenches(q, qd, t)
+                r = sysm.rp(q, b)[0]
+                P = r + A_of(sysm.rp(q, b)[1]) @ np.asarray(sj if sj is not None else np.zeros(3), float)
+                Fs.append(F[b].tolist())
+                Ts.append((N[b] - np.cross(P - r, F[b])).tolist())
+            out[f["id"]] = {"type": kind, "on": sysm.bodies[b].name, "force_n": Fs, "torque_n_m": Ts,
+                            "note": "作用在 body_j 上（body_j 是地面时为 body_i）" if f["j"] >= 0 else "作用在 body_i 上（body_j 是地面）"}
+    finally:
+        sysm.forces, sysm.g = saved_f, saved_g
+    return out
+
+
 def run_model(model: dict, base_dir=None):
     sysm = M.build(model, base_dir)
     an = model["analysis"]
@@ -239,6 +269,22 @@ def run_model(model: dict, base_dir=None):
         messages.append("运动副近冗余：{} 这组约束的奇异值只有最大值的 {:.2g}（制造误差级），按冗余处理；"
                         "被删约束在运动中实际拉开多少，见“约束残差（全部约束）”核查".format("、".join(nr["joints"]), nr["sigma_rel"]))
     bodies, joints, motions, reqs, energy, meas, cont = _series(rec, sysm)
+    stress = None
+    if joints and rec.q:
+        # 线索第 26 条：“完整”按全部约束的左零空间判每个运动副的反力是否唯一，报自平衡力系
+        uniq, stress = S.self_stress(sysm, np.asarray(rec.q[0]), float(rec.t[0]))
+        for jid, ok in uniq.items():
+            joints[jid]["complete"] = bool(ok)
+        bad = [jid for jid, ok in uniq.items() if not ok]
+        if bad:
+            messages.append("这些运动副的反力不唯一（有 {} 组自平衡力系可以叠加上去，取决于装配误差和刚度，刚体模型定不了）：{}。"
+                            "要可信的反力，把冗余的连接写成衬套并给刚度、装配公差".format(len(stress), "、".join(bad)))
+    fe = _force_elements(sysm, rec)
+    rigid_pairs = {frozenset((j["i"], j["j"])) for j in sysm.joints.values()}
+    both = [f["id"] for kind, f in sysm.forces if kind in ("bushing", "beam") and frozenset((f["i"], f["j"])) in rigid_pairs]
+    if both:
+        messages.append("衬套 / 梁 {} 与刚性运动副连在同样两个构件之间：刚性副方向上的载荷几乎全被刚性副吸走，衬套力很小；"
+                        "要分配载荷就把这里的刚性副也写成衬套".format("、".join(both)))
     flex = bodies.pop("_flex")
     act = bodies.pop("_act", {})
     resid = max(rec.resid) if rec.resid else 0.0
@@ -276,6 +322,7 @@ def run_model(model: dict, base_dir=None):
     data = {"model": model["name"], "analysis": typ, "dof": info["dof"], "redundant_constraints": info.get("redundant", []),
             "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas,
             "contacts": cont, "flex": flex, "actuators": act, "energy": energy,
+            "force_elements": fe, "self_stress": stress or [],
             "verification": verification,
             "solver": {k: info[k] for k in ("rhs", "segments", "repartitions", "steps", "rejected", "jacobians", "newton",
                                                        "newton_fail", "error_fail", "h_min", "h_max")
