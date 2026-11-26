@@ -43,6 +43,11 @@ def test_unpublished_items_named_then_usable(tmp_path, monkeypatch):
 @pytest.mark.parametrize("mid,vals", [
     ("HAAS-ST-10", {"X": (400, 30500), "Z": (406, 30500), "rpm": 6000, "kw": 11.2}),
     ("HAAS-VF-2", {"X": (762, 25400), "Y": (406, 25400), "Z": (508, 25400), "rpm": 8100, "kw": 22.4}),
+    ("HAAS-VF-1", {"X": (508, 25400), "Y": (406, 25400), "Z": (508, 25400), "rpm": 8100, "kw": 22.4}),
+    ("HAAS-VF-3", {"X": (1016, 25400), "Y": (508, 25400), "Z": (635, 25400), "rpm": 8100, "kw": 22.4}),
+    ("HAAS-VF-4", {"X": (1270, 25400), "Y": (508, 25400), "Z": (635, 25400), "rpm": 8100, "kw": 22.4}),
+    ("HAAS-ST-20", {"X": (426, 24000), "Z": (572, 24000), "rpm": 4000, "kw": 14.9}),
+    ("HAAS-ST-30", {"X": (478, 24000), "Z": (826, 24000), "rpm": 3400, "kw": 22.4}),
     ("DN-LYNX-2100A", {"X": (410, 30000), "Z": (340, 36000), "rpm": 6000, "kw": 15.0}),
     ("OKUMA-LB3000EXII-L", {"X": (520, 25000), "Z": (565, 30000), "rpm": 5000, "kw": 22.0}),
     ("DMG-CLX-350-V1", {"X": (485, 30000), "Z": (540, 36000), "rpm": 5000, "kw": 16.5}),
@@ -64,8 +69,9 @@ def test_haas_values_from_spec_pages(mid, vals):
     for k, (span, rapid) in ((k, v) for k, v in vals.items() if k in ax):
         assert (ax[k]["max"] - ax[k]["min"], ax[k]["rapid"]) == (span, rapid), k
     assert (m["spindle"]["max_rpm"], m["spindle"]["power_kw"]) == (vals["rpm"], vals["kw"])
-    if mid == "HAAS-VF-2":
-        assert m["tool_change_s"] == 4.5 and m["tool"]["gauge_point_mm"][2] == 610 - 254
+    gauge = {"HAAS-VF-2": 610 - 254, "HAAS-VF-1": 610 - 254, "HAAS-VF-3": 742 - 317.5, "HAAS-VF-4": 742 - 317.5}   # 主轴端面到工作台最大值 − Z 行程一半
+    if mid in gauge:
+        assert m["tool_change_s"] == 4.5 and m["tool"]["gauge_point_mm"][2] == gauge[mid]
 
 
 def test_vf2_mill_program_releases():

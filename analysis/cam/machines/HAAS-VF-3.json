@@ -1,0 +1,70 @@
+{
+ "format": "cam-machine/1",
+ "id": "HAAS-VF-3",
+ "name": "Haas VF-3 立式加工中心",
+ "example": false,
+ "source": "厂商公开规格页 https://haascnc.com/machines/vertical-mills/vf-series/models/medium/vf-3（2026-11-25 用浏览器读哈斯官网规格数据原文）：行程 X 1016 mm、Y 508 mm、Z 635 mm；主轴端面到工作台 107 ~ 742 mm；快移 X、Y、Z 25.4 m/min；主轴最高 8100 r/min、最大功率 22.4 kW（30 hp）、最大扭矩 122 N·m @ 2000 r/min；换刀 刀到刀 4.20 s、切削到切削 4.50 s（这里取 4.50）；20 把刀盘式刀库。按 ADR-0106 E2 的约定放：机床坐标原点在工作台面中心，X、Y 零点在行程中间（±508、±254），Z 零点在行程中间（−317.5 ~ 317.5），主轴端面在 Z0 时离工作台 742 − 317.5 = 424.5 mm——按实际装夹改；规格页没公开：传动效率、部件外形",
+ "kind": "mill",
+ "controller": {
+  "family": "other",
+  "model": "Haas Control"
+ },
+ "spindle": {
+  "max_rpm": 8100,
+  "power_kw": 22.4
+ },
+ "axes": [
+  {
+   "id": "X",
+   "type": "linear",
+   "carrier": "workpiece",
+   "direction": [
+    -1,
+    0,
+    0
+   ],
+   "min": -508.0,
+   "max": 508.0,
+   "rapid": 25400.0
+  },
+  {
+   "id": "Y",
+   "type": "linear",
+   "carrier": "workpiece",
+   "direction": [
+    0,
+    -1,
+    0
+   ],
+   "min": -254.0,
+   "max": 254.0,
+   "rapid": 25400.0
+  },
+  {
+   "id": "Z",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "min": -317.5,
+   "max": 317.5,
+   "rapid": 25400.0
+  }
+ ],
+ "tool": {
+  "direction": [
+   0,
+   0,
+   1
+  ],
+  "gauge_point_mm": [
+   0,
+   0,
+   424.5
+  ]
+ },
+ "tool_change_s": 4.5
+}

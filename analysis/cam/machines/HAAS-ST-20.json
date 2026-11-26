@@ -1,0 +1,45 @@
+{
+ "format": "cam-machine/1",
+ "id": "HAAS-ST-20",
+ "name": "Haas ST-20 数控车床",
+ "example": false,
+ "source": "厂商公开规格页 https://haascnc.com/machines/lathes/st/models/standard/st-20（2026-11-25 用浏览器读哈斯官网规格数据原文）：行程 X 213 mm、Z 572 mm；快移 X、Z 24.0 m/min；主轴最高 4000 r/min、最大功率 14.9 kW（20 hp）、最大扭矩 203 N·m @ 500 r/min；12 工位刀塔。规格页没公开：各轴零点（按 ADR-0106 E2 的约定：X 零点在主轴中心线、直径 0 ~ 2 × 213；Z 工件零点放在行程中间 −286 ~ 286，按实际装夹改）、换刀点、换刀时间、传动效率、部件外形——按实机填",
+ "kind": "lathe",
+ "controller": {
+  "family": "other",
+  "model": "Haas Control"
+ },
+ "spindle": {
+  "max_rpm": 4000,
+  "power_kw": 14.9
+ },
+ "axes": [
+  {
+   "id": "X",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    1,
+    0,
+    0
+   ],
+   "min": 0.0,
+   "max": 426.0,
+   "rapid": 24000.0,
+   "diameter_mode": true
+  },
+  {
+   "id": "Z",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "min": -286.0,
+   "max": 286.0,
+   "rapid": 24000.0
+  }
+ ]
+}
