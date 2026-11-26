@@ -11,7 +11,7 @@ import numpy as np
 
 from analysis.mbd.dae.expr import ExprError, compile_expr
 
-PID_TRACKING_S = 0.05      # 反算法抗积分饱和的跟踪时间常数 T_t（s）；能在模型里改要等 schema（问渠 CAD 0.3.8 细则）
+PID_TRACKING_S = 0.05      # 反算法抗积分饱和的跟踪时间常数 T_t（s）的缺省值；模型里用 antiwindup_tracking_s 改（ADR-0130）
 
 
 class ControlError(ValueError):
@@ -243,7 +243,8 @@ class Controllers:
                 # 原来“饱和且误差同向就停积分”是开关，停积分后 u_raw 回落到限幅以下、积分恢复、又越过限幅，解贴着限幅来回切换，
                 # 变步长积分卡住（书里转台 2 s 算不完）。反算法连续，没有切换
                 ki = it["c"].get("ki", 0.0)
-                d[it["o"]] = e + ((u - raw) / (ki * PID_TRACKING_S) if ki else 0.0)
+                tt = float(it["c"].get("antiwindup_tracking_s", PID_TRACKING_S))
+                d[it["o"]] = e + ((u - raw) / (ki * tt) if ki else 0.0)
                 if it["filt"]:
                     tf = it["c"].get("derivative_filter_s", 1e-3)
                     d[it["o"] + 1] = (e - xc[it["o"] + 1]) / tf
