@@ -1,0 +1,12 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/4",
+  "request_key": "0d173a7c37291765c226eaf452dc30e77fdb1b5b42f16c10264cc425dafdc5d0",
+  "response": {
+    "id": "msg_011ChS9iBdTM5RKZiC8eKY3c",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {}
+  }
+}

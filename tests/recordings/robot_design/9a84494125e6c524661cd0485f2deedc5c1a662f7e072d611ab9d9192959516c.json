@@ -1,0 +1,52 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-cell/1",
+  "request_key": "9a84494125e6c524661cd0485f2deedc5c1a662f7e072d611ab9d9192959516c",
+  "response": {
+    "id": "msg_011ChS9hKM1yRmJBZtPEpjhf",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "cycle": {
+        "quote": "节拍 3 s/片",
+        "unit": "s",
+        "value": 3
+      },
+      "part_length": {
+        "quote": "最大 600 mm × 400 mm",
+        "unit": "mm",
+        "value": 600
+      },
+      "part_mass": {
+        "quote": "裁片单片质量不超过 100 g",
+        "unit": "g",
+        "value": 100
+      },
+      "part_width": {
+        "quote": "最大 600 mm × 400 mm",
+        "unit": "mm",
+        "value": 400
+      },
+      "questions": [
+        "取料区中心到放料点的水平距离：原话只给了沿裁床长度方向的 1500 mm，另在裁床宽度方向偏 500 mm，没有直接给出两中心的水平距离，这里没有自行合成。请确认 1500 mm 只是长度方向的分量，还是总距离。",
+        "送料台在裁床宽度方向偏 500 mm，偏向哪一侧？放料点是否就是送料台中心？",
+        "「按最远的一叠算」：各叠的具体位置和叠数没有给出，只知道各叠中心都在 1200 mm × 800 mm 的取料区内。最远一叠是否就是取料区离放料点最远的角？",
+        "「机器人不能占用车间通道」：通道的位置和宽度没有给出，机器人底座可以装在哪里、有多大的占地范围？"
+      ],
+      "same_height": {
+        "quote": "裁床台面和送料台面同高"
+      },
+      "stack_height": {
+        "quote": "每叠最高 100 mm",
+        "unit": "mm",
+        "value": 100
+      },
+      "work_height": {
+        "quote": "离地 850 mm",
+        "unit": "mm",
+        "value": 850
+      }
+    }
+  }
+}

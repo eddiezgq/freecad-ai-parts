@@ -1,0 +1,284 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/4",
+  "request_key": "fa53c4bf5ea10b8a0f29f6d570c41e27cf06fce7cf9a1e4dc135a9eea853c410",
+  "response": {
+    "id": "msg_011ChSA44dpPUY7KiTHnNpju",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "candidates": [
+        {
+          "base": {
+            "height_mm": 0,
+            "mount": "table"
+          },
+          "end_effector": {
+            "offset_mm": [
+              0,
+              0,
+              -100
+            ],
+            "parent": "tool_head",
+            "type": "vacuum"
+          },
+          "format": "robot-concept/1",
+          "joints": [
+            {
+              "axis": [
+                1,
+                0,
+                0
+              ],
+              "child": "bridge",
+              "id": "j1",
+              "lead_mm": 200,
+              "origin_mm": [
+                0,
+                0,
+                700
+              ],
+              "parent": "base",
+              "range_mm": [
+                -700,
+                2600
+              ],
+              "transmission": "belt_linear",
+              "type": "prismatic"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "carriage",
+              "id": "j2",
+              "lead_mm": 200,
+              "origin_mm": [
+                0,
+                0,
+                0
+              ],
+              "parent": "bridge",
+              "range_mm": [
+                -500,
+                600
+              ],
+              "transmission": "belt_linear",
+              "type": "prismatic"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "z_column",
+              "id": "j3",
+              "lead_mm": 25,
+              "origin_mm": [
+                0,
+                0,
+                0
+              ],
+              "parent": "carriage",
+              "range_mm": [
+                -10,
+                130
+              ],
+              "transmission": "ballscrew",
+              "type": "prismatic"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "tool_head",
+              "id": "j4",
+              "origin_mm": [
+                0,
+                0,
+                -600
+              ],
+              "parent": "z_column",
+              "range_deg": [
+                -100,
+                100
+              ],
+              "ratio": 10,
+              "transmission": "reducer",
+              "type": "revolute"
+            }
+          ],
+          "kind": "gantry",
+          "links": [
+            {
+              "id": "bridge",
+              "length_mm": 1500,
+              "material": "6061-T6",
+              "section": {
+                "height_mm": 150,
+                "width_mm": 100
+              },
+              "shape": "profile"
+            },
+            {
+              "id": "carriage",
+              "length_mm": 200,
+              "material": "6061-T6",
+              "section": {
+                "thickness_mm": 20,
+                "width_mm": 150
+              },
+              "shape": "plate"
+            },
+            {
+              "id": "z_column",
+              "length_mm": 600,
+              "material": "6061-T6",
+              "section": {
+                "id_mm": 34,
+                "od_mm": 40
+              },
+              "shape": "tube"
+            },
+            {
+              "id": "tool_head",
+              "length_mm": 100,
+              "material": "6061-T6",
+              "section": {
+                "thickness_mm": 8,
+                "width_mm": 400
+              },
+              "shape": "plate"
+            }
+          ],
+          "name": "table_gantry_xyz_c_vacuum",
+          "reason": "台面龙门式：X、Y、Z 三个直线轴加一个竖直轴转动 C。重复定位 ±1 mm 用直线模组加伺服容易做到；取放点之间是直线，节拍 3 s 内靠 X 轴高速平移。机架装在台面上、横梁在台面上方，不落地到车间通道。末端用大面积低压真空吸盘，不伤布料。",
+          "tasks": [
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                -600,
+                -400,
+                0
+              ],
+              "move_s": 0.15,
+              "name": "lift_at_pick",
+              "to_mm": [
+                -600,
+                -400,
+                110
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0.15,
+              "from_mm": [
+                -600,
+                -400,
+                110
+              ],
+              "move_s": 1.05,
+              "name": "transfer_and_rotate_to_place",
+              "to_mm": [
+                1500,
+                500,
+                0
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                1500,
+                500,
+                0
+              ],
+              "move_s": 0.15,
+              "name": "lift_at_place",
+              "to_mm": [
+                1500,
+                500,
+                110
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                1500,
+                500,
+                110
+              ],
+              "move_s": 1.05,
+              "name": "return_to_pick",
+              "to_mm": [
+                -600,
+                -400,
+                110
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0.15,
+              "from_mm": [
+                -600,
+                -400,
+                110
+              ],
+              "move_s": 0.15,
+              "name": "lower_at_pick",
+              "to_mm": [
+                -600,
+                -400,
+                0
+              ],
+              "type": "cartesian_move"
+            }
+          ],
+          "workspace": {
+            "points_mm": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                1500,
+                500,
+                0
+              ],
+              [
+                -600,
+                -400,
+                0
+              ],
+              [
+                600,
+                -400,
+                0
+              ],
+              [
+                600,
+                400,
+                0
+              ],
+              [
+                -600,
+                400,
+                0
+              ]
+            ]
+          }
+        }
+      ],
+      "reason": "只提一个台面龙门构型（X、Y、Z 直线轴加竖直 C 轴），取舍如下。①精度：直线轴的重复定位 ±1 mm 容易保证，不像长臂转动关节会被臂长放大。②节拍：取放距离 1500 mm，最远角到放料点约 2290 mm。每次平移 1.05 s、抬放各 0.15 s，停留共 0.3 s，一圈 2.85 s，在 3.0 s 内。平移峰值速度约 2.9 m/s，加速度约 11 m/s²，X 轴选件时要核直线模组的速度和加速度。③通道：机架和横梁装在台面上方，不占车间通道；台面宽度要待确认，需覆盖 y 方向约 -500 到 600 mm 以及 X 向导轨。④C 轴：竖直轴 ±100° 满足放料转 90°，转动在平移段内完成。⑤末端：用多分区大面积低压真空吸盘加软质吸嘴。针刺易勾丝、损伤布料，所以不选。透气布料的吸附力、是否一次吸起多片、会不会留印，在选件后按公开数据核，查不到的记待确认。⑥与长臂转动方案相比：转动方案的臂展要 1400 mm 以上，不能一次覆盖取料区和放料区，惯量大，而且难达到 3 s 节拍，所以不采用。龙门的代价是占台面上方空间，横梁移动质量较大，X 轴选件要留余量。\"",
+      "recommend": 0
+    }
+  }
+}

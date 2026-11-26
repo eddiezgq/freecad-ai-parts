@@ -1,0 +1,43 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/4",
+  "request_key": "19d503a40f7b1ff9106fe22df920f09a35dab368439ada694746aba8fe6e567b",
+  "response": {
+    "id": "msg_011ChS9gV8r1qZkJN8wT1gAY",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "for_people": [
+        {
+          "quote": "不能损伤布料"
+        },
+        {
+          "quote": "机器人不能占用车间通道"
+        }
+      ],
+      "kind": "other",
+      "kind_quote": "裁片上下料机器人",
+      "payload": {
+        "quote": "裁片单片质量不超过 100 g",
+        "unit": "kg",
+        "value": 0.1
+      },
+      "questions": [
+        "机器人形式没有指定（串联臂、龙门、移动底座等），请确认；目前按 other 记录。",
+        "机器人底座/安装位置没说（装在裁床边、地面、还是桌面或吊装），底座相对取料区和送料台的位置也没给，所以无法确定臂展，请确认。",
+        "车间通道的位置和宽度没给，请说明机器人可占用的范围。",
+        "节拍 3 s/片（按最远一叠算）没有对应的设计条件字段，也没给关节角速度上限，请确认关节速度是否有限制。",
+        "100 g 是否只是裁片质量？吸盘/夹爪等末端工具的质量是否另算？",
+        "取放裁片用什么方式（吸盘、针刺、夹爪）？这会影响是否损伤布料，也影响末端质量。",
+        "每叠最高 100 mm 取料时，是否需要考虑取料高度逐片下降？请确认取料高度范围。",
+        "自由度数（轴数）没有指定，是否有要求？"
+      ],
+      "repeatability": {
+        "quote": "放料定位精度 ±1 mm",
+        "unit": "mm",
+        "value": 1
+      }
+    }
+  }
+}
