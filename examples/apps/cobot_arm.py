@@ -342,7 +342,7 @@ def main(argv=None):
         run.add("电机法兰定制要求", "ok" if not missing else "unknown",
                 f"{len(rows)} 条，随减速器订货发给厂商：" + "；".join(rows)
                 + (f"；电机样本缺：{'、'.join(missing)}" if missing else "")
-                + "。C3 在厂商确认前按规定记“待确认”，不是缺设计", rows=rows, missing=missing)
+                + "。C3 在厂商确认前按规定记“待确认”，不是缺设计", rows=rows, missing=missing, mentions_ok=True)
     run.guard("电机法兰定制要求", flanges)
 
     # 4 整臂多体有限元：重力 + 满载
