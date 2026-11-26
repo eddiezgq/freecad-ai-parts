@@ -207,8 +207,9 @@ def masses(concept: Mapping, picks: Mapping[str, Mapping], gripper_kg: float | N
     return {"bodies": out, "missing": missing}
 
 
-def mjcf(concept: Mapping, bodies: Mapping[str, list]) -> str:
-    """MJCF（米、千克）：每个轴一个构件，原点在该关节（= 滑台面中心），沿轴线滑动；质量为集中质量（小球几何）"""
+def mjcf(concept: Mapping, bodies: Mapping[str, list], origins: Mapping[str, list] | None = None) -> str:
+    """MJCF（米、千克）：每个轴一个构件，原点在该关节（= 滑台面中心），沿轴线滑动；质量为集中质量（小球几何）。
+    origins：{关节: 构件原点在上一构件坐标系里的位置 mm}，三维装配后按真实的滑台面中心给（assist.gantry_cad）；不给时用方案的关节原点"""
     from analysis.robot import kinematics as K
 
     m = K.build(concept)
@@ -232,18 +233,19 @@ def mjcf(concept: Mapping, bodies: Mapping[str, list]) -> str:
     xml = ""
     for a in reversed(ax):
         j = next(x for x in m.joints if x.id == a["joint"])
-        xml = (f'<body name="{j.child}" pos="{f(j.origin / 1000)}"><joint name="{j.id}" type="slide" axis="{f(j.axis)}"/>'
+        o = np.asarray((origins or {}).get(a["joint"], j.origin), float)
+        xml = (f'<body name="{j.child}" pos="{f(o / 1000)}"><joint name="{j.id}" type="slide" axis="{f(j.axis)}"/>'
                f'{geoms(a["joint"], bodies[a["joint"]])}{xml}</body>')
     return f'<mujoco model="{concept.get("name", "gantry")}"><worldbody>{xml}</worldbody></mujoco>'
 
 
-def dynamics(concept: Mapping, bodies: Mapping, cyc: Mapping) -> dict:
+def dynamics(concept: Mapping, bodies: Mapping, cyc: Mapping, origins: Mapping | None = None) -> dict:
     import analysis
     from analysis.robot import kinematics as K
 
     m = K.build(concept)
     links = [next(x for x in m.joints if x.id == a["joint"]).child for a in axes(concept)]
-    r = analysis.run("mbd", {"model": {"kind": "mjcf", "xml": mjcf(concept, bodies)}, "duration_s": cyc["total_s"] + 0.1,
+    r = analysis.run("mbd", {"model": {"kind": "mjcf", "xml": mjcf(concept, bodies, origins)}, "duration_s": cyc["total_s"] + 0.1,
                              "sample_hz": SAMPLE_HZ, "initial": cyc["initial"], "drives": cyc["drives"], "reactions": links})
     if r.get("status") != "ok":
         raise BuildError("多体动力学没算成：" + "；".join(r.get("messages") or []))
@@ -366,7 +368,9 @@ def motor_need(lib, a: Mapping, p: Mapping, ld: Mapping, cyc: Mapping) -> dict:
                     f"{rpm:.0f} rpm；零件库里没有配费斯托模组的电机与电机套件，电机没选"}
 
 
-def build(concept: Mapping, cond: Mapping) -> dict:
+def build(concept: Mapping, cond: Mapping, layout=None, start: Mapping | None = None) -> dict:
+    """选件循环。layout(picks) 给定时（三维装配后复核，assist.gantry_cad），每轮的集中质量与构件原点由它按当前选件给出：
+    返回 {"bodies", "missing", "origins"}；start 是起始选件（第一步的结果），不给时从“只有杆件与工件”开始"""
     lib = _library()
     concept = copy.deepcopy(dict(concept))
     part = cond.get("part_mass")
@@ -375,11 +379,12 @@ def build(concept: Mapping, cond: Mapping) -> dict:
     ax = axes(concept)
     cyc = cycle(concept)
     grip = pick_gripper(lib, concept, cond, cyc["tool"]["accel_m_s2"])
-    picks: dict[str, dict] = {}
+    picks: dict[str, dict] = {j: dict(p) for j, p in (start or {}).items()}
     rounds = []
     for _ in range(MAX_ROUNDS):
-        ms = masses(concept, picks, grip.get("mass_kg"), float(part))
-        res = dynamics(concept, ms["bodies"], cyc)
+        ms = (masses(concept, picks, grip.get("mass_kg"), float(part)) if layout is None
+              else layout(picks, grip.get("mass_kg"), float(part)))
+        res = dynamics(concept, ms["bodies"], cyc, ms.get("origins"))
         loads = axis_loads(concept, res)
         new = {}
         for a in reversed(ax):                         # 末端那一轴先选（它的质量压在前面的轴上）
