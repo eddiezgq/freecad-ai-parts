@@ -3,15 +3,17 @@
 `requirement.txt` 是需求原话：在案例 B 上加了取料区（长 1200 mm、宽 800 mm，各叠中心都在区内）、送料台侧偏 500 mm、放料最多转 90°。
 **这三个数是 Claude 定的假设值，不是调研数**（项目负责人 2026-11-26 同意先这样取、报告里标明）；改了数整条重跑。案例 B 不变，两案并排对照。
 
-现在做到 **44.5.6.1 构型初筛**（回放 CI 上 Claude 的录制，不调用真实 AI）：
+现在做到 **44.5.6.2 选件与节拍多体动力学**（构型初筛回放 CI 上 Claude 的录制，不调用真实 AI；选件全是确定性计算，约 2 秒）：
 
 ```bash
 python -m assist.robot_design examples/robots/sewing-loader-xyz/requirement.txt --replay tests/recordings/robot_design --screen-only -o examples/robots/sewing-loader-xyz/out/concept-result.json
+python -m assist.gantry_build examples/robots/sewing-loader-xyz/out/concept-result.json -o examples/robots/sewing-loader-xyz/out/build-result.json
 ```
 
 | 文件 | 内容 |
 | --- | --- |
 | `out/concept-result.json` | AI 摘的条件（带原话引用；节拍与取放条件、取放布置各单独问一次）、AI 的问题、每轮构型与初筛、采用哪个 |
+| `out/build-result.json` | 一个节拍（从最远一叠取料，去放料点那段同时转 90°，2.96 s）的多体动力学：X、Y、Z 推力与滑台受力、C 轴力矩与转速；直线模组、转动模组与抓手的选件、重复定位精度、待确认项 |
 
 第 1 轮 AI 提了两个构型：悬臂龙门、双侧支撑龙门，都是 X–Y–Z 三轴加末端 C 轴转动、多区真空吸盘。两个都没过：取料区四个角没按顺序绕一圈
 （程序量出对角线 1442 mm，要求的矩形是 1200 × 800 mm）。交回后第 2 轮两个都通过，采用悬臂龙门：节拍 2.96 s ≤ 3 s（从离放料点最远的角取料，
@@ -19,6 +21,19 @@ python -m assist.robot_design examples/robots/sewing-loader-xyz/requirement.txt 
 
 还没判的（下一步选件后判）：末端最高速度 3.31 m/s、加速度 14.4 m/s²（案例 B 是 2.5 m/s、12.5 m/s²），直线模组做不做得到；
 C 轴 0.92 s 内转 90° 要的转速与力矩；抓取力至少 4.84 N；重复定位精度 ±1 mm。
+
+选件结果（44.5.6.2）：
+
+| 轴 | 节拍里最高 | 推力 / 力矩 | 选中 | 质量 | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| X（长 2400 mm 行程） | 3.04 m/s、13.2 m/s² | 158 N；滚转力矩 58 N·m、偏摆 65 N·m | 费斯托 EGC-120-TB-KF-GK | 46.5 kg | 悬臂的 Y 轴挂在 X 滑台一侧，力矩大；EGC-80 推力够但载荷比较系数 2.84 > 1 |
+| Y（1000 mm） | 1.30 m/s、5.7 m/s² | 22 N | EGC-70-TB-KF-GK | 6.25 kg | 载荷比较系数 0.46 |
+| Z（300 mm） | 0.72 m/s、12.0 m/s² | 16 N | EGC-50-TB-KF-GK | 1.19 kg | 载荷比较系数 0.96，偏紧 |
+| C（转 90° / 0.92 s） | 21.8 rpm | 0.043 N·m（工件薄板惯量 0.0043 kg·m² × 角加速度） | ROBOTIS XM540-W270 | 0.165 kg | 连续额定力矩厂商没给（S2 待确认） |
+
+吸盘 SPF 15（要 4.84 N）；重复定位精度三轴最坏相加 ±0.24 mm ≤ ±1 mm；节拍 2.96 s ≤ 3 s。
+和案例 B 比，最大的代价在 X 轴：B 的 X 是 EGC-80，B2 因为 Y 轴悬臂换成 EGC-120（46.5 kg）。AI 第 1 轮提的“双侧支撑龙门”能把这个力矩分到两根导轨上，
+留作对照（44.5.6.4 两案对照页里写）。待确认：两根型材杆件（AI 写成 profile）截面不全、质量算不出，三维装配那一步按真实零件算；电机库里没有。
 
 录制前的几次真实运行（都如实记在 ADR-0115 44.5.6.1）：原话标题写了构型被 AI 读成自由度 4（换算的数不收，标题去掉）；
 取放距离按方向分开给，第一次列条件时 AI 没填直线距离（取放布置里加“沿长边的距离”）；取料区尺寸引用少抄一个字被退回（原话把长、宽分开写）；
