@@ -7,6 +7,7 @@ n 是单位公法线，方向为“作用在 b 上的法向力”的方向，δ 
 
 from __future__ import annotations
 
+import functools
 import math
 
 import numpy as np
@@ -425,13 +426,16 @@ def contact_wrenches(sysm, q, qd, f, F, N):
     if f["swap"]:
         cs = _flip(cs)
     out = []
-    for Pa, Pb, n, dep in cs:
+    for i, (Pa, Pb, n, dep) in enumerate(cs):
         M = 0.5 * (Pa + Pb)
         va, vb = _vel(sysm, q, qd, ga.body, M), _vel(sysm, q, qd, gb.body, M)
         dv = vb - va
         depd = -float(dv @ n)
-        damp = f["c"] if dep >= f["d"] else f["c"] * (dep / f["d"]) ** 2 * (3 - 2 * dep / f["d"])
-        Fn = max(0.0, f["k"] * dep ** f["e"] + damp * depd)
+        if "rest" in f:
+            Fn = _restitution_force(f, dep, depd, _eff_mass(sysm, q, (ga.body, gb.body), M, n))
+        else:
+            damp = f["c"] if dep >= f["d"] else f["c"] * (dep / f["d"]) ** 2 * (3 - 2 * dep / f["d"])
+            Fn = max(0.0, f["k"] * dep ** f["e"] + damp * depd)
         Fv = Fn * n
         Ft = np.zeros(3)
         fr = f.get("friction")
@@ -444,6 +448,64 @@ def contact_wrenches(sysm, q, qd, f, F, N):
         sysm._add(F, N, q, ga.body, -(Fv + Ft), M)
         out.append((M, Fn, float(np.linalg.norm(Ft))))
     return out
+
+
+REST_STICK = 0.01        # 碰撞速度低于 min_impact_speed 时按这个恢复系数算（近似完全非弹性，零件落下停得住）
+
+
+def _restitution_force(f, dep, depd, m_eff):
+    """按恢复系数的法向力（ADR-0130，《多体动力学》书第 21 章线索第 31 条）。
+    原来常值阻尼在 penetration_mm 内由 0 升起，低速碰撞几乎不耗能（0.01 m/s 落下 e = 0.998），弹跳球停不住。
+    F = k·δ^n·(1 + χ·δ̇/V)，V = √(δ̇² + 2kδ^(n+1)/((n+1)·m_eff)) 是由当前状态的能量估的碰撞速度——不记历史
+    （变步长积分器的试步不按时间顺序，记“第一次碰到时的速度”不可靠）。这个式子无量纲后与速度、质量无关，
+    χ 由一维碰撞数值标定（_chi），实际恢复系数在各速度、各质量下都等于 e_r（自由刚体；有运动副时 m_eff 按自由构件近似）。
+    V 低于 min_impact_speed 按 REST_STICK 算（近似完全非弹性）"""
+    el = f["k"] * dep ** f["e"]
+    V = math.sqrt(max(depd * depd + 2 * el * dep / ((f["e"] + 1) * m_eff), 0.0))
+    er = f["rest"] if V >= f["vmin"] else REST_STICK
+    return max(0.0, el * (1 + _chi(er, f["e"]) * depd / max(V, f["vmin"])))
+
+
+def _eff_mass(sysm, q, bodies, P, n):
+    """接触点沿法向的等效质量（两构件按自由刚体）：1/m_eff = Σ 1/m + (r×n)ᵀ I⁻¹ (r×n)"""
+    inv = 0.0
+    for b in bodies:
+        if b < 0:
+            continue
+        body = sysm.bodies[b]
+        r, p = sysm.rp(q, b)
+        A = A_of(p)
+        w = np.cross(P - r, n)
+        inv += 1.0 / body.mass + float(w @ (A @ np.linalg.solve(body.J, A.T @ w)))
+    return 1.0 / inv if inv > 0 else math.inf
+
+
+@functools.lru_cache(maxsize=64)
+def _chi(er, n):
+    """标定 χ：无量纲一维碰撞 x″ = −x^n(1 + χ·x′/V)，V = √(x′² + 2x^(n+1)/(n+1))，x(0) = 0、x′(0) = 1，
+    分离时 −x′ = er"""
+    if er >= 1.0:
+        return 0.0
+    from scipy.integrate import solve_ivp
+    from scipy.optimize import brentq
+
+    def e_of(chi):
+        def rhs(_, y):
+            x, v = max(y[0], 0.0), y[1]
+            V = math.sqrt(v * v + 2 * x ** (n + 1) / (n + 1))
+            return [v, -x ** n * (1 + chi * v / V) if V > 0 else 0.0]
+
+        def out(_, y):
+            return y[0]
+        out.terminal, out.direction = True, -1
+        sol = solve_ivp(rhs, (0, 1e3), [1e-12, 1.0], events=out, rtol=1e-11, atol=1e-14, max_step=0.05)
+        ev = sol.y_events[0]
+        return -ev[0][1] if len(ev) else 0.0          # 阻尼大到弹不回来：恢复系数 0
+
+    hi = 1.0
+    while e_of(hi) > er:
+        hi *= 2
+    return brentq(lambda c: e_of(c) - er, 0.0, hi, xtol=1e-12)
 
 
 def _pose(sysm, q, b):

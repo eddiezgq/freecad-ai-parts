@@ -432,6 +432,11 @@ def _contacts(model, sysm, body, local):
         e = float(c.get("exponent", 1.5))
         f = {"id": cid, "ga": ga, "gb": gb, "fn": fn, "swap": swap, "k": c["stiffness_n_per_mm"] * (1 / MM) ** e, "e": e,
              "c": c.get("damping_n_s_per_mm", 0.0) / MM, "d": c.get("penetration_mm", 0.01) * MM}
+        if "restitution" in c:                                  # ADR-0130：按恢复系数算阻尼（线索第 31 条）
+            if not 0 < c["restitution"] <= 1:
+                raise ModelError(f"接触对 {cid}：restitution 要在 (0, 1] 之间")
+            f["rest"] = float(c["restitution"])
+            f["vmin"] = float(c.get("min_impact_speed_mm_s", 1.0)) * MM
         fr = c.get("friction")
         if fr:
             if fr["transition_speed_mm_s"] <= fr["stiction_speed_mm_s"]:
