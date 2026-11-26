@@ -3002,6 +3002,8 @@
 "；刀具没写伸出长和刀柄外形，刀杆、刀柄的碰撞没查": "; the tool has no stick-out or holder outline, so shank and holder collisions were not checked",
 "；刀具没写伸出长，刀杆的碰撞没查": "; the tool has no stick-out, so shank collisions were not checked",
 "；刀具没写刀柄外形，刀柄的碰撞没查": "; the tool has no holder outline, so holder collisions were not checked",
+"；另有 {} 组法向垂直于轴线的贴合平面（键、花键侧面）和轴向止推面，相对转不动也滑不动": "; there are also {} pairs of mating planes with normals perpendicular to the axis (key or spline flanks) and an axial thrust face, so the parts can neither turn nor slide relative to each other",
+"；另有 {} 组法向垂直于轴线的贴合平面（键、花键侧面），转不动，只能沿轴线滑动": "; there are also {} pairs of mating planes with normals perpendicular to the axis (key or spline flanks), so the parts cannot turn and can only slide along the axis",
 "；旁边的面挡着的地方（球头刀会切进去）没走刀": "; where neighbouring faces are in the way (the ball would cut into them) there is no path",
 "先在三维视图里点边": "First pick an edge in the 3D view",
 "先在三维视图里点面": "First pick a face in the 3D view",
