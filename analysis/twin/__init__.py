@@ -4,6 +4,8 @@
 设置：
   parts: [{"instance": "reducer", "component": {完整组件}}]（可由 parts_from_system(系统, 取组件) 生成）
   records: [{"instance", "hours", "output_torque_avg_nm", "output_torque_max_nm", "output_speed_rpm" 或 "input_speed_rpm"}（减速器）,
+            output_torque_avg_nm 是**当量扭矩** T_av = (Σ|n|·t·|T|³ / Σ|n|·t)^(1/3)（按转速、时间加权的三次方平均，减速器样本的定义），
+            不是算术平均；output_speed_rpm 是平均转速 Σ|n|·t / Σt。有扭矩—转速时间序列时用 equivalent_load() 算这两个数
             {"instance", "hours", "radial_load_n", "speed_rpm"}（轴承：当量动载荷与转速）]，可由 read_csv(路径) 读入
   recent_records: 估算剩余寿命用的最近记录条数（缺省 30）
   whatif: {"load_factor": 0.8, "speed_factor": 1.0}（可选）
@@ -28,7 +30,7 @@ MODULE = {
     "python": [], "solvers": [], "install": "",
 }
 LIMITS = ["寿命为厂商样本寿命式与 ISO 281 基本额定寿命（L10，90% 可靠度），未计润滑、污染修正",
-          "运行记录中的扭矩、载荷为每段的平均值；段内的波动按平均值的三次方计入会偏乐观",
+          "运行记录中的扭矩是每段的当量扭矩（按转速、时间加权的三次方平均）；给成算术平均会偏乐观（寿命多算）",
           "剩余寿命按最近记录的消耗速度外推"]
 WARN, SEVERE = 0.8, 1.0
 CSV_FIELDS = ("instance", "hours", "output_torque_avg_nm", "output_torque_max_nm", "output_speed_rpm", "input_speed_rpm",
@@ -68,6 +70,20 @@ def read_csv(path: str | Path) -> list[dict]:
             if row["instance"] and row.get("hours"):
                 rows.append(row)
     return rows
+
+
+def equivalent_load(torque_nm, speed_rpm, dt_s=None) -> dict:
+    """扭矩—转速时间序列 → 运行记录的 output_torque_avg_nm（当量扭矩）与 output_speed_rpm（平均转速）。
+    《多体动力学》书第 48 章线索第 87 条（问渠 CAD 0.3.9 细则）：字段名叫“平均扭矩”，写算术平均时寿命多算 1.6 倍，且对正负各半的
+    摩擦力矩不敏感。T_av = (Σ|n|·t·|T|³ / Σ|n|·t)^(1/3)；dt_s 缺省为等间隔。不转（Σ|n|·t = 0）时当量扭矩为 None"""
+    t = [abs(float(x)) for x in torque_nm]
+    n = [abs(float(x)) for x in speed_rpm]
+    if len(t) != len(n) or not t:
+        raise ValueError("扭矩与转速序列要一样长且不空")
+    w = [1.0] * len(t) if dt_s is None else [float(x) for x in dt_s]
+    nt = sum(a * b for a, b in zip(n, w, strict=True))
+    tav = (sum(a * b * c ** 3 for a, b, c in zip(n, w, t, strict=True)) / nt) ** (1 / 3) if nt > 0 else None
+    return {"output_torque_avg_nm": tav, "output_speed_rpm": nt / sum(w)}
 
 
 def reducer_life_h(comp: Mapping, torque_nm: float, out_speed_rpm: float, *,

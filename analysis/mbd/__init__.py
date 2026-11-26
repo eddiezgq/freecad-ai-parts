@@ -248,6 +248,12 @@ def run(setup: dict) -> dict:
                     f"{dae_ratio:.3g} 倍，MuJoCo 软约束跟不上）；动画和其余关节的运动仍来自 MuJoCo")
     else:
         messages += _loop_checks(mid, internal, data, setup)
+    if mid in mechanisms.LOOP_MIDS:
+        data["energy_balance"] = eb = _energy_balance(ch, summ, setup)
+        if eb["status"] == "fail":
+            messages.append("能量平衡差 {:.1%}（输入功 {:.4g} J，机械能增加 {:.4g} J；超过 {:.0%}）：闭环软约束和积分耗散了能量，"
+                            "转角、速度、力矩待确认；可加密时间步，或改用 DAE 内核（model 格式）".format(
+                                eb["rel_error"], eb["work_in_j"], eb["energy_gain_j"], ENERGY_REL))
     if dae is None and dae_ratio is not None and dae_ratio < mechanisms.DAE_RATIO:
         messages.append(f"一转时间只有给定运动约束时间常数的 {dae_ratio:.3g} 倍（小于 {mechanisms.DAE_RATIO:g}），MuJoCo 软约束跟不上，驱动力矩可能偏差"
                         "超过 1 %；这次因为有附加负载、外力、摩擦、反力输出或非匀速驱动没有改用 DAE 内核，"
@@ -280,6 +286,29 @@ def run(setup: dict) -> dict:
 
     return result.make("mbd", MODULE["version"], setup, data, limitations=lims, messages=messages,
                        solver={"name": "MuJoCo", "version": mujoco.__version__}, elapsed_s=time.time() - t0)
+
+
+ENERGY_REL = 0.03         # 闭环机构能量平衡（输入功 − 机械能增加）允许的相对误差（线索第 8 条）
+ENERGY_ABS_J = 1e-4       # 能量变化本身很小（静止、慢速）时按绝对差判
+
+
+def _energy_balance(ch, summ, setup):
+    """输入功（各驱动力 × 速度的积分）与机械能（动能 + 重力势能）增加之差，相对两者较大者。外力、摩擦阻尼不计入时
+    判 unknown（缺这一项不能判 pass）"""
+    import numpy as np
+
+    if setup.get("forces") or setup.get("friction"):
+        return {"status": "unknown", "rel_error": None, "work_in_j": None, "energy_gain_j": None,
+                "note": "有外力或摩擦阻尼，能量平衡没有核"}
+    t = ch["t"]
+    p = sum((ch["drive." + d["joint"]] * ch["qd." + d["joint"]] for d in summ["drives"]), np.zeros_like(t))
+    w = np.concatenate([[0.0], np.cumsum((p[1:] + p[:-1]) / 2 * np.diff(t))])
+    de = ch["energy"] - ch["energy"][0]
+    scale = max(float(np.max(np.abs(w))), float(np.max(np.abs(de))))
+    err = float(np.max(np.abs(w - de)))
+    rel = err / scale if scale > 0 else 0.0
+    return {"status": "pass" if rel <= ENERGY_REL or err <= ENERGY_ABS_J else "fail", "rel_error": round(rel, 6), "limit": ENERGY_REL,
+            "work_in_j": round(float(w[-1]), 9), "energy_gain_j": round(float(de[-1]), 9)}
 
 
 TRACK_DEG = 1.0           # 给定运动的跟踪误差超过它要提示（线索第 71 条）

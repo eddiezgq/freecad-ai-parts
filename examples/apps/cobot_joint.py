@@ -256,9 +256,10 @@ def main(argv=None):
         sysd = out["j2"]["system"]
         lib = C.library()
         parts = analysis.twin.parts_from_system(sysd, lib.get)
-        d = out["mbd"]["data"]["drives"][0]
-        recs = [{"instance": "reducer", "hours": 16, "output_torque_avg_nm": d["rms"], "output_torque_max_nm": d["peak"],
-                 "output_speed_rpm": d["speed_max"] / 2} for _ in range(30)]
+        d = next(x for x in out["mbd"]["data"]["drives"] if x["joint"] == "j2")
+        sj = out["mbd"]["data"]["series"]["j2"]
+        eq = analysis.twin.equivalent_load(sj["drive"], sj["speed"])      # 线索第 87 条：当量扭矩，不是均方根或算术平均
+        recs = [{"instance": "reducer", "hours": 16, **eq, "output_torque_max_nm": d["peak"]} for _ in range(30)]
         r = analysis.run("twin", {"parts": parts, "records": recs})
         p = r["data"]["parts"][0]
         if p["status"] == "unknown":

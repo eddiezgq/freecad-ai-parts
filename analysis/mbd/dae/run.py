@@ -179,6 +179,36 @@ def _conservative(sysm) -> bool:
     return True
 
 
+def _force_elements(sysm, rec):
+    """弹簧、衬套、扭簧作用在 body_j 上的力（地面系，N）和对连接点的力矩（N·m）（线索第 26 条：原来衬套力不输出）。
+    做法：只留这一个力元、重力置零，调用同一个 body_wrenches（不另写一份力元公式）"""
+    out = {}
+    kinds = ("spring", "bushing", "rspring")
+    items = [(kind, f) for kind, f in sysm.forces if kind in kinds]
+    if not items:
+        return out
+    saved_f, saved_g = sysm.forces, sysm.g
+    try:
+        sysm.g = np.zeros(3)
+        for kind, f in items:
+            b = f["j"] if f["j"] >= 0 else f["i"]
+            sj = f.get("s_j") if f["j"] >= 0 else f.get("s_i")
+            sysm.forces = [(kind, f)]
+            Fs, Ts = [], []
+            for q, qd, t in zip(rec.q, rec.qd, rec.t, strict=True):
+                q, qd = np.asarray(q), np.asarray(qd)
+                F, N = sysm.body_wrenches(q, qd, t)
+                r = sysm.rp(q, b)[0]
+                P = r + A_of(sysm.rp(q, b)[1]) @ np.asarray(sj if sj is not None else np.zeros(3), float)
+                Fs.append(F[b].tolist())
+                Ts.append((N[b] - np.cross(P - r, F[b])).tolist())
+            out[f["id"]] = {"type": kind, "on": sysm.bodies[b].name, "force_n": Fs, "torque_n_m": Ts,
+                            "note": "作用在 body_j 上（body_j 是地面时为 body_i）" if f["j"] >= 0 else "作用在 body_i 上（body_j 是地面）"}
+    finally:
+        sysm.forces, sysm.g = saved_f, saved_g
+    return out
+
+
 def run_model(model: dict, base_dir=None):
     sysm = M.build(model, base_dir)
     an = model["analysis"]
@@ -197,11 +227,22 @@ def run_model(model: dict, base_dir=None):
             return hht.dynamic(sysm_, t_end_, steps_, alpha=float(an.get("hht_alpha", -0.1)), **kw)
     else:
         dyn = S.dynamic
-    S.check_structure(sysm, sysm.q0(), 0.0)          # 问渠 CAD 0.3.6 细则 C3：锁死在分析入口报出来
-    messages = []
+    hint = _axis_hint(model)
+    try:
+        S.check_structure(sysm, sysm.q0(), 0.0)          # 问渠 CAD 0.3.6 细则 C3：锁死在分析入口报出来
+    except S.SolveError as exc:
+        if hint:
+            raise S.SolveError(f"{exc}。{hint}") from None
+        raise
+    messages = [hint] if hint else []
     stab = None
     if typ == "kinematic":
-        rec, info = S.kinematic(sysm, t_end, steps, branch=an.get("dead_point", "continue"))   # ADR-0130
+        try:
+            rec, info = S.kinematic(sysm, t_end, steps, branch=an.get("dead_point", "continue"))   # ADR-0130
+        except S.SolveError as exc:
+            if hint:
+                raise S.SolveError(f"{exc}。{hint}") from None
+            raise
     elif typ == "static":
         rec, info = S.static(sysm, load_steps=int(an.get("load_steps", 1)))
         stab = _stability(sysm, rec.q[-1], rec.t[-1])
@@ -245,6 +286,22 @@ def run_model(model: dict, base_dir=None):
         messages.append("运动副近冗余：{} 这组约束的奇异值只有最大值的 {:.2g}（制造误差级），按冗余处理；"
                         "被删约束在运动中实际拉开多少，见“约束残差（全部约束）”核查".format("、".join(nr["joints"]), nr["sigma_rel"]))
     bodies, joints, motions, reqs, energy, meas, cont = _series(rec, sysm)
+    stress = None
+    if joints and rec.q:
+        # 线索第 26 条：“完整”按全部约束的左零空间判每个运动副的反力是否唯一，报自平衡力系
+        uniq, stress = S.self_stress(sysm, np.asarray(rec.q[0]), float(rec.t[0]))
+        for jid, ok in uniq.items():
+            joints[jid]["complete"] = bool(ok)
+        bad = [jid for jid, ok in uniq.items() if not ok]
+        if bad:
+            messages.append("这些运动副的反力不唯一（有 {} 组自平衡力系可以叠加上去，取决于装配误差和刚度，刚体模型定不了）：{}。"
+                            "要可信的反力，把冗余的连接写成衬套并给刚度、装配公差".format(len(stress), "、".join(bad)))
+    fe = _force_elements(sysm, rec)
+    rigid_pairs = {frozenset((j["i"], j["j"])) for j in sysm.joints.values()}
+    both = [f["id"] for kind, f in sysm.forces if kind in ("bushing", "beam") and frozenset((f["i"], f["j"])) in rigid_pairs]
+    if both:
+        messages.append("衬套 / 梁 {} 与刚性运动副连在同样两个构件之间：刚性副方向上的载荷几乎全被刚性副吸走，衬套力很小；"
+                        "要分配载荷就把这里的刚性副也写成衬套".format("、".join(both)))
     flex = bodies.pop("_flex")
     act = bodies.pop("_act", {})
     resid = max(rec.resid) if rec.resid else 0.0
@@ -285,6 +342,7 @@ def run_model(model: dict, base_dir=None):
     data = {"model": model["name"], "analysis": typ, "dof": info["dof"], "redundant_constraints": info.get("redundant", []),
             "times_s": rec.t, "bodies": bodies, "joints": joints, "motions": motions, "requests": reqs, "measures": meas,
             "contacts": cont, "flex": flex, "actuators": act, "energy": energy,
+            "force_elements": fe, "self_stress": stress or [],
             "verification": verification,
             "solver": {k: info[k] for k in ("rhs", "segments", "repartitions", "steps", "rejected", "jacobians", "newton",
                                                        "newton_fail", "error_fail", "h_min", "h_max")
@@ -354,6 +412,31 @@ def _friction_check(sysm, messages):
         messages.append("摩擦迭代不收敛：t = {:.6g} s 起共 {} 次，摩擦最大的是运动副“{}”，这些时刻的结果不可信".format(
             log["t_first"], fail, log["joint"]))
     return item
+
+
+def _axis_hint(model):
+    """平面机构里个别转动副的轴不平行：多半写错了（例如把 z 写成 x）。《多体动力学》书线索第 76 条（问渠 CAD 0.3.9 细则）：
+    原来报数值库的 LinAlgError: Singular matrix 或“还剩 1 个自由度”，不指名运动副。
+    三个以上转动副里，除了一两个，其余的轴都平行时，指出那一两个；只有两个转动副时，不平行就两个都指出"""
+    axes = {}
+    for j in model.get("joints", []):
+        if j.get("type") == "revolute" and j.get("axis") is not None:
+            a = np.asarray(j["axis"], float)
+            if np.linalg.norm(a) > 1e-12:
+                axes[j["id"]] = a / np.linalg.norm(a)
+    if len(axes) < 2:
+        return ""
+    if len(axes) == 2:
+        a, b = axes.values()
+        return "" if abs(float(a @ b)) > 0.9999 else "运动副 {} 的轴不平行；如果这是平面机构，多半是其中一个轴写错了".format(
+            "、".join(axes))
+    ids = list(axes)
+    best = max(ids, key=lambda k: sum(abs(float(axes[k] @ axes[m])) > 0.9999 for m in ids))
+    odd = [k for k in ids if abs(float(axes[k] @ axes[best])) <= 0.9999]
+    if not odd or len(odd) > 2 or len(ids) - len(odd) < 2:
+        return ""
+    return "运动副 {} 的轴与其余转动副（{} 个，轴都平行）不平行；如果这是平面机构，多半是轴写错了".format(
+        "、".join(odd), len(ids) - len(odd))
 
 
 def _plant_inputs(model, sysm):

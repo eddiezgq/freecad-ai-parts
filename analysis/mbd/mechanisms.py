@@ -221,6 +221,8 @@ LOOP_MIDS = ("C-LNK-4BAR", "C-LNK-SLIDER")      # 用 connect 软约束闭环的
 LOOP_GAP_REL = 1e-3                              # 闭环允许拉开：最短构件的 0.1 %
 LOOP_TAU_MAX = 0.002                             # 缺省（MuJoCo solref 的时间常数）
 DT_MAX = 0.0002
+DT_FREE = 0.000025                                 # 力矩驱动 / 无驱动的闭环机构的步长（线索第 8 条）
+LOOP_TAU_STEPS = 2.5                             # 这时闭环 τ 取几个步长（MuJoCo 要求 τ ≥ 2 个步长）
 
 
 def _links(mid, p):
@@ -234,8 +236,12 @@ def loop_tau(mid, given, w_max):
     闭合点的向心加速度只能靠约束拉开来补，穿透 ≈ τ²·|J̇q̇|（实测是这个估计的 0.79–0.92 倍）；缺省 τ = 2 ms 时
     600 rpm 拉开 1.1 mm、驱动力矩逐点误差 12 %。按 τ²·a_c ≤ 最短构件的 0.1 % 选 τ，a_c 取 ω²·（运动构件长度之和，偏大的估计），
     步长 h ≤ τ/2。返回 (τ, h)"""
-    if mid not in LOOP_MIDS or not w_max:
+    if mid not in LOOP_MIDS:
         return LOOP_TAU_MAX, DT_MAX
+    if not w_max:
+        # 线索第 8 条：力矩驱动 / 无驱动的闭环机构转速事先不知道，原来 τ 取 2 ms，恒力矩起步 0.5 s 约束耗掉输入功的 48 %、
+        # 少转 18 %。改为 τ = LOOP_TAU_STEPS 个步长、步长 DT_FREE：同一算例差 0.8 %（能量平衡另有核查）
+        return LOOP_TAU_STEPS * DT_FREE, DT_FREE
     p = params(mid, given)
     links = _links(mid, p)
     a_c = w_max ** 2 * sum(links)

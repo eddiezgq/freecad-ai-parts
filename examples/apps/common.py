@@ -24,6 +24,42 @@ def library():
     return JsonLibrary(ROOT / "data" / "library")
 
 
+_RANK = {"ok": 0, "unknown": 1, "fail": 2}
+_MAP = {"pass": "ok", "ok": "ok", "not_applicable": "ok", "na": "ok", "warn": "unknown", "unknown": "unknown", "fail": "fail",
+        "severe": "fail"}
+_TEXT_UNKNOWN = ("待确认", "unknown", "不通过")
+
+
+def content_status(summary: str, data) -> str:
+    """一步的内容里最差的判定：数据里各处 overall / verdict / status 字段（pass、warn、unknown、fail），和摘要里的“待确认、unknown、
+    不通过”字样（按待确认计，不直接判失败——摘要可能是在说原来的状态）"""
+    worst = "ok"
+
+    def take(v):
+        nonlocal worst
+        m = _MAP.get(v) if isinstance(v, str) else None
+        if m and _RANK[m] > _RANK[worst]:
+            worst = m
+
+    def walk(x, depth=0):
+        if depth > 6:
+            return
+        if isinstance(x, dict):
+            for k, v in x.items():
+                if k in ("overall", "verdict") or (k == "status" and isinstance(v, str)):
+                    take(v)
+                elif k not in ("trace",):
+                    walk(v, depth + 1)
+        elif isinstance(x, list | tuple):
+            for v in x[:200]:
+                walk(v, depth + 1)
+
+    walk(data)
+    if worst == "ok" and any(w in (summary or "") for w in _TEXT_UNKNOWN):
+        worst = "unknown"
+    return worst
+
+
 class Run:
     """一个应用的演练记录：每一步的结论、摘要与关键数据，最后写 report.json 与 README.md。"""
 
@@ -34,8 +70,15 @@ class Run:
         self.out.mkdir(parents=True, exist_ok=True)
         self.t0 = time.time()
 
-    def add(self, step: str, status: str, summary: str, **data):
-        self.steps.append({"step": step, "status": status, "summary": summary, **({"data": data} if data else {})})
+    def add(self, step: str, status: str, summary: str, *, completed: bool = True, mentions_ok: bool = False, **data):
+        """status 取本步全部判据的最差值（《多体动力学》书第 36 章线索第 56 条：原来 89 步里 13 步写“完成”而内容是“待确认 / unknown”）：
+        给的是 ok 而数据里有 unknown / warn / fail 的判定、或摘要写了待确认，就降下来；“跑完了没有”另记 completed。
+        mentions_ok：摘要里的“待确认”只是在解释别处的规定（不是本步的结论），只看数据里的判定"""
+        worst = content_status("" if mentions_ok else summary, data)
+        if status == "ok" and worst != "ok":
+            status = worst
+        self.steps.append({"step": step, "status": status, "completed": completed, "summary": summary,
+                           **({"data": data} if data else {})})
         print(f"[{self.key}] {step}：{STATUS_TEXT.get(status, status)}——{summary}", flush=True)
 
     def guard(self, step: str, fn, *a, **kw):
@@ -43,7 +86,7 @@ class Run:
         try:
             return fn(*a, **kw)
         except Exception as exc:  # noqa: BLE001
-            self.add(step, "fail", f"{type(exc).__name__}：{exc}", trace=traceback.format_exc()[-1500:])
+            self.add(step, "fail", f"{type(exc).__name__}：{exc}", completed=False, trace=traceback.format_exc()[-1500:])
             return None
 
     def save(self, extra: dict | None = None) -> dict:

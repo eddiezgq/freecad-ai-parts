@@ -373,6 +373,8 @@ def simulate(spec, setup):
     if float(setup.get("duration_s", 2)) > MAX_DURATION_S:
         raise SetupError(f"仿真时长最多 {MAX_DURATION_S:.0f} 秒")
     model, drives = build(spec, setup)
+    import mujoco
+    model.opt.enableflags |= int(mujoco.mjtEnableBit.mjENBL_ENERGY)
     model.opt.timestep = float(setup.get("dt") or (2e-4 if model.nv <= 12 and model.neq else 5e-4))
     rec, err = _run(model, setup, drives)
     ch = rec.channels()
@@ -480,6 +482,7 @@ class Recorder:
         if self.ids:
             full = _full_mass(m, data)
             row += [full[x["dadr"], x["dadr"]] for x in self.ids]
+        row.append(float(data.energy[0] + data.energy[1]))     # 机械能（势能含重力、弹簧；线索第 8 条的能量平衡用）
         self.rows.append(row)
         if anim:
             self.anim_t.append(t)
@@ -496,6 +499,7 @@ class Recorder:
         for n in self.pnames:
             names += [f"pt.{n}.{a}" for a in ("x", "y", "z")]
         names += ["inertia." + x["d"]["joint"] for x in self.ids]
+        names += ["energy"]
         arr = np.array(self.rows, float)
         out = {n: arr[:, i] for i, n in enumerate(names)}
         if len(arr) > 1:                                  # t = 0 那一刻的加速度是约束建立时的值，不是运动的加速度：用下一点代替

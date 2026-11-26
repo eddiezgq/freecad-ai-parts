@@ -118,6 +118,57 @@ def assemble(sysm: System, q, t, rows, free=None):
     return q
 
 
+MOBILITY_STEP = 1e-2     # 有限可动检验：沿可动方向走特征长度的这个比例
+
+
+def finite_mobility(sysm: System, q, t):
+    """动力学开算前的有限可动检验（《多体动力学》书第 44 章线索第 79 条，问渠 CAD 0.3.9 细则）。
+    三铰共线的两杆结构：雅可比在这个位形掉秩，数出 1 个自由度，但它只能瞬时可动，离开一点就装不上——原来照算，
+    被当成冗余删掉的约束在运动中拉开，或者求根抛“f(a) and f(b) must have different signs”。
+    现在对全部约束（含被当成冗余的行）的零空间逐个方向：沿它走特征长度的 1 %，固定变化最大的那个坐标，其余坐标
+    投影回约束面。真能动的方向残差收到机器精度；只能瞬时可动的方向残差停在步长平方 / 长度的量级，报错并指出运动副。"""
+    rows = list(sysm.rows)
+    if not rows or sysm.nb == 0:
+        return
+    J = sysm.jac(q, t, rows)
+    _, sv, Vt = np.linalg.svd(J)
+    if sv.size == 0 or sv[0] == 0.0:
+        return
+    tol = max(J.shape) * np.finfo(float).eps * max(sv[0], 1.0) * 1e3
+    N = Vt[int(np.sum(sv > tol)):]
+    if not len(N):
+        return
+    pos = [7 * k + i for k in range(sysm.nb) for i in range(3)]
+    rot = [7 * k + 3 + i for k in range(sysm.nb) for i in range(4)]
+    cms = [np.asarray(sysm.rp(q, k)[0], float) for k in range(sysm.nb)]
+    L = max([np.linalg.norm(a - b) for a in cms for b in cms] + [np.linalg.norm(a) for a in cms] + [1e-2])
+    stuck, worst, joints = 0, 0.0, set()
+    for v in N:
+        scale = max(np.max(np.abs(v[pos])), L * np.max(np.abs(v[rot])), 1e-30) if pos else np.max(np.abs(v))
+        h = MOBILITY_STEP * L / scale
+        k = int(np.argmax(np.abs(v)))
+        free = [i for i in range(sysm.n) if i != k]
+        x = q + h * v
+        for _ in range(30):
+            ph = sysm.phi(x, t, rows)
+            if np.max(np.abs(ph)) < 1e-14:
+                break
+            x[free] += np.linalg.lstsq(sysm.jac(x, t, rows)[:, free], -ph, rcond=None)[0]
+        ph = np.abs(sysm.phi(x, t, rows))
+        disp = MOBILITY_STEP * L
+        if np.max(ph) > 1e-3 * disp * disp / L:
+            bad = np.nonzero(ph > 0.1 * np.max(ph))[0]
+            joints |= {rows[i].joint for i in bad if rows[i].joint} or {rows[i].label for i in bad}
+            stuck, worst = stuck + 1, max(worst, float(np.max(ph)))
+    if stuck:
+        jtxt = "、".join(f"“{j}”" for j in sorted(joints))
+        raise SolveError(
+            f"机构锁死或开始时在奇异位形：结构在开始位形只能瞬时可动、不能有限运动（例如三个铰点共线）——"
+            f"沿可动方向走 {MOBILITY_STEP * L * 1000:.3g} mm 后约束收不回去（残差 {worst:.2g}），离开这个位形，"
+            f"只看运动副的结构自由度是 {max(len(N) - stuck, 0)}；受横向力时内力趋于无穷，动力学算不下去。"
+            f"涉及运动副{jtxt}。请检查这些铰点是否共线；它本来就该是不动的结构的话用静力学分析")
+
+
 def _nearby_dof(sysm: System, q, t, step=1e-2):
     """只看运动副：此处的结构自由度，和沿各可动方向走特征长度的 1 %、投影回约束面后的最少结构自由度。
     后者小于前者说明此处是奇异位形（分岔）。返回 (此处, 邻近) 或 None"""
@@ -458,6 +509,44 @@ def reactions(sysm: System, q, t, rows_idx, lam):
         else:
             motions[mid] = sgn * float(h @ F)
     return out, motions
+
+
+def self_stress(sysm: System, q, t, rel_tol=1e-8):
+    """自平衡力系：全部约束（含按冗余删掉的行）雅可比左零空间的每个基向量 y（Jᵀy = 0）——给反力加上任意倍的 y，
+    运动方程照样满足。《多体动力学》书第 19 章线索第 26 条（问渠 CAD 0.3.9 细则）：原来“完整”只看本运动副有没有删行，
+    平行四边形删的 7 行都在支点 O1–O3，曲柄—连杆铰 A1–A3 标“完整”，而自平衡力系 (e, −2, 1) 正作用在 A1–A3。
+    返回 (各运动副是否唯一 {jid: bool}, 力系表 [{jid: {"force", "torque"}}]，每个力系按最大分量归一)"""
+    rows = list(sysm.rows)
+    J = sysm.jac(q, t, rows)
+    if J.shape[0] == 0:
+        return {jid: True for jid in sysm.joints}, []
+    U, sv, _ = np.linalg.svd(J, full_matrices=True)
+    tol = max(J.shape) * np.finfo(float).eps * max(sv[0], 1.0) * 1e3
+    Y = U[:, int(np.sum(sv > tol)):]
+    if Y.shape[1] == 0:
+        return {jid: True for jid in sysm.joints}, []
+    idx = {id(r): k for k, r in enumerate(rows)}
+    wrench = {}
+    for jid, info in sysm.joints.items():
+        ks = [idx[id(sysm.rows[r])] for r in info["rows"]]
+        jb = info["j"] if info["j"] >= 0 else info["i"]
+        s_ = info["sj"] if info["j"] >= 0 else info["si"]
+        W = []
+        for c in range(Y.shape[1]):
+            gen = -J[ks].T @ Y[ks, c] if ks else np.zeros(sysm.n)
+            F, Nn = _gen_to_wrench(sysm, q, jb, gen)
+            sw = A_of(sysm.rp(q, jb)[1]) @ s_
+            W.append((F, Nn - np.cross(sw, F)))
+        wrench[jid] = W
+    scale = max((float(np.linalg.norm(np.r_[F, T])) for W in wrench.values() for F, T in W), default=0.0) or 1.0
+    unique = {jid: all(np.linalg.norm(np.r_[F, T]) <= rel_tol * scale for F, T in W) for jid, W in wrench.items()}
+    systems = []
+    for c in range(Y.shape[1]):
+        part = {jid: W[c] for jid, W in wrench.items() if np.linalg.norm(np.r_[W[c][0], W[c][1]]) > rel_tol * scale}
+        m = max((float(np.max(np.abs(np.r_[F, T]))) for F, T in part.values()), default=0.0)
+        if m > 0:
+            systems.append({jid: {"force": (F / m).tolist(), "torque": (T / m).tolist()} for jid, (F, T) in part.items()})
+    return unique, systems
 
 
 def _gen_to_wrench(sysm, q, b, gen):
@@ -898,6 +987,7 @@ def time_breaks(sysm):
 
 
 SEG_ROT_RAD = 0.5          # 积分每段里构件最多转过的角度（rad）
+WALK_ROT_RAD = 0.5         # 记录点之间投影时每小步最多转过的角度（rad，线索第 1 条）
 
 
 def _max_angular_speed(sysm, q, qd):
@@ -937,6 +1027,7 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
     dof = sysm.n - len(keep)
     if dof <= 0:
         raise SolveError("没有自由度（全被驱动定死了），请用运动学分析")
+    finite_mobility(sysm, q, t0)
     if qd is None:
         qd = initial_velocity(sysm, q, t0, rows)
     rec = Recorder(sysm)
@@ -1098,18 +1189,32 @@ def _dynamic_loop(v):
                                  f"t = {t_cur:.6g} s 后走不下去。机构在这里会卡死；请检查摩擦系数、销半径，"
                                  "或确认这就是要找的自锁位置")
             raise SolveError(f"积分失败：{sol.message}")
+        def walk(t_to, y_to, need_acc=True, sol=sol, dep=dep, ind=ind, seg0=(t_cur, q_cur, qd_cur)):
+            # 《多体动力学》书第 3 章线索第 1 条（问渠 CAD 0.3.9 细则）：牛顿迭代从上一个记录点起步，记录点之间转得多
+            # （重陀螺输出 25 点，每个间隔自转 8 rad）时起点太远，发散出非数，lu_solve 抛“array must not contain infs
+            # or NaNs”退出；原来分小步走的回退只接 SolveError，而且上一个记录点常在本段（每段转角限 SEG_ROT_RAD）
+            # 之前，稠密输出在那里是外推。现在起点取上一个记录点与本段起点中较晚的一个；按角速度估转角，每 WALK_ROT_RAD
+            # 一小步沿稠密输出走过去（等于内部自动加点）；非数、线性代数异常也走回退；仍失败报中文原因
+            if rec.t[-1] >= seg0[0] - 1e-15:
+                t_from, q_from, qd_from = rec.t[-1], rec.q[-1], rec.qd[-1]
+            else:
+                t_from, q_from, qd_from = seg0
+            rot = _max_angular_speed(sysm, q_from, qd_from) * (t_to - t_from)
+            n_sub = math.ceil(rot / WALK_ROT_RAD) if rot > WALK_ROT_RAD else 1
+            for attempt in (n_sub, max(32, 4 * n_sub)):
+                state["q"] = q_from.copy()
+                try:
+                    for s_ in range(1, attempt):
+                        ts = t_from + (t_to - t_from) * s_ / attempt
+                        full_state(ts, sol.sol(ts), dep, ind, need_acc=False)
+                    return full_state(t_to, y_to, dep, ind, need_acc=need_acc)
+                except (SolveError, np.linalg.LinAlgError, ValueError, FloatingPointError):
+                    continue
+            raise SolveError(f"t = {t_to:.6g} s 附近，构件在一个输出间隔里转过约 {rot:.3g} rad，"
+                             "从上一个输出点接不上（约束投影不收敛）。请加密输出点（output_steps）")
+
         for n_, tt in enumerate(sol.t):
-            state["q"] = rec.q[-1].copy()       # 牛顿迭代从上一个记录点起步（积分器的最后一次求值可能在更后面）
-            try:
-                qq, qqd, qqdd, lam = full_state(tt, sol.y[:, n_], dep, ind)
-            except SolveError:
-                # 两个记录点之间动得多（大摆角、柔性构件）时，从上一点直接牛顿可能收不回来：沿积分器的稠密输出分小步走过去
-                t_prev = rec.t[-1]
-                state["q"] = rec.q[-1].copy()
-                for s_ in range(1, 33):
-                    ts = t_prev + (tt - t_prev) * s_ / 32
-                    full_state(ts, sol.sol(ts), dep, ind, need_acc=False)
-                qq, qqd, qqdd, lam = full_state(tt, sol.y[:, n_], dep, ind)
+            qq, qqd, qqdd, lam = walk(tt, sol.y[:, n_])
             rec.add(float(tt), qq, qqd, qqdd, keep, lam)
             rec.ctrl.append(dict(getattr(sysm, "act", {})))
             k += 1
@@ -1117,14 +1222,7 @@ def _dynamic_loop(v):
             stats["repartitions"] += 1
             te = float(sol.t_events[0][0])
             ye = sol.sol(te)
-            state["q"] = rec.q[-1].copy()
-            try:
-                q_cur, qd_cur, _, _ = full_state(te, ye, dep, ind, need_acc=False)
-            except SolveError:
-                state["q"] = rec.q[-1].copy()
-                for s_ in range(1, 33):
-                    ts = rec.t[-1] + (te - rec.t[-1]) * s_ / 32
-                    q_cur, qd_cur, _, _ = full_state(ts, sol.sol(ts), dep, ind, need_acc=False)
+            q_cur, qd_cur, _, _ = walk(te, ye, need_acc=False)
             t_cur = te
             xc_cur = ye[2 * dof:]
         else:
@@ -1133,8 +1231,11 @@ def _dynamic_loop(v):
                 xc_cur = sol.y[2 * dof:, -1]
             else:                               # 停在采样时刻（不是输出点）
                 ys = sol.sol(t_stop)
-                state["q"] = (rec.q[-1] if len(sol.t) else q_cur).copy()
-                q_cur, qd_cur, _, _ = full_state(t_stop, ys, dep, ind, need_acc=False)
+                if len(sol.t):
+                    q_cur, qd_cur, _, _ = walk(t_stop, ys, need_acc=False)
+                else:
+                    state["q"] = q_cur.copy()
+                    q_cur, qd_cur, _, _ = full_state(t_stop, ys, dep, ind, need_acc=False)
                 t_cur, xc_cur = t_stop, ys[2 * dof:]
             if h_s and abs(t_cur - next_s) < 1e-12:      # FMU 采样：送入测量量、走一拍、保持输出
                 ctrl.sample_at(t_cur, sysm.measures(q_cur, qd_cur))
