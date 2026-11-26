@@ -1,0 +1,45 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/4",
+  "request_key": "19d503a40f7b1ff9106fe22df920f09a35dab368439ada694746aba8fe6e567b",
+  "response": {
+    "id": "msg_011ChS9HXsRDko6fapusG7UH",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "for_people": [
+        {
+          "quote": "不能损伤布料"
+        },
+        {
+          "quote": "机器人不能占用车间通道"
+        },
+        {
+          "quote": "节拍 3 s/片（取一片、转好、放好、回到取料位，按最远的一叠算）"
+        }
+      ],
+      "kind": "other",
+      "kind_quote": "裁片上下料机器人",
+      "payload": {
+        "quote": "裁片单片质量不超过 100 g",
+        "unit": "kg",
+        "value": 0.1
+      },
+      "questions": [
+        "机器人是哪一类（串联机械臂、龙门/直角坐标、其他）？原话只说“上下料机器人”，没有指定。",
+        "机器人装在哪里（裁床边、地面、吊装、桌面）？原话没说安装位置，因此臂展无法从原话直接得出。",
+        "车间通道在哪一侧、离裁床和送料台多远？这决定机器人底座能放在哪里。",
+        "送料台在裁床宽度方向上偏 500 mm，是偏向哪一侧？",
+        "裁片用什么方式抓取（吸盘、针刺、其他）？裁片是否需要翻面？这些原话都没说。",
+        "3 s 节拍是否包含抓取和放料的停顿时间？允许的最大关节速度和加速度是多少？",
+        "自由度（轴数）和关节最高角速度原话没有给出，是否有限制？"
+      ],
+      "repeatability": {
+        "quote": "放料定位精度 ±1 mm",
+        "unit": "mm",
+        "value": 1
+      }
+    }
+  }
+}

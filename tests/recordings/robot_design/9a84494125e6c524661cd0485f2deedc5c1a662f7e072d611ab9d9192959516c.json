@@ -1,0 +1,55 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-cell/1",
+  "request_key": "9a84494125e6c524661cd0485f2deedc5c1a662f7e072d611ab9d9192959516c",
+  "response": {
+    "id": "msg_011ChS9JXQApNFWtbPLwYsbn",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "cycle": {
+        "quote": "节拍 3 s/片",
+        "unit": "s",
+        "value": 3
+      },
+      "part_length": {
+        "quote": "最大 600 mm × 400 mm",
+        "unit": "mm",
+        "value": 600
+      },
+      "part_mass": {
+        "quote": "裁片单片质量不超过 100 g",
+        "unit": "g",
+        "value": 100
+      },
+      "part_width": {
+        "quote": "最大 600 mm × 400 mm",
+        "unit": "mm",
+        "value": 400
+      },
+      "questions": [
+        "取料区中心到放料点的水平距离：原话只给了沿裁床长度方向 1500 mm，另有送料台在宽度方向偏 500 mm，没有直接给出两点间的水平距离，所以这一项没填。请确认实际水平距离是否按这两个方向的分量合成。",
+        "送料台偏离取料区中心 500 mm，是向裁床的哪一侧偏（靠近机器人还是远离机器人）？",
+        "机器人装在哪里（裁床边、送料台边，还是两者之间）？车间通道在哪一侧、离裁床和送料台多远？这些决定机器人能占用多大空间。",
+        "取料区 1200 mm × 800 mm 是各叠中心所在的范围。靠边的叠，裁片会伸出这个范围多少？“最远的一叠”具体在哪个位置？",
+        "“每叠最高 100 mm”是否包含最多的片数？最上面一片的取料高度要不要随叠高变化？",
+        "裁片 600 mm × 400 mm 里，哪个是长、哪个是宽？放料时，裁片的长边相对送料台是什么朝向？",
+        "“不能损伤布料”有没有具体要求，比如不能留压痕、不能拉伸，或者一次只能取一片？取料方式（吸附、针刺等）有没有限制？"
+      ],
+      "same_height": {
+        "quote": "裁床台面和送料台面同高"
+      },
+      "stack_height": {
+        "quote": "每叠最高 100 mm",
+        "unit": "mm",
+        "value": 100
+      },
+      "work_height": {
+        "quote": "离地 850 mm",
+        "unit": "mm",
+        "value": 850
+      }
+    }
+  }
+}
