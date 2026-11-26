@@ -1,0 +1,41 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/4",
+  "request_key": "c7d509fb3c0983952373433b9a75ddc3367cbd3d1c9bcf7a06e2f0917258762f",
+  "response": {
+    "id": "msg_011ChS8igdbCAukQAPcYka9x",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "for_people": [
+        {
+          "quote": "不能损伤布料"
+        },
+        {
+          "quote": "机器人不能占用车间通道"
+        }
+      ],
+      "kind": "other",
+      "kind_quote": "裁片上下料机器人",
+      "payload": {
+        "quote": "裁片单片质量不超过 100 g",
+        "unit": "kg",
+        "value": 0.1
+      },
+      "questions": [
+        "原话没有说明机器人类型（串联机械臂、龙门还是其他），请确认希望用哪种构型。",
+        "机器人底座/安装位置没有说明（桌面、地面、吊装，装在裁床旁还是送料台旁，哪一侧是车间通道），请确认。",
+        "机器人底座相对取料区和放料点的位置未给出，所以无法确定臂展，请给出底座位置或通道的具体位置。",
+        "自由度和关节最高角速度原话没给，是否有限制？节拍 3 s/片是按最远一叠算。",
+        "取料方式（真空吸附、针刺、夹持等）及布料材质有何要求？“不能损伤布料”有无具体判据？",
+        "放料时裁片转 90° 是由末端绕竖直轴转动完成，还是由整臂动作完成？"
+      ],
+      "repeatability": {
+        "quote": "放料定位精度 ±1 mm",
+        "unit": "mm",
+        "value": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-cell/1",
+  "request_key": "3e249bd7dff795ac8226cf002b9541489cb3ebb303c256b962ea839b5b19b7c4",
+  "response": {
+    "id": "msg_011ChS8kMg8DZac1Hv6c31LS",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "along_distance": {
+        "quote": "沿裁床长度方向,取料区中心到放料点水平距离 1500 mm",
+        "unit": "mm",
+        "value": 1500
+      },
+      "area_length": {
+        "quote": "1200 mm × 800 mm 的取料区内（1200 mm 沿裁床长度方向）",
+        "unit": "mm",
+        "value": 1200
+      },
+      "area_width": {
+        "quote": "1200 mm × 800 mm 的取料区",
+        "unit": "mm",
+        "value": 800
+      },
+      "lateral_offset": {
+        "quote": "送料台在裁床宽度方向上比取料区中心偏 500 mm",
+        "unit": "mm",
+        "value": 500
+      },
+      "max_rotation": {
+        "quote": "最多转 90°",
+        "unit": "°",
+        "value": 90
+      },
+      "questions": [
+        "原话中“沿裁床长度方向,取料区中心到放料点水平距离 1500 mm”的标点与原文不同(原文为全角逗号),已按原意填写;请确认该距离 1500 mm 是沿裁床长度方向的分量,且与 500 mm 侧偏是分开给的两个方向分量。",
+        "“机器人不能占用车间通道”:通道的位置和宽度没有给出,机器人底座可安装的位置范围需要确认。"
+      ]
+    }
+  }
+}
