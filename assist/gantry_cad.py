@@ -54,7 +54,8 @@ DESIGN = {
 DENSITY_KG_MM3 = {"6061-T6": 2.70e-6}
 MATERIAL = "6061-T6"
 E_MPA = 68900.0                  # analysis/common/materials.yaml 的 6061-T6
-FEA_MESH_MM = 8.0                # 壁厚 6 mm：一层二阶单元；再按 1/1.5 加密一遍核对
+FEA_MESH_MM = 12.0               # 门架 2.4 m 长、壁厚 6 mm：粗网格 12 mm（约 8 万个二阶单元），再按 1/1.5 加密到 8 mm 核对
+TIME_LIMIT_S = 3000              # 细网格约 18 万个二阶单元，静力加模态要十几分钟
 N_MODES = 4
 LIMITS = ["直线模组按目录外形建成长方体（含滑台），型材槽、端盖、电机没建；本体重心取外形中心",
           "螺钉孔、型材连接件（模组装在横梁上的安装件）没建：门架当一个焊接整体算，连接处的柔度没计入，固有频率偏高",
@@ -495,7 +496,7 @@ def frame_study(cad: Mapping, fl: Mapping, mv: Mapping, step: str, geo: Mapping,
                     {"type": "remote_load", "body": "frame", "faces": pad_bottom, "point_mm": [round(v, 3) for v in cz],
                      "force_n": [0.0, 0.0, -round(fl["inertia_z_n"], 3)]}],
           "steps": [{"id": "s", "type": "static"}, {"id": "m", "type": "modal", "n_modes": N_MODES}],
-          "mesh": {"size_mm": size_mm}, "checks": {"convergence": False},
+          "mesh": {"size_mm": size_mm}, "checks": {"convergence": False}, "time_limit_s": TIME_LIMIT_S,
           "probes": [{"id": "pad", "point_mm": [geo["x_mid"], L["x_ref_mm"][1], geo["pad"][0][2]]}],
           "provenance": {"drafted_by": "human", "confirmed_by_human": True}}
     r = analysis.run("fea", st)
