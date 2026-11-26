@@ -187,6 +187,19 @@ def cyl_d(d: float, z0: float | None = None, z1: float | None = None, tol: float
 
 
 # ---------------------------------------------------------------- 选型与布局
+def envelope(reqs: dict) -> dict:
+    """几个工况的选型需求取包络（《多体动力学》书第 40 章线索第 5 条：协作臂原来只算“往下放”，“往上抬”峰值大 34 %）。
+    reqs：{工况名: 需求}；扭矩、转速、惯量逐项取最大，statement 写明各工况的值"""
+    keys = ("output_torque_cont_nm", "output_torque_peak_nm", "output_speed_rpm", "load_inertia_kgm2")
+    first = next(iter(reqs.values()))
+    out = {k: v for k, v in first.items() if k not in keys and k != "statement"}
+    for k in keys:
+        out[k] = max(r[k] for r in reqs.values())
+    out["statement"] = "两个方向取包络：" + "；".join(
+        f"{n} 连续 {r['output_torque_cont_nm']:.1f} / 峰值 {r['output_torque_peak_nm']:.1f} N·m" for n, r in reqs.items())
+    return out
+
+
 def compose(requirement: dict, top: int = 3) -> list:
     from engine.compose import compose_chain
 
