@@ -158,3 +158,39 @@ def test_energy_swing_matches_kinetic_energy():
                       "drives": [{"joint": "crank", "kind": "speed", "value": rpm}]})
     with pytest.raises(mbd.SetupError, match="太稀"):                             # 200 Hz 记 3000 rpm：每转 4 个点
         mbd.energy_swing(sparse, "crank")
+
+
+def test_gantry_path_thrust_and_slide_loads_match_hand_calc():
+    """两轴龙门（ADR-0115 44.5.5）：多段路径驱动，推力、滑台反力与手算（牛顿第二定律）对照，< 1%。
+    X 滑台 m1、其下挂 Z 滑台 m2（质心在滑台下 h）；X 先 0.8 s 走 1.5 m 再回，Z 在中间 0.1 s 升 130 mm。"""
+    m1, m2, h = 3.0, 1.0, 0.3
+    xml = (f'<mujoco><worldbody><body name="xs" pos="0 0 0.5"><joint name="x" type="slide" axis="1 0 0"/>'
+           f'<inertial pos="0 0 0" mass="{m1}" diaginertia="1e-3 1e-3 1e-3"/>'
+           f'<body name="zs"><joint name="z" type="slide" axis="0 0 1"/>'
+           f'<inertial pos="0 0 {-h}" mass="{m2}" diaginertia="1e-6 1e-6 1e-6"/></body></body></worldbody></mujoco>')
+    res = analysis.run("mbd", {"model": {"kind": "mjcf", "xml": xml}, "duration_s": 2.0, "sample_hz": 1000,
+                               "drives": [{"joint": "x", "kind": "path", "segments": [
+                                   {"to": 1500, "t0_s": 0.1, "t1_s": 0.9, "accel_ratio": 0.25}, {"to": 0, "t0_s": 1.0, "t1_s": 1.8}]},
+                                   {"joint": "z", "kind": "path", "segments": [{"to": 130, "t0_s": 0.9, "t1_s": 1.0}]}],
+                               "reactions": ["xs", "zs"]})
+    assert res["status"] == "ok", res.get("error")
+    d = res["data"]
+    ax = 1.5 / (0.8 * 0.75) / (0.25 * 0.8)
+    az = 0.13 / (0.1 * 0.75) / (0.25 * 0.1)
+    dr = {x["joint"]: x for x in d["drives"]}
+    assert dr["x"]["peak_settled"] == pytest.approx((m1 + m2) * ax, rel=0.01)
+    assert dr["z"]["peak_settled"] == pytest.approx(m2 * (G + az), rel=0.01)
+    assert dr["x"]["peak"] > dr["x"]["peak_settled"]          # 理想梯形曲线的过冲只在原始峰值里
+    rx, rz = d["reactions"]["xs"]["max_abs_settled"], d["reactions"]["zs"]["max_abs_settled"]
+    assert rx["fz"] == pytest.approx(m1 * G + m2 * (G + az), rel=0.01)
+    assert rx["my"] == pytest.approx(m2 * ax * h, rel=0.01)        # 对随滑台走的关节中心取矩（不是零位）
+    assert rz["fx"] == pytest.approx(m2 * ax, rel=0.01)
+    assert rx["mx"] == pytest.approx(0, abs=1e-6) and rx["fy"] == pytest.approx(0, abs=1e-6)
+    q = d["series"]["x"]["q"]
+    assert q[-1] == pytest.approx(0, abs=0.5) and max(q) == pytest.approx(1500, abs=0.5)
+    assert max(abs(a) for a in d["series"]["x"]["accel"]) / 1000 > ax                # 加速度曲线也输出（含过冲）
+    bad = analysis.run("mbd", {"model": {"kind": "mjcf", "xml": xml}, "drives": [{"joint": "x", "kind": "path", "segments": [
+        {"to": 10, "t0_s": 0.5, "t1_s": 1.0}, {"to": 0, "t0_s": 0.8, "t1_s": 1.2}]}]})
+    assert bad["status"] != "ok" and "重叠" in bad["messages"][0]
+    bad = analysis.run("mbd", {"model": {"kind": "mjcf", "xml": xml}, "reactions": ["nope"]})
+    assert bad["status"] != "ok" and "nope" in bad["messages"][0]

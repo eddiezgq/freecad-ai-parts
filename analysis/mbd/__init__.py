@@ -9,13 +9,16 @@
   initial: {关节: 初值}（转动关节 °，移动关节 mm）
   drives: [{"joint", "kind": "move", "to", "t0_s", "t1_s", "accel_ratio"}    点到点（梯形速度，加减速各占 accel_ratio）
            {"joint", "kind": "speed", "value"}（转动 rpm，移动 mm/s）、{"joint", "kind": "sine", "amp", "freq_hz"}、
-           {"joint", "kind": "hold"}、{"joint", "kind": "torque", "value"}（N·m 或 N）]
+           {"joint", "kind": "hold"}、{"joint", "kind": "torque", "value"}（N·m 或 N）、
+           {"joint", "kind": "path", "segments": [{"to", "t0_s", "t1_s", "accel_ratio"}, …]}  多段点到点（取—放节拍，ADR-0115 44.5.5）]
   payloads: [{"body", "mass_kg", "pos_mm"}]、forces: [{"body", "force_n": [x, y, z], "pos_mm"}]
+  reactions: [构件名]  要输出关节反力的构件（父构件作用在它上的力与力矩，世界坐标，力矩对它的关节中心）
 
 结果 data：
-  drives: 每个驱动的峰值、均方根（N·m 或 N）、最高转速（rpm 或 mm/s）、峰值与平均功率（W）、最大等效惯量（kg·m²）
+  drives: 每个驱动的峰值、均方根（N·m 或 N）、稳定峰值 peak_settled（去掉加速度突变后 settle_window_s 内的软约束过冲）、最高转速（rpm 或 mm/s）、峰值与平均功率（W）、最大等效惯量（kg·m²）
   series: 时间与各驱动关节的位置、速度、驱动力矩（按 sample_hz 记录）
   static: 机械臂初始姿态的重力矩（几何算法，与动力学求解独立，用于核对）
+  reactions: {构件: {"force_n": {x, y, z}, "moment_nm": {x, y, z}（按 series 的时间点）, "max_abs": {fx…mz}（全部计算点）, "max_abs_settled"（同 peak_settled）}}
 """
 
 from __future__ import annotations
@@ -91,6 +94,10 @@ def _internal(setup: Mapping, slides: set[str]) -> dict:
             drives.append({"joint": j, "kind": "speed", "value": vel(j, d["value"])})
         elif k == "sine":
             drives.append({"joint": j, "kind": "sine", "amp": ang(j, d["amp"]), "freq": float(d["freq_hz"])})
+        elif k == "path":
+            drives.append({"joint": j, "kind": "path", "segments": [
+                {"to": ang(j, g["to"]), "t0": float(g["t0_s"]), "t1": float(g["t1_s"]), "accel": float(g.get("accel_ratio", 0.25))}
+                for g in d.get("segments") or []]})
         elif k in ("hold", "torque"):
             drives.append({"joint": j, "kind": k, **({"value": float(d["value"])} if k == "torque" else {})})
         else:
@@ -170,14 +177,29 @@ def run(setup: dict) -> dict:
         j, slide = d["joint"], d["joint"] in slides
         drives.append({
             "joint": j, "kind": d["kind"], "unit_force": "N" if slide else "N·m",
-            "peak": d["peak"], "rms": d["rms"],
+            "peak": d["peak"], "rms": d["rms"], "peak_settled": d["peak_settled"],
             "speed_max": d["speed_max"] * (1000 if slide else RPM), "unit_speed": "mm/s" if slide else "rpm",
             "power_peak_w": d["power_peak"], "power_mean_w": d["power_mean"], "inertia_max_kgm2": d["inertia_max"]})
         k = 1000 if slide else 180 / math.pi
         series[j] = {"q": _downsample(ch["q." + j] * k), "speed": _downsample(ch["qd." + j] * (1000 if slide else RPM)),
                      "drive": _downsample(ch["drive." + j])}
+        if slide:
+            series[j]["accel"] = _downsample(ch["qdd." + j] * 1000)
     data = {"drives": drives, "series": series, "tracking_error": summ["tracking_error_max"],
-            "timestep_s": summ["timestep_s"]}
+            "timestep_s": summ["timestep_s"], "settle_window_s": summ["settle_window_s"]}
+    reactions, keep = {}, summ["settled"]
+    for b in setup.get("reactions") or []:
+        if f"rf.{b}.x" not in ch:
+            return result.failed("mbd", MODULE["version"], setup, f"设置有误：模型里没有构件“{b}”，输出不了反力")
+        reactions[b] = {"force_n": {a: _downsample(ch[f"rf.{b}.{a}"]) for a in "xyz"},
+                        "moment_nm": {a: _downsample(ch[f"rm.{b}.{a}"]) for a in "xyz"},
+                        "max_abs": {**{f"f{a}": float(abs(ch[f"rf.{b}.{a}"]).max()) for a in "xyz"},
+                                    **{f"m{a}": float(abs(ch[f"rm.{b}.{a}"]).max()) for a in "xyz"}},
+                        "max_abs_settled": {**{f"f{a}": float(abs(ch[f"rf.{b}.{a}"][keep]).max()) for a in "xyz"},
+                                            **{f"m{a}": float(abs(ch[f"rm.{b}.{a}"][keep]).max()) for a in "xyz"}}
+                        if keep.any() else None}
+    if reactions:
+        data["reactions"] = reactions
     # 传动比耦合的实际偏差（问渠 CAD 0.3.6 细则 C2）：从动 − k × 主动，全程最大值；超限就不给结果——约束没守住时力矩看着对、位置是错的
     over = []
     if mid is not None:
@@ -249,6 +271,11 @@ def _drive_speed_max(internal, driver):
         elif d["kind"] == "move":
             q0 = float((internal.get("initial") or {}).get(driver, 0.0))
             w = max(w, 2 * abs(d["to"] - q0) / max(d["t1"] - d["t0"], 1e-9))
+        elif d["kind"] == "path":
+            q0 = float((internal.get("initial") or {}).get(driver, 0.0))
+            for g in d["segments"]:
+                w = max(w, 2 * abs(g["to"] - q0) / max(g["t1"] - g["t0"], 1e-9))
+                q0 = g["to"]
     return w
 
 

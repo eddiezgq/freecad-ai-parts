@@ -8,6 +8,7 @@
   drives: [                                    驱动（一个关节一个）
     {"joint": "crank", "kind": "speed", "value": 6.283},                         匀速（rad/s 或 m/s）
     {"joint": "j1", "kind": "move", "to": 1.2, "t0": 0, "t1": 2, "accel": 0.25},  梯形速度点到点（加减速各占 25%）
+    {"joint": "x", "kind": "path", "segments": [{"to", "t0", "t1", "accel"}, …]},   多段点到点（段与段之间停在上一段终点）
     {"joint": "j2", "kind": "sine", "amp": 0.3, "freq": 0.5},                    正弦（围绕初值）
     {"joint": "j3", "kind": "hold"},                                             保持初值
     {"joint": "j4", "kind": "torque", "value": 2.0},                             给定力矩 / 力（N·m 或 N）
@@ -108,6 +109,25 @@ def profile(d, q0):
         a, f = float(d.get("amp", 0)), float(d.get("freq", 1))
         w = 2 * math.pi * f
         return lambda t: (q0 + a * math.sin(w * t), a * w * math.cos(w * t))
+    if k == "path":
+        segs = list(d.get("segments") or [])
+        if not segs:
+            raise SetupError("关节“{}”的多段路径没有段".format(d["joint"]))
+        fs, qs, prev = [], q0, -math.inf
+        for sg in segs:
+            if float(sg["t0"]) < prev - 1e-12:
+                raise SetupError("关节“{}”的多段路径时间重叠：每段的开始要不早于上一段的结束".format(d["joint"]))
+            fs.append((float(sg["t0"]), float(sg["t1"]), profile({"joint": d["joint"], "kind": "move", **sg}, qs)))
+            qs, prev = float(sg["to"]), float(sg["t1"])
+
+        def fp(t):
+            out = (q0, 0.0)
+            for t0, _t1, f in fs:
+                if t < t0:
+                    break
+                out = f(t)
+            return out
+        return fp
     if k == "move":
         q1 = float(d["to"])
         t0, t1 = float(d.get("t0", 0)), float(d["t1"])
@@ -359,18 +379,53 @@ def simulate(spec, setup):
     summ = {"duration_s": float(setup.get("duration_s", 2)), "timestep_s": float(model.opt.timestep),
             "samples": len(ch["t"]), "seconds": round(_t.time() - t0, 2), "tracking_error_max": err,
             "drives": [], "peaks": {}}
+    settled = settled_mask(ch["t"], drives, float(model.opt.timestep))
+    summ["settle_window_s"] = SETTLE_TAUS * tau_of(float(model.opt.timestep))
     for d in drives:
         j = d["joint"]
         tau, qd = ch["drive." + j], ch["qd." + j]
         p = tau * qd
         summ["drives"].append({"joint": j, "kind": d["kind"], "peak": float(np.max(np.abs(tau))), "rms": float(np.sqrt(np.mean(tau ** 2))),
+                               "peak_settled": float(np.max(np.abs(tau[settled]))) if settled.any() else None,
                                "speed_max": float(np.max(np.abs(qd))), "power_peak": float(np.max(np.abs(p))),
                                "power_mean": float(np.mean(p)), "inertia_max": float(np.max(ch["inertia." + j]))})
+    summ["settled"] = settled
     for name, v in ch.items():
         if name != "t":
             i = int(np.argmax(np.abs(v)))
             summ["peaks"][name] = {"max_abs": float(abs(v[i])), "at_s": float(ch["t"][i]), "rms": float(np.sqrt(np.mean(v ** 2)))}
     return summ, ch, rec.animation()
+
+
+SETTLE_TAUS = 8.0              # 加速度突变后跳过几个约束时间常数再取“稳定峰值”
+
+
+def tau_of(dt: float) -> float:
+    """给定运动的约束时间常数（同 _run）"""
+    return max(2 * dt, 1e-3)
+
+
+def switch_times(d) -> list[float]:
+    """点到点 / 多段路径驱动的加速度突变时刻（梯形速度：开始、加速完、开始减速、停下）"""
+    segs = [d] if d["kind"] == "move" else d.get("segments") or [] if d["kind"] == "path" else []
+    out = []
+    for g in segs:
+        t0, t1 = float(g.get("t0", 0)), float(g["t1"])
+        ta = min(max(float(g.get("accel", 0.25)), 0.01), 0.5) * (t1 - t0)
+        out += [t0, t0 + ta, t1 - ta, t1]
+    return out
+
+
+def settled_mask(t, drives, dt: float):
+    """理想梯形速度曲线的加加速度无限大：软约束在每个加速度突变处有约 13% 的过冲（临界阻尼的 PD 跟踪对加速度阶跃的响应，
+    与步长无关），持续几个时间常数。真实伺服的加加速度有限，没有这个尖峰。突变后 SETTLE_TAUS 个时间常数内的点不计入稳定峰值"""
+    t = np.asarray(t, float)
+    keep = np.ones(len(t), bool)
+    w = SETTLE_TAUS * tau_of(dt)
+    for d in drives:
+        for ts in switch_times(d):
+            keep &= ~((t >= ts - dt) & (t <= ts + w))
+    return keep
 
 
 def _full_mass(m, data):
@@ -417,7 +472,8 @@ class Recorder:
             c = data.subtree_com[m.body_rootid[b]]
             tq, f = data.cfrc_int[b, :3], data.cfrc_int[b, 3:]
             j = m.body_jntadr[b]
-            p = data.xanchor[j] if j >= 0 else data.xpos[b]
+            # 力矩参考点：关节中心，取构件上随它一起动的点（移动关节的 xanchor 停在零位，不随滑台走）
+            p = data.xpos[b] + data.xmat[b].reshape(3, 3) @ m.jnt_pos[j] if j >= 0 else data.xpos[b]
             mo = tq - np.cross(p - c, f)
             row += [f[0], f[1], f[2], np.linalg.norm(f), mo[0], mo[1], mo[2], np.linalg.norm(mo)]
         for s in self.sites:
