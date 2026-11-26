@@ -781,6 +781,7 @@
 "按 STEP 原样划分网格，程序没有删除圆角、孔、倒角；STEP 与图纸是否一致、是否做过简化，由人核对": "The STEP is meshed as is; the program removed no fillets, holes or chamfers. Whether the STEP matches the drawing and whether it was simplified is checked by a person",
 "按“分析”节点计算，带网格收敛、反力平衡、奇异点核查；结果进 FreeCAD 的后处理": "Compute the \"Analysis\" node with mesh-convergence, reaction-balance and singularity checks; results go to FreeCAD post-processing",
 "按工序现在的刀具和参数重算刀路": "Regenerate the toolpath with the current tool and parameters",
+"按时间函数（STEP、STEP5、HAVSIN）的过渡点分段积分，必经时刻 {} 个：{}": "Integrated in segments at the transition points of time functions (STEP, STEP5, HAVSIN); {} required times: {}",
 "按柔性体算（选材料）": "Flexible (pick material)",
 "按组合 {} 算": "Computed for combination {}",
 "授权": "License",
