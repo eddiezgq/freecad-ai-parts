@@ -49,6 +49,10 @@ BASE_CFG = {"safety_factor": 1.2, "supply": {"current_type": "ac", "voltage_v": 
 BEARING_LIFE_H = 35000.0       # 输出轴承摆动寿命下限：取减速器本身的平均寿命 L50（样本表 012-1，CSF 系列 35,000 h），轴承不先于减速器坏
 DUTY = (30, 45)                # 每分钟往返 30 次、摆角 90°（半角 45°）——见假设
 MOVE = {"kind": "move", "to": -90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25}
+# j6：5 kg 质点在半径 50 mm 处（ASSUMPTIONS）。《多体动力学》书第 41 章线索第 69 条（问渠 CAD 0.3.9 细则）：原来写成 50 mm 长、
+# 5 kg 的均布杆、payload 0，峰值需求少 2.6 倍；改成杆质量≈0（模板要求为正）、末端 5 kg，与假设一致
+J6_SETUP = {"model": {"kind": "arm", "base_height_mm": 0, "links": [{"length_mm": 50.0, "mass_kg": 1e-3}], "payload_kg": 5.0},
+            "duration_s": 1.4, "sample_hz": 100, "drives": [{"joint": "j1", **MOVE}, {"joint": "j2", "kind": "hold"}]}
 
 
 def _comp(system, inst):
@@ -256,9 +260,7 @@ def main(argv=None):
         w5 = analysis.run("mbd", {"model": {"kind": "arm", "base_height_mm": 0, "links": [{"length_mm": 99.6, "mass_kg": 1e-3}],
                                             "joint_masses_kg": [0.0], "payload_kg": 5 + mods.get("j6", 0.0)},
                                   "duration_s": 1.4, "sample_hz": 100, "drives": [{"joint": "j2", **MOVE}, {"joint": "j1", "kind": "hold"}]})
-        w6 = analysis.run("mbd", {"model": {"kind": "arm", "base_height_mm": 0, "links": [{"length_mm": 50.0, "mass_kg": 5.0}],
-                                            "payload_kg": 0}, "duration_s": 1.4, "sample_hz": 100,
-                                  "drives": [{"joint": "j1", **MOVE}, {"joint": "j2", "kind": "hold"}]})
+        w6 = analysis.run("mbd", J6_SETUP)
         # j1 输出轴承的载荷：整臂重力矩当倾覆力矩、j1 以上的全部重量当轴向力（ADR-0094 第二版：选型时就查寿命）
         g = r["data"]["static"]["gravity_torque_nm"]["j2"]
         w_up = (link_mass["base"] + link_mass["upper"] + link_mass["fore"] + link_mass["wrist"]
