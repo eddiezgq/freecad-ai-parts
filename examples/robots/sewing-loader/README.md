@@ -1,17 +1,23 @@
 # 案例 B：缝纫车间裁片上下料机器人（ADR-0115 44.5）
 
-`requirement.txt` 是需求原话。现在做到 **44.5.1 构型初筛**（回放 CI 上 Claude 的录制，不调用真实 AI）：
+`requirement.txt` 是需求原话。现在做到 **44.5.5 第一步：节拍多体动力学与选件**（构型初筛回放 CI 上 Claude 的录制，不调用真实 AI；后面全是确定性计算）：
 
 ```bash
 python -m assist.robot_design examples/robots/sewing-loader/requirement.txt --screen-only -o examples/robots/sewing-loader/out/concept-result.json
+python -m assist.gantry_build examples/robots/sewing-loader/out/concept-result.json -o examples/robots/sewing-loader/out/build-result.json
 ```
 
 | 文件 | 内容 |
 | --- | --- |
 | `out/concept-result.json` | AI 摘的条件（带原话引用；节拍与取放条件单独问一次）、AI 的问题、每轮构型与初筛（取放距离、同高、一叠最高处够不够得着、节拍）、采用哪个 |
+| `out/build-result.json` | 一个节拍（取—升—移—降—放—回，2.8 s）的多体动力学：各轴推力、速度、加速度曲线与滑台受力；直线模组与抓手的选件与比较、重复定位精度、电机要的力矩与转速、待确认项 |
 
 第 1 轮 AI 提了两个构型：台面上的 X–Z 两轴龙门（真空吸盘）、偏置底座的 SCARA。龙门全部通过初筛（节拍 2.8 s ≤ 3 s），采用；
 SCARA 的取料点、放料点在关节行程内够不着。还没判的（选件后判）：节拍要的末端最高速度 2.5 m/s、加速度 12.5 m/s²，
 直线模组做不做得到；抓取力至少 4.46 N；重复定位精度 ±1 mm。
 
-后面几步（ADR-0115 44.5.2–44.5.5）：直线模组与抓手的零件类别、整本导入公开目录、选件与末端比较、三维装配、一个节拍的多体动力学、横梁有限元、报告与 BOM。
+选件结果（44.5.5 第一步）：X 轴推力 95 N → 费斯托同步带 EGC-80-TB-KF-GK（行程 1600 mm）；Z 轴推力 31 N → 丝杠 EGC-80-BS-KF-20P-GK
+（行程 200 mm）；两轴滑台载荷比较系数 0.05、0.03；吸盘 SPF 15（要 4.46 N，厂商给 9.81 N 光滑表面理论值）；重复定位精度 ±0.1 mm ≤ ±1 mm。
+待确认：吸盘质量、对布料的适用性与一次只取一片没有公开数据；电机库里没有（给了电机要的力矩与转速）；Z 轴要抱闸。
+
+后面（ADR-0115 44.5.5 第二、三步）：三维装配并按真实质量复核、横梁有限元、报告与 BOM、对照页、问渠 CAD 面板回放。
