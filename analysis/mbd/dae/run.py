@@ -226,10 +226,16 @@ def run_model(model: dict, base_dir=None):
     if tb:
         messages.append("按时间函数（STEP、STEP5、HAVSIN）的过渡点分段积分，必经时刻 {} 个：{}".format(
             len(tb), "、".join(f"{x:.6g} s" for x in tb[:12]) + ("……" if len(tb) > 12 else "")))
+    if info.get("stopped"):
+        messages.append(info["stopped"]["message"])
+    if info.get("coarse_step_deg"):
+        messages.append("一个输出步里驱动最多转了约 {}°（超过 {}°）：步长相对转速太大，相邻两点之间的运动没算到，"
+                        "曲线会失真、可能误报死点；请加密输出点（output_steps），或检查转速、减速比是否写反".format(
+                            f"{info['coarse_step_deg']:.0f}", f"{S.KIN_STEP_DEG:.0f}"))
     if typ == "kinematic" and info.get("dead_points"):
         dp = info["dead_points"]
         messages.append("经过死点 {} 次（雅可比奇异；缺省让原动件推着越过死点继续往前走）：{}".format(
-            len(dp), "；".join(_dead_txt(x) for x in dp)))
+            len(dp), "；".join(_dead_txt(x) for x in dp[:12]) + ("……" if len(dp) > 12 else "")))
     messages += getattr(sysm, "init_velocity_notes", [])
     if info.get("redundant"):
         messages.append("删掉了 {} 条冗余约束（反力里这些方向的分量不唯一，标为不完整）：{}".format(
@@ -259,6 +265,9 @@ def run_model(model: dict, base_dir=None):
                                  "status": UNKNOWN, "note": "有驱动、阻尼或外力，系统不守恒，不判"})
     if typ in ("dynamic", "static_then_dynamic"):
         _spin_stiffening(model, sysm, rec, messages)
+    if info.get("stopped"):                         # 线索第 14、75 条：没算完要标出来
+        verification.append({"key": "completed", "name": "分析算完了要求的时间", "value": info["stopped"]["t_s"],
+                             "limit": float(an.get("end_time_s", 1.0)), "status": FAIL})
     fl = _friction_check(sysm, messages)
     if fl is not None:
         verification.append(fl)
