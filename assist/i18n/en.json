@@ -3095,7 +3095,6 @@
 "换刀点 Z mm": "Tool change Z mm",
 "换刀点：X{}（直径）Z{}": "Tool change position: X{} (diameter) Z{}",
 "{} 的手册代码表里没有 {}（ADR-0125），程序不出": "{}: the manual's code table has no {} (ADR-0125), so the program is not output",
-" 发格车铣还没做（ADR-0126）。": " Fagor mill-turn is not done yet (ADR-0126).",
 "发格攻丝只认 M29 S / G98 G84 X Y Z R F / G80 这一组：{}": "Fagor tapping only accepts the M29 S / G98 G84 X Y Z R F / G80 group: {}",
 "发格攻丝这一组前后对不上（R、转速）：{}": "Fagor tapping group is inconsistent (R, speed): {}",
 "发格的刀补号是每把刀自己的 D1 ~ D8，{} 的刀补号与刀号不同，换不了": "Fagor tool offsets are each tool's own D1 to D8; {} has an offset number different from the tool number and cannot be converted",
@@ -3107,7 +3106,6 @@
 "{}发格的 G70 / G71 是英制 / 公制，固定循环的参数另有一套，请关掉 cycles（ADR-0126）": "{}on Fagor G70 / G71 are inch / metric and canned cycles take different parameters; turn cycles off (ADR-0126)",
 "{}发格的写法已按官方编程手册固定（ADR-0126），不收 dialect": "{}Fagor syntax is fixed per the official programming manual (ADR-0126); dialect is not accepted",
 "{}发格的子程序（%L、#CALL）还没做，请关掉 subprograms（ADR-0126）": "{}Fagor subroutines (%L, #CALL) are not done yet; turn subprograms off (ADR-0126)",
-"{}发格车铣、双主轴、多通道还没做（ADR-0126）": "{}Fagor mill-turn, twin spindle and multi-channel are not done yet (ADR-0126)",
 "发格程序回读不了：{}": "Fagor program cannot be read back: {}",
 "1 整机方案": "1 Robot concept",
 "3 仿真数字与需求逐条对照": "3 Simulation figures against each requirement",
@@ -3212,5 +3210,12 @@
 "NUM 车铣块里这一段换不回 FANUC 写法：{}": "This line in a NUM mill-turn block cannot be converted back to FANUC syntax: {}",
 "NUM（µm 系统）直线轴最多 3 位小数、C 最多 4 位（§5.1.4），{} 超了，程序不出": "NUM (µm system) allows at most 3 decimals on linear axes and 4 on C (§5.1.4); {} exceed this; the program is not output",
 "进 NUM 圆柱面 G22 前 C 的位置不知道，Y 算不出来（ADR-0128）：{}": "The C position before NUM cylinder mode G22 is unknown, so Y cannot be computed (ADR-0128): {}",
-"{}NUM 的 B 轴车铣、双主轴、多通道还没做（ADR-0128；端面、圆柱面车铣可以）": "{}NUM B-axis mill-turn, twin spindle and multi-channel are not done yet (ADR-0128; face and cylinder mill-turn are supported)"
+"{}NUM 的 B 轴车铣、双主轴、多通道还没做（ADR-0128；端面、圆柱面车铣可以）": "{}NUM B-axis mill-turn, twin spindle and multi-channel are not done yet (ADR-0128; face and cylinder mill-turn are supported)",
+" 发格的 C 分度 + Y 轴铣还没做（ADR-0131）。": " Fagor C indexing + Y-axis milling is not done yet (ADR-0131).",
+" 发格车铣只按 ADR-0131 换端面、圆柱面。": " Fagor mill-turn is only converted for face and cylinder machining (ADR-0131).",
+"发格毫米坐标最多 4 位小数（§1.3.1），{} 超了，程序不出": "Fagor metric coordinates allow at most 4 decimals (§1.3.1); {} exceed this; the program is not output",
+"发格程序里有本表没收的 # 指令 {}，程序不出（ADR-0131）": "The Fagor program contains # instructions not in the table: {}; the program is not output (ADR-0131)",
+"发格车铣块的结尾要是 {} / #CAX OFF / G151": "A Fagor mill-turn block must end with {} / #CAX OFF / G151",
+"发格车铣块里只换 G00 / G01、X、Z、C、F：{}": "Inside a Fagor mill-turn block only G00 / G01, X, Z, C, F are converted: {}",
+"{}发格的 B 轴车铣、双主轴、多通道还没做（ADR-0131；端面、圆柱面车铣可以）": "{}Fagor B-axis mill-turn, twin spindle and multi-channel are not done yet (ADR-0131; face and cylinder mill-turn are supported)"
 }

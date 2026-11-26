@@ -694,8 +694,9 @@ def render(prog: dict, machine: dict, controller: str, sim_res: dict | None) -> 
         if fam == "fagor":                           # ADR-0126：按 FANUC 家族加工好，再按对照表换成发格写法、查手册代码表
             text = postcfg.finish(text, {**cfg, "family": "fanuc"}, kind == "lathe", int(prog.get("number", 1)))
             text = fagor.to_fagor(text, kind == "lathe")
-            tc = cfg["tool_change"]
-            fagor.check_codes(text, kind == "lathe", re.findall(r"\bM(\d+)", " ".join(tc["before"] + tc["after"])))
+            tc, mt = cfg["tool_change"], cfg.get("millturn") or {}
+            own = tc["before"] + tc["after"] + [ln for k in ("live_on", "live_off", "c_on", "c_off") for ln in mt.get(k, [])]
+            fagor.check_codes(text, kind == "lathe", re.findall(r"\bM(\d+)", " ".join(own)))   # 配置里的 M 代码也认（ADR-0131）
         elif fam == "num":                           # ADR-0127：同发格的做法，换成 NUM 写法、查手册代码表
             text = postcfg.finish(text, {**cfg, "family": "fanuc"}, kind == "lathe", int(prog.get("number", 1)))
             text = numcnc.to_num(text, kind == "lathe")
