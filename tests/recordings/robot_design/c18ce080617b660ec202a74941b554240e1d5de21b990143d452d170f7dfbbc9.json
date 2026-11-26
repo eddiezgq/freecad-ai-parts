@@ -1,0 +1,53 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-cell/1",
+  "request_key": "c18ce080617b660ec202a74941b554240e1d5de21b990143d452d170f7dfbbc9",
+  "response": {
+    "id": "msg_011ChS97FbrGSijDym3EoRwd",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "cycle": {
+        "quote": "节拍 3 s/片",
+        "unit": "s",
+        "value": 3
+      },
+      "part_length": {
+        "quote": "最大 600 mm × 400 mm",
+        "unit": "mm",
+        "value": 600
+      },
+      "part_mass": {
+        "quote": "裁片单片质量不超过 100 g",
+        "unit": "g",
+        "value": 100
+      },
+      "part_width": {
+        "quote": "最大 600 mm × 400 mm",
+        "unit": "mm",
+        "value": 400
+      },
+      "questions": [
+        "取料区中心到放料点的水平距离：原话只给了沿裁床长度方向的 1500 mm，宽度方向另有 500 mm 偏移。这个 1500 mm 是只算长度方向的分量，还是总的水平直线距离？",
+        "送料台比取料区中心偏 500 mm，偏向裁床宽度方向的哪一侧？是朝向裁床内侧还是外侧？",
+        "放料点是送料台的中心吗？放料点和送料台中心有没有偏差？",
+        "“机器人不能占用车间通道”：通道在哪一侧？机器人底座最多能占多大的地面范围？",
+        "回到取料位时，取料位是取料区中心，还是最远一叠的位置？3 s 节拍里有没有包含吸取、放开的动作时间？"
+      ],
+      "same_height": {
+        "quote": "裁床台面和送料台面同高"
+      },
+      "stack_height": {
+        "quote": "每叠最高 100 mm",
+        "unit": "mm",
+        "value": 100
+      },
+      "work_height": {
+        "quote": "离地 850 mm",
+        "unit": "mm",
+        "value": 850
+      }
+    }
+  }
+}

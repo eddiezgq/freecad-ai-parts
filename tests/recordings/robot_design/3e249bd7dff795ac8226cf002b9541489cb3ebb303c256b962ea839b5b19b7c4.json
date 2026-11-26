@@ -1,0 +1,39 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-cell/1",
+  "request_key": "3e249bd7dff795ac8226cf002b9541489cb3ebb303c256b962ea839b5b19b7c4",
+  "response": {
+    "id": "msg_011ChS97xQkod16iwEsCUya1",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "along_distance": {
+        "quote": "沿裁床长度方向,取料区中心到放料点水平距离 1500 mm",
+        "unit": "mm",
+        "value": 1500
+      },
+      "area_length": {
+        "quote": "1200 mm × 800 mm 的取料区（1200 mm 沿裁床长度方向）",
+        "unit": "mm",
+        "value": 1200
+      },
+      "area_width": {
+        "quote": "1200 mm × 800 mm 的取料区",
+        "unit": "mm",
+        "value": 800
+      },
+      "lateral_offset": {
+        "quote": "送料台在裁床宽度方向上比取料区中心偏 500 mm",
+        "unit": "mm",
+        "value": 500
+      },
+      "max_rotation": {
+        "quote": "最多转 90°",
+        "unit": "°",
+        "value": 90
+      },
+      "questions": []
+    }
+  }
+}
