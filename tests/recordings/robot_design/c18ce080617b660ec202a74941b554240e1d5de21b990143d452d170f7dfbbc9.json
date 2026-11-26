@@ -1,0 +1,56 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-cell/1",
+  "request_key": "c18ce080617b660ec202a74941b554240e1d5de21b990143d452d170f7dfbbc9",
+  "response": {
+    "id": "msg_011ChS8VK3hiiTEWdGoy7LWQ",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "cycle": {
+        "quote": "节拍 3 s/片",
+        "unit": "s",
+        "value": 3
+      },
+      "part_length": {
+        "quote": "最大 600 mm × 400 mm",
+        "unit": "mm",
+        "value": 600
+      },
+      "part_mass": {
+        "quote": "裁片单片质量不超过 100 g",
+        "unit": "g",
+        "value": 100
+      },
+      "part_width": {
+        "quote": "最大 600 mm × 400 mm",
+        "unit": "mm",
+        "value": 400
+      },
+      "questions": [
+        "取料区中心到放料点的水平距离原话只给了沿裁床长度方向的 1500 mm，另有宽度方向偏 500 mm，没有直接给出两点之间的直线水平距离。这里是否按这两个分量合成来算？",
+        "送料台在裁床宽度方向偏 500 mm，是偏向哪一侧？是朝通道一侧，还是背向通道一侧？",
+        "“机器人不能占用车间通道”：通道在哪里，机器人底座能装在什么位置、有多大的占地空间？",
+        "节拍 3 s 按最远的一叠算。取料区 1200 mm × 800 mm 内，最远的一叠离取料区中心大约多远？",
+        "取料区中心在长度方向上，相对放料点是在 1500 mm 处的哪个位置（取料区各叠中心可偏离中心多少）？",
+        "“不能损伤布料”有没有具体要求，例如不能压出印子、不能拉伸、不能带起下一片？取料用什么方式由谁定？",
+        "放料定位精度 ±1 mm 是指裁片位置，还是指机器人末端的重复定位精度？转 90° 后的角度精度有没有要求？",
+        "取料高度会随叠高在 850 mm 到 950 mm 之间变化（每叠最高 100 mm），这样理解对吗？"
+      ],
+      "same_height": {
+        "quote": "裁床台面和送料台面同高"
+      },
+      "stack_height": {
+        "quote": "每叠最高 100 mm",
+        "unit": "mm",
+        "value": 100
+      },
+      "work_height": {
+        "quote": "离地 850 mm",
+        "unit": "mm",
+        "value": 850
+      }
+    }
+  }
+}
