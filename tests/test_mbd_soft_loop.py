@@ -70,9 +70,23 @@ def test_four_bar_600rpm_torque_within_one_percent():
     assert any("软约束" in x for x in res["limitations"])
 
 
-def test_fast_four_bar_gap_is_reported():
-    # 2400 rpm：闭环拉开 0.39 mm（最短构件 40 mm 的 0.1 % 是 0.04 mm），驱动力矩误差约 10 %——原来状态 ok、什么都不说
+def test_fast_four_bar_gap_is_reported(monkeypatch):
+    # 2400 rpm：闭环拉开 0.39 mm（最短构件 40 mm 的 0.1 % 是 0.04 mm），驱动力矩误差约 10 %——原来状态 ok、什么都不说。
+    # 问渠 CAD 0.3.9（线索第 71 条）查出 0.3.8 选的步长 h 没有生效（core.simulate 把步长改回 0.2 ms，τ 被 MuJoCo 限在 2 步长），
+    # 修好后 2400 rpm 只拉开 0.007 mm，见下一个测试；这里把 τ、步长固定回 0.3.8 实际用的值，核“拉开超限要报”这条路仍然有效
+    monkeypatch.setattr(mechanisms, "loop_tau", lambda mid, given, w: (mechanisms.LOOP_TAU_MAX, mechanisms.DT_MAX))
+    monkeypatch.setattr(mechanisms, "DAE_RATIO", 0.0)
     res = _run(2400, 0.06)
     loop = res["data"]["loop"]
     assert loop["max_gap_mm"] > loop["limit_mm"]
     assert any("闭环拉开" in m for m in res["messages"])
+
+
+def test_fast_four_bar_step_honoured_and_torque_exact():
+    # 线索第 71 条：步长按 τ 取（不再被改回 0.2 ms），闭环拉开在限内；2400 rpm 一转只有约束时间常数的 25 倍，驱动力矩改由 DAE 算
+    res = _run(2400, 0.06)
+    loop = res["data"]["loop"]
+    assert loop["max_gap_mm"] <= loop["limit_mm"]
+    assert res["data"]["timestep_s"] <= loop["tau_s"] / 2 + 1e-15
+    assert res["data"]["force_solver"]["name"] == "DAE"
+    assert _torque_err(res, 2400, 0.06) <= 0.01
