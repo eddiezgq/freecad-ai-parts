@@ -118,6 +118,57 @@ def assemble(sysm: System, q, t, rows, free=None):
     return q
 
 
+MOBILITY_STEP = 1e-2     # 有限可动检验：沿可动方向走特征长度的这个比例
+
+
+def finite_mobility(sysm: System, q, t):
+    """动力学开算前的有限可动检验（《多体动力学》书第 44 章线索第 79 条，问渠 CAD 0.3.9 细则）。
+    三铰共线的两杆结构：雅可比在这个位形掉秩，数出 1 个自由度，但它只能瞬时可动，离开一点就装不上——原来照算，
+    被当成冗余删掉的约束在运动中拉开，或者求根抛“f(a) and f(b) must have different signs”。
+    现在对全部约束（含被当成冗余的行）的零空间逐个方向：沿它走特征长度的 1 %，固定变化最大的那个坐标，其余坐标
+    投影回约束面。真能动的方向残差收到机器精度；只能瞬时可动的方向残差停在步长平方 / 长度的量级，报错并指出运动副。"""
+    rows = list(sysm.rows)
+    if not rows or sysm.nb == 0:
+        return
+    J = sysm.jac(q, t, rows)
+    _, sv, Vt = np.linalg.svd(J)
+    if sv.size == 0 or sv[0] == 0.0:
+        return
+    tol = max(J.shape) * np.finfo(float).eps * max(sv[0], 1.0) * 1e3
+    N = Vt[int(np.sum(sv > tol)):]
+    if not len(N):
+        return
+    pos = [7 * k + i for k in range(sysm.nb) for i in range(3)]
+    rot = [7 * k + 3 + i for k in range(sysm.nb) for i in range(4)]
+    cms = [np.asarray(sysm.rp(q, k)[0], float) for k in range(sysm.nb)]
+    L = max([np.linalg.norm(a - b) for a in cms for b in cms] + [np.linalg.norm(a) for a in cms] + [1e-2])
+    stuck, worst, joints = 0, 0.0, set()
+    for v in N:
+        scale = max(np.max(np.abs(v[pos])), L * np.max(np.abs(v[rot])), 1e-30) if pos else np.max(np.abs(v))
+        h = MOBILITY_STEP * L / scale
+        k = int(np.argmax(np.abs(v)))
+        free = [i for i in range(sysm.n) if i != k]
+        x = q + h * v
+        for _ in range(30):
+            ph = sysm.phi(x, t, rows)
+            if np.max(np.abs(ph)) < 1e-14:
+                break
+            x[free] += np.linalg.lstsq(sysm.jac(x, t, rows)[:, free], -ph, rcond=None)[0]
+        ph = np.abs(sysm.phi(x, t, rows))
+        disp = MOBILITY_STEP * L
+        if np.max(ph) > 1e-3 * disp * disp / L:
+            bad = np.nonzero(ph > 0.1 * np.max(ph))[0]
+            joints |= {rows[i].joint for i in bad if rows[i].joint} or {rows[i].label for i in bad}
+            stuck, worst = stuck + 1, max(worst, float(np.max(ph)))
+    if stuck:
+        jtxt = "、".join(f"“{j}”" for j in sorted(joints))
+        raise SolveError(
+            f"机构锁死或开始时在奇异位形：结构在开始位形只能瞬时可动、不能有限运动（例如三个铰点共线）——"
+            f"沿可动方向走 {MOBILITY_STEP * L * 1000:.3g} mm 后约束收不回去（残差 {worst:.2g}），离开这个位形，"
+            f"只看运动副的结构自由度是 {max(len(N) - stuck, 0)}；受横向力时内力趋于无穷，动力学算不下去。"
+            f"涉及运动副{jtxt}。请检查这些铰点是否共线；它本来就该是不动的结构的话用静力学分析")
+
+
 def _nearby_dof(sysm: System, q, t, step=1e-2):
     """只看运动副：此处的结构自由度，和沿各可动方向走特征长度的 1 %、投影回约束面后的最少结构自由度。
     后者小于前者说明此处是奇异位形（分岔）。返回 (此处, 邻近) 或 None"""
@@ -937,6 +988,7 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
     dof = sysm.n - len(keep)
     if dof <= 0:
         raise SolveError("没有自由度（全被驱动定死了），请用运动学分析")
+    finite_mobility(sysm, q, t0)
     if qd is None:
         qd = initial_velocity(sysm, q, t0, rows)
     rec = Recorder(sysm)
