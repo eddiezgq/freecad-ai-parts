@@ -1,0 +1,128 @@
+{
+ "format": "gantry-bom/1",
+ "purchased": [
+  {
+   "kind": "purchased",
+   "role": "直线模组",
+   "component": "linear_module.festo-se-co-kg.egc-80-tb-kf-gk",
+   "model": "EGC-80-TB-KF-GK",
+   "vendor": "Festo SE & Co. KG",
+   "qty": 1,
+   "joints": [
+    "j1_x"
+   ],
+   "mass_kg_each": 12.92,
+   "mass_source": "src-festo-egc-tb；对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 11 页原文“EGC-…-GK/-GP 620 1850 3000 10500 32600”"
+  },
+  {
+   "kind": "purchased",
+   "role": "直线模组",
+   "component": "linear_module.festo-se-co-kg.egc-80-bs-kf-20p-gk",
+   "model": "EGC-80-BS-KF-20P-GK",
+   "vendor": "Festo SE & Co. KG",
+   "qty": 1,
+   "joints": [
+    "j2_z"
+   ],
+   "mass_kg_each": 4.3,
+   "mass_source": "src-festo-egc-bs；对照目录原页逐项录入：Claude（经张国庆授权，ADR-0040）（2026-11-25），目录第 12 页原文“EGC-...-GK/-GP 1500 2700 12500 30000”"
+  },
+  {
+   "kind": "purchased",
+   "role": "抓手",
+   "component": "gripper.j-schmalz-gmbh.spf-15",
+   "model": "SPF 15",
+   "vendor": "J. Schmalz GmbH",
+   "qty": 1,
+   "joints": [],
+   "mass_kg_each": null,
+   "mass_source": "厂商没给质量（未计入）"
+  }
+ ],
+ "made": [
+  {
+   "kind": "made",
+   "drawing_no": "SL-01",
+   "name": "横梁（矩形管）",
+   "qty": 1,
+   "group": "门架",
+   "material": "6061-T6",
+   "mass_kg": 17.7293,
+   "mass_source": "三维模型体积 6.5664e+06 mm³ × 6061-T6 密度"
+  },
+  {
+   "kind": "made",
+   "drawing_no": "SL-02",
+   "name": "立柱与地脚板 左",
+   "qty": 1,
+   "group": "门架",
+   "material": "6061-T6",
+   "mass_kg": 4.475,
+   "mass_source": "三维模型体积 1.65742e+06 mm³ × 6061-T6 密度"
+  },
+  {
+   "kind": "made",
+   "drawing_no": "SL-03",
+   "name": "立柱与地脚板 右",
+   "qty": 1,
+   "group": "门架",
+   "material": "6061-T6",
+   "mass_kg": 4.475,
+   "mass_source": "三维模型体积 1.65742e+06 mm³ × 6061-T6 密度"
+  },
+  {
+   "kind": "made",
+   "drawing_no": "SL-04",
+   "name": "Z 轴连接板（L 形）",
+   "qty": 1,
+   "group": "连接件",
+   "material": "6061-T6",
+   "mass_kg": 1.558,
+   "mass_source": "三维模型体积 577036 mm³ × 6061-T6 密度"
+  },
+  {
+   "kind": "made",
+   "drawing_no": "SL-05",
+   "name": "管夹",
+   "qty": 1,
+   "group": "连接件",
+   "material": "6061-T6",
+   "mass_kg": 0.5891,
+   "mass_source": "三维模型体积 218190 mm³ × 6061-T6 密度"
+  },
+  {
+   "kind": "made",
+   "drawing_no": "SL-06",
+   "name": "竖管 Ø50/Ø42（长 218.0 mm）",
+   "qty": 1,
+   "group": "工具链",
+   "material": "6061-T6",
+   "mass_kg": 0.3402,
+   "mass_source": "三维模型体积 126016 mm³ × 6061-T6 密度"
+  },
+  {
+   "kind": "made",
+   "drawing_no": "SL-07",
+   "name": "吸盘座",
+   "qty": 1,
+   "group": "工具链",
+   "material": "6061-T6",
+   "mass_kg": 0.1033,
+   "mass_source": "三维模型体积 38264.6 mm³ × 6061-T6 密度"
+  }
+ ],
+ "not_listed": [
+  "电机与电机套件（联轴器、法兰）：零件库里没有配费斯托模组的电机，电机没选（要的力矩与转速见报告第 2 节）；竖直轴要带抱闸",
+  "真空发生器、气管与接头：零件库里没有",
+  "控制器、驱动器、线缆与拖链：零件库里没有",
+  "X 模组装在横梁下面用的安装件（型材连接件、滑块螺母）：没建模",
+  "紧固件：三维装配没建螺钉孔，规格与数量待定",
+  "立柱落脚处的安装面（与台面同高）：属于车间现场，不在本机 BOM"
+ ],
+ "purchased_mass_kg": 17.22,
+ "made_mass_kg": 29.2699,
+ "total_mass_kg": 46.4899,
+ "mass_not_counted": [
+  "抓手 SPF 15"
+ ]
+}

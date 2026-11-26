@@ -49,12 +49,13 @@ def plan(case_dir: Path, replay: Path | None, provider: str | None) -> list[tupl
 
 
 def run(case_dir: str | Path, *, replay: str | Path | None = None, provider: str | None = None,
-        steps=None, clock=time.perf_counter) -> dict:
-    """依次跑各步；某步失败就停在那一步（结果如实写进 timing.json），不往下跑。"""
+        steps=None, clock=time.perf_counter, ai: str | None = None) -> dict:
+    """依次跑各步；某步失败就停在那一步（结果如实写进 timing.json），不往下跑。
+    steps 给了就按它跑（案例 B 的 assist.gantry_case 用），ai 是 timing.json 里“AI 怎么来的”那一项。"""
     case_dir = Path(case_dir)
     (case_dir / "out").mkdir(exist_ok=True)
     timing = {"format": "robot-timing/1", "date": _dt.datetime.now().astimezone().isoformat(timespec="seconds"),
-              "machine": machine(), "ai": f"回放 {replay}" if replay else f"真实调用（{provider or '缺省'}）",
+              "machine": machine(), "ai": ai or (f"回放 {replay}" if replay else f"真实调用（{provider or '缺省'}）"),
               "steps": [], "status": "pass"}
     path = case_dir / "out" / "timing.json"
     for name, who, fn in steps if steps is not None else plan(case_dir, Path(replay) if replay else None, provider):

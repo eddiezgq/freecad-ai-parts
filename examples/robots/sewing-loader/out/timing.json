@@ -1,0 +1,33 @@
+{
+ "format": "robot-timing/1",
+ "date": "2026-11-26T02:29:23-05:00",
+ "machine": "2 核、内存 7.8 GB",
+ "ai": "回放 tests/recordings/robot_design",
+ "steps": [
+  {
+   "step": "构型（AI 提、代码初筛）",
+   "who": "AI（回放录制）+ 代码",
+   "seconds": 21.9,
+   "exit_code": 0
+  },
+  {
+   "step": "选件与节拍多体动力学（代码）",
+   "who": "代码",
+   "seconds": 2.6,
+   "exit_code": 0
+  },
+  {
+   "step": "三维装配、复核选件与门架有限元（代码）",
+   "who": "代码",
+   "seconds": 189.7,
+   "exit_code": 0
+  },
+  {
+   "step": "报告与 BOM（代码）",
+   "who": "代码",
+   "seconds": 0.0,
+   "exit_code": 0
+  }
+ ],
+ "status": "pass"
+}
