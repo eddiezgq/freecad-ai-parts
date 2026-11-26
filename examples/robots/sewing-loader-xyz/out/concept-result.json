@@ -1,0 +1,2276 @@
+{
+ "part_type": "robot",
+ "statement": "缝纫车间的裁片上下料机器人：从裁床上逐片取裁片，转到缝纫方向后放到平缝机工位的送料台上。裁片单片质量不超过 100 g，最大 600 mm × 400 mm。裁好的裁片在裁床上分几叠摆放，每叠最高 100 mm，各叠中心都在一块长 1200 mm、宽 800 mm 的取料区内（长边沿裁床长度方向）。裁床台面和送料台面同高，离地 850 mm；沿裁床长度方向，取料区中心到放料点水平距离 1500 mm；送料台在裁床宽度方向上比取料区中心偏 500 mm。放料时裁片要绕竖直轴转到缝纫方向，最多转 90°。机器人不能占用车间通道。\n节拍 3 s/片（取一片、转好、放好、回到取料位，按最远的一叠算）；放料定位精度 ±1 mm；不能损伤布料。\n",
+ "rounds": [
+  {
+   "proposal": {
+    "candidates": [
+     {
+      "base": {
+       "height_mm": 850,
+       "mount": "table"
+      },
+      "end_effector": {
+       "offset_mm": [
+        0,
+        0,
+        -50
+       ],
+       "parent": "c_head",
+       "type": "vacuum"
+      },
+      "format": "robot-concept/1",
+      "joints": [
+       {
+        "axis": [
+         1,
+         0,
+         0
+        ],
+        "child": "y_beam",
+        "id": "j1_x",
+        "lead_mm": 200,
+        "module_group": "lin_xy",
+        "origin_mm": [
+         0,
+         -150,
+         750
+        ],
+        "parent": "base",
+        "range_mm": [
+         0,
+         2400
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         1,
+         0
+        ],
+        "child": "z_housing",
+        "id": "j2_y",
+        "lead_mm": 150,
+        "module_group": "lin_xy",
+        "origin_mm": [
+         0,
+         150,
+         0
+        ],
+        "parent": "y_beam",
+        "range_mm": [
+         0,
+         1000
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "z_slide",
+        "id": "j3_z",
+        "lead_mm": 100,
+        "module_group": "lin_z",
+        "origin_mm": [
+         0,
+         0,
+         0
+        ],
+        "parent": "z_housing",
+        "range_mm": [
+         -50,
+         250
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "c_head",
+        "id": "j4_c",
+        "origin_mm": [
+         0,
+         0,
+         -650
+        ],
+        "parent": "z_slide",
+        "range_deg": [
+         -100,
+         100
+        ],
+        "ratio": 9,
+        "transmission": "reducer",
+        "type": "revolute"
+       }
+      ],
+      "kind": "gantry",
+      "links": [
+       {
+        "id": "y_beam",
+        "length_mm": 1200,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 120,
+         "width_mm": 80
+        },
+        "shape": "profile"
+       },
+       {
+        "id": "z_housing",
+        "length_mm": 250,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 200,
+         "wall_mm": 4,
+         "width_mm": 120
+        },
+        "shape": "box"
+       },
+       {
+        "id": "z_slide",
+        "length_mm": 700,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 60,
+         "width_mm": 40
+        },
+        "shape": "profile"
+       },
+       {
+        "id": "c_head",
+        "length_mm": 100,
+        "material": "7075-T6",
+        "section": {
+         "thickness_mm": 10,
+         "width_mm": 120
+        },
+        "shape": "plate"
+       }
+      ],
+      "name": "桌面悬臂龙门 XYZ+C(多区真空吸盘)",
+      "reason": "取料区最远角到放料点约 2285 mm，转动臂要么占掉取料区、要么做得很长，奇异位姿也多。直角坐标龙门没有奇异问题，行程直接覆盖整个取放区。X 为长轴，只背着较轻的 Y 横梁。Z 与 C 在末端，运动质量小。机架立在台面后沿，不占车间通道。",
+      "tasks": [
+       {
+        "dwell_s": 0.1,
+        "from_mm": [
+         0,
+         0,
+         0
+        ],
+        "move_s": 0.2,
+        "name": "lift_pick",
+        "to_mm": [
+         0,
+         0,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         0,
+         0,
+         130
+        ],
+        "move_s": 0.95,
+        "name": "carry_and_rotate_90",
+        "to_mm": [
+         2100,
+         900,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0.1,
+        "from_mm": [
+         2100,
+         900,
+         130
+        ],
+        "move_s": 0.2,
+        "name": "lower_place",
+        "to_mm": [
+         2100,
+         900,
+         0
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         2100,
+         900,
+         0
+        ],
+        "move_s": 0.2,
+        "name": "lift_place",
+        "to_mm": [
+         2100,
+         900,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         2100,
+         900,
+         130
+        ],
+        "move_s": 0.95,
+        "name": "return",
+        "to_mm": [
+         0,
+         0,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         0,
+         0,
+         130
+        ],
+        "move_s": 0.2,
+        "name": "lower_pick",
+        "to_mm": [
+         0,
+         0,
+         0
+        ],
+        "type": "cartesian_move"
+       }
+      ],
+      "workspace": {
+       "points_mm": [
+        [
+         600,
+         400,
+         0
+        ],
+        [
+         2100,
+         900,
+         0
+        ],
+        [
+         0,
+         0,
+         0
+        ],
+        [
+         1200,
+         0,
+         0
+        ],
+        [
+         0,
+         800,
+         0
+        ],
+        [
+         1200,
+         800,
+         0
+        ]
+       ]
+      }
+     },
+     {
+      "base": {
+       "height_mm": 850,
+       "mount": "table"
+      },
+      "end_effector": {
+       "offset_mm": [
+        0,
+        0,
+        -50
+       ],
+       "parent": "c_head",
+       "type": "vacuum"
+      },
+      "format": "robot-concept/1",
+      "joints": [
+       {
+        "axis": [
+         1,
+         0,
+         0
+        ],
+        "child": "y_beam",
+        "id": "j1_x",
+        "lead_mm": 200,
+        "module_group": "lin_xy",
+        "origin_mm": [
+         0,
+         -200,
+         750
+        ],
+        "parent": "base",
+        "range_mm": [
+         0,
+         2400
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         1,
+         0
+        ],
+        "child": "z_housing",
+        "id": "j2_y",
+        "lead_mm": 150,
+        "module_group": "lin_xy",
+        "origin_mm": [
+         0,
+         200,
+         0
+        ],
+        "parent": "y_beam",
+        "range_mm": [
+         0,
+         1000
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "z_slide",
+        "id": "j3_z",
+        "lead_mm": 100,
+        "module_group": "lin_z",
+        "origin_mm": [
+         0,
+         0,
+         0
+        ],
+        "parent": "z_housing",
+        "range_mm": [
+         -50,
+         250
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "c_head",
+        "id": "j4_c",
+        "origin_mm": [
+         0,
+         0,
+         -650
+        ],
+        "parent": "z_slide",
+        "range_deg": [
+         -100,
+         100
+        ],
+        "ratio": 9,
+        "transmission": "reducer",
+        "type": "revolute"
+       }
+      ],
+      "kind": "gantry",
+      "links": [
+       {
+        "id": "y_beam",
+        "length_mm": 1300,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 150,
+         "wall_mm": 4,
+         "width_mm": 100
+        },
+        "shape": "box"
+       },
+       {
+        "id": "z_housing",
+        "length_mm": 250,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 200,
+         "wall_mm": 4,
+         "width_mm": 120
+        },
+        "shape": "box"
+       },
+       {
+        "id": "z_slide",
+        "length_mm": 700,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 60,
+         "width_mm": 40
+        },
+        "shape": "profile"
+       },
+       {
+        "id": "c_head",
+        "length_mm": 100,
+        "material": "7075-T6",
+        "section": {
+         "thickness_mm": 10,
+         "width_mm": 120
+        },
+        "shape": "plate"
+       }
+      ],
+      "name": "桌面双侧支撑龙门 XYZ+C(多区真空吸盘)",
+      "reason": "Y 横梁两端都架在 X 导轨上，用桥式结构，没有悬臂变形，刚性和重复定位更有把握。代价是 X 轴要双侧同步驱动，台面两侧要留出立柱，运动质量比悬臂方案大。节拍里最高 3 m/s 以上的加减速更难满足。",
+      "tasks": [
+       {
+        "dwell_s": 0.1,
+        "from_mm": [
+         0,
+         0,
+         0
+        ],
+        "move_s": 0.2,
+        "name": "lift_pick",
+        "to_mm": [
+         0,
+         0,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         0,
+         0,
+         130
+        ],
+        "move_s": 0.95,
+        "name": "carry_and_rotate_90",
+        "to_mm": [
+         2100,
+         900,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0.1,
+        "from_mm": [
+         2100,
+         900,
+         130
+        ],
+        "move_s": 0.2,
+        "name": "lower_place",
+        "to_mm": [
+         2100,
+         900,
+         0
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         2100,
+         900,
+         0
+        ],
+        "move_s": 0.2,
+        "name": "lift_place",
+        "to_mm": [
+         2100,
+         900,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         2100,
+         900,
+         130
+        ],
+        "move_s": 0.95,
+        "name": "return",
+        "to_mm": [
+         0,
+         0,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         0,
+         0,
+         130
+        ],
+        "move_s": 0.2,
+        "name": "lower_pick",
+        "to_mm": [
+         0,
+         0,
+         0
+        ],
+        "type": "cartesian_move"
+       }
+      ],
+      "workspace": {
+       "points_mm": [
+        [
+         600,
+         400,
+         0
+        ],
+        [
+         2100,
+         900,
+         0
+        ],
+        [
+         0,
+         0,
+         0
+        ],
+        [
+         1200,
+         0,
+         0
+        ],
+        [
+         0,
+         800,
+         0
+        ],
+        [
+         1200,
+         800,
+         0
+        ]
+       ]
+      }
+     }
+    ],
+    "reason": "推荐第 0 个（悬臂龙门）。\n\n1. 为什么用龙门：最远角到放料点约 2285 mm。转动臂放在中间会压住取料区。放在边上则臂展过长，还有奇异位姿。龙门 XYZ+C 的行程直接覆盖整个取放区，没有奇异问题。C 轴是竖直转动关节，行程 ±100°，比 90° 的放料转角有余量。机架立在台面后沿，不占车间通道。\n\n2. 为什么推荐悬臂（第 0 个）：节拍 3 s 很紧，两段水平搬运各 0.95 s，末端最高速度约 3 m/s，加速度约 13 m/s²。竖直抬放 130 mm 要 0.2 s，Z 向加速度约 17 m/s²。悬臂方案运动质量最小，更容易满足。第 1 个（双侧桥式）刚性更好，但 X 轴要双侧同步，运动质量更大，加速度更难满足。选件后要按直线模组的速度、推力和力矩核；如果 Y 悬臂变形影响 ±1 mm 重复定位，就改用第 1 个。\n\n3. 末端用多区真空吸盘：在轻量框架上装多个软波纹吸盘，分区控制，按裁片尺寸开关各区。布料可能透气，所以用大流量、低真空度的真空发生器。多点吸附能防止 600×400 的软片在加速时下垂。不用针刺，因为扎针可能伤布料，与“不能损伤布料”的要求冲突。吸力、透气布料的保持力和伤布情况，选件后按公开数据核，查不到的记待确认。\n\n4. 动作设计：取料先垂直抬到 130 mm，高于一叠最高的 100 mm，避开取料区里的其他叠。搬运段里 X、Y 联动，同时让 C 轴转 90°。节拍合计 2.9 s，小于 3.0 s。\n\n5. 待确认项：台面要能容纳 X 方向约 2.4 m、Y 方向约 1 m 的行程和立柱。若台面宽度不够，需要调整。",
+    "recommend": 0
+   },
+   "evaluations": [
+    {
+     "items": [
+      {
+       "item": "重复定位精度",
+       "status": "unknown",
+       "limit": "± 1 mm",
+       "note": "选件后按编码器分辨率与减速器回差算（这一步判不了）"
+      },
+      {
+       "item": "取料区四角",
+       "status": "fail",
+       "value": "1442.2 × 1200.0 mm，中心偏 0.0 mm",
+       "limit": "1200 × 800 mm，以取料点为中心、同高（± 1 mm）",
+       "note": "第 3–6 点要依次是取料区的四个角（矩形、按顺序绕一圈）"
+      },
+      {
+       "item": "取放两处同高",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "0 ± 1 mm",
+       "note": "放料点比取料点高（mm）"
+      },
+      {
+       "item": "节拍",
+       "status": "pass",
+       "value": 2.9,
+       "limit": "≤ 3 s",
+       "note": "6 段直线动作加停留；lift_pick 130 mm / 0.2 s（最高 0.87 m/s、17.3 m/s²）；carry_and_rotate_90 2285 mm / 0.95 s（最高 3.21 m/s、13.5 m/s²）；lower_place 130 mm / 0.2 s（最高 0.87 m/s、17.3 m/s²）；lift_place 130 mm / 0.2 s（最高 0.87 m/s、17.3 m/s²）；return 2285 mm / 0.95 s（最高 3.21 m/s、13.5 m/s²）；lower_pick 130 mm / 0.2 s（最高 0.87 m/s、17.3 m/s²）"
+      },
+      {
+       "item": "节拍里末端最高速度与加速度",
+       "status": "unknown",
+       "value": "3.21 m/s、17.3 m/s²",
+       "note": "选件后按直线模组或电机的最高速度、推力核（这一步判不了）"
+      },
+      {
+       "item": "抓取力",
+       "status": "unknown",
+       "value": "至少 5.43 N",
+       "note": "单片 100 g ×（g + 17.3 m/s²）× 安全系数 2；选件后按抓手的公开数据核"
+      },
+      {
+       "item": "放料转向",
+       "status": "pass",
+       "value": "j4_c 行程 200°",
+       "limit": "≥ 90°",
+       "note": "转动多快在选件后按转动模组的速度核"
+      },
+      {
+       "item": "结构",
+       "status": "pass",
+       "note": "4 根杆件、4 个关节"
+      },
+      {
+       "item": "取料区中心 (600, 400, 0)",
+       "status": "pass",
+       "value": 0.003,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "放料点 (2100, 900, 0)",
+       "status": "pass",
+       "value": 0.009,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 1 (0, 0, 0)",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 2 (1200, 0, 0)",
+       "status": "pass",
+       "value": 0.005,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 3 (0, 800, 0)",
+       "status": "pass",
+       "value": 0.003,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 4 (1200, 800, 0)",
+       "status": "pass",
+       "value": 0.006,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 1 上方一叠最高处 (0.0, 0.0, 100.0)",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 2 上方一叠最高处 (1200.0, 0.0, 100.0)",
+       "status": "pass",
+       "value": 0.005,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 3 上方一叠最高处 (0.0, 800.0, 100.0)",
+       "status": "pass",
+       "value": 0.003,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 4 上方一叠最高处 (1200.0, 800.0, 100.0)",
+       "status": "pass",
+       "value": 0.006,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "动作：lift_pick",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：carry_and_rotate_90",
+       "status": "pass",
+       "value": 105.0,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 105.00（° 或 mm）"
+      },
+      {
+       "item": "动作：lower_place",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：lift_place",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：return",
+       "status": "pass",
+       "value": 105.0,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 105.00（° 或 mm）"
+      },
+      {
+       "item": "动作：lower_pick",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "末端负载的静力矩（下限）",
+       "status": "pass",
+       "note": "j4_c 0.00 N·m。只计负载重力，自重与惯性在选件后由多体动力学算"
+      }
+     ],
+     "overall": "fail"
+    },
+    {
+     "items": [
+      {
+       "item": "重复定位精度",
+       "status": "unknown",
+       "limit": "± 1 mm",
+       "note": "选件后按编码器分辨率与减速器回差算（这一步判不了）"
+      },
+      {
+       "item": "取料区四角",
+       "status": "fail",
+       "value": "1442.2 × 1200.0 mm，中心偏 0.0 mm",
+       "limit": "1200 × 800 mm，以取料点为中心、同高（± 1 mm）",
+       "note": "第 3–6 点要依次是取料区的四个角（矩形、按顺序绕一圈）"
+      },
+      {
+       "item": "取放两处同高",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "0 ± 1 mm",
+       "note": "放料点比取料点高（mm）"
+      },
+      {
+       "item": "节拍",
+       "status": "pass",
+       "value": 2.9,
+       "limit": "≤ 3 s",
+       "note": "6 段直线动作加停留；lift_pick 130 mm / 0.2 s（最高 0.87 m/s、17.3 m/s²）；carry_and_rotate_90 2285 mm / 0.95 s（最高 3.21 m/s、13.5 m/s²）；lower_place 130 mm / 0.2 s（最高 0.87 m/s、17.3 m/s²）；lift_place 130 mm / 0.2 s（最高 0.87 m/s、17.3 m/s²）；return 2285 mm / 0.95 s（最高 3.21 m/s、13.5 m/s²）；lower_pick 130 mm / 0.2 s（最高 0.87 m/s、17.3 m/s²）"
+      },
+      {
+       "item": "节拍里末端最高速度与加速度",
+       "status": "unknown",
+       "value": "3.21 m/s、17.3 m/s²",
+       "note": "选件后按直线模组或电机的最高速度、推力核（这一步判不了）"
+      },
+      {
+       "item": "抓取力",
+       "status": "unknown",
+       "value": "至少 5.43 N",
+       "note": "单片 100 g ×（g + 17.3 m/s²）× 安全系数 2；选件后按抓手的公开数据核"
+      },
+      {
+       "item": "放料转向",
+       "status": "pass",
+       "value": "j4_c 行程 200°",
+       "limit": "≥ 90°",
+       "note": "转动多快在选件后按转动模组的速度核"
+      },
+      {
+       "item": "结构",
+       "status": "pass",
+       "note": "4 根杆件、4 个关节"
+      },
+      {
+       "item": "取料区中心 (600, 400, 0)",
+       "status": "pass",
+       "value": 0.003,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "放料点 (2100, 900, 0)",
+       "status": "pass",
+       "value": 0.009,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 1 (0, 0, 0)",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 2 (1200, 0, 0)",
+       "status": "pass",
+       "value": 0.005,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 3 (0, 800, 0)",
+       "status": "pass",
+       "value": 0.003,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 4 (1200, 800, 0)",
+       "status": "pass",
+       "value": 0.006,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 1 上方一叠最高处 (0.0, 0.0, 100.0)",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 2 上方一叠最高处 (1200.0, 0.0, 100.0)",
+       "status": "pass",
+       "value": 0.005,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 3 上方一叠最高处 (0.0, 800.0, 100.0)",
+       "status": "pass",
+       "value": 0.003,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 4 上方一叠最高处 (1200.0, 800.0, 100.0)",
+       "status": "pass",
+       "value": 0.006,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "动作：lift_pick",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：carry_and_rotate_90",
+       "status": "pass",
+       "value": 105.0,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 105.00（° 或 mm）"
+      },
+      {
+       "item": "动作：lower_place",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：lift_place",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：return",
+       "status": "pass",
+       "value": 105.0,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 105.00（° 或 mm）"
+      },
+      {
+       "item": "动作：lower_pick",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "末端负载的静力矩（下限）",
+       "status": "pass",
+       "note": "j4_c 0.00 N·m。只计负载重力，自重与惯性在选件后由多体动力学算"
+      }
+     ],
+     "overall": "fail"
+    }
+   ],
+   "feedback": "构型 0：\n- [待确认] 重复定位精度（要求 ± 1 mm）；选件后按编码器分辨率与减速器回差算（这一步判不了）\n- [不通过] 取料区四角：1442.2 × 1200.0 mm，中心偏 0.0 mm（要求 1200 × 800 mm，以取料点为中心、同高（± 1 mm））；第 3–6 点要依次是取料区的四个角（矩形、按顺序绕一圈）\n- [待确认] 节拍里末端最高速度与加速度：3.21 m/s、17.3 m/s²；选件后按直线模组或电机的最高速度、推力核（这一步判不了）\n- [待确认] 抓取力：至少 5.43 N；单片 100 g ×（g + 17.3 m/s²）× 安全系数 2；选件后按抓手的公开数据核\n构型 1：\n- [待确认] 重复定位精度（要求 ± 1 mm）；选件后按编码器分辨率与减速器回差算（这一步判不了）\n- [不通过] 取料区四角：1442.2 × 1200.0 mm，中心偏 0.0 mm（要求 1200 × 800 mm，以取料点为中心、同高（± 1 mm））；第 3–6 点要依次是取料区的四个角（矩形、按顺序绕一圈）\n- [待确认] 节拍里末端最高速度与加速度：3.21 m/s、17.3 m/s²；选件后按直线模组或电机的最高速度、推力核（这一步判不了）\n- [待确认] 抓取力：至少 5.43 N；单片 100 g ×（g + 17.3 m/s²）× 安全系数 2；选件后按抓手的公开数据核"
+  },
+  {
+   "proposal": {
+    "candidates": [
+     {
+      "base": {
+       "height_mm": 850,
+       "mount": "table"
+      },
+      "end_effector": {
+       "offset_mm": [
+        0,
+        0,
+        -50
+       ],
+       "parent": "c_head",
+       "type": "vacuum"
+      },
+      "format": "robot-concept/1",
+      "joints": [
+       {
+        "axis": [
+         1,
+         0,
+         0
+        ],
+        "child": "y_beam",
+        "id": "j1_x",
+        "lead_mm": 200,
+        "module_group": "lin_xy",
+        "origin_mm": [
+         0,
+         -150,
+         750
+        ],
+        "parent": "base",
+        "range_mm": [
+         0,
+         2400
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         1,
+         0
+        ],
+        "child": "z_housing",
+        "id": "j2_y",
+        "lead_mm": 150,
+        "module_group": "lin_xy",
+        "origin_mm": [
+         0,
+         150,
+         0
+        ],
+        "parent": "y_beam",
+        "range_mm": [
+         0,
+         1000
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "z_slide",
+        "id": "j3_z",
+        "lead_mm": 100,
+        "module_group": "lin_z",
+        "origin_mm": [
+         0,
+         0,
+         0
+        ],
+        "parent": "z_housing",
+        "range_mm": [
+         -50,
+         250
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "c_head",
+        "id": "j4_c",
+        "origin_mm": [
+         0,
+         0,
+         -650
+        ],
+        "parent": "z_slide",
+        "range_deg": [
+         -100,
+         100
+        ],
+        "ratio": 9,
+        "transmission": "reducer",
+        "type": "revolute"
+       }
+      ],
+      "kind": "gantry",
+      "links": [
+       {
+        "id": "y_beam",
+        "length_mm": 1200,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 120,
+         "width_mm": 80
+        },
+        "shape": "profile"
+       },
+       {
+        "id": "z_housing",
+        "length_mm": 250,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 200,
+         "wall_mm": 4,
+         "width_mm": 120
+        },
+        "shape": "box"
+       },
+       {
+        "id": "z_slide",
+        "length_mm": 700,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 60,
+         "width_mm": 40
+        },
+        "shape": "profile"
+       },
+       {
+        "id": "c_head",
+        "length_mm": 100,
+        "material": "7075-T6",
+        "section": {
+         "thickness_mm": 10,
+         "width_mm": 120
+        },
+        "shape": "plate"
+       }
+      ],
+      "name": "桌面悬臂龙门 XYZ+C(多区真空吸盘)",
+      "reason": "最远角到放料点约 2285 mm，转动臂要么压住取料区、要么臂展过长且有奇异位姿。直角龙门没有奇异问题，行程直接覆盖取放区。X 为长轴只背较轻的 Y 横梁，Z 与 C 在末端，运动质量小。机架立在台面后沿，不占车间通道。",
+      "tasks": [
+       {
+        "dwell_s": 0.08,
+        "from_mm": [
+         0,
+         0,
+         0
+        ],
+        "move_s": 0.24,
+        "name": "lift_pick",
+        "to_mm": [
+         0,
+         0,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         0,
+         0,
+         130
+        ],
+        "move_s": 0.92,
+        "name": "carry_and_rotate_90",
+        "to_mm": [
+         2100,
+         900,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0.08,
+        "from_mm": [
+         2100,
+         900,
+         130
+        ],
+        "move_s": 0.24,
+        "name": "lower_place",
+        "to_mm": [
+         2100,
+         900,
+         0
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         2100,
+         900,
+         0
+        ],
+        "move_s": 0.24,
+        "name": "lift_place",
+        "to_mm": [
+         2100,
+         900,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         2100,
+         900,
+         130
+        ],
+        "move_s": 0.92,
+        "name": "return",
+        "to_mm": [
+         0,
+         0,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         0,
+         0,
+         130
+        ],
+        "move_s": 0.24,
+        "name": "lower_pick",
+        "to_mm": [
+         0,
+         0,
+         0
+        ],
+        "type": "cartesian_move"
+       }
+      ],
+      "workspace": {
+       "points_mm": [
+        [
+         600,
+         400,
+         0
+        ],
+        [
+         2100,
+         900,
+         0
+        ],
+        [
+         0,
+         0,
+         0
+        ],
+        [
+         1200,
+         0,
+         0
+        ],
+        [
+         1200,
+         800,
+         0
+        ],
+        [
+         0,
+         800,
+         0
+        ]
+       ]
+      }
+     },
+     {
+      "base": {
+       "height_mm": 850,
+       "mount": "table"
+      },
+      "end_effector": {
+       "offset_mm": [
+        0,
+        0,
+        -50
+       ],
+       "parent": "c_head",
+       "type": "vacuum"
+      },
+      "format": "robot-concept/1",
+      "joints": [
+       {
+        "axis": [
+         1,
+         0,
+         0
+        ],
+        "child": "y_beam",
+        "id": "j1_x",
+        "lead_mm": 200,
+        "module_group": "lin_xy",
+        "origin_mm": [
+         0,
+         -200,
+         750
+        ],
+        "parent": "base",
+        "range_mm": [
+         0,
+         2400
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         1,
+         0
+        ],
+        "child": "z_housing",
+        "id": "j2_y",
+        "lead_mm": 150,
+        "module_group": "lin_xy",
+        "origin_mm": [
+         0,
+         200,
+         0
+        ],
+        "parent": "y_beam",
+        "range_mm": [
+         0,
+         1000
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "z_slide",
+        "id": "j3_z",
+        "lead_mm": 100,
+        "module_group": "lin_z",
+        "origin_mm": [
+         0,
+         0,
+         0
+        ],
+        "parent": "z_housing",
+        "range_mm": [
+         -50,
+         250
+        ],
+        "transmission": "belt_linear",
+        "type": "prismatic"
+       },
+       {
+        "axis": [
+         0,
+         0,
+         1
+        ],
+        "child": "c_head",
+        "id": "j4_c",
+        "origin_mm": [
+         0,
+         0,
+         -650
+        ],
+        "parent": "z_slide",
+        "range_deg": [
+         -100,
+         100
+        ],
+        "ratio": 9,
+        "transmission": "reducer",
+        "type": "revolute"
+       }
+      ],
+      "kind": "gantry",
+      "links": [
+       {
+        "id": "y_beam",
+        "length_mm": 1300,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 150,
+         "wall_mm": 4,
+         "width_mm": 100
+        },
+        "shape": "box"
+       },
+       {
+        "id": "z_housing",
+        "length_mm": 250,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 200,
+         "wall_mm": 4,
+         "width_mm": 120
+        },
+        "shape": "box"
+       },
+       {
+        "id": "z_slide",
+        "length_mm": 700,
+        "material": "6061-T6",
+        "section": {
+         "height_mm": 60,
+         "width_mm": 40
+        },
+        "shape": "profile"
+       },
+       {
+        "id": "c_head",
+        "length_mm": 100,
+        "material": "7075-T6",
+        "section": {
+         "thickness_mm": 10,
+         "width_mm": 120
+        },
+        "shape": "plate"
+       }
+      ],
+      "name": "桌面双侧支撑龙门 XYZ+C(多区真空吸盘)",
+      "reason": "Y 横梁两端架在 X 导轨上，桥式结构无悬臂变形，刚性和重复定位更有把握；代价是 X 轴双侧同步、运动质量更大。",
+      "tasks": [
+       {
+        "dwell_s": 0.08,
+        "from_mm": [
+         0,
+         0,
+         0
+        ],
+        "move_s": 0.24,
+        "name": "lift_pick",
+        "to_mm": [
+         0,
+         0,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         0,
+         0,
+         130
+        ],
+        "move_s": 0.92,
+        "name": "carry_and_rotate_90",
+        "to_mm": [
+         2100,
+         900,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0.08,
+        "from_mm": [
+         2100,
+         900,
+         130
+        ],
+        "move_s": 0.24,
+        "name": "lower_place",
+        "to_mm": [
+         2100,
+         900,
+         0
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         2100,
+         900,
+         0
+        ],
+        "move_s": 0.24,
+        "name": "lift_place",
+        "to_mm": [
+         2100,
+         900,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         2100,
+         900,
+         130
+        ],
+        "move_s": 0.92,
+        "name": "return",
+        "to_mm": [
+         0,
+         0,
+         130
+        ],
+        "type": "cartesian_move"
+       },
+       {
+        "dwell_s": 0,
+        "from_mm": [
+         0,
+         0,
+         130
+        ],
+        "move_s": 0.24,
+        "name": "lower_pick",
+        "to_mm": [
+         0,
+         0,
+         0
+        ],
+        "type": "cartesian_move"
+       }
+      ],
+      "workspace": {
+       "points_mm": [
+        [
+         600,
+         400,
+         0
+        ],
+        [
+         2100,
+         900,
+         0
+        ],
+        [
+         0,
+         0,
+         0
+        ],
+        [
+         1200,
+         0,
+         0
+        ],
+        [
+         1200,
+         800,
+         0
+        ],
+        [
+         0,
+         800,
+         0
+        ]
+       ]
+      }
+     }
+    ],
+    "reason": "本轮改动：初筛不通过的是取料区四角——上一轮第 3–6 点是“之字形”顺序（左下、右下、左上、右上），不是绕一圈。现改为 (0,0)→(1200,0)→(1200,800)→(0,800)，组成 1200×800 的矩形，中心为 (600,400)，与取料点一致。放料点 (2100,900)：沿长边距中心 1500 mm，侧偏 500 mm，与条件一致。离放料点最远的角是 (0,0)，节拍从这里取料。\n\n节拍重新分配：垂直抬放由 0.2 s 改为 0.24 s，水平搬运由 0.95 s 改为 0.92 s。垂直加速度从约 17.3 降到约 12 m/s²，水平加速度约 14.4 m/s²，最高速度约 3.3 m/s。合计 2.96 s，不大于 3.0 s。这些仍要在选件后按直线模组的速度和推力核，现在判不了。\n\n推荐第 0 个（悬臂龙门）：运动质量最小，加速度最容易满足。第 1 个（双侧桥式）刚性更好，但 X 轴要双侧同步，运动质量更大。若选件后 Y 悬臂变形影响 ±1 mm 重复定位，就改用第 1 个。\n\n末端用多区真空吸盘：多点吸附可防止 600×400 的软片在加速时下垂，不用针刺，因为扎针会伤布料。布料透气时用大流量、低真空度的真空发生器。抓取力至少 5.43 N 是按旧加速度算的，加速度降低后会更小。吸力、透气布料的保持力和伤布情况，选件后按公开数据核，查不到的记待确认。\n\n待确认项：台面要能容纳 X 方向约 2.4 m、Y 方向约 1 m 的行程和立柱；重复定位精度要选件后按编码器分辨率与传动回差核。",
+    "recommend": 0
+   },
+   "evaluations": [
+    {
+     "items": [
+      {
+       "item": "重复定位精度",
+       "status": "unknown",
+       "limit": "± 1 mm",
+       "note": "选件后按编码器分辨率与减速器回差算（这一步判不了）"
+      },
+      {
+       "item": "取料区四角",
+       "status": "pass",
+       "value": "1200.0 × 800.0 mm，中心偏 0.0 mm",
+       "limit": "1200 × 800 mm，以取料点为中心、同高（± 1 mm）"
+      },
+      {
+       "item": "取放距离（沿取料区长边）",
+       "status": "pass",
+       "value": 1500.0,
+       "limit": "1500 ± 1 mm"
+      },
+      {
+       "item": "放料点侧偏（垂直于长边）",
+       "status": "pass",
+       "value": 500.0,
+       "limit": "500 ± 1 mm"
+      },
+      {
+       "item": "取放两处同高",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "0 ± 1 mm",
+       "note": "放料点比取料点高（mm）"
+      },
+      {
+       "item": "节拍",
+       "status": "pass",
+       "value": 2.96,
+       "limit": "≤ 3 s",
+       "note": "6 段直线动作加停留；lift_pick 130 mm / 0.24 s（最高 0.72 m/s、12.0 m/s²）；carry_and_rotate_90 2285 mm / 0.92 s（最高 3.31 m/s、14.4 m/s²）；lower_place 130 mm / 0.24 s（最高 0.72 m/s、12.0 m/s²）；lift_place 130 mm / 0.24 s（最高 0.72 m/s、12.0 m/s²）；return 2285 mm / 0.92 s（最高 3.31 m/s、14.4 m/s²）；lower_pick 130 mm / 0.24 s（最高 0.72 m/s、12.0 m/s²）"
+      },
+      {
+       "item": "节拍里末端最高速度与加速度",
+       "status": "unknown",
+       "value": "3.31 m/s、14.4 m/s²",
+       "note": "选件后按直线模组或电机的最高速度、推力核（这一步判不了）"
+      },
+      {
+       "item": "抓取力",
+       "status": "unknown",
+       "value": "至少 4.84 N",
+       "note": "单片 100 g ×（g + 14.4 m/s²）× 安全系数 2；选件后按抓手的公开数据核"
+      },
+      {
+       "item": "放料转向",
+       "status": "pass",
+       "value": "j4_c 行程 200°",
+       "limit": "≥ 90°",
+       "note": "转动多快在选件后按转动模组的速度核"
+      },
+      {
+       "item": "结构",
+       "status": "pass",
+       "note": "4 根杆件、4 个关节"
+      },
+      {
+       "item": "取料区中心 (600, 400, 0)",
+       "status": "pass",
+       "value": 0.003,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "放料点 (2100, 900, 0)",
+       "status": "pass",
+       "value": 0.009,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 1 (0, 0, 0)",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 2 (1200, 0, 0)",
+       "status": "pass",
+       "value": 0.005,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 3 (1200, 800, 0)",
+       "status": "pass",
+       "value": 0.006,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 4 (0, 800, 0)",
+       "status": "pass",
+       "value": 0.003,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 1 上方一叠最高处 (0.0, 0.0, 100.0)",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 2 上方一叠最高处 (1200.0, 0.0, 100.0)",
+       "status": "pass",
+       "value": 0.005,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 3 上方一叠最高处 (1200.0, 800.0, 100.0)",
+       "status": "pass",
+       "value": 0.006,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 4 上方一叠最高处 (0.0, 800.0, 100.0)",
+       "status": "pass",
+       "value": 0.003,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "动作：lift_pick",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：carry_and_rotate_90",
+       "status": "pass",
+       "value": 105.0,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 105.00（° 或 mm）"
+      },
+      {
+       "item": "动作：lower_place",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：lift_place",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：return",
+       "status": "pass",
+       "value": 105.0,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 105.00（° 或 mm）"
+      },
+      {
+       "item": "动作：lower_pick",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "末端负载的静力矩（下限）",
+       "status": "pass",
+       "note": "j4_c 0.00 N·m。只计负载重力，自重与惯性在选件后由多体动力学算"
+      }
+     ],
+     "overall": "unknown"
+    },
+    {
+     "items": [
+      {
+       "item": "重复定位精度",
+       "status": "unknown",
+       "limit": "± 1 mm",
+       "note": "选件后按编码器分辨率与减速器回差算（这一步判不了）"
+      },
+      {
+       "item": "取料区四角",
+       "status": "pass",
+       "value": "1200.0 × 800.0 mm，中心偏 0.0 mm",
+       "limit": "1200 × 800 mm，以取料点为中心、同高（± 1 mm）"
+      },
+      {
+       "item": "取放距离（沿取料区长边）",
+       "status": "pass",
+       "value": 1500.0,
+       "limit": "1500 ± 1 mm"
+      },
+      {
+       "item": "放料点侧偏（垂直于长边）",
+       "status": "pass",
+       "value": 500.0,
+       "limit": "500 ± 1 mm"
+      },
+      {
+       "item": "取放两处同高",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "0 ± 1 mm",
+       "note": "放料点比取料点高（mm）"
+      },
+      {
+       "item": "节拍",
+       "status": "pass",
+       "value": 2.96,
+       "limit": "≤ 3 s",
+       "note": "6 段直线动作加停留；lift_pick 130 mm / 0.24 s（最高 0.72 m/s、12.0 m/s²）；carry_and_rotate_90 2285 mm / 0.92 s（最高 3.31 m/s、14.4 m/s²）；lower_place 130 mm / 0.24 s（最高 0.72 m/s、12.0 m/s²）；lift_place 130 mm / 0.24 s（最高 0.72 m/s、12.0 m/s²）；return 2285 mm / 0.92 s（最高 3.31 m/s、14.4 m/s²）；lower_pick 130 mm / 0.24 s（最高 0.72 m/s、12.0 m/s²）"
+      },
+      {
+       "item": "节拍里末端最高速度与加速度",
+       "status": "unknown",
+       "value": "3.31 m/s、14.4 m/s²",
+       "note": "选件后按直线模组或电机的最高速度、推力核（这一步判不了）"
+      },
+      {
+       "item": "抓取力",
+       "status": "unknown",
+       "value": "至少 4.84 N",
+       "note": "单片 100 g ×（g + 14.4 m/s²）× 安全系数 2；选件后按抓手的公开数据核"
+      },
+      {
+       "item": "放料转向",
+       "status": "pass",
+       "value": "j4_c 行程 200°",
+       "limit": "≥ 90°",
+       "note": "转动多快在选件后按转动模组的速度核"
+      },
+      {
+       "item": "结构",
+       "status": "pass",
+       "note": "4 根杆件、4 个关节"
+      },
+      {
+       "item": "取料区中心 (600, 400, 0)",
+       "status": "pass",
+       "value": 0.003,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "放料点 (2100, 900, 0)",
+       "status": "pass",
+       "value": 0.009,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 1 (0, 0, 0)",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 2 (1200, 0, 0)",
+       "status": "pass",
+       "value": 0.005,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 3 (1200, 800, 0)",
+       "status": "pass",
+       "value": 0.006,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "取料区角 4 (0, 800, 0)",
+       "status": "pass",
+       "value": 0.003,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 1 上方一叠最高处 (0.0, 0.0, 100.0)",
+       "status": "pass",
+       "value": 0.0,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 2 上方一叠最高处 (1200.0, 0.0, 100.0)",
+       "status": "pass",
+       "value": 0.005,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 3 上方一叠最高处 (1200.0, 800.0, 100.0)",
+       "status": "pass",
+       "value": 0.006,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "角 4 上方一叠最高处 (0.0, 800.0, 100.0)",
+       "status": "pass",
+       "value": 0.003,
+       "limit": "≤ 0.05 mm"
+      },
+      {
+       "item": "动作：lift_pick",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：carry_and_rotate_90",
+       "status": "pass",
+       "value": 105.0,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 105.00（° 或 mm）"
+      },
+      {
+       "item": "动作：lower_place",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：lift_place",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "动作：return",
+       "status": "pass",
+       "value": 105.0,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 105.00（° 或 mm）"
+      },
+      {
+       "item": "动作：lower_pick",
+       "status": "pass",
+       "value": 6.5,
+       "note": "沿途 20 段都有解；相邻两点关节最大变化 6.50（° 或 mm）"
+      },
+      {
+       "item": "末端负载的静力矩（下限）",
+       "status": "pass",
+       "note": "j4_c 0.00 N·m。只计负载重力，自重与惯性在选件后由多体动力学算"
+      }
+     ],
+     "overall": "unknown"
+    }
+   ],
+   "feedback": "构型 0：\n- [待确认] 重复定位精度（要求 ± 1 mm）；选件后按编码器分辨率与减速器回差算（这一步判不了）\n- [待确认] 节拍里末端最高速度与加速度：3.31 m/s、14.4 m/s²；选件后按直线模组或电机的最高速度、推力核（这一步判不了）\n- [待确认] 抓取力：至少 4.84 N；单片 100 g ×（g + 14.4 m/s²）× 安全系数 2；选件后按抓手的公开数据核\n构型 1：\n- [待确认] 重复定位精度（要求 ± 1 mm）；选件后按编码器分辨率与减速器回差算（这一步判不了）\n- [待确认] 节拍里末端最高速度与加速度：3.31 m/s、14.4 m/s²；选件后按直线模组或电机的最高速度、推力核（这一步判不了）\n- [待确认] 抓取力：至少 4.84 N；单片 100 g ×（g + 14.4 m/s²）× 安全系数 2；选件后按抓手的公开数据核"
+  }
+ ],
+ "ai": [
+  {
+   "id": "msg_011ChSAX1U4oETmPzh4aPCHt",
+   "provider": "claude",
+   "model": "claude-sonnet-5-5",
+   "simulated": false
+  },
+  {
+   "id": "msg_011ChSAXsPgRKbJ5sUyAxL5j",
+   "provider": "claude",
+   "model": "claude-sonnet-5-5",
+   "simulated": false
+  },
+  {
+   "id": "msg_011ChSAYg5ZtR467467dTCJn",
+   "provider": "claude",
+   "model": "claude-sonnet-5-5",
+   "simulated": false
+  },
+  {
+   "id": "msg_011ChSAYrBHNqxhmEnhifodY",
+   "provider": "claude",
+   "model": "claude-sonnet-5-5",
+   "simulated": false
+  },
+  {
+   "id": "msg_011ChSAh3SuVp4PQGNg3WtHu",
+   "provider": "claude",
+   "model": "claude-sonnet-5-5",
+   "simulated": false
+  }
+ ],
+ "conditions": {
+  "kind": "other",
+  "repeatability": 1.0,
+  "for_people": [
+   "不能损伤布料",
+   "机器人不能占用车间通道"
+  ],
+  "cycle": 3.0,
+  "part_mass": 0.1,
+  "part_length": 600.0,
+  "part_width": 400.0,
+  "stack_height": 100.0,
+  "work_height": 850.0,
+  "same_height": true,
+  "pick_to_place": 1500.0,
+  "area_length": 1200.0,
+  "area_width": 800.0,
+  "lateral_offset": 500.0,
+  "max_rotation": 90.0
+ },
+ "rejected": [],
+ "missing": [],
+ "quotes": [
+  {
+   "what": "机器人类型",
+   "value": "other",
+   "unit": "",
+   "quote": "裁片上下料机器人"
+  },
+  {
+   "what": "重复定位精度",
+   "value": 1.0,
+   "unit": "mm",
+   "quote": "放料定位精度 ±1 mm"
+  },
+  {
+   "what": "节拍",
+   "value": 3.0,
+   "unit": "s",
+   "quote": "节拍 3 s/片"
+  },
+  {
+   "what": "单片最大质量",
+   "value": 0.1,
+   "unit": "kg",
+   "quote": "裁片单片质量不超过 100 g"
+  },
+  {
+   "what": "裁片最大长度",
+   "value": 600.0,
+   "unit": "mm",
+   "quote": "最大 600 mm × 400 mm"
+  },
+  {
+   "what": "裁片最大宽度",
+   "value": 400.0,
+   "unit": "mm",
+   "quote": "最大 600 mm × 400 mm"
+  },
+  {
+   "what": "一叠最高",
+   "value": 100.0,
+   "unit": "mm",
+   "quote": "每叠最高 100 mm"
+  },
+  {
+   "what": "台面离地高度",
+   "value": 850.0,
+   "unit": "mm",
+   "quote": "离地 850 mm"
+  },
+  {
+   "what": "取放两处同高",
+   "value": "是",
+   "unit": "",
+   "quote": "裁床台面和送料台面同高"
+  },
+  {
+   "what": "取料区长（沿长边）",
+   "value": 1200.0,
+   "unit": "mm",
+   "quote": "长 1200 mm"
+  },
+  {
+   "what": "取料区宽",
+   "value": 800.0,
+   "unit": "mm",
+   "quote": "宽 800 mm"
+  },
+  {
+   "what": "沿取料区长边方向的取放距离",
+   "value": 1500.0,
+   "unit": "mm",
+   "quote": "取料区中心到放料点水平距离 1500 mm"
+  },
+  {
+   "what": "放料点在取料区宽度方向的侧偏",
+   "value": 500.0,
+   "unit": "mm",
+   "quote": "比取料区中心偏 500 mm"
+  },
+  {
+   "what": "放料时最大转角",
+   "value": 90.0,
+   "unit": "°",
+   "quote": "最多转 90°"
+  }
+ ],
+ "questions": [
+  "原话没说机器人是什么构型（串联臂、龙门等），请确认。",
+  "机器人底座装在哪里（裁床旁地面、台面、吊装）？底座相对取料区和送料台的位置没给，臂展无法确定。",
+  "车间通道在哪一侧、离裁床和送料台多远？这决定机器人能占多大的地面范围。",
+  "节拍 3 s/片（按最远一叠算）没有对应的字段，需要在后续核对。关节最高角速度的限制未给出。",
+  "裁片最大 600 mm × 400 mm，用什么抓取方式（真空吸盘、针刺等）？抓取点怎么选？",
+  "各叠的具体位置和叠数没说，取料高度会随叠高变化（最高 100 mm），取料时要按多高算？",
+  "放料时裁片转 90° 是由末端第 4 轴完成，还是整臂转动完成？",
+  "对自由度（轴数）有没有限制或偏好？",
+  "原话只给了沿裁床长度方向取料区中心到放料点 1500 mm，另有宽度方向偏 500 mm，没有给出两者合成的水平距离；请确认是否按两个分量处理，宽度方向偏向哪一侧（朝向机器人还是背离机器人）。",
+  "取料区内共分几叠、各叠具体位置？“最远的一叠”离放料点的实际距离是多少？",
+  "机器人安装在哪里（裁床哪一侧、与放料点的相对位置）？车间通道的位置和不能占用的范围是多少？",
+  "850 mm 是台面高度；取料时每叠最高 100 mm，取料高度是否按台面上再加叠高算？",
+  "节拍 3 s/片是否包含绕竖直轴最多 90° 的转向时间？",
+  "裁片的材质、透气性如何（影响吸取方式）？“不能损伤布料”有没有具体要求，例如不能留吸痕或不能起皱？",
+  "放料定位精度 ±1 mm 是相对送料台的哪个基准？是否需要视觉辅助？"
+ ],
+ "status": "pass",
+ "chosen_round": 2,
+ "chosen_candidate": 0,
+ "chosen": {
+  "base": {
+   "height_mm": 850,
+   "mount": "table"
+  },
+  "end_effector": {
+   "offset_mm": [
+    0,
+    0,
+    -50
+   ],
+   "parent": "c_head",
+   "type": "vacuum"
+  },
+  "format": "robot-concept/1",
+  "joints": [
+   {
+    "axis": [
+     1,
+     0,
+     0
+    ],
+    "child": "y_beam",
+    "id": "j1_x",
+    "lead_mm": 200,
+    "module_group": "lin_xy",
+    "origin_mm": [
+     0,
+     -150,
+     750
+    ],
+    "parent": "base",
+    "range_mm": [
+     0,
+     2400
+    ],
+    "transmission": "belt_linear",
+    "type": "prismatic"
+   },
+   {
+    "axis": [
+     0,
+     1,
+     0
+    ],
+    "child": "z_housing",
+    "id": "j2_y",
+    "lead_mm": 150,
+    "module_group": "lin_xy",
+    "origin_mm": [
+     0,
+     150,
+     0
+    ],
+    "parent": "y_beam",
+    "range_mm": [
+     0,
+     1000
+    ],
+    "transmission": "belt_linear",
+    "type": "prismatic"
+   },
+   {
+    "axis": [
+     0,
+     0,
+     1
+    ],
+    "child": "z_slide",
+    "id": "j3_z",
+    "lead_mm": 100,
+    "module_group": "lin_z",
+    "origin_mm": [
+     0,
+     0,
+     0
+    ],
+    "parent": "z_housing",
+    "range_mm": [
+     -50,
+     250
+    ],
+    "transmission": "belt_linear",
+    "type": "prismatic"
+   },
+   {
+    "axis": [
+     0,
+     0,
+     1
+    ],
+    "child": "c_head",
+    "id": "j4_c",
+    "origin_mm": [
+     0,
+     0,
+     -650
+    ],
+    "parent": "z_slide",
+    "range_deg": [
+     -100,
+     100
+    ],
+    "ratio": 9,
+    "transmission": "reducer",
+    "type": "revolute"
+   }
+  ],
+  "kind": "gantry",
+  "links": [
+   {
+    "id": "y_beam",
+    "length_mm": 1200,
+    "material": "6061-T6",
+    "section": {
+     "height_mm": 120,
+     "width_mm": 80
+    },
+    "shape": "profile"
+   },
+   {
+    "id": "z_housing",
+    "length_mm": 250,
+    "material": "6061-T6",
+    "section": {
+     "height_mm": 200,
+     "wall_mm": 4,
+     "width_mm": 120
+    },
+    "shape": "box"
+   },
+   {
+    "id": "z_slide",
+    "length_mm": 700,
+    "material": "6061-T6",
+    "section": {
+     "height_mm": 60,
+     "width_mm": 40
+    },
+    "shape": "profile"
+   },
+   {
+    "id": "c_head",
+    "length_mm": 100,
+    "material": "7075-T6",
+    "section": {
+     "thickness_mm": 10,
+     "width_mm": 120
+    },
+    "shape": "plate"
+   }
+  ],
+  "name": "桌面悬臂龙门 XYZ+C(多区真空吸盘)",
+  "reason": "最远角到放料点约 2285 mm，转动臂要么压住取料区、要么臂展过长且有奇异位姿。直角龙门没有奇异问题，行程直接覆盖取放区。X 为长轴只背较轻的 Y 横梁，Z 与 C 在末端，运动质量小。机架立在台面后沿，不占车间通道。",
+  "tasks": [
+   {
+    "dwell_s": 0.08,
+    "from_mm": [
+     0,
+     0,
+     0
+    ],
+    "move_s": 0.24,
+    "name": "lift_pick",
+    "to_mm": [
+     0,
+     0,
+     130
+    ],
+    "type": "cartesian_move"
+   },
+   {
+    "dwell_s": 0,
+    "from_mm": [
+     0,
+     0,
+     130
+    ],
+    "move_s": 0.92,
+    "name": "carry_and_rotate_90",
+    "to_mm": [
+     2100,
+     900,
+     130
+    ],
+    "type": "cartesian_move"
+   },
+   {
+    "dwell_s": 0.08,
+    "from_mm": [
+     2100,
+     900,
+     130
+    ],
+    "move_s": 0.24,
+    "name": "lower_place",
+    "to_mm": [
+     2100,
+     900,
+     0
+    ],
+    "type": "cartesian_move"
+   },
+   {
+    "dwell_s": 0,
+    "from_mm": [
+     2100,
+     900,
+     0
+    ],
+    "move_s": 0.24,
+    "name": "lift_place",
+    "to_mm": [
+     2100,
+     900,
+     130
+    ],
+    "type": "cartesian_move"
+   },
+   {
+    "dwell_s": 0,
+    "from_mm": [
+     2100,
+     900,
+     130
+    ],
+    "move_s": 0.92,
+    "name": "return",
+    "to_mm": [
+     0,
+     0,
+     130
+    ],
+    "type": "cartesian_move"
+   },
+   {
+    "dwell_s": 0,
+    "from_mm": [
+     0,
+     0,
+     130
+    ],
+    "move_s": 0.24,
+    "name": "lower_pick",
+    "to_mm": [
+     0,
+     0,
+     0
+    ],
+    "type": "cartesian_move"
+   }
+  ],
+  "workspace": {
+   "points_mm": [
+    [
+     600,
+     400,
+     0
+    ],
+    [
+     2100,
+     900,
+     0
+    ],
+    [
+     0,
+     0,
+     0
+    ],
+    [
+     1200,
+     0,
+     0
+    ],
+    [
+     1200,
+     800,
+     0
+    ],
+    [
+     0,
+     800,
+     0
+    ]
+   ]
+  }
+ },
+ "chosen_note": ""
+}

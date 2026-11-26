@@ -1,0 +1,55 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-cell/1",
+  "request_key": "9a84494125e6c524661cd0485f2deedc5c1a662f7e072d611ab9d9192959516c",
+  "response": {
+    "id": "msg_011ChSAXsPgRKbJ5sUyAxL5j",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "cycle": {
+        "quote": "节拍 3 s/片",
+        "unit": "s",
+        "value": 3
+      },
+      "part_length": {
+        "quote": "最大 600 mm × 400 mm",
+        "unit": "mm",
+        "value": 600
+      },
+      "part_mass": {
+        "quote": "裁片单片质量不超过 100 g",
+        "unit": "g",
+        "value": 100
+      },
+      "part_width": {
+        "quote": "最大 600 mm × 400 mm",
+        "unit": "mm",
+        "value": 400
+      },
+      "questions": [
+        "原话只给了沿裁床长度方向取料区中心到放料点 1500 mm，另有宽度方向偏 500 mm，没有给出两者合成的水平距离；请确认是否按两个分量处理，宽度方向偏向哪一侧（朝向机器人还是背离机器人）。",
+        "取料区内共分几叠、各叠具体位置？“最远的一叠”离放料点的实际距离是多少？",
+        "机器人安装在哪里（裁床哪一侧、与放料点的相对位置）？车间通道的位置和不能占用的范围是多少？",
+        "850 mm 是台面高度；取料时每叠最高 100 mm，取料高度是否按台面上再加叠高算？",
+        "节拍 3 s/片是否包含绕竖直轴最多 90° 的转向时间？",
+        "裁片的材质、透气性如何（影响吸取方式）？“不能损伤布料”有没有具体要求，例如不能留吸痕或不能起皱？",
+        "放料定位精度 ±1 mm 是相对送料台的哪个基准？是否需要视觉辅助？"
+      ],
+      "same_height": {
+        "quote": "裁床台面和送料台面同高"
+      },
+      "stack_height": {
+        "quote": "每叠最高 100 mm",
+        "unit": "mm",
+        "value": 100
+      },
+      "work_height": {
+        "quote": "离地 850 mm",
+        "unit": "mm",
+        "value": 850
+      }
+    }
+  }
+}

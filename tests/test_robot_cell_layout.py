@@ -172,3 +172,21 @@ def test_distance_given_by_direction_comes_from_the_layout_list():
     bad = dict(CELL, pick_to_place=_v(500, "mm", "偏 500 mm"))
     r = RD.design(STATEMENT, _Script(COND, bad, lay))
     assert r["status"] == "needs_input" and any("两次列的不一样" in x for x in r["rejected"])
+
+
+def test_case_b2_replays_from_the_recording():
+    """案例 B2 的构型初筛按 CI 上 Claude 的录制回放：第 1 轮取料区四角没按顺序绕一圈（对角线 1442 mm），交回后第 2 轮通过；
+    采用悬臂龙门 X–Y–Z 加 C 轴转动，与 out/concept-result.json 一样"""
+    import json
+
+    from ingest.llm_extract import RecordedClient
+
+    r = RD.design(STATEMENT, RecordedClient(RD.RECORDINGS_DIR))
+    saved = json.loads((ROOT / "examples" / "robots" / "sewing-loader-xyz" / "out" / "concept-result.json").read_text(encoding="utf-8"))
+    assert r["status"] == "pass" and len(r["rounds"]) == 2 and r["chosen"] == saved["chosen"] and r["conditions"] == saved["conditions"]
+    first = {i["item"]: i for i in r["rounds"][0]["evaluations"][0]["items"]}
+    assert first["取料区四角"]["status"] == "fail" and "1442.2" in first["取料区四角"]["value"]
+    st = {i["item"]: i for i in r["rounds"][1]["evaluations"][0]["items"]}
+    assert st["节拍"]["status"] == "pass" and st["节拍"]["value"] == pytest.approx(2.96)
+    assert st["放料转向"]["status"] == "pass" and st["放料点侧偏（垂直于长边）"]["value"] == pytest.approx(500)
+    assert [j["type"] for j in r["chosen"]["joints"]] == ["prismatic"] * 3 + ["revolute"]

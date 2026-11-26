@@ -1,0 +1,39 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-cell/1",
+  "request_key": "d9882e49ccf85a646f68492d757ca1093b9fefec739d0d93886093b3ba62b272",
+  "response": {
+    "id": "msg_011ChSAYg5ZtR467467dTCJn",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "along_distance": {
+        "quote": "取料区中心到放料点水平距离 1500 mm",
+        "unit": "mm",
+        "value": 1500
+      },
+      "area_length": {
+        "quote": "长 1200 mm",
+        "unit": "mm",
+        "value": 1200
+      },
+      "area_width": {
+        "quote": "宽 800 mm",
+        "unit": "mm",
+        "value": 800
+      },
+      "lateral_offset": {
+        "quote": "比取料区中心偏 500 mm",
+        "unit": "mm",
+        "value": 500
+      },
+      "max_rotation": {
+        "quote": "最多转 90°",
+        "unit": "°",
+        "value": 90
+      },
+      "questions": []
+    }
+  }
+}
