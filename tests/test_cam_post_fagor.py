@@ -74,15 +74,56 @@ def test_round_trip_back_to_fanuc_line_by_line():
         assert back.strip().split("\n") == want, (fg, back)
 
 
-def test_mill_turn_not_output():
-    """车铣（动力刀、C 轴）程序：发格是 #CAX / #FACE / #CYL（§18.1），还没做——不出、写明原因"""
-    with pytest.raises(postcfg.PostConfigError, match="车铣"):
-        postcfg.check({"format": "cam-post/1", "id": "f", "name": "f", "family": "fagor", "kinds": ["lathe"], "source": "t",
-                       "millturn": {"live_on": ["M45"]}}, "t")
-    with pytest.raises(fagor.FagorError, match="发格车铣还没做"):
-        fagor.check_codes("G18\nG12.1\nG01 X10.0 C0.0\nG13.1\n", True)
-    p = MT._run_mt("fagor-8065")
-    assert p["release"] is None
+FMT = {"format": "cam-post/1", "id": "fmt", "name": "Fagor mill-turn", "family": "fagor", "kinds": ["lathe"], "source": "t", "coolant": "off",
+       "millturn": {"live_on": ["M45"], "live_off": ["M46"], "c_on": ["M18"], "c_off": ["M19"]}}
+CYL = [{"t": "rapid", "x": 60, "c": 0, "z": -10}, {"t": "feed", "x": 44, "c": 0, "z": -10, "f": 100},
+       {"t": "feed", "x": 44, "c": 90, "z": -10, "f": 200}, {"t": "feed", "x": 44, "c": 180, "z": -20, "f": 200},
+       {"t": "rapid", "x": 60, "c": 180, "z": -20}]
+
+
+def _run_fmt(tmp_path, monkeypatch, cyl_moves=None, cfg=None):
+    d = tmp_path / "posts"
+    d.mkdir(exist_ok=True)
+    monkeypatch.setenv("FAP_POSTS", str(d))
+    (d / "fmt.json").write_text(json.dumps(cfg or FMT), encoding="utf-8")
+    pr = MT._mt_prog()
+    if cyl_moves:
+        pr["ops"][2]["moves"] = cyl_moves
+    r = cam.run({"mode": "millturn", "machine": "EX-MT-CY", "program": pr, "stock": {"d": 52, "z_right": 0.5, "z_left": -60},
+                 "post": "fmt", "machine_sim": {"tools": {}}})
+    return r["data"]["programs"][0]
+
+
+def test_fagor_mill_turn_face_and_cylinder(tmp_path, monkeypatch):
+    """车铣（ADR-0131）：端面 G12.1 → G152、#CAX、#FACE [X,C,Q0]（X 半径、C mm），圆柱面 G7.1 C25 → #CYL [Z,C,X25.0,Q0]（C = 角度 × π ÷ 180 × 25：
+    90° → 39.2699、180° → 78.5398），结尾 #… OFF、#CAX OFF、G151；进给照写（#CYL 的 F 也在给定半径上）；回读与仿真刀路一致"""
+    t = _rel(_run_fmt(tmp_path, monkeypatch, CYL))
+    assert not re.search(r"G12\.1|G13\.1|G0?7\.1|\bG9[89]\b", t)
+    for frag in (("M18\nM45\nS2000\nG152\n#CAX\n#FACE [X,C,Q0]\nG00 X10.0 C-10.0 Z2.0\nG01 Z-3.0 F100.0\nC10.0 F200.0\nG00 Z2.0\n"
+                  "#FACE OFF\n#CAX OFF\nG151\nM46\nM19\nG95"),
+                 ("G152\n#CAX\n#CYL [Z,C,X25.0,Q0]\nG00 X30.0 C0.0 Z-10.0\nG01 X22.0 F100.0\nC39.2699 F200.0\nC78.5398 Z-20.0\nG00 X30.0\n"
+                  "#CYL OFF\n#CAX OFF\nG151")):
+        assert frag in t, frag
+    back = postproc.to_fanuc(t, "fmt", True)
+    assert "G07.1 C25.0\nG00 X60.0 C0.0 Z-10.0\nG01 X44.0 F100.0\nC90.0 F200.0\nC180.0 Z-20.0" in back and "G12.1\nG00 X20.0 C-10.0 Z2.0" in back
+    record_verdict(("发格车铣：#CAX、#FACE、#CYL 按手册写（G152 明写半径），回读一致",
+                    "Fagor mill-turn: #CAX, #FACE, #CYL per the manual (radius made explicit with G152), read-back matches"), "pass", "pass")
+
+
+def test_fagor_mill_turn_refusals(tmp_path, monkeypatch):
+    """不出：C 分度 + Y 轴铣（G19）、B 轴车铣配置、内置配置没写车铣行、坐标超过 4 位小数（§1.3.1）、本表外的 # 指令"""
+    with pytest.raises(fagor.FagorError, match="C 分度"):
+        fagor.check_codes("G71 G18\nG00 C30.0\nG19\nM30\n", True)
+    with pytest.raises(postcfg.PostConfigError, match="B 轴车铣"):
+        postcfg.check({**FMT, "millturn": {**FMT["millturn"], "b_tool_comp": ["M99"]}}, "t")
+    assert MT._run_mt("fagor-8065")["release"] is None
+    with pytest.raises(fagor.FagorError, match="1.3.1"):
+        fagor.check_codes("G71 G18\nG01 X10.12345 F0.1\nM30\n", True)
+    with pytest.raises(fagor.FagorError, match="# 指令"):
+        fagor.check_codes("G71 G18\n#FACE [X,C]\nM30\n", True)
+    record_verdict(("发格车铣：没做的（C 分度 + Y 轴铣、B 轴）和超位数的不出、点名",
+                    "Fagor mill-turn: unsupported cases (C indexing + Y-axis milling, B axis) and excess decimals are refused and named"),
+                   "error", "error")
 
 
 def test_code_outside_manual_table_refused(tmp_path, monkeypatch):

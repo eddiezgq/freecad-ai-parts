@@ -6,7 +6,7 @@
 #
 # jobs：抽取任务；每个目标型号抽取一次，结果写到 data/extracted/<doc>/<型号>.json
 #   - doc: src-...
-#     category: reducer        servo_motor | reducer | drive | bearing
+#     category: reducer        servo_motor | reducer | drive | bearing | adapter | linear_module | gripper
 #     pages: "12-15,20"        只把这些页交给 LLM（原文页码）
 #     targets: [型号, …]       按目录中印出的写法
 
@@ -28,6 +28,12 @@ index:
   - doc: src-nsk-e1103c-part-c
     terms: [Single-Row Deep Groove Ball Bearings, "6000", "6001", "6200", "6201", "6202", "608", Boundary Dimensions,
             Basic Load Ratings, Limiting Speeds, Abutment and Fillet Dimensions, Mass]
+
+  # 直线模组与抓手（ADR-0129，ADR-0115 44.5.3）。费斯托目录对脚本返回 403，不经云端下载与抽取，由 ingest/festo_egc.py 对照原页录入
+  - doc: src-schmalz-sng-m
+    terms: [SNG-M, Number of needles, Needle diameter, Needle stroke, Plunge angle, Operating pressure, Weight, Dimensions]
+  - doc: src-schmalz-spf
+    terms: [SPF, Suction force, Ds, Weight, Dimensions, Technical data]
 
 jobs:
   # Harmonic Drive CSF-2UH 整机型：额定值表（Table 127-1）、外形尺寸与质量（Table 129-1）、回差与刚度
@@ -82,3 +88,13 @@ jobs:
     category: bearing
     pages: "13-14"
     targets: ["6008", "6009", "6010", "6011"]
+  # 施迈茨针刺抓手 SNG-M（ADR-0129）：数据表 3 页，不给保持力（不写，抓取力校核判待确认）
+  - doc: src-schmalz-sng-m
+    category: gripper
+    pages: "1-3"
+    targets: [SNG-M 4 0.8]
+  # 施迈茨平吸盘 SPF：吸力是 -0.6 bar 真空下的理论值、不含安全系数（写进 condition）；对透气的布料不适用（选型时判待确认）
+  - doc: src-schmalz-spf
+    category: gripper
+    pages: "1-6"
+    targets: [SPF 10, SPF 15, SPF 20, SPF 25, SPF 30, SPF 40, SPF 50, SPF 60]

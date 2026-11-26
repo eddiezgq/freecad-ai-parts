@@ -131,11 +131,18 @@ def dynamic(sysm, t_end, steps, *, alpha=-0.1, rtol=None, atol=None, q=None, qd=
     lu, lu_h = None, None
     fresh = False                                  # 当前 cache 是不是在这一步算的
 
+    # 线索第 24 条：时间函数的过渡点是必经时刻，过渡区间里步长不超过过渡宽度（同 solve.dynamic）
+    breaks = [b for b in S.time_breaks(sysm) if b[1] > t0 and b[0] < t0 + t_end]
+    must = sorted({x for b in breaks for x in b if t0 < x < t0 + t_end})
+    stats["time_breaks"] = must
     while k <= steps:
-        t_target = min(float(times[k]), next_s)
+        next_b = next((x for x in must if x > t + 1e-12 * max(1.0, abs(t))), math.inf)
+        t_target = min(float(times[k]), next_s, next_b)
         rem = t_target - t
+        inside = [b[1] - b[0] for b in breaks if b[0] - 1e-12 <= t < b[1] - 1e-12]
+        hf = min([h_free, *inside])
         # 不留碎步：剩下不到 1.25 步就一步走到；不到 2 步就两步平分
-        h = rem if rem <= 1.25 * h_free else (0.5 * rem if rem < 2 * h_free else h_free)
+        h = rem if rem <= 1.25 * hf else (0.5 * rem if rem < 2 * hf else hf)
         landing = abs(t + h - t_target) < 1e-12 * max(1.0, abs(t_target))
         t1 = t_target if landing else t + h
         nxc = len(xc)

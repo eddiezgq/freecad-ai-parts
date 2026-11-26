@@ -1,0 +1,223 @@
+{
+  "format": "extraction/1",
+  "document": {
+    "doc": "src-schmalz-sng-m",
+    "sha256": "d073bfff4f4e6c2c5f0cd81d39e0425ad091b002e67d969a1f6f71a5925d35b7",
+    "pages": 3
+  },
+  "category": "gripper",
+  "vendor": "J. Schmalz GmbH",
+  "model": "SNG-M 4 0.8",
+  "series": "SNG-M",
+  "extractor": {
+    "model": "claude-opus-5-5",
+    "prompt_version": "extract/3",
+    "response_id": "msg_011ChQ4Y8tsgB9St8cfMyEmJ"
+  },
+  "items": [
+    {
+      "target": "params/gripper_type",
+      "value": {
+        "value": "needle",
+        "source": {
+          "doc": "src-schmalz-sng-m",
+          "page": 1
+        },
+        "method": "extracted",
+        "confidence": 0.95,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "Needle Grippers",
+        "unit": "",
+        "label": "Needle Grippers",
+        "quote": "Needle Grippers SNG-M"
+      },
+      "issues": [
+        "枚举映射：'Needle Grippers' → needle，未自动核对"
+      ]
+    },
+    {
+      "target": "params/needle_count",
+      "value": {
+        "value": 4,
+        "source": {
+          "doc": "src-schmalz-sng-m",
+          "page": 2
+        },
+        "method": "extracted",
+        "confidence": 0.95,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "4",
+        "unit": "",
+        "label": "Number of needles",
+        "quote": "| SNG-M 4 0.8 | 4 | 0.8 | 4.0 ... 6.0 bar | 5 ... 60 °C | BEL | 80 |"
+      },
+      "issues": [
+        "叫法 'Number of needles' 在表头，数值在该列"
+      ]
+    },
+    {
+      "target": "params/needle_diameter_mm",
+      "value": {
+        "value": 0.8,
+        "source": {
+          "doc": "src-schmalz-sng-m",
+          "page": 2
+        },
+        "method": "extracted",
+        "confidence": 0.95,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "0.8",
+        "unit": "mm",
+        "label": "Needle diameter",
+        "quote": "| SNG-M 4 0.8 | 4 | 0.8 | 4.0 ... 6.0 bar | 5 ... 60 °C | BEL | 80 |"
+      },
+      "issues": [
+        "叫法 'Needle diameter' 在表头，数值在该列"
+      ]
+    },
+    {
+      "target": "params/operating_pressure_mpa",
+      "value": {
+        "min": 0.39999999999999997,
+        "max": 0.6,
+        "source": {
+          "doc": "src-schmalz-sng-m",
+          "page": 2
+        },
+        "method": "extracted",
+        "confidence": 0.95,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "4.0 ... 6.0 bar",
+        "unit": "bar",
+        "label": "Pressure range (operating pressure)",
+        "quote": "| SNG-M 4 0.8 | 4 | 0.8 | 4.0 ... 6.0 bar | 5 ... 60 °C | BEL | 80 |"
+      },
+      "issues": [
+        "叫法 'Pressure range (operating pressure)' 在表头，数值在该列",
+        "单位换算：4.0 ... 6.0 bar bar → 标准单位 MPa"
+      ]
+    },
+    {
+      "target": "params/mass_kg",
+      "value": {
+        "value": 0.08,
+        "source": {
+          "doc": "src-schmalz-sng-m",
+          "page": 2
+        },
+        "method": "extracted",
+        "confidence": 0.95,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "80",
+        "unit": "g",
+        "label": "Weight",
+        "quote": "| SNG-M 4 0.8 | 4 | 0.8 | 4.0 ... 6.0 bar | 5 ... 60 °C | BEL | 80 |"
+      },
+      "issues": [
+        "叫法 'Weight' 在表头，数值在该列",
+        "单位换算：80 g → 标准单位 kg"
+      ]
+    },
+    {
+      "target": "dims/width_mm",
+      "value": {
+        "value": 33.0,
+        "source": {
+          "doc": "src-schmalz-sng-m",
+          "page": 3
+        },
+        "method": "extracted",
+        "confidence": 0.65,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "33",
+        "unit": "mm",
+        "label": "B",
+        "quote": "| SNG-M 4 0.8 | 33 | M5-F | M4-F | 25 | 35 | 30 | 20 | 20 | 3 |"
+      },
+      "issues": [
+        "叫法 'B' 在表头，数值在该列"
+      ]
+    },
+    {
+      "target": "dims/height_mm",
+      "value": {
+        "value": 25.0,
+        "source": {
+          "doc": "src-schmalz-sng-m",
+          "page": 3
+        },
+        "method": "extracted",
+        "confidence": 0.7,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "25",
+        "unit": "mm",
+        "label": "H",
+        "quote": "| SNG-M 4 0.8 | 33 | M5-F | M4-F | 25 | 35 | 30 | 20 | 20 | 3 |"
+      },
+      "issues": [
+        "叫法 'H' 在表头，数值在该列"
+      ]
+    },
+    {
+      "target": "dims/overall_length_mm",
+      "value": {
+        "value": 35.0,
+        "source": {
+          "doc": "src-schmalz-sng-m",
+          "page": 3
+        },
+        "method": "extracted",
+        "confidence": 0.6,
+        "reviewed": false
+      },
+      "printed": {
+        "text": "35",
+        "unit": "mm",
+        "label": "L",
+        "quote": "| SNG-M 4 0.8 | 33 | M5-F | M4-F | 25 | 35 | 30 | 20 | 20 | 3 |"
+      },
+      "issues": [
+        "叫法 'L' 在表头，数值在该列"
+      ]
+    }
+  ],
+  "rejected": [
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/needle_stroke_mm",
+      "page": 1,
+      "printed": {
+        "text": "Needle stroke 3 mm",
+        "unit": "mm",
+        "label": "Needle stroke",
+        "quote": "Needle stroke 3 mm"
+      }
+    },
+    {
+      "reason": "引用所在行中找不到与印出文字完全一致的数值",
+      "target": "params/needle_angle_deg",
+      "page": 1,
+      "printed": {
+        "text": "Plunge angle 30°",
+        "unit": "°",
+        "label": "Plunge angle",
+        "quote": "• Plunge angle 30°"
+      }
+    }
+  ],
+  "missing_key_fields": []
+}

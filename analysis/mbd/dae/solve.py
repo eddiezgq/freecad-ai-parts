@@ -304,10 +304,16 @@ def _friction_fixed_point(sysm, q, qd, t, J, rows, jids, Q0, gam, solve, x):
         Fx, Nx = sysm.friction_wrenches(q, qd, react)
         return solve(np.concatenate([Q0 + sysm.Q_extra(q, qd, Fx, Nx), gam])), react
 
+    return _fp_iterate(sysm, t, g, x, "_friction_x")
+
+
+def _fp_iterate(sysm, t, g, x, key):
+    """摩擦不动点 x = g(x) 的通用迭代（g 返回 (新 x, 各运动副反力)）：热启动（上一次的解存在 sysm.<key>）、普通迭代、
+    慢就改 Anderson 加速、增益 ≥ 1 判自锁。加速度（accel）与运动学的反力（kinematic）共用"""
     def small(d, ref):
         return np.max(np.abs(d)) <= FRICTION_TOL * (1 + np.max(np.abs(ref)))
 
-    prev = sysm.__dict__.get("_friction_x")
+    prev = sysm.__dict__.get(key)
     if prev is not None and prev.shape == x.shape:
         x = prev.copy()                  # 从上一次的解出发：积分相邻两步的反力差得很少
     steps = []
@@ -317,7 +323,8 @@ def _friction_fixed_point(sysm, q, qd, t, J, rows, jids, Q0, gam, solve, x):
         steps.append(float(np.max(np.abs(d))))
         x = x1
         if small(d, x1):
-            sysm._friction_x, sysm._friction_lock = x, None
+            setattr(sysm, key, x)
+            sysm._friction_lock = None
             return x
         if k >= FRICTION_ITER_EARLY and _gain(steps) > 0.5:
             break                        # 收敛慢：不再空耗普通迭代，下面按增益分情况
@@ -334,7 +341,8 @@ def _friction_fixed_point(sysm, q, qd, t, J, rows, jids, Q0, gam, solve, x):
         gx, react = g(x)
         f = gx - x
         if small(f, gx):
-            sysm._friction_x, sysm._friction_lock = gx, None
+            setattr(sysm, key, gx)
+            sysm._friction_lock = None
             return gx
         X.append(x.copy())
         G.append(gx.copy())
@@ -475,7 +483,7 @@ def _check_dropped(sysm, q, t, ph, rows_idx):
 
 
 # ---------------------------------------------------------------- 分析
-def kinematic(sysm: System, t_end, steps):
+def kinematic(sysm: System, t_end, steps, branch="continue"):
     q = sysm.q0()
     keep, drop = independent_rows(sysm, q, 0.0)
     rows = _rows(sysm, keep)
@@ -483,15 +491,102 @@ def kinematic(sysm: System, t_end, steps):
     if dof != 0:
         raise SolveError(f"运动学分析要自由度为 0（加了驱动以后还剩 {dof} 个自由度）；有自由度的用动力学分析")
     rec = Recorder(sysm)
-    for t in np.linspace(0.0, t_end, steps + 1):
-        q = assemble(sysm, q, t, rows)
+    # 《多体动力学》书第 5 章线索第 13 条（问渠 CAD 0.3.8 细则）：原来牛顿初值取上一时刻的解，过死点（雅可比奇异）时走“倒回”
+    # 那一支——摇杆驱动的曲柄摇杆 2 s 曲柄来回摆、转 0 圈，无提示。现在初值按速度外推（原动件推着越过死点，脚踏缝纫机、
+    # 内燃机要的是这一支），branch="reverse" 保留原来的走法；雅可比行列式变号就记一次经过死点，报时刻和运动副
+    ts = np.linspace(0.0, t_end, steps + 1)
+    jids = _friction_joints(sysm)
+    q_prev, qd, det_prev, dead = None, None, None, []
+    for n, t in enumerate(ts):
+        if branch == "continue" and n >= 2:
+            guess = q + (q - q_prev)                         # 割线外推（= 速度外推，采样点落在死点上也有定义）
+        elif branch == "continue" and n == 1 and qd is not None:
+            guess = q + qd * (t - ts[0])
+        else:
+            guess = q
+        try:
+            q_new = assemble(sysm, guess, t, rows)
+        except SolveError:
+            q_new = assemble(sysm, q, t, rows)               # 外推越界装不上：退回上一时刻的解起步
+        q_prev, q = q, q_new
         J = sysm.jac(q, t, rows)
-        qd = np.linalg.solve(J, sysm.nu(q, t, rows))
-        qdd = np.linalg.solve(J, sysm.gamma(q, qd, t, rows))
-        Q = sysm.Q(q, qd, t)
-        lam = np.linalg.solve(J.T, Q - sysm.mass(q) @ qdd)
+        sv = np.linalg.svd(J, compute_uv=False)
+        sign, logdet = np.linalg.slogdet(J)
+        det = sign * math.exp(logdet) if sign else 0.0
+        if det_prev is not None and det_prev * det < 0:
+            tc = float(ts[n - 1] + (t - ts[n - 1]) * det_prev / (det_prev - det))
+            dead.append({"t_s": tc, "joints": _singular_joints(sysm, q, t, rows), "collinear": _collinear(sysm, q)})
+        if det != 0.0:
+            det_prev = det
+        if sv[-1] < KIN_SINGULAR * sv[0] and q_prev is not None:
+            qd = (q - q_prev) / (t - ts[n - 1])              # 正好落在死点上：速度由运动副定不了，用相邻两点差分
+            qdd = np.linalg.lstsq(J, sysm.gamma(q, qd, t, rows), rcond=None)[0]
+            lam = np.linalg.lstsq(J.T, sysm.Q(q, qd, t) - sysm.mass(q) @ qdd, rcond=None)[0]
+        else:
+            qd = np.linalg.solve(J, sysm.nu(q, t, rows))
+            qdd = np.linalg.solve(J, sysm.gamma(q, qd, t, rows))
+            Q = sysm.Q(q, qd, t)
+            rhs0 = Q - sysm.mass(q) @ qdd
+            lam = np.linalg.solve(J.T, rhs0)
+            if jids:
+                lam = _kinematic_friction(sysm, q, qd, t, J, rows, jids, rhs0, lam)
         rec.add(float(t), q, qd, qdd, keep, lam)
-    return rec, {"dof": 0, "redundant": [sysm.rows[k].label for k in drop]}
+    return rec, {"dof": 0, "redundant": [sysm.rows[k].label for k in drop], "dead_points": dead, "branch": branch}
+
+
+KIN_SINGULAR = 1e-10     # 运动学雅可比最小 / 最大奇异值低于它：采样点正好落在死点上
+
+
+def _collinear(sysm, q):
+    """死点处共线的两根杆：在连接两个运动构件的铰上，两根杆各自“另一个铰 → 这个铰”的方向最接近共线的那一处。
+    返回 (杆 1, 杆 2, 铰) 或 None"""
+    pts = {}                                      # 构件下标 → [(铰名, 地面系位置)]
+    for jid, info in sysm.joints.items():
+        for b, s_ in ((info["i"], info.get("si")), (info["j"], info.get("sj"))):
+            if b >= 0 and s_ is not None:
+                r, p = sysm.rp(q, b)
+                pts.setdefault(b, []).append((jid, r + A_of(p) @ np.asarray(s_, float)))
+    best, out = 0.05, None
+    for jid, info in sysm.joints.items():
+        bi, bj = info["i"], info["j"]
+        if bi < 0 or bj < 0:
+            continue
+        dirs = []
+        for b in (bi, bj):
+            here = next(x for n_, x in pts[b] if n_ == jid)
+            others = [x for n_, x in pts[b] if n_ != jid and np.linalg.norm(x - here) > 1e-9]
+            if not others:
+                break
+            v = here - others[0]
+            dirs.append(v / np.linalg.norm(v))
+        if len(dirs) < 2:
+            continue
+        sine = float(np.linalg.norm(np.cross(dirs[0], dirs[1])))
+        if sine < best:
+            best, out = sine, (sysm.bodies[bi].name, sysm.bodies[bj].name, jid)
+    return out
+
+
+def _singular_joints(sysm, q, t, rows):
+    """雅可比最接近奇异的方向上分量大的约束行 → 所在运动副（死点处共线的那几根杆连着的铰）"""
+    J = sysm.jac(q, t, rows)
+    U, _, _ = np.linalg.svd(J)
+    u = np.abs(U[:, -1])
+    return sorted({rows[i].joint or rows[i].label for i in np.nonzero(u > 0.2 * u.max())[0]})
+
+
+def _kinematic_friction(sysm, q, qd, t, J, rows, jids, rhs0, lam):
+    """运动学分析的反力（含驱动力矩）计入运动副摩擦。《多体动力学》书第 20 章线索第 27 条（问渠 CAD 0.3.8 细则）：
+    原来解乘子不走摩擦迭代，曲柄滑块 μ = 0.2 与无摩擦的驱动力矩完全相同、无提示（书里一周最大多 4.12 N·m）；
+    全驱动的模型又不能做动力学分析。现在与加速度一样走摩擦不动点（反力 → 摩擦 → 反力）"""
+    lu = sla.lu_factor(J.T)
+
+    def g(lam_):
+        react = _joint_forces(sysm, q, J, lam_, rows, jids)
+        Fx, Nx = sysm.friction_wrenches(q, qd, react)
+        return sla.lu_solve(lu, rhs0 + sysm.Q_extra(q, qd, Fx, Nx)), react
+
+    return _fp_iterate(sysm, t, g, lam, "_friction_lam")
 
 
 RELAX_ALPHA = 1000.0     # 1/s，静平衡找不到时“过阻尼动力学放松”的质量比例阻尼
@@ -538,27 +633,73 @@ def _static_once(sysm: System, t=0.0, q=None):
     return rec, info
 
 
+def ctrl_states(sysm):
+    """静平衡、线性化里要随系统一起求的控制器状态下标（《多体动力学》书第 32 章线索第 47 条）：
+    PID 的积分状态只有 ki ≠ 0 时才影响输出（ki = 0 时它的“导数 = 误差”不是平衡条件）；微分滤波、状态空间的状态都算"""
+    ctrl = getattr(sysm, "ctrl", None)
+    if ctrl is None or not ctrl.items:
+        return []
+    idx = []
+    for it in ctrl.items:
+        if "sp" in it:
+            if it["c"].get("ki", 0.0):
+                idx.append(it["o"])
+            if it["filt"]:
+                idx.append(it["o"] + 1)
+        else:
+            idx += list(range(it["o"], it["o"] + it["n"]))
+    return idx
+
+
+def apply_ctrl(sysm, q, qd, t, xc):
+    """控制器输出 → 执行器（静平衡、线性化里与动力学同样计入控制器）"""
+    ctrl = getattr(sysm, "ctrl", None)
+    if ctrl is not None and ctrl.any:
+        sysm.act = ctrl.outputs(t, sysm.measures(q, qd), xc)
+
+
 def _static(sysm: System, t=0.0, q=None):
-    """静平衡：Q(q) − Φ_qᵀλ = 0、Φ(q) = 0（速度为 0）"""
+    """静平衡：Q(q) − Φ_qᵀλ = 0、Φ(q) = 0（速度为 0）。有控制器时执行器力按控制器输出算，
+    要随系统求的控制器状态（PID 积分等）加进未知量，方程是它们的导数为 0（线索第 47 条：原来不计控制器，
+    伺服臂的静平衡“没找到（残差 10.6）”）"""
     q = sysm.q0() if q is None else q
     keep, drop = independent_rows(sysm, q, t)
     rows = _rows(sysm, keep)
     q = assemble(sysm, q, t, rows)
     m = len(rows)
     zero = np.zeros(sysm.n)
+    ctrl = getattr(sysm, "ctrl", None)
+    xc_base = ctrl.x0.copy() if ctrl is not None and ctrl.any else np.zeros(0)
+    ci = ctrl_states(sysm)
+    nc = len(ci)
+
+    def split(x):
+        xc = xc_base.copy()
+        if nc:
+            xc[ci] = x[sysm.n + m:]
+        return x[:sysm.n], x[sysm.n:sysm.n + m], xc
 
     def F(x):
-        qq, lam = x[:sysm.n], x[sysm.n:]
-        return np.concatenate([sysm.Q(qq, zero, t) - sysm.jac(qq, t, rows).T @ lam, sysm.phi(qq, t, rows)])
+        qq, lam, xc = split(x)
+        apply_ctrl(sysm, qq, zero, t, xc)
+        out = [sysm.Q(qq, zero, t) - sysm.jac(qq, t, rows).T @ lam, sysm.phi(qq, t, rows)]
+        if nc:
+            out.append(ctrl.deriv(t, sysm.measures(qq, zero), xc)[ci])
+        return np.concatenate(out)
 
     J0 = sysm.jac(q, t, rows)
+    apply_ctrl(sysm, q, zero, t, xc_base)
     lam0 = np.linalg.lstsq(J0.T, sysm.Q(q, zero, t), rcond=None)[0]
-    x0 = np.concatenate([q, lam0])
-    x = _static_newton(sysm, t, rows, x0) if getattr(sysm, "nlbeams", None) else None
+    x0 = np.concatenate([q, lam0, xc_base[ci]])
+    x = _static_newton(sysm, t, rows, x0) if getattr(sysm, "nlbeams", None) and not nc else None
     if x is None:
         sol = root(F, x0, method="hybr", options={"xtol": 1e-13, "maxfev": 20000})
         x = sol.x
     res = F(x)
+    sysm.static_xc = split(x)[2]
+    if nc and np.max(np.abs(res[sysm.n + m:])) > 1e-8:
+        raise SolveError(f"静平衡没找到：控制器状态没有到稳态（导数残差 {np.max(np.abs(res[sysm.n + m:])):.3g}）")
+    res = res[:sysm.n + m]
     # 力的残差按力的量级判（大变形梁内力上万牛，舍入噪声就有 1e-6 N 级）；约束残差按长度判
     fscale = max(1.0, float(np.max(np.abs(sysm.Q(x[:sysm.n], zero, t)))))
     if not np.all(np.isfinite(res)) or np.max(np.abs(res[:sysm.n])) > max(1e-6, 1e-8 * fscale) \
@@ -607,6 +748,50 @@ def _static_newton(sysm, t, rows, x0, iters=60):
         if not np.all(np.isfinite(r)):
             return None
     return x if np.max(np.abs(r)) <= 1e-6 else None
+
+
+def time_breaks(sysm):
+    """模型里所有时间表达式（力、驱动、控制器设定值……）中 STEP / STEP5 / HAVSIN 的过渡区间"""
+    from analysis.mbd.dae.expr import Expr
+
+    out, seen = [], set()
+
+    def walk(o, depth):
+        if depth > 6 or id(o) in seen:
+            return
+        seen.add(id(o))
+        if isinstance(o, Expr):
+            out.extend(o.time_breaks())
+        elif isinstance(o, dict):
+            for x in o.values():
+                walk(x, depth + 1)
+        elif isinstance(o, (list, tuple)):
+            for x in o:
+                walk(x, depth + 1)
+        elif callable(o) and getattr(o, "__closure__", None):        # 力元把表达式包在闭包里
+            for c in o.__closure__:
+                try:
+                    walk(c.cell_contents, depth + 1)
+                except ValueError:                                  # 空的闭包格
+                    pass
+        elif type(o).__module__.startswith("analysis.mbd") and hasattr(o, "__dict__"):
+            for x in vars(o).values():
+                walk(x, depth + 1)
+
+    for name in ("forces", "motions", "rows", "ctrl"):
+        walk(getattr(sysm, name, None), 0)
+    return sorted(set(out))
+
+
+SEG_ROT_RAD = 0.5          # 积分每段里构件最多转过的角度（rad）
+
+
+def _max_angular_speed(sysm, q, qd):
+    w = 0.0
+    for k in range(sysm.nb):
+        p = sysm.rp(q, k)[1]
+        w = max(w, float(np.linalg.norm(2 * E_of(p) @ qd[7 * k + 3:7 * k + 7])))
+    return w
 
 
 STALL_RHS = 200_000        # 一个输出间隔的 1 % 都没推进、却已求值这么多次：积分卡住了
@@ -712,6 +897,8 @@ def dynamic(sysm: System, t_end, steps, method="DOP853", rtol=1e-8, atol=1e-10, 
     rec.ctrl.append(dict(getattr(sysm, "act", {})))
     k = 0                                   # 已记录到 times[k]
     seg = max(1, steps // 50)               # 每段最多这么多个输出点就重新挑一次分块
+    breaks = [b for b in time_breaks(sysm) if b[1] > t0 and b[0] < t0 + t_end]
+    stats["time_breaks"] = sorted({x for b in breaks for x in b if t0 < x < t0 + t_end})
     try:
         return _dynamic_loop(locals())
     finally:
@@ -726,6 +913,7 @@ def _dynamic_loop(v):
     partition, full_state, ctrl, dof, nx = (v[k] for k in ("partition", "full_state", "ctrl", "dof", "nx"))
     t_cur, q_cur, qd_cur, xc_cur, k, seg = (v[k] for k in ("t_cur", "q_cur", "qd_cur", "xc_cur", "k", "seg"))
     t0, h_s, n_s, next_s = v["t0"], v["h_s"], v["n_s"], v["next_s"]
+    breaks, must = v["breaks"], v["stats"]["time_breaks"]
     dt_out = float(times[1] - times[0]) if len(times) > 1 else 1.0
     while k < steps:
         dep, ind = partition(q_cur, t_cur)
@@ -735,7 +923,15 @@ def _dynamic_loop(v):
         cond0 = np.linalg.cond(sysm.jac(q_cur, t_cur, rows)[:, dep])
         limit = max(1e3, 10 * cond0)
         k1 = min(steps, k + seg)
-        t_stop = min(float(times[k1]), next_s)
+        # 《多体动力学》书第 7 章线索第 16 条（问渠 CAD 0.3.8 细则）：原来每段固定 T/50，高速转动的自由刚体一段里转大半圈，
+        # 独立坐标（欧拉参数的某个分量）过零变病态，能量悄悄流失或积分报错。每段转角限 SEG_ROT_RAD，段首重选独立坐标
+        w_max = _max_angular_speed(sysm, q_cur, qd_cur)
+        t_rot = t_cur + SEG_ROT_RAD / w_max if w_max > 0 else math.inf
+        # 线索第 24 条：时间函数的过渡点是必经时刻（分段积分，过点重新起步），过渡区间里最大步长不超过过渡宽度
+        next_b = next((x for x in must if x > t_cur + 1e-12), math.inf)
+        t_stop = min(float(times[k1]), next_s, t_rot, next_b)
+        inside = [b[1] - b[0] for b in breaks if b[0] - 1e-12 <= t_cur < b[1] - 1e-12]
+        max_step = min(inside) if inside else math.inf
 
         def rhs(t, y, dep=dep, ind=ind):
             stats["rhs"] += 1
@@ -774,7 +970,7 @@ def _dynamic_loop(v):
         t_eval = [tt for tt in times[k + 1:k1 + 1] if tt <= t_stop + 1e-12]
         try:
             sol = solve_ivp(rhs, (t_cur, t_stop), y0, method=method, t_eval=t_eval, rtol=rtol, atol=atol,
-                            events=ill, dense_output=True)
+                            events=ill, dense_output=True, max_step=max_step)
         except _Stall as exc:
             raise SolveError(str(exc)) from None
         if sol.status < 0:

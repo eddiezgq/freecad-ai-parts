@@ -16,6 +16,7 @@ from analysis.mbd.dae import solve as S
 from analysis.mbd.dae.system import A_of, E_of
 
 REL_STEP = 1e-6
+RIGID_REL = 1e-6          # |λ| 小于最大 |λ| 的这个倍数：刚体运动
 NONSMOOTH = ("contact", "gear", "clearance")
 MM, DEG = 1e-3, math.pi / 180
 
@@ -36,9 +37,16 @@ def _skew(a):
     return np.array([[0, -a[2], a[1]], [a[2], 0, -a[0]], [-a[1], a[0], 0]])
 
 
-def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
+def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None, xc=None):
     """扰动坐标：每个构件 (δr, δπ)，δπ 是地面系小转动向量（p = exp(δπ)⊗p₀）；速度 (ṙ, ω)。
-    用这套坐标而不是欧拉参数，旋转中的构件（转子）线性化后的涡动频率才对：欧拉参数本身随自转变化，直接对它线性化会差 Ω/2。"""
+    用这套坐标而不是欧拉参数，旋转中的构件（转子）线性化后的涡动频率才对：欧拉参数本身随自转变化，直接对它线性化会差 Ω/2。
+    有控制器时（《多体动力学》书第 32 章线索第 47 条）：执行器力按控制器输出算，要随系统走的控制器状态（PID 积分、微分滤波、
+    状态空间）并进状态向量；原来不计控制器，伺服臂线性化出来与“电机完全自由”一致。xc 是工作点的控制器状态（缺省取初值）"""
+    ctrl = getattr(sysm, "ctrl", None)
+    ci = S.ctrl_states(sysm)
+    nc = len(ci)
+    xc_op = (np.asarray(xc, float).copy() if xc is not None else ctrl.x0.copy()) if ctrl is not None and ctrl.any \
+        else np.zeros(0)
     keep, drop = S.independent_rows(sysm, q, t)
     rows = S._rows(sysm, keep)
     q = S.assemble(sysm, q, t, rows)
@@ -116,10 +124,18 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
 
     ref = {"v": np.zeros(N6)}
 
+    def xc_of(x):
+        out = xc_op.copy()
+        if nc:
+            out[ci] = x[2 * dof:]
+        return out
+
     def f(x):
         # 扰动是相对“随工作点速度运动的参考”量的：r = r_ref(t) + δr，R = exp(δπ)·R_ref(t)，R_ref 以工作点角速度 ω_ref 转。
         # 于是 δṙ = ṙ − v_ref，δπ̇ = J_l⁻¹(δπ)(ω − exp(δπ)ω_ref)。对静止工作点就是普通的扰动；对转子这一项给出正确的陀螺耦合。
-        dy, qq, v, vv = complete(x[:dof], x[dof:])
+        dy, qq, v, vv = complete(x[:dof], x[dof:2 * dof])
+        xcx = xc_of(x)
+        S.apply_ctrl(sysm, qq, vv, t, xcx)
         acc, _ = S.accel(sysm, qq, vv, t, rows)
         dyd = v - ref["v"]
         for k in range(nb):
@@ -127,7 +143,10 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
             S_ = _skew(ph)
             w_ref = sla.expm(S_) @ ref["v"][6 * k + 3:6 * k + 6]
             dyd[6 * k + 3:6 * k + 6] = (np.eye(3) - 0.5 * S_ + S_ @ S_ / 12) @ (v[6 * k + 3:6 * k + 6] - w_ref)
-        return np.concatenate([dyd[ind], vdot(qq, acc)[ind]])
+        parts = [dyd[ind], vdot(qq, acc)[ind]]
+        if nc:
+            parts.append(ctrl.deriv(t, sysm.measures(qq, vv), xcx)[ci])
+        return np.concatenate(parts)
 
     # 工作点速度（满足速度约束）
     v0 = np.zeros(N6)
@@ -138,12 +157,13 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
         v0[6 * nb:] = qd[7 * nb:]
     _, _, v0, qd = complete(np.zeros(dof), v0[ind])
     ref["v"] = v0.copy()
-    x0 = np.concatenate([np.zeros(dof), v0[ind]])
+    x0 = np.concatenate([np.zeros(dof), v0[ind], xc_op[ci]])
     A = _jac(f, x0)
+    S.apply_ctrl(sysm, q, qd, t, xc_op)              # 工作点的执行器输出（B、记录用）
     M = sysm.mass(q)
     Jf = sysm.jac(q, t, rows)
     K = np.block([[M, Jf.T], [Jf, np.zeros((len(rows), len(rows)))]])
-    B = np.zeros((2 * dof, len(inputs)))
+    B = np.zeros((2 * dof + nc, len(inputs)))
     for k, u in enumerate(inputs):
         F, N = np.zeros((nb, 3)), np.zeros((nb, 3))
         b = u["body"]
@@ -153,11 +173,11 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
         else:
             N[b] += u["dir"]
         sol = np.linalg.lstsq(K, np.concatenate([sysm.Q_extra(q, qd, F, N), np.zeros(len(rows))]), rcond=None)[0]
-        B[dof:, k] = vdot(q, sol[:n])[ind]
-    C = np.zeros((len(outputs), 2 * dof))
+        B[dof:2 * dof, k] = vdot(q, sol[:n])[ind]
+    C = np.zeros((len(outputs), 2 * dof + nc))
     if outputs:
         def g(x):
-            _, qq, _, vv = complete(x[:dof], x[dof:])
+            _, qq, _, vv = complete(x[:dof], x[dof:2 * dof])
             mm = sysm.measures(qq, vv)
             return np.array([mm[o] for o in outputs])
         C = _jac(g, x0)
@@ -175,18 +195,27 @@ def linearize(sysm, q, qd, t=0.0, inputs=(), outputs=(), n_modes=None):
         if lk.imag < -1e-9 * max(1.0, abs(lk)):
             continue                                 # 共轭对只留虚部为正的那个（重根各自保留）
         w = abs(lk)
+        rigid = w < RIGID_REL * big                  # 近零频率：刚体运动（自由转动的电机等），不计入稳定性判断
         # 实特征值（虚部为 0）不是振动：|λ|/2π 只是量级，标 oscillatory = False（《多体动力学》书第 21 条附带）
         modes.append({"eigenvalue": [float(lk.real), float(lk.imag)], "frequency_hz": w / (2 * math.pi),
                       "oscillatory": bool(abs(lk.imag) > 1e-9 * max(1.0, w)),
                       "damped_frequency_hz": abs(lk.imag) / (2 * math.pi),
-                      "damping_ratio": (-lk.real / w) if w > 0 else None,
+                      "damping_ratio": (-lk.real / w) if w > 0 else None, "rigid_body": bool(rigid),
                       "shape": _shape(sysm, J0, dep, ind, V[:dof, k])})
     if n_modes:
         modes = modes[:n_modes]
     fnames = [f"{b.name}.eta{m + 1}" for b in sysm.bodies if b.flex is not None for m in range(b.flex.nm)]
     names = [f"{sysm.bodies[i // 6].name}.{['dx', 'dy', 'dz', 'rx', 'ry', 'rz'][i % 6]}" if i < 6 * nb
              else fnames[i - 6 * nb] for i in ind]
-    return {"dof": dof, "states": names + [s_ + "_dot" for s_ in names], "independent_coordinates": names,
+    cnames = []
+    if nc:
+        for it in ctrl.items:
+            base = it["o"]
+            width = (2 if it.get("filt") else 1) if "sp" in it else it["n"]
+            cnames += [(base + j, f"{it['c']['id']}.x{j + 1}") for j in range(width)]
+        cnames = [nm for k, nm in cnames if k in ci]
+    return {"dof": dof, "states": names + [s_ + "_dot" for s_ in names] + cnames, "independent_coordinates": names,
+            "controller_states": cnames,
             "A": A.tolist(), "B": B.tolist(), "C": C.tolist(), "D": D.tolist(),
             "inputs": [u["id"] for u in inputs], "outputs": list(outputs), "modes": modes,
             "redundant": [sysm.rows[k].label for k in drop]}, q, qd
