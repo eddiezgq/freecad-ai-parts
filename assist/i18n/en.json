@@ -1494,6 +1494,7 @@
 "运动副 {} 反力矩大小（N·m）": "Joint {} reaction moment magnitude (N·m)",
 "运动副 {} 最大反力": "Maximum reaction force of joint {}",
 "运动副 {} 最大反力矩": "Maximum reaction moment of joint {}",
+"运动副 {} 的轴": "the axis of joint {}",
 "运动副 {} 的驱动没填值": "The drive of joint {} has no value",
 "运动副 {}（{}）不能加驱动": "Joint {} ({}) cannot have a drive",
 "运动副 {}：只有转动、移动、圆柱副能给初速度": "Joint {}: only revolute, translational and cylindrical joints can have an initial velocity",
