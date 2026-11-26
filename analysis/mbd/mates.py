@@ -9,6 +9,7 @@
 
 规则（都是几何事实，不猜意图）：
 - 一个零件的外圆柱面（轴、销）与另一个零件的内圆柱面（孔）同轴、半径差在配合间隙内、轴向有重叠 → 转动副候选（备选圆柱副）；
+  同时有法向垂直于轴线的贴合平面（键、花键侧面）→ 转不动：再有轴向止推面为固定，否则为移动副（沿轴线）；
 - 外球面与内球面同心、半径差在间隙内 → 球副候选；
 - 两零件之间没有同轴配合，但有两组以上法向不平行的贴合平面（法向相反、共面）→ 移动副候选，方向为两法向的叉积；
 - 同一对零件有两条以上不同轴线的轴孔配合 → 固定候选（两个销钉定位，转不动）。
@@ -67,6 +68,30 @@ def _same_line(p1, a1, p2, a2):
     return np.linalg.norm(d - (d @ a1) * a1) < LIN_TOL_MM
 
 
+def _plane_contacts(A, B):
+    """两零件之间贴合的平面对（法向相反、共面）的法向（A 侧，去重平行的）"""
+    normals = []
+    for fa, fb in itertools.product(A["faces"], B["faces"]):
+        if fa["kind"] != "plane" or fb["kind"] != "plane":
+            continue
+        na, nb = _u(fa["normal"]), _u(fb["normal"])
+        if na @ nb > -1 + ANG_TOL:
+            continue
+        if abs((np.asarray(fb["point"], float) - np.asarray(fa["point"], float)) @ na) > LIN_TOL_MM:
+            continue
+        if not any(_parallel(na, n) for n in normals):
+            normals.append(na)
+    return normals
+
+
+def _flat_contacts(A, B, axis):
+    """轴孔配合的两零件之间：法向垂直于轴线的贴合平面有几组、有没有法向平行于轴线的（止推面）"""
+    ns = _plane_contacts(A, B)
+    side = sum(1 for n in ns if abs(n @ axis) < 1e-6)
+    thrust = any(_parallel(n, axis) for n in ns)
+    return side, thrust
+
+
 def pair_candidates(A, B):
     """两个零件之间的候选（可能为空）"""
     out = []
@@ -96,8 +121,19 @@ def pair_candidates(A, B):
                         "evidence": f"Ø{2 * ball['radius']:.4g} 球面与球窝同心"})
     if len(axes) == 1:
         p, a, mid, ev = axes[0]
-        out.append({"type": "revolute", "point_mm": mid.tolist(), "axis": a.tolist(), "alternatives": ["cylindrical"],
-                    "evidence": ev + "；按转动副起草（如果轴向能滑动，改成圆柱副）"})
+        side, thrust = _flat_contacts(A, B, a)
+        if side:
+            # 《多体动力学》书第 39 章线索第 63 条（问渠 CAD 0.3.9 细则）：键侧两平面（法向 ⊥ 轴线）贴合时转不动，原来只看轴孔，
+            # 滑键被当成转动副、移动副不在选项里。再有轴向止推面就固定，否则沿轴线移动
+            if thrust:
+                out.append({"type": "fixed", "point_mm": mid.tolist(), "alternatives": [],
+                            "evidence": ev + f"；另有 {side} 组法向垂直于轴线的贴合平面（键、花键侧面）和轴向止推面，相对转不动也滑不动"})
+            else:
+                out.append({"type": "translational", "point_mm": mid.tolist(), "axis": a.tolist(), "alternatives": ["fixed"],
+                            "evidence": ev + f"；另有 {side} 组法向垂直于轴线的贴合平面（键、花键侧面），转不动，只能沿轴线滑动"})
+        else:
+            out.append({"type": "revolute", "point_mm": mid.tolist(), "axis": a.tolist(), "alternatives": ["cylindrical"],
+                        "evidence": ev + "；按转动副起草（如果轴向能滑动，改成圆柱副）"})
     elif len(axes) > 1:
         out.append({"type": "fixed", "point_mm": axes[0][2].tolist(), "alternatives": [],
                     "evidence": f"有 {len(axes)} 条不同轴线的轴孔配合，两零件相对转不动：" + "；".join(x[3] for x in axes)})
