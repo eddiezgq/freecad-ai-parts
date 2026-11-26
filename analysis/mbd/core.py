@@ -398,7 +398,10 @@ def simulate(spec, setup):
         p = tau * qd
         summ["drives"].append({"joint": j, "kind": d["kind"], "peak": float(np.max(np.abs(tau))), "rms": float(np.sqrt(np.mean(tau ** 2))),
                                "peak_settled": float(np.max(np.abs(tau[settled]))) if settled.any() else None,
-                               "speed_max": float(np.max(np.abs(qd))), "power_peak": float(np.max(np.abs(p))),
+                               # 线索第 9 条：剔除加速度突变后的软约束过冲；force_solver = "soft"（录制回放）时照旧取原始值
+                               "speed_max": float(np.max(np.abs(qd[settled]))) if settled.any() and setup.get("exact_inverse")
+                               else float(np.max(np.abs(qd))),
+                               "speed_max_raw": float(np.max(np.abs(qd))), "power_peak": float(np.max(np.abs(p))),
                                "power_mean": float(np.mean(p)), "inertia_max": float(np.max(ch["inertia." + j]))})
     exact = _exact_inverse(model, drives, setup, ch) if setup.get("exact_inverse") else None
     if exact:
@@ -479,6 +482,8 @@ def tau_of(dt: float) -> float:
 
 def switch_times(d) -> list[float]:
     """点到点 / 多段路径驱动的加速度突变时刻（梯形速度：开始、加速完、开始减速、停下）"""
+    if d["kind"] in ("speed", "sine"):
+        return [0.0]          # 线索第 9 条：匀速 / 正弦驱动在 t = 0 从约束建立起步，起步段同样有软约束过冲
     segs = [d] if d["kind"] == "move" else d.get("segments") or [] if d["kind"] == "path" else []
     out = []
     for g in segs:

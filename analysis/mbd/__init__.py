@@ -191,6 +191,7 @@ def run(setup: dict) -> dict:
             "joint": j, "kind": d["kind"], "unit_force": "N" if slide else "N·m",
             "peak": d["peak"], "rms": d["rms"], "peak_settled": d["peak_settled"],
             "speed_max": d["speed_max"] * (1000 if slide else RPM), "unit_speed": "mm/s" if slide else "rpm",
+            **({"speed_max_raw": d["speed_max_raw"] * (1000 if slide else RPM)} if "speed_max_raw" in d else {}),
             "power_peak_w": d["power_peak"], "power_mean_w": d["power_mean"], "inertia_max_kgm2": d["inertia_max"],
             **({"peak_at_s": d["peak_at_s"]} if "peak_at_s" in d else {})})
         k = 1000 if slide else 180 / math.pi
@@ -423,10 +424,14 @@ def requirement(res: Mapping, joint: str, *, base: Mapping | None = None) -> dic
     if d["unit_force"] != "N·m":
         raise SetupError(f"{joint} 是移动关节，不能生成旋转关节的选型需求")
     req = dict(base or {})
-    req.update({"output_torque_cont_nm": round(d["rms"], 3), "output_torque_peak_nm": round(d["peak"], 3),
+    # 线索第 9 条：峰值取剔除加速度突变（含匀速驱动的起步）后软约束过冲的稳定峰值；转速同样剔除（speed_max 已剔除）
+    peak = d["peak_settled"] if d.get("peak_settled") is not None else d["peak"]
+    win = (res.get("data") or {}).get("settle_window_s")
+    req.update({"output_torque_cont_nm": round(d["rms"], 3), "output_torque_peak_nm": round(peak, 3),
                 "output_speed_rpm": round(d["speed_max"], 3), "load_inertia_kgm2": round(d["inertia_max_kgm2"], 6)})
-    req.setdefault("statement", f"动力学结果：关节 {joint} 峰值 {d['peak']:.1f} N·m、均方根 {d['rms']:.1f} N·m、"
-                                f"最高 {d['speed_max']:.1f} rpm")
+    note = f"（峰值、转速剔除加速度突变后 {win * 1000:.3g} ms 内的软约束过冲）" if win and peak < d["peak"] else ""
+    req.setdefault("statement", f"动力学结果：关节 {joint} 峰值 {peak:.1f} N·m、均方根 {d['rms']:.1f} N·m、"
+                                f"最高 {d['speed_max']:.1f} rpm{note}")
     return req
 
 
