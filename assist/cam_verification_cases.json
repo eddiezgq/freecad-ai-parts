@@ -1002,6 +1002,26 @@
     "en": "NUM cylinder G22: Y and feed converted to the current radius (same cutting time as FANUC G7.1)"
    },
    "source": "NUM Flexium Programming Manual M00018EN-03, 5.18.4"
+  },
+  {
+   "id": "CAM-99",
+   "test": "tests/test_cam_post_fagor.py::test_fagor_mill_turn_face_and_cylinder",
+   "category": "post",
+   "title": {
+    "zh": "发格车铣：#CAX、#FACE、#CYL 按手册写（G152 明写半径），回读一致",
+    "en": "Fagor mill-turn: #CAX, #FACE, #CYL per the manual (radius made explicit with G152), read-back matches"
+   },
+   "source": "CNCelite 8058/8060/8065/8070 Programming manual, 3.4, 18.1"
+  },
+  {
+   "id": "CAM-100",
+   "test": "tests/test_cam_post_fagor.py::test_fagor_mill_turn_refusals",
+   "category": "must",
+   "title": {
+    "zh": "发格车铣：没做的（C 分度 + Y 轴铣、B 轴）和超位数的不出、点名",
+    "en": "Fagor mill-turn: unsupported cases (C indexing + Y-axis milling, B axis) and excess decimals are refused and named"
+   },
+   "source": "CNCelite 8058/8060/8065/8070 Programming manual, 1.3.1, 18.1"
   }
  ]
 }

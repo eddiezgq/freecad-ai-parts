@@ -201,7 +201,7 @@ def run_model(model: dict, base_dir=None):
     messages = []
     stab = None
     if typ == "kinematic":
-        rec, info = S.kinematic(sysm, t_end, steps)
+        rec, info = S.kinematic(sysm, t_end, steps, branch=an.get("dead_point", "continue"))   # ADR-0130
     elif typ == "static":
         rec, info = S.static(sysm, load_steps=int(an.get("load_steps", 1)))
         stab = _stability(sysm, rec.q[-1], rec.t[-1])
@@ -217,6 +217,15 @@ def run_model(model: dict, base_dir=None):
             messages.append("注意：静平衡找到的是不稳定平衡，动力学从这里出发会长时间“静止”（舍入误差要很久才放大），"
                             "看起来像稳定，其实一碰就倒。给一点初始扰动或改用稳定的平衡位置")
         rec, info = dyn(sysm, t_end, steps, method=method, rtol=rtol, atol=atol, q=st.q[0], qd=np.zeros(sysm.n))
+    const_damp = [f["id"] for kind, f in sysm.forces if kind == "contact" and "rest" not in f]
+    if const_damp and typ in ("dynamic", "static_then_dynamic"):
+        # ADR-0130（线索第 31 条）：常值阻尼的实际恢复系数随碰撞速度、质量变（0.01 m/s 时近 1，10 m/s 时 0.84）
+        messages.append("接触对 {} 没给恢复系数 restitution，按常值阻尼算：实际恢复系数随碰撞速度、质量变，"
+                        "低速碰撞几乎不耗能、落下的零件可能停不住；知道恢复系数就给 restitution".format("、".join(const_damp)))
+    tb = info.get("time_breaks") or []
+    if tb:
+        messages.append("按时间函数（STEP、STEP5、HAVSIN）的过渡点分段积分，必经时刻 {} 个：{}".format(
+            len(tb), "、".join(f"{x:.6g} s" for x in tb[:12]) + ("……" if len(tb) > 12 else "")))
     if typ == "kinematic" and info.get("dead_points"):
         dp = info["dead_points"]
         messages.append("经过死点 {} 次（雅可比奇异；缺省让原动件推着越过死点继续往前走）：{}".format(

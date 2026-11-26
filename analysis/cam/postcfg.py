@@ -71,8 +71,8 @@ def check(cfg: dict, where: str = "") -> dict:
             raise PostConfigError(f"{w}发格的子程序（%L、#CALL）还没做，请关掉 subprograms（ADR-0126）")
         if cfg.get("coolant", "off") != "off":
             raise PostConfigError(f"{w}发格手册的 M 代码表里没有冷却，冷却的 M 代码由机床厂定：coolant 写 off，按机床说明书写进换刀后动作（ADR-0126）")
-        if cfg.get("millturn") or cfg.get("twin") or cfg.get("channels"):
-            raise PostConfigError(f"{w}发格车铣、双主轴、多通道还没做（ADR-0126）")
+        if (cfg.get("millturn") or {}).get("b_tool_comp") or cfg.get("twin") or cfg.get("channels"):
+            raise PostConfigError(f"{w}发格的 B 轴车铣、双主轴、多通道还没做（ADR-0131；端面、圆柱面车铣可以）")
     if fam == "num":                           # ADR-0127 第 4 条
         w = where + "：" if where else ""
         if dl:
