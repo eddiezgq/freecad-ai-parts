@@ -975,6 +975,7 @@
 "柔性构件 {}：{}": "Flexible body {}: {}",
 "柔性构件 {}：只有实体柔性体（带表面网格）能画云图": "Flexible body {}: only solid flexible bodies (with a surface mesh) can show contours",
 "柔性构件 {}：结果的模态数与柔性体定义不同": "Flexible body {}: the number of modes in the results differs from the flexible body definition",
+"柔性梁“{}”转得快：最大角速度 {:.3g} rad/s，是它悬臂第一阶弯曲频率 {:.3g} rad/s 的 {:.2f} 倍（超过 {}）。模态柔性梁（beam）不计几何刚化（离心力使梁变硬），变形会算大、频率会算低；请改用大变形梁 nonlinear_beam": "Flexible beam “{}” spins fast: maximum angular speed {:.3g} rad/s against a first cantilever bending frequency of {:.3g} rad/s, a ratio of {:.2f} (above {}). A modal flexible beam (beam) has no geometric (centrifugal) stiffening, so deflections come out too large and frequencies too low; use the large-deflection beam nonlinear_beam",
 "样本没有 {} 组参数": "no data for group {} in the catalogue",
 "样本没给范围": "no range in the catalogue",
 "样条 {}：{}": "Spline {}: {}",
