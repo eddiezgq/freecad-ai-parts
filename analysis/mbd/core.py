@@ -389,7 +389,6 @@ def simulate(spec, setup):
                                "peak_settled": float(np.max(np.abs(tau[settled]))) if settled.any() else None,
                                "speed_max": float(np.max(np.abs(qd))), "power_peak": float(np.max(np.abs(p))),
                                "power_mean": float(np.mean(p)), "inertia_max": float(np.max(ch["inertia." + j]))})
-    summ["settled"] = settled
     for name, v in ch.items():
         if name != "t":
             i = int(np.argmax(np.abs(v)))

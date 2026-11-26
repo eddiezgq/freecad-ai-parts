@@ -187,7 +187,7 @@ def run(setup: dict) -> dict:
             series[j]["accel"] = _downsample(ch["qdd." + j] * 1000)
     data = {"drives": drives, "series": series, "tracking_error": summ["tracking_error_max"],
             "timestep_s": summ["timestep_s"], "settle_window_s": summ["settle_window_s"]}
-    reactions, keep = {}, summ["settled"]
+    reactions, keep = {}, core.settled_mask(ch["t"], internal.get("drives") or [], summ["timestep_s"])
     for b in setup.get("reactions") or []:
         if f"rf.{b}.x" not in ch:
             return result.failed("mbd", MODULE["version"], setup, f"设置有误：模型里没有构件“{b}”，输出不了反力")
