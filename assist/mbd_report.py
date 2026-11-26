@@ -24,7 +24,7 @@ DRAFT_MARK = "草稿，须工程师审核"
 VERDICT = {"pass": "通过", "fail": "不通过", "unknown": "不判"}
 ANALYSIS_ZH = {"kinematic": "运动学", "dynamic": "动力学", "static": "静平衡", "static_then_dynamic": "先静平衡再动力学",
                "linear": "线性化", "static_then_linear": "先静平衡再线性化"}
-FORBIDDEN = ("合格", "满足要求", "安全", "可以放心", "没有问题")
+FORBIDDEN = ("合格", "满足要求", "安全", "可以放心", "没有问题", "没问题", "足够", "够用", "可靠", "放心")
 SYSTEM_PROMPT = (
     "你是机械工程师，给一份多体动力学计算报告写解释段落。只能用给你的事实，数字一律写成占位符 {{键}}，"
     "不能自己写数字；不判定合格与否（合格要工程师对照要求判），核查没通过的要如实说。每段两三句话。")
@@ -149,16 +149,269 @@ def check_paragraph(text: str, F: dict, names=()) -> str | None:
     return None
 
 
-def explain(data: dict, F: dict, client=None, *, model: str = DEFAULT_MODEL) -> dict:
+def explain(data: dict, F: dict, client=None, *, model: str = DEFAULT_MODEL, mbd_model: dict | None = None) -> dict:
+    """AI 写解释，程序逐段、逐句核对。mbd_model 给了（运动学分析）就能核阶段、重力 / 惯性份额、效应（线索第 83 条）"""
     if client is None:
-        return {"paragraphs": [], "rejected": [], "by": "没有用 AI"}
+        return {"paragraphs": [], "rejected": [], "review": [], "by": "没有用 AI"}
     resp = client.complete(build_request(data, F, model=model))
     paras = (resp.get("tool_input") or {}).get("paragraphs") or []
-    ok, bad = [], []
+    I = insight(mbd_model, data) if mbd_model else insight(None, data)
+    names = model_names(data)
+    ok, bad, review = [], [], []
     for p in paras:
-        why = check_paragraph(str(p), F, model_names(data))
-        (bad.append({"text": p, "why": why}) if why else ok.append(str(p)))
-    return {"paragraphs": ok, "rejected": bad, "by": f"AI {resp.get('model', '')}（提示词 {PROMPT_VERSION}，响应 {resp.get('id', '')}）"}
+        p = str(p)
+        why = check_paragraph(p, F, names)
+        if why is None:
+            for sent in split_sentences(p):
+                verdict, reason = check_sentence(sent, F, I, names)
+                if verdict == "拦下":
+                    why = f"“{sent}”：{reason}"
+                    break
+                if verdict == "交人看":
+                    review.append({"text": sent, "why": reason})
+        (bad.append({"text": p, "why": why}) if why else ok.append(p))
+    miss = hidden_checks(ok, I)
+    if miss:                    # 整段必须写到每一项不通过、不判的核查；隐去了就整份解释不用
+        bad += [{"text": p, "why": f"解释里没写到不通过 / 不判的核查：{'、'.join(miss)}"} for p in ok]
+        ok = []
+    return {"paragraphs": ok, "rejected": bad, "review": review,
+            "by": f"AI {resp.get('model', '')}（提示词 {PROMPT_VERSION}，响应 {resp.get('id', '')}）"}
+
+
+# ---------------------------------------------------------------- 逐句核对（线索第 83 条）
+# 《多体动力学》书第 45 章线索第 83 条（问渠 CAD 0.3.9 细则）：段落检查只拦“直接写数字、不存在的占位符、词表内判定词”，
+# 54 句该拦的错误只拦下 12 句（名字不带数字时）——“{{a}} 大于 {{b}}”（实际小于）、“约为两倍”（实际六倍）、“j2 是最大的”、
+# “出现在减速段”（实际加速段）、“主要来自惯性”（实际重力占 73 %）、“始终为负”、“各项核查都通过”、隐去不通过的核查、
+# “计算考虑了关节摩擦”（模型没有）都放过。下面按书里的受控句式逐句核对；句式之外的因果断言交人看。
+CAUSAL = ("因为", "由于", "所以", "因此", "因而", "从而", "可见", "导致", "说明", "表明", "意味着", "随着", "越", "决定", "取决于", "原因")
+CN = {"零": 0, "一": 1, "两": 2, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9, "十": 10}
+FEATURES = ("摩擦", "阻尼", "弹簧", "接触", "柔性")
+PH = re.compile(r"\{\{([^}]+)\}\}")
+_UNIT_AFTER = re.compile(r"\}\}\s*(kN·m|N·m|kN|N|mm|m/s|m|s|Hz|MPa|J|W|rpm|°)")
+
+
+def split_sentences(p: str) -> list[str]:
+    return [x for x in re.split(r"(?<=[。；！？])", p) if x.strip()]
+
+
+def _fact_meta(k: str):
+    """事实键 → (类别, 对象)"""
+    m = re.fullmatch(r"drive_(.+)_peak", k)
+    if m:
+        return "drive", m.group(1)
+    m = re.fullmatch(r"joint_(.+)_(force|torque)", k)
+    if m:
+        return m.group(2), m.group(1)
+    if k.startswith("check_"):
+        return "check", k[6:]
+    return None, None
+
+
+def _drive_jets(mo, t):
+    """驱动副的规定位移及其一、二阶导数（° 或 mm，按 dae 的时间函数精确求导）"""
+    if "speed" in mo:
+        v = mo["speed"] * (6.0 if mo["dof"] == "rotation" else 1.0)
+        return v * t, np.full_like(t, v), np.zeros_like(t)
+    from analysis.mbd.dae.expr import compile_expr
+    f = compile_expr(mo["function"])
+    js = np.array([f.jet(float(x)) for x in t])          # 每个时刻 (值, 一阶导, 二阶导)
+    return js[:, 0], js[:, 1], js[:, 2]
+
+
+def insight(mbd_model: dict | None, data: dict) -> dict:
+    """程序替 AI 算“为什么”：每个驱动的峰值阶段、正负、重力份额；各类最大最小者；核查状态；模型含哪些效应"""
+    I = {"drives": {}, "argmax": {}, "argmin": {}, "checks": {}, "features": {}}
+    t = np.asarray(data.get("times_s") or [], float)
+    mos = {m["id"]: m for m in (mbd_model or {}).get("motions") or []}
+    g0 = None
+    if mbd_model and data.get("analysis") == "kinematic" and any(mbd_model.get("gravity_mm_s2") or [0, 0, 0]):
+        try:                    # 规定运动的运动学分析对载荷线性：重力置零再算一遍，差就是重力的份额
+            from analysis.mbd.dae.run import run_model
+            m0 = json.loads(json.dumps(mbd_model))
+            m0["gravity_mm_s2"] = [0.0, 0.0, 0.0]
+            g0, _ = run_model(m0)
+        except Exception:  # noqa: BLE001 — 拿不到就不核原因（交人看）
+            g0 = None
+    for mid, m in (data.get("motions") or {}).items():
+        e = np.asarray(m.get("effort") or [], float)
+        if not len(e) or len(e) != len(t):
+            continue
+        k = int(np.argmax(np.abs(e)))
+        tol = 1e-9 * np.max(np.abs(e))
+        d = {"sign": "始终为正" if np.all(e >= -tol) else "始终为负" if np.all(e <= tol) else "有正有负"}
+        if mid in mos and len(t) > 2:
+            try:
+                _, qd, qdd = _drive_jets(mos[mid], t)
+                if abs(qdd[k]) <= 1e-6 * max(np.max(np.abs(qdd)), 1e-30) or np.max(np.abs(qdd)) * (t[-1] - t[0]) < 1e-6 * np.max(np.abs(qd)):
+                    d["phase"] = "匀速段"
+                elif abs(qd[k]) < 1e-9 * max(np.max(np.abs(qd)), 1e-30):
+                    d["phase"] = "起点" if k < len(t) / 2 else "终点"
+                else:
+                    d["phase"] = "加速段" if qd[k] * qdd[k] > 0 else "减速段"
+            except Exception:  # noqa: BLE001 — 式子求不了值就不核阶段（交人看）
+                d.pop("phase", None)
+        if g0 is not None and mid in (g0.get("motions") or {}):
+            e0 = np.asarray(g0["motions"][mid]["effort"], float)
+            gp, ip = e[k] - e0[k], e0[k]
+            if abs(gp) + abs(ip) > 0:
+                d["g_share"] = abs(gp) / (abs(gp) + abs(ip))
+                d["cause"] = "重力" if d["g_share"] > 0.5 else "惯性"
+        I["drives"][mid] = d
+    F = facts(data)
+    for cat in ("drive", "force", "torque"):
+        ks = [k for k in F if _fact_meta(k)[0] == cat]
+        if ks:
+            I["argmax"][cat] = _fact_meta(max(ks, key=lambda k: F[k]["value"]))[1]
+            I["argmin"][cat] = _fact_meta(min(ks, key=lambda k: F[k]["value"]))[1]
+    for v in data.get("verification", []):
+        I["checks"][v["key"]] = {"name": v["name"], "status": v["status"]}
+    if mbd_model:
+        fs = mbd_model.get("forces") or []
+        I["features"] = {
+            "摩擦": any("friction" in j for j in mbd_model.get("joints") or []),
+            "阻尼": any(any("damping" in k and isinstance(x, int | float) and abs(x) > 0 for k, x in f.items()) for f in fs),
+            "弹簧": any("spring" in str(f.get("type", "")) for f in fs),
+            "接触": bool(mbd_model.get("contacts")),
+            "柔性": bool(mbd_model.get("flex_bodies") or mbd_model.get("flex"))}
+    return I
+
+
+def cn_number(s: str):
+    """中文倍数：两倍、三倍、十倍、一半、三成、四分之一 → 数；认不出返回 None"""
+    def cn_int(x):
+        if x == "十":
+            return 10
+        if x.startswith("十"):
+            return 10 + CN[x[1]]
+        if "十" in x:
+            a, b = x.split("十")
+            return CN[a] * 10 + (CN[b] if b else 0)
+        return CN[x]
+    m = re.search(r"([零一两二三四五六七八九十]+)分之([零一两二三四五六七八九十]+)", s)
+    if m:
+        return cn_int(m.group(2)) / cn_int(m.group(1))
+    if "一半" in s:
+        return 0.5
+    m = re.search(r"([一两二三四五六七八九])成", s)
+    if m:
+        return CN[m.group(1)] / 10
+    m = re.search(r"([零一两二三四五六七八九十]+)倍", s)
+    return float(cn_int(m.group(1))) if m else None
+
+
+def _mentioned(text, ents):
+    out = []
+    for e in ents:
+        out += [(m.start(), e) for m in re.finditer(rf"(?<![A-Za-z0-9_]){re.escape(e)}(?![A-Za-z0-9_])", text)]
+    return [e for _, e in sorted(out)]
+
+
+def check_sentence(text: str, F: dict, I: dict, names=()) -> tuple[str, str]:
+    """一句话 → ("通过" | "拦下" | "交人看", 原因)。数字、占位符、判定词由 check_paragraph 先查"""
+    ents = sorted({_fact_meta(k)[1] for k in F if _fact_meta(k)[0] in ("drive", "force", "torque")}, key=len, reverse=True)
+    keys = PH.findall(text)
+    bare = PH.sub("", text)
+    m = _UNIT_AFTER.search(text)
+    if m:
+        return "拦下", f"占位符后又写了单位“{m.group(1)}”（程序填数时会带单位）"
+    for mm in PH.finditer(text):            # 主语与占位符一致
+        k = mm.group(1)
+        cat, ent = _fact_meta(k)
+        clause = re.split(r"[，、；：]", text[:mm.start()])[-1]
+        said = _mentioned(clause, ents)
+        if said and ent is not None and cat in ("drive", "force", "torque") and said[-1] != ent:
+            return "拦下", f"说的是 {said[-1]}，占位符是 {ent} 的量"
+        if "反力矩" in clause and cat == "force":
+            return "拦下", "说的是反力矩，占位符是反力"
+        if "反力" in clause and "反力矩" not in clause and cat == "torque":
+            return "拦下", "说的是反力，占位符是反力矩"
+    said = _mentioned(text, ents)
+    subj = said[0] if said else (_fact_meta(keys[0])[1] if keys else None)
+    cat = "torque" if "反力矩" in text else "force" if "反力" in text else "drive" if ("驱动" in text or "力矩" in text) else None
+    verified = False
+    if re.search(r"(所有|各|全部).{0,10}最(大|小)", text) and subj and cat:
+        which = "argmax" if "最大" in text else "argmin"
+        truth = I["argmax" if which == "argmax" else "argmin"].get(cat)
+        if truth != subj:
+            return "拦下", f"最{'大' if which == 'argmax' else '小'}的是 {truth}，不是 {subj}"
+        verified = True
+    m = re.search(r"\{\{([^}]+)\}\}\s*(大于|高于|超过|小于|低于)\s*\{\{([^}]+)\}\}", text)
+    if m:
+        a, b = F[m.group(1)]["value"], F[m.group(3)]["value"]
+        if (m.group(2) in ("大于", "高于", "超过")) != (a > b):
+            return "拦下", f"比较说反了（{fmt(a)} 与 {fmt(b)}）"
+        verified = True
+    r = cn_number(bare)
+    if r is not None:
+        pair = keys[:2] if len(keys) >= 2 else None
+        if pair is None and len(said) >= 2 and cat:
+            pk = [next((k for k in F if _fact_meta(k) == (cat, n)), None) for n in said[:2]]
+            pair = pk if all(pk) else None
+        if pair is None:
+            return "交人看", "倍数说不清比的是哪两个量"
+        ratio = F[pair[0]]["value"] / F[pair[1]]["value"]
+        if abs(ratio / r - 1) > 0.15:
+            return "拦下", f"说是 {r:g} 倍，实际 {ratio:.3g} 倍"
+        verified = True
+    d = I["drives"].get(subj) if subj else None
+    m = re.search(r"出现在(加速段|匀速段|减速段|起点|终点)", text)
+    if m:
+        if not d or "phase" not in d:
+            return "交人看", "阶段无从核对"
+        if d["phase"] != m.group(1):
+            return "拦下", f"峰值在{d['phase']}，不在{m.group(1)}"
+        verified = True
+    m = re.search(r"主要(来自|由|是)(重力|惯性)", text)
+    if m:
+        if not d or "cause" not in d:
+            return "交人看", "没有重力 / 惯性分解，原因无从核对"
+        if d["cause"] != m.group(2):
+            return "拦下", f"峰值处重力份额 {d['g_share']:.0%}，主要来自{d['cause']}"
+        verified = True
+    m = re.search(r"(始终为正|始终为负|有正有负)", text)
+    if m:
+        if not d:
+            return "交人看", "正负的主语不是驱动"
+        if d["sign"] != m.group(1):
+            return "拦下", f"实际{d['sign']}"
+        verified = True
+    if re.search(r"(各项|全部|所有)核查(都|均|全部)?(通过)", text):
+        bad = [c["name"] for c in I["checks"].values() if c["status"] != "pass"]
+        if bad:
+            return "拦下", f"{'、'.join(bad)} 没有通过"
+        verified = True
+    for c in I["checks"].values():
+        if c["name"] in text:
+            said_fail = bool(re.search(r"(没有通过|不通过|未通过)", text))
+            said_unk = "不判" in text
+            said_pass = not said_fail and not said_unk and "通过" in text
+            truth = VERDICT.get(c["status"], c["status"])
+            say = "不通过" if said_fail else "不判" if said_unk else "通过" if said_pass else None
+            if say and say != truth:
+                return "拦下", f"{c['name']} 的结论是{truth}，不是{say}"
+            verified = verified or say is not None
+    for w in FEATURES:
+        if w in text:
+            neg = bool(re.search(rf"(没有考虑|没有计入|未计入|未考虑|不含|没有).{{0,6}}{w}", text))
+            pos = bool(re.search(rf"(考虑了|计入了|包括|含有?).{{0,6}}{w}", text)) and not neg
+            if w not in I["features"]:
+                if neg or pos:
+                    return "交人看", f"不知道模型里有没有{w}"
+                continue
+            if neg and I["features"][w]:
+                return "拦下", f"模型里有{w}"
+            if pos and not I["features"][w]:
+                return "拦下", f"模型里没有{w}"
+            verified = verified or neg or pos
+    if not verified and any(w in bare for w in CAUSAL):
+        return "交人看", "句式之外的因果或趋势断言"
+    return "通过", "核对过" if verified else "只有描述"
+
+
+def hidden_checks(paragraphs, I) -> list[str]:
+    """不通过、不判的核查，解释里一句没提（写名字或占位符）的"""
+    txt = "".join(paragraphs)
+    return [c["name"] for k, c in I["checks"].items() if c["status"] != "pass" and c["name"] not in txt and f"check_{k}" not in txt]
 
 
 class _Ledger:
@@ -237,6 +490,10 @@ def build(data: dict, out: str | Path, *, client=None, result_file: str = "resul
         lines += ["", "## 解释（AI 起草，须审核）", ""]
         for p in ex["paragraphs"]:
             lines += [re.sub(r"\{\{([^}]+)\}\}", lambda m: f"{L.num(m.group(1), F)} {F[m.group(1)]['unit']}".strip(), p), ""]
+    if ex.get("review"):
+        lines += ["", "须工程师确认（AI 写的因果或趋势判断，程序无法核对）：", ""] + [
+            "- " + re.sub(r"\{\{([^}]+)\}\}", lambda m: f"〔{F[m.group(1)]['label']}〕" if m.group(1) in F else "〔?〕", x["text"])
+            for x in ex["review"]]
     if data.get("limitations"):
         lines += ["", "## 局限", ""] + [f"- {x}" for x in data["limitations"]]
     lines += ["", "## 审核", "", "| 编制 | 审核 | 批准 |", "| --- | --- | --- |", "|  |  |  |", ""]
@@ -247,7 +504,7 @@ def build(data: dict, out: str | Path, *, client=None, result_file: str = "resul
                     | {k for sec in ("motions", "joints", "actuators", "contacts", "flex", "measures") for k in (data.get(sec) or {})}
                     | ({title} if title else set()) - {""})
     ledger = {"result_file": result_file, "labels": labels, "generated": datetime.now(UTC).isoformat(timespec="seconds"),
-              "explanation": {"by": ex["by"], "rejected": ex["rejected"]}, "numbers": L.items}
+              "explanation": {"by": ex["by"], "rejected": ex["rejected"], "review": ex.get("review", [])}, "numbers": L.items}
     (out / "report.ledger.json").write_text(json.dumps(ledger, ensure_ascii=False, indent=1), encoding="utf-8")
     return {"markdown": out / "report.md", "ledger": out / "report.ledger.json", "figures": figs, "explanation": ex}
 
@@ -484,6 +741,11 @@ def build_docx(model: dict, data: dict, out, *, number: str | None = None, revis
                                                           Fx[m_.group(1)]["unit"]), t))
     if explanation and explanation.get("rejected"):
         p(f"退回不用的 AI 段落 {L.label(str(len(explanation['rejected'])))} 段（原文与原因记在出处账）。")
+    if explanation and explanation.get("review"):
+        # 线索第 83 条：受控句式之外的因果、趋势断言，程序核不了，交工程师看
+        p("下面几句是 AI 写的因果或趋势判断，程序无法核对，须工程师确认：" + "；".join(
+            re.sub(r"\{\{([^}]+)\}\}", lambda m_: f"〔{Fx[m_.group(1)]['label']}〕" if m_.group(1) in Fx else "〔?〕", x["text"])
+            for x in explanation["review"]))
 
     # 六、局限
     h("六、局限")
@@ -516,7 +778,8 @@ def build_docx(model: dict, data: dict, out, *, number: str | None = None, revis
 
     doc.save(out)
     ledger = {"report": out.name, "lang": lang, "files": files, "entries": L.entries, "labels": L.labels,
-              "explanation": {"by": (explanation or {}).get("by"), "rejected": (explanation or {}).get("rejected", [])}}
+              "explanation": {"by": (explanation or {}).get("by"), "rejected": (explanation or {}).get("rejected", []),
+                              "review": (explanation or {}).get("review", [])}}
     led_path = out.with_suffix(".ledger.json")
     led_path.write_text(json.dumps(ledger, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     pdf = None
