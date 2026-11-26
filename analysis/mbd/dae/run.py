@@ -201,7 +201,7 @@ def run_model(model: dict, base_dir=None):
     messages = []
     stab = None
     if typ == "kinematic":
-        rec, info = S.kinematic(sysm, t_end, steps)
+        rec, info = S.kinematic(sysm, t_end, steps, branch=an.get("dead_point", "continue"))   # ADR-0130
     elif typ == "static":
         rec, info = S.static(sysm, load_steps=int(an.get("load_steps", 1)))
         stab = _stability(sysm, rec.q[-1], rec.t[-1])
@@ -222,6 +222,10 @@ def run_model(model: dict, base_dir=None):
         # ADR-0130（线索第 31 条）：常值阻尼的实际恢复系数随碰撞速度、质量变（0.01 m/s 时近 1，10 m/s 时 0.84）
         messages.append("接触对 {} 没给恢复系数 restitution，按常值阻尼算：实际恢复系数随碰撞速度、质量变，"
                         "低速碰撞几乎不耗能、落下的零件可能停不住；知道恢复系数就给 restitution".format("、".join(const_damp)))
+    tb = info.get("time_breaks") or []
+    if tb:
+        messages.append("按时间函数（STEP、STEP5、HAVSIN）的过渡点分段积分，必经时刻 {} 个：{}".format(
+            len(tb), "、".join(f"{x:.6g} s" for x in tb[:12]) + ("……" if len(tb) > 12 else "")))
     if typ == "kinematic" and info.get("dead_points"):
         dp = info["dead_points"]
         messages.append("经过死点 {} 次（雅可比奇异；缺省让原动件推着越过死点继续往前走）：{}".format(
@@ -253,6 +257,8 @@ def run_model(model: dict, base_dir=None):
         else:
             verification.append({"key": "energy_drift", "name": "能量守恒", "value": None, "limit": ENERGY_LIMIT,
                                  "status": UNKNOWN, "note": "有驱动、阻尼或外力，系统不守恒，不判"})
+    if typ in ("dynamic", "static_then_dynamic"):
+        _spin_stiffening(model, sysm, rec, messages)
     fl = _friction_check(sysm, messages)
     if fl is not None:
         verification.append(fl)
@@ -282,6 +288,39 @@ def run_model(model: dict, base_dir=None):
                             "这是结论，不是计算错误。要找稳定平衡可换初始位置，或用 static_then_dynamic 加扰动和阻尼".format(
                                 stab["value"], stab["max_real"]))
     return data, messages
+
+
+SPIN_RATIO = 0.3     # 转速 / 第一阶弯曲频率超过它，几何刚化（离心刚化）不能忽略
+
+
+def _spin_stiffening(model, sysm, rec, messages):
+    """《多体动力学》书第 26 章线索第 49 条（问渠 CAD 0.3.8 细则）：模态柔性梁（flex.type = beam）不计几何刚化，
+    Kane 旋转梁升速到 2、4 rad/s 时梢部变形偏大 3.0 %、12.3 %，不提示。大变形梁（nonlinear_beam）同工况差 0.5 % 以内。
+    转速与悬臂第一阶弯曲频率 1.875²·√(EI/ρAL⁴) 之比超过 SPIN_RATIO 时提示改用 nonlinear_beam"""
+    for b in model.get("bodies", []):
+        f = b.get("flex") or {}
+        if f.get("type") != "beam" or b["id"] not in sysm.names:
+            continue
+        L = float(np.linalg.norm(np.subtract(f["to_mm"], f["from_mm"]))) / 1000
+        EI = f["youngs_modulus_mpa"] * 1e6 * min(f["iyy_mm4"], f["izz_mm4"]) * 1e-12
+        rhoA = f["density_kg_m3"] * f["area_mm2"] * 1e-6
+        w1 = 1.875104 ** 2 * math.sqrt(EI / (rhoA * L ** 4))
+        k = sysm.names[b["id"]]
+        # 转速：根部转动副有转角驱动时取驱动的转速（离心场由轮毂转速定）；没有驱动才看浮动坐标系的角速度
+        # （它随振动来回甩，比轮毂转速大得多，书里 0.5 rad/s 的轮毂量出 0.9 rad/s）
+        hubs = {jid for jid, info in sysm.joints.items() if info["type"] == "revolute" and k in (info["i"], info["j"])}
+        drives = [sysm.rows[mo["row"]].fn for mo in sysm.motions.values() if mo["joint"] in hubs and mo["dof"] == "rotation"]
+        w, h = 0.0, 1e-6
+        for t, q, qd in zip(rec.t, rec.q, rec.qd, strict=True):
+            if drives:
+                w = max(w, *(abs(fn(t + h) - fn(t - h)) / (2 * h) for fn in drives))
+            else:
+                p, pd = np.asarray(q)[7 * k + 3:7 * k + 7], np.asarray(qd)[7 * k + 3:7 * k + 7]
+                w = max(w, float(np.linalg.norm(2 * E_of(p) @ pd)))
+        if w1 > 0 and w / w1 > SPIN_RATIO:
+            messages.append("柔性梁“{}”转得快：最大角速度 {:.3g} rad/s，是它悬臂第一阶弯曲频率 {:.3g} rad/s 的 {:.2f} 倍"
+                            "（超过 {}）。模态柔性梁（beam）不计几何刚化（离心力使梁变硬），变形会算大、频率会算低；"
+                            "请改用大变形梁 nonlinear_beam".format(b["id"], w, w1, w / w1, SPIN_RATIO))
 
 
 def _dead_txt(x):
