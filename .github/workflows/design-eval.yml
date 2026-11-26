@@ -14,11 +14,11 @@ on:
         type: choice
         options: [claude, deepseek]
       part:
-        description: "设计哪个零件（shaft = 平缝机上轴；joint = 机器人关节空心轴，ADR-0100 42.5；robot = 整机构型，ADR-0115 44.2；robot-b = 案例 B 裁片上下料的构型初筛，44.5.1）"
+        description: "设计哪个零件（shaft = 平缝机上轴；joint = 机器人关节空心轴，ADR-0100 42.5；robot = 整机构型，ADR-0115 44.2；robot-b = 案例 B 裁片上下料的构型初筛，44.5.1；robot-b2 = 案例 B2 三轴加旋转的构型初筛，44.5.6.1）"
         required: true
         default: shaft
         type: choice
-        options: [shaft, joint, robot, robot-b]
+        options: [shaft, joint, robot, robot-b, robot-b2]
 
 permissions:
   contents: write
@@ -48,7 +48,9 @@ jobs:
       - name: 设计并录制
         run: |
           set +e
-          if [ "$PART" = robot-b ]; then
+          if [ "$PART" = robot-b2 ]; then
+            python -m assist.robot_design examples/robots/sewing-loader-xyz/requirement.txt --record --provider "$PROVIDER" --screen-only -o result.json 2> log.txt
+          elif [ "$PART" = robot-b ]; then
             python -m assist.robot_design examples/robots/sewing-loader/requirement.txt --record --provider "$PROVIDER" --screen-only -o result.json 2> log.txt
           elif [ "$PART" = robot ]; then
             python -m assist.robot_design examples/robots/teaching-arm/requirement.txt --record --provider "$PROVIDER" -o result.json 2> log.txt
