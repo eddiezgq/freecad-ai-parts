@@ -3010,6 +3010,7 @@
 "点一条或几条边：球头刀沿边走，刀轴取边旁边朝上那个面的法向（五轴联动）": "Pick one or more edges: a ball end mill follows the edge with the tool axis along the normal of the upward-facing neighbouring face (simultaneous 5-axis)",
 "；面是扭曲的直纹面，圆柱侧刃贴不严：刀位已推出不过切，那里最多剩料 {} mm（留给后面清根或换球头多轴精加工）": "; the face is a twisted ruled surface the cylinder flank cannot fit exactly: tool positions were pushed out so nothing is overcut, leaving at most {} mm there (for a later rest pass or ball-end multi-axis finishing)",
 "swarf_clear 要用 swarf 算出的刀位（一条直纹线一个，插点前）": "swarf_clear needs the tool positions from swarf (one per ruling, before densifying)",
+"t = {} s 附近，构件在一个输出间隔里转过约 {} rad，从上一个输出点接不上（约束投影不收敛）。请加密输出点（output_steps）": "Near t = {} s a body turned about {} rad within one output interval and could not be connected from the previous output point (constraint projection did not converge). Add output points (output_steps)",
 "t ≈ {:.4g} s，“{}”与“{}”在运动副“{}”处共线": "t ≈ {:.4g} s, “{}” and “{}” collinear at joint “{}”",
 "t ≈ {:.4g} s，运动副 {}": "t ≈ {:.4g} s, joints {}",
 "T{}（{}）的刀杆 {}、刀片 {} 查不到主偏角或刀尖角，轮廓的斜度车不车得到没查": "T{} ({}): approach or corner angle not found for holder {} and insert {}; whether the profile slopes can be turned was not checked",
