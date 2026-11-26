@@ -43,7 +43,8 @@ class GatewayClient:
                                 tools=[request["tool"]], max_tokens=MAX_TOKENS.get(self.provider, 8000))
         uses = [b for b in r["content"] if b.get("type") == "tool_use"]
         if len(uses) != 1:
-            raise GatewayError(f"模型没有按要求调用一次工具（{len(uses)} 次）；可重试")
+            text = "".join(b.get("text", "") for b in r["content"] if b.get("type") == "text")
+            raise GatewayError(f"模型没有按要求调用一次工具（{len(uses)} 次，停在 {r.get('stop_reason')}，文字 {len(text)} 字：{text[:300]}）；可重试")
         last = self.gateway.last or {}
         actual = last.get("provider", self.provider)
         model = next((b.model for b in self.gateway.backends if b.name == actual), request["model"])
