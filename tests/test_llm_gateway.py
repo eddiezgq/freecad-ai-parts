@@ -85,3 +85,31 @@ def test_no_keys(monkeypatch):
     monkeypatch.setattr(G, "load_dotenv", lambda: None)
     with pytest.raises(G.GatewayError, match="DEEPSEEK_API_KEY"):
         G.Gateway()
+
+
+def test_claude_uses_the_streaming_call():
+    """输出上限 32000 时 SDK 不许非流式调用（案例 B2 录制时 CI 上报错）：Claude 后端用流式接口取完整回答"""
+    import types
+
+    seen = {}
+
+    class _Stream:
+        def __init__(self, **kw):
+            seen.update(kw)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def get_final_message(self):
+            block = types.SimpleNamespace(model_dump=lambda exclude_none=True: {"type": "tool_use", "id": "t", "name": "x", "input": {"a": 1}})
+            return types.SimpleNamespace(id="m1", stop_reason="tool_use", content=[block])
+
+    c = G.ClaudeMessages.__new__(G.ClaudeMessages)
+    c.model = "claude-x"
+    c._client = types.SimpleNamespace(messages=types.SimpleNamespace(stream=_Stream))
+    r = c.create(system="s", messages=[{"role": "user", "content": "u"}], tools=[], max_tokens=32000)
+    assert r == {"id": "m1", "stop_reason": "tool_use", "content": [{"type": "tool_use", "id": "t", "name": "x", "input": {"a": 1}}]}
+    assert seen["max_tokens"] == 32000 and seen["model"] == "claude-x"

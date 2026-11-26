@@ -123,8 +123,10 @@ class ClaudeMessages:
         self.model = model or os.environ.get("FAP_CLAUDE_MODEL") or CLAUDE_MODEL
 
     def create(self, *, system: str, messages: list[dict], tools: list[dict], max_tokens: int = 4096) -> dict:
-        msg = self._client.messages.create(model=self.model, max_tokens=max_tokens, system=system, tools=tools,
-                                           messages=messages)
+        # 用流式接口取完整回答：输出上限大时（32000），SDK 不许非流式调用（估计可能超过 10 分钟）
+        with self._client.messages.stream(model=self.model, max_tokens=max_tokens, system=system, tools=tools,
+                                          messages=messages) as st:
+            msg = st.get_final_message()
         return {"id": msg.id, "stop_reason": msg.stop_reason,
                 "content": [b.model_dump(exclude_none=True) for b in msg.content]}
 
