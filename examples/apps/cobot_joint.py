@@ -51,6 +51,9 @@ MADE = [
 ASSEMBLY = [["总装 Final assembly", 40], ["跑合试验 Run-in test", 20], ["出厂检验 Final inspection", 10], ["清洗包装 Cleaning & packing", 5]]
 
 
+ZH = {"pass": "通过", "fail": "不通过", "warn": "警告", "unknown": "待确认", "not_applicable": "不适用"}
+
+
 def _lightest(cands):
     """候选里外购件总质量最轻的一组（引擎排序在前的不一定最轻；协作臂在意重量）。缺质量数据的不比。"""
     from engine import export
@@ -130,7 +133,7 @@ def main(argv=None):
         run.add("动力学：挂上肘部模组", "ok", f"肘部模组 {m3:g} kg 挂在大臂末端：肩 j2 往下放均方根 {d0['rms']:.1f} → {d1['rms']:.1f} N·m"
                 f"（+{d1['rms'] / d0['rms'] - 1:.1%}）", module_kg=m3, j2_down=d1)
         out["mbd_plain"] = out["mbd"]                      # 不挂模组、只往下放的原工况（选不出组合时用来继续演示）
-        out["mbd"], out["mbd_up"] = dn, up
+        out["mbd"], out["mbd_up"], out["arm"] = dn, up, arm
 
     def select():
         from analysis import mbd
@@ -175,6 +178,53 @@ def main(argv=None):
             req = used
             out[j] = {"req": req, "system": best.system, "report": best.report}
     run.guard("选型", select)
+
+    def drive_inertia():
+        """线索第 4 条（ADR-0134）：选出组合后，电机转子与减速器输入侧惯量折到输出端 J_d = (J_m + J_in)·i²，作为关节的附加惯量
+        重算两个方向，再用同一组零件核 C4、C5（原来只进了 C8）。C8 用不含 J_d 的负载惯量（C8 自己会加 J_in，不重复计入）。
+        样本缺任何一项时不估，标 unknown"""
+        import copy
+
+        from analysis import mbd
+        from examples.apps.cobot_arm import _comp, _pv
+
+        jd, miss = {}, []
+        for j in ("j2", "j3"):
+            if not out.get(j):
+                continue
+            m, r = _comp(out[j]["system"], "motor"), _comp(out[j]["system"], "reducer")
+            jm, jin, i = _pv(m, "rotor_inertia_kgm2"), _pv(r, "input_inertia_kgm2"), _pv(r, "ratio")
+            if None in (jm, jin, i):
+                miss.append(j)
+                continue
+            jd[j] = (jm + jin) * i * i
+        if not jd:
+            run.add("选型校验：计入驱动侧惯量", "unknown", "样本缺转子或输入侧惯量，驱动侧惯量没有计入")
+            return
+        runs = [analysis.run("mbd", {"model": out["arm"], "duration_s": 1.4, "sample_hz": 100, "armature": jd, "drives": dr})
+                for dr in out["drives"]]
+        lines, worst = [], "pass"
+        for j, v in jd.items():
+            req = C.envelope({"往下放": mbd.requirement(runs[0], j, base=base), "往上抬": mbd.requirement(runs[1], j, base=base)})
+            req["load_inertia_kgm2"] = out[j]["req"]["load_inertia_kgm2"]
+            req["id"] = f"cobot-{j}-jd"
+            sysm = copy.deepcopy(out[j]["system"])
+            sysm["requirement"] = req
+            rep = C.verify(sysm)
+            cs = {c["check"]: c["status"] for c in rep["checks"] if c["check"] in ("C4", "C5")}
+            for st in cs.values():
+                if st == "fail" or (st == "unknown" and worst == "pass"):
+                    worst = st
+            lines.append(f"{j} J_d = {v:.3g} kg·m²：连续 {out[j]['req']['output_torque_cont_nm']:.1f} → {req['output_torque_cont_nm']:.1f}、"
+                         f"峰值 {out[j]['req']['output_torque_peak_nm']:.1f} → {req['output_torque_peak_nm']:.1f} N·m，"
+                         + "、".join(f"{k} {ZH.get(v2, v2)}" for k, v2 in sorted(cs.items())))
+            out[j]["req_jd"], out[j]["report_jd"] = req, rep
+        if miss:
+            lines.append("缺样本惯量没计入：" + "、".join(miss))
+            worst = "unknown" if worst == "pass" else worst
+        run.add("选型校验：计入驱动侧惯量", {"pass": "ok", "unknown": "unknown", "fail": "fail"}[worst],
+                "同一组零件，把驱动侧惯量算进关节重核 C4、C5：" + "；".join(lines), jd=jd)
+    run.guard("选型校验：计入驱动侧惯量", drive_inertia)
 
     # 3 布局与校验、BOM
     def lay():

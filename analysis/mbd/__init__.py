@@ -12,6 +12,7 @@
            {"joint", "kind": "hold"}、{"joint", "kind": "torque", "value"}（N·m 或 N）、
            {"joint", "kind": "path", "segments": [{"to", "t0_s", "t1_s", "accel_ratio"}, …]}  多段点到点（取—放节拍，ADR-0115 44.5.5）]
   payloads: [{"body", "mass_kg", "pos_mm"}]、forces: [{"body", "force_n": [x, y, z], "pos_mm"}]
+  armature: {关节: kg·m²}  驱动侧惯量 (J_m + J_in)·i²，折算到关节上（ADR-0134）
   reactions: [构件名]  要输出关节反力的构件（父构件作用在它上的力与力矩，世界坐标，力矩对它的关节中心）
 
 结果 data：
@@ -109,6 +110,8 @@ def _internal(setup: Mapping, slides: set[str]) -> dict:
                     "pos": [x / 1000 for x in f.get("pos_mm") or [0, 0, 0]]} for f in setup.get("forces") or []]
     if setup.get("friction"):
         s["friction"] = dict(setup["friction"])
+    if setup.get("armature"):
+        s["armature"] = {j: float(v) for j, v in setup["armature"].items()}
     return s
 
 

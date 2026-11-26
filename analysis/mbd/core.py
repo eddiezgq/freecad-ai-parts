@@ -16,6 +16,7 @@
   payloads: [{"body": "wrist_3_link", "mass": 3.0, "pos": [0, 0.1, 0]}]       末端负载（质点，挂在构件上）
   forces: [{"body": "slider", "force": [-200, 0, 0], "pos": [0, 0, 0]}]          外力（世界坐标，作用点在构件上，恒定）
   friction: {关节名: {"damping": N·m·s/rad, "frictionloss": N·m}}
+  armature: {关节名: kg·m²}                                                     驱动侧惯量 (J_m + J_in)·i²（ADR-0134）
   points: [{"body": "coupler", "pos": [0.06, 0, 0], "name": "P"}]                要记录轨迹的点
   sample_hz: 记录频率（≤ 5000，且时长 × 频率 ≤ 20000 点；峰值、均方根按记录点算，高速机构要记得密）
 
@@ -173,6 +174,14 @@ def build(spec, setup):
             j.damping = float(fr["damping"])
         if "frictionloss" in fr:
             j.frictionloss = float(fr["frictionloss"])
+    for name, v in (setup.get("armature") or {}).items():
+        # ADR-0134（线索第 4 条）：驱动侧惯量 (J_m + J_in)·i² 折算到关节上
+        j = spec.joint(name)
+        if j is None:
+            raise SetupError(f"模型里没有关节“{name}”")
+        if not float(v) >= 0:
+            raise SetupError(f"关节“{name}”的 armature 要 ≥ 0")
+        j.armature = float(v)
     for i, p in enumerate(setup.get("payloads") or []):
         b = spec.body(p["body"])
         if b is None:
