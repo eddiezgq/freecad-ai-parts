@@ -31,7 +31,7 @@ CELL = {"cycle": _v(3, "s", "节拍 3 s/片"), "part_mass": _v(100, "g", "单片
         "part_length": _v(600, "mm", "最大 600 mm × 400 mm"), "part_width": _v(400, "mm", "600 mm × 400 mm"),
         "stack_height": _v(100, "mm", "每叠最高 100 mm"), "work_height": _v(850, "mm", "离地 850 mm"),
         "pick_to_place": _v(1500, "mm", "取料区中心到放料点水平距离 1500 mm"), "same_height": {"quote": "裁床台面和送料台面同高"}}
-LAYOUT = {"area_length": _v(1200, "mm", "1200 mm × 800 mm 的取料区"), "area_width": _v(800, "mm", "1200 mm × 800 mm 的取料区"),
+LAYOUT = {"area_length": _v(1200, "mm", "长 1200 mm"), "area_width": _v(800, "mm", "宽 800 mm"),
           "lateral_offset": _v(500, "mm", "比取料区中心偏 500 mm"), "max_rotation": _v(90, "°", "最多转 90°")}
 FAR = [-600, -400, 850]
 PLACE = [1500, 500, 850]
@@ -90,8 +90,8 @@ def test_layout_conditions_are_checked_against_the_statement():
     assert any("最大转角" in r for r in rej)                                  # 编造的数不收
     _, _, miss, _ = RC.check_layout({k: v for k, v in LAYOUT.items() if k != "area_width"}, STATEMENT)
     assert miss == ["取料区宽"]
-    _, rej, _, _ = RC.check_layout(dict(LAYOUT, area_length=_v(800, "mm", "1200 mm × 800 mm 的取料区"),
-                                        area_width=_v(1200, "mm", "1200 mm × 800 mm 的取料区")), STATEMENT)
+    _, rej, _, _ = RC.check_layout(dict(LAYOUT, area_length=_v(800, "mm", "宽 800 mm"),
+                                        area_width=_v(1200, "mm", "长 1200 mm")), STATEMENT)
     assert any("宽比长大" in r for r in rej)
 
 

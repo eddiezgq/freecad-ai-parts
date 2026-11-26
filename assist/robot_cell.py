@@ -129,7 +129,7 @@ def check_layout(ti: Any, statement: str) -> tuple[dict, list[str], list[str], l
         return {}, ["取放布置不是一个对象"], [], []
     cond, rej, quotes = _check_values(ti, statement, LAYOUT_FIELDS)
     miss = []
-    if ("area_length" in cond) != ("area_width" in cond):
+    if ("area_length" in cond) != ("area_width" in cond) and not any(r.startswith("取料区") for r in rej):
         miss.append("取料区宽" if "area_length" in cond else "取料区长（沿长边）")
     if "area_length" in cond and "area_width" in cond and cond["area_width"] > cond["area_length"]:
         rej.append("取料区：宽比长大（长要写较长的那条边）")
