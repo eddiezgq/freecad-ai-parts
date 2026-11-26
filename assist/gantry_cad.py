@@ -54,8 +54,8 @@ DESIGN = {
 DENSITY_KG_MM3 = {"6061-T6": 2.70e-6}
 MATERIAL = "6061-T6"
 E_MPA = 68900.0                  # analysis/common/materials.yaml 的 6061-T6
-FEA_MESH_MM = 15.0               # 门架 2.4 m 长、壁厚 6 mm：粗网格 15 mm，再按 1/1.5 加密到 10 mm 核对（8 mm 约 17 万个节点，
-TIME_LIMIT_S = 3000              # 求解器估计要 9.7 GB 内存，超过本机 7 GB）；细网格静力加模态要十几分钟
+FEA_MESH_MM = (20.0, 15.0)       # 门架 2.4 m 长、壁厚 6 mm：20 mm（约 6 万个节点）与 15 mm（约 11 万个）两层对照；
+TIME_LIMIT_S = 3000              # 12 mm 约 16 万个节点、求解器估计要 9.7 GB 内存，超过本机 7 GB
 N_MODES = 4
 LIMITS = ["直线模组按目录外形建成长方体（含滑台），型材槽、端盖、电机没建；本体重心取外形中心",
           "螺钉孔、型材连接件（模组装在横梁上的安装件）没建：门架当一个焊接整体算，连接处的柔度没计入，固有频率偏高",
@@ -514,11 +514,11 @@ def frame_study(cad: Mapping, fl: Mapping, mv: Mapping, step: str, geo: Mapping,
 
 
 def frame_fea(cad: Mapping, fl: Mapping, mv: Mapping, work: Path) -> dict:
-    """同一个门架算两遍（网格 FEA_MESH_MM 与它的 1/1.5），差别作网格误差的估计"""
+    """同一个门架用两层网格（FEA_MESH_MM）各算一遍，差别作网格误差的估计"""
     work.mkdir(parents=True, exist_ok=True)
     step = work / "frame.step"
     geo = frame_step(cad, step)
-    runs = [frame_study(cad, fl, mv, str(step), geo, h) for h in (FEA_MESH_MM, round(FEA_MESH_MM / 1.5, 3))]
+    runs = [frame_study(cad, fl, mv, str(step), geo, h) for h in FEA_MESH_MM]
     a, b = runs
     du = abs(a["u_pad_abs_mm"] - b["u_pad_abs_mm"]) / max(b["u_pad_abs_mm"], 1e-12)
     df = abs(a["freqs_hz"][0] - b["freqs_hz"][0]) / b["freqs_hz"][0]
