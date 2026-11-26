@@ -197,11 +197,22 @@ def run_model(model: dict, base_dir=None):
             return hht.dynamic(sysm_, t_end_, steps_, alpha=float(an.get("hht_alpha", -0.1)), **kw)
     else:
         dyn = S.dynamic
-    S.check_structure(sysm, sysm.q0(), 0.0)          # 问渠 CAD 0.3.6 细则 C3：锁死在分析入口报出来
-    messages = []
+    hint = _axis_hint(model)
+    try:
+        S.check_structure(sysm, sysm.q0(), 0.0)          # 问渠 CAD 0.3.6 细则 C3：锁死在分析入口报出来
+    except S.SolveError as exc:
+        if hint:
+            raise S.SolveError(f"{exc}。{hint}") from None
+        raise
+    messages = [hint] if hint else []
     stab = None
     if typ == "kinematic":
-        rec, info = S.kinematic(sysm, t_end, steps, branch=an.get("dead_point", "continue"))   # ADR-0130
+        try:
+            rec, info = S.kinematic(sysm, t_end, steps, branch=an.get("dead_point", "continue"))   # ADR-0130
+        except S.SolveError as exc:
+            if hint:
+                raise S.SolveError(f"{exc}。{hint}") from None
+            raise
     elif typ == "static":
         rec, info = S.static(sysm, load_steps=int(an.get("load_steps", 1)))
         stab = _stability(sysm, rec.q[-1], rec.t[-1])
@@ -354,6 +365,31 @@ def _friction_check(sysm, messages):
         messages.append("摩擦迭代不收敛：t = {:.6g} s 起共 {} 次，摩擦最大的是运动副“{}”，这些时刻的结果不可信".format(
             log["t_first"], fail, log["joint"]))
     return item
+
+
+def _axis_hint(model):
+    """平面机构里个别转动副的轴不平行：多半写错了（例如把 z 写成 x）。《多体动力学》书线索第 76 条（问渠 CAD 0.3.9 细则）：
+    原来报数值库的 LinAlgError: Singular matrix 或“还剩 1 个自由度”，不指名运动副。
+    三个以上转动副里，除了一两个，其余的轴都平行时，指出那一两个；只有两个转动副时，不平行就两个都指出"""
+    axes = {}
+    for j in model.get("joints", []):
+        if j.get("type") == "revolute" and j.get("axis") is not None:
+            a = np.asarray(j["axis"], float)
+            if np.linalg.norm(a) > 1e-12:
+                axes[j["id"]] = a / np.linalg.norm(a)
+    if len(axes) < 2:
+        return ""
+    if len(axes) == 2:
+        a, b = axes.values()
+        return "" if abs(float(a @ b)) > 0.9999 else "运动副 {} 的轴不平行；如果这是平面机构，多半是其中一个轴写错了".format(
+            "、".join(axes))
+    ids = list(axes)
+    best = max(ids, key=lambda k: sum(abs(float(axes[k] @ axes[m])) > 0.9999 for m in ids))
+    odd = [k for k in ids if abs(float(axes[k] @ axes[best])) <= 0.9999]
+    if not odd or len(odd) > 2 or len(ids) - len(odd) < 2:
+        return ""
+    return "运动副 {} 的轴与其余转动副（{} 个，轴都平行）不平行；如果这是平面机构，多半是轴写错了".format(
+        "、".join(odd), len(ids) - len(odd))
 
 
 def _plant_inputs(model, sysm):
