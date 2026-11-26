@@ -154,5 +154,5 @@ def test_saved_result_consistent():
     cr, br = _inputs()
     lib, picks = _picks(br)
     cad = C.assemble(cr["chosen"], cr["conditions"], picks, lib)
-    assert [p["mass_kg"] for p in cad["parts"]] == [p["mass_kg"] for p in res["cad"]["parts"]]
+    assert [p.get("mass_kg") for p in cad["parts"]] == [p.get("mass_kg") for p in res["cad"]["parts"]]
     assert cad["layout"] == res["cad"]["layout"]

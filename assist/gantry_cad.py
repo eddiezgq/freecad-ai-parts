@@ -433,11 +433,19 @@ def frame_formula(cad: Mapping, fl: Mapping) -> dict:
     k = 48 * E_MPA * Ib / span ** 3 * 1000                                  # N/m
     m_eff = fl["moving_kg"] + 17 / 35 * (beam_kg + fl["x_module_static_kg"])
     f1 = math.sqrt(k / m_eff) / (2 * math.pi)
+    cols = sum(p["mass_kg"] for p in cad["parts"] if p["name"].startswith("立柱"))
+    m_top = beam_kg + fl["x_module_static_kg"] + fl["moving_kg"] + 33 / 140 * cols
+    fs = math.sqrt(2 * 3 * E_MPA * Ic / hc ** 3 * 1000 / m_top) / (2 * math.pi)
+    Iz = (h * b ** 3 - (h - 2 * t) * (b - 2 * t) ** 3) / 12                 # 横梁绕竖直轴（水平方向弯曲）
+    fl_ = math.sqrt(48 * E_MPA * Iz / span ** 3 * 1000 / m_eff) / (2 * math.pi)
     return {"span_mm": round(span, 2), "beam_I_mm4": round(Ib, 0), "column_I_mm4": round(Ic, 0), "column_h_mm": round(hc, 2),
             "sag_mm": round(sag, 4), "sway_mm": round(sway, 4), "deflection_mm": round(math.hypot(sag, sway), 4),
-            "f1_vertical_hz": round(f1, 2),
+            "beam_I_lateral_mm4": round(Iz, 0),
+            "f1_vertical_hz": round(f1, 2), "f1_sway_hz": round(fs, 2), "f1_lateral_hz": round(fl_, 2),
             "formulas": ["垂直：5qL⁴/(384EI) + PL³/(48EI)（简支）", "侧移：F·h³/(2·3EI)（两根悬臂立柱）",
-                         "频率：(1/2π)√(48EI/L³ / (M + 17/35·m))（瑞利法）"]}
+                         "竖直频率：(1/2π)√(48EI/L³ / (M + 17/35·m))（瑞利法）",
+                         "横梁水平弯曲频率：同上，I 取绕竖直轴（横梁宽只有 80 mm，这个方向最弱）",
+                         "侧摆频率：(1/2π)√(2·3EI/h³ / (柱顶以上全部质量 + 33/140·立柱))（两根悬臂立柱，质量当集中在柱顶，不计偏心）"]}
 
 
 def frame_step(cad: Mapping, path: Path) -> dict:
@@ -495,14 +503,16 @@ def frame_study(cad: Mapping, fl: Mapping, mv: Mapping, step: str, geo: Mapping,
                      "force_n": [round(fl["thrust_x_n"], 3), 0.0, 0.0]},
                     {"type": "remote_load", "body": "frame", "faces": pad_bottom, "point_mm": [round(v, 3) for v in cz],
                      "force_n": [0.0, 0.0, -round(fl["inertia_z_n"], 3)]}],
-          "steps": [{"id": "s", "type": "static"}, {"id": "m", "type": "modal", "n_modes": N_MODES}],
+          "steps": [{"id": "s", "type": "static"}, {"id": "m", "type": "modal", "n_modes": N_MODES},
+                    {"id": "m1", "type": "modal", "n_modes": 1}],                # 只取第一阶：看它的有效质量在哪个方向
           "mesh": {"size_mm": size_mm}, "checks": {"convergence": False}, "time_limit_s": TIME_LIMIT_S,
           "probes": [{"id": "pad", "point_mm": [geo["x_mid"], L["x_ref_mm"][1], geo["pad"][0][2]]}],
           "provenance": {"drafted_by": "human", "confirmed_by_human": True}}
     r = analysis.run("fea", st)
     if r.get("status") != "ok":
         raise CadError("门架有限元没算成：" + "；".join(r.get("messages") or []))
-    s, m = r["data"]["steps"]
+    s, m, m1 = r["data"]["steps"]
+    em = m1.get("effective_mass_fraction") or {}
     u = s["probes"][0]["u_mm"]
     notes = ["固定：两块地脚板底面", ("加载：重力；X 模组本体质量分在横梁底面；运动部分质量放在跨中垫块；"
                                       "X 轴最大推力的反作用加在 X 运动部分重心、Z 轴最大惯性力（推力减重量）加在 Z 运动部分重心（都搬到跨中）")]
@@ -510,6 +520,7 @@ def frame_study(cad: Mapping, fl: Mapping, mv: Mapping, step: str, geo: Mapping,
             "u_pad_mm": [round(float(v), 5) for v in u], "u_pad_abs_mm": round(float(np.linalg.norm(u)), 5),
             "u_max_mm": s.get("u_max_mm"), "vm_max_mpa": s.get("vm_max_mpa"),
             "balance": s.get("balance"), "freqs_hz": [f["hz"] for f in m["freqs"]],
+            "mode1_effective_mass": em, "mode1_direction": max(em, key=em.get) if em else None,
             "elements": (r["data"].get("mesh") or {}).get("elements")}
 
 
@@ -540,8 +551,15 @@ def judge(fea: Mapping, formula: Mapping, rep: Mapping, cond: Mapping, cyc: Mapp
                      f"要求 ±{tol:g} mm；公式（偏保守）{formula['deflection_mm']:.3g} mm"}
     f1 = fea["result"]["freqs_hz"][0]
     dw = [s["dwell_s"] for s in cyc["segments"] if s.get("dwell_s")]
-    f = {"status": "report", "f1_hz": f1, "f1_formula_hz": formula["f1_vertical_hz"], "freqs_hz": fea["result"]["freqs_hz"],
-         "note": f"门架一阶固有频率 {f1:.3g} Hz（公式按简支梁的竖直一阶 {formula['f1_vertical_hz']:.3g} Hz）"
+    dname = {"x": "沿横梁（x）", "y": "垂直于横梁的水平方向（y）", "z": "竖直（z）"}
+    d1 = fea["result"].get("mode1_direction")
+    em = (fea["result"].get("mode1_effective_mass") or {}).get(d1)
+    f = {"status": "report", "f1_hz": f1, "f1_direction": d1, "freqs_hz": fea["result"]["freqs_hz"],
+         "f1_formula_vertical_hz": formula["f1_vertical_hz"], "f1_formula_sway_hz": formula["f1_sway_hz"],
+         "f1_formula_lateral_hz": formula["f1_lateral_hz"],
+         "note": f"门架一阶固有频率 {f1:.3g} Hz" + (f"，主要沿{dname.get(d1, d1)}摆（有效质量占 {em:.0%}）" if d1 and em is not None else "")
+                 + f"（公式：横梁水平弯曲 {formula['f1_lateral_hz']:.3g} Hz、立柱侧摆 {formula['f1_sway_hz']:.3g} Hz、"
+                   f"跨中竖直 {formula['f1_vertical_hz']:.3g} Hz）"
                  + (f"；放料前停留 {min(dw):g} s 里振 {min(dw) * f1:.0f} 个周期" if dw else "")
                  + "。没有公开的判定值，只报数；阻尼没有数据，余振多久衰减到 ±0.1 mm 以内算不了"}
     return {"deflection": d, "frequency": f}
@@ -621,6 +639,10 @@ def _open(res: Mapping, out: Mapping) -> list[str]:
     items.append(f"立柱在 x = {xl:g} mm 与 {xr:g} mm（门架跨度 {L['span_mm']:g} mm）：落脚处要有与台面同高、能打螺栓的安装面；"
                  "裁床与送料台之间、立柱旁边的通道位置没有资料，要现场核")
     items.append("X 模组装在横梁下面用的安装件（型材连接件、滑块螺母）、电机与电机套件的外形没建")
+    j = (res.get("judge") or {}).get("frequency") or {}
+    if j.get("f1_direction") == "y":
+        items.append(f"门架一阶 {j['f1_hz']:.3g} Hz 是横梁沿 y 的水平弯曲（横梁宽 {DESIGN['beam_w_mm']:g} mm，为让 Z 模组贴着 X 模组背后上下，"
+                     "不能比 X 模组宽）；要停得更快，可把横梁只向 +y 一侧加宽或加斜撑——这一版没改，留给按停稳时间核的那一步")
     return items
 
 
@@ -636,7 +658,7 @@ def summary(res: Mapping) -> str:
         lines.append(f"  {j} 推力 {d['thrust_n']['step1']} → {d['thrust_n']['cad']} N；俯仰力矩 {d['moment_pitch_nm']['step1']} → "
                      f"{d['moment_pitch_nm']['cad']} N·m")
     f = res["frame_formula"]
-    lines.append(f"门架公式：跨中垂直 {f['sag_mm']:g} mm、侧移 {f['sway_mm']:g} mm、一阶 {f['f1_vertical_hz']:g} Hz")
+    lines.append(f"门架公式：跨中垂直 {f['sag_mm']:g} mm、侧移 {f['sway_mm']:g} mm、侧摆 {f['f1_sway_hz']:g} Hz、横梁水平弯曲 {f['f1_lateral_hz']:g} Hz、竖直 {f['f1_vertical_hz']:g} Hz")
     if res.get("frame_fea"):
         r = res["frame_fea"]["result"]
         lines.append(f"门架有限元：跨中变形 {r['u_pad_abs_mm']:g} mm、频率 {r['freqs_hz']} Hz、最大应力 {r['vm_max_mpa']} MPa；"

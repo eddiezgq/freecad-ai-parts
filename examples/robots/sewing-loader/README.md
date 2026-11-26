@@ -1,15 +1,19 @@
 # 案例 B：缝纫车间裁片上下料机器人（ADR-0115 44.5）
 
-`requirement.txt` 是需求原话。现在做到 **44.5.5 第一步：节拍多体动力学与选件**（构型初筛回放 CI 上 Claude 的录制，不调用真实 AI；后面全是确定性计算）：
+`requirement.txt` 是需求原话。现在做到 **44.5.5 第二步：三维装配、按真实质量复核选件、门架有限元**（构型初筛回放 CI 上 Claude 的录制，不调用真实 AI；后面全是确定性计算）：
 
 ```bash
 python -m assist.robot_design examples/robots/sewing-loader/requirement.txt --screen-only -o examples/robots/sewing-loader/out/concept-result.json
 python -m assist.gantry_build examples/robots/sewing-loader/out/concept-result.json -o examples/robots/sewing-loader/out/build-result.json
+python -m assist.gantry_cad examples/robots/sewing-loader/out/concept-result.json examples/robots/sewing-loader/out/build-result.json -o examples/robots/sewing-loader/out
 ```
+
+最后一条约 3 分钟（门架有限元两层网格）；三维模型 `out/cad/assembly.step`、`out/cad/frame.step` 不入库，跑一遍就生成。
 
 | 文件 | 内容 |
 | --- | --- |
 | `out/concept-result.json` | AI 摘的条件（带原话引用；节拍与取放条件单独问一次）、AI 的问题、每轮构型与初筛（取放距离、同高、一叠最高处够不够得着、节拍）、采用哪个 |
+| `out/cad-result.json` | 三维装配的零件（质量、重心）、干涉与取放区避让、按真实质量与偏置复核的选件与受力（和第一步对照）、门架的公式校核与有限元（变形、频率）、待确认项 |
 | `out/build-result.json` | 一个节拍（取—升—移—降—放—回，2.8 s）的多体动力学：各轴推力、速度、加速度曲线与滑台受力；直线模组与抓手的选件与比较、重复定位精度、电机要的力矩与转速、待确认项 |
 
 第 1 轮 AI 提了两个构型：台面上的 X–Z 两轴龙门（真空吸盘）、偏置底座的 SCARA。龙门全部通过初筛（节拍 2.8 s ≤ 3 s），采用；
@@ -20,4 +24,9 @@ SCARA 的取料点、放料点在关节行程内够不着。还没判的（选�
 （行程 200 mm）；两轴滑台载荷比较系数 0.05、0.03；吸盘 SPF 15（要 4.46 N，厂商给 9.81 N 光滑表面理论值）；重复定位精度 ±0.1 mm ≤ ±1 mm。
 待确认：吸盘质量、对布料的适用性与一次只取一片没有公开数据；电机库里没有（给了电机要的力矩与转速）；Z 轴要抱闸。
 
-后面（ADR-0115 44.5.5 第二、三步）：三维装配并按真实质量复核、横梁有限元、报告与 BOM、对照页、问渠 CAD 面板回放。
+三维装配与复核（44.5.5 第二步）：X 模组倒挂在横梁下，Z 模组装在 L 形连接板上，立柱在取放区外各 50 mm（x = −400、1900 mm）；
+没有干涉、没有零件进取放区。X 滑台面高由装配定为 534 mm（方案写 500 mm 会让 Z 模组伸进一叠裁片），末端点运动不变。
+按真实质量复核选件不变；X 滑台俯仰力矩 1.5 → 17.8 N·m（Z 模组挂在滑台下约 200 mm），载荷比较系数 0.05 → 0.51，仍 ≤ 1。
+门架有限元：跨中变形 0.065 mm + 重复定位精度 0.1 mm ≤ ±1 mm；一阶固有频率 32 Hz（横梁水平方向弯曲），只报数。
+
+后面（ADR-0115 44.5.5 第三步）：报告与 BOM、对照页、问渠 CAD 面板回放。
