@@ -3218,7 +3218,7 @@
 "NUM（µm 系统）直线轴最多 3 位小数、C 最多 4 位（§5.1.4），{} 超了，程序不出": "NUM (µm system) allows at most 3 decimals on linear axes and 4 on C (§5.1.4); {} exceed this; the program is not output",
 "进 NUM 圆柱面 G22 前 C 的位置不知道，Y 算不出来（ADR-0128）：{}": "The C position before NUM cylinder mode G22 is unknown, so Y cannot be computed (ADR-0128): {}",
 "{}NUM 的 B 轴车铣、双主轴、多通道还没做（ADR-0128；端面、圆柱面车铣可以）": "{}NUM B-axis mill-turn, twin spindle and multi-channel are not done yet (ADR-0128; face and cylinder mill-turn are supported)",
-" 发格的 C 分度 + Y 轴铣还没做（ADR-0131）。": " Fagor C indexing + Y-axis milling is not done yet (ADR-0131).",
+"发格车铣块外的 C 只认分度铣开头的 G00 C / G19（ADR-0133）：{}": "Outside Fagor mill-turn blocks, C is only accepted as G00 C / G19 at the start of index milling (ADR-0133): {}",
 " 发格车铣只按 ADR-0131 换端面、圆柱面。": " Fagor mill-turn is only converted for face and cylinder machining (ADR-0131).",
 "发格毫米坐标最多 4 位小数（§1.3.1），{} 超了，程序不出": "Fagor metric coordinates allow at most 4 decimals (§1.3.1); {} exceed this; the program is not output",
 "发格程序里有本表没收的 # 指令 {}，程序不出（ADR-0131）": "The Fagor program contains # instructions not in the table: {}; the program is not output (ADR-0131)",
