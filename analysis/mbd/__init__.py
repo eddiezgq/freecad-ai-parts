@@ -12,6 +12,7 @@
            {"joint", "kind": "hold"}、{"joint", "kind": "torque", "value"}（N·m 或 N）、
            {"joint", "kind": "path", "segments": [{"to", "t0_s", "t1_s", "accel_ratio"}, …]}  多段点到点（取—放节拍，ADR-0115 44.5.5）]
   payloads: [{"body", "mass_kg", "pos_mm"}]、forces: [{"body", "force_n": [x, y, z], "pos_mm"}]
+  force_solver: "inverse"（缺省，全给定运动的开链用精确逆动力学）或 "soft"（照旧取软约束的力，录制回放用）
   reactions: [构件名]  要输出关节反力的构件（父构件作用在它上的力与力矩，世界坐标，力矩对它的关节中心）
 
 结果 data：
@@ -161,6 +162,8 @@ def run(setup: dict) -> dict:
         spec, mid = _spec(setup.get("model") or {})
         slides = _slide_joints(spec)
         internal = _internal(setup, slides)
+        # 线索第 19 条：全给定运动的开链用精确逆动力学（core 缺省不开，joint_loads 照旧）；force_solver = "soft" 时照旧用软约束的值
+        internal["exact_inverse"] = setup.get("force_solver", "inverse") != "soft"
         loop_tau = None
         if mid is not None:
             given = (setup.get("model") or {}).get("params")
@@ -185,7 +188,8 @@ def run(setup: dict) -> dict:
             "joint": j, "kind": d["kind"], "unit_force": "N" if slide else "N·m",
             "peak": d["peak"], "rms": d["rms"], "peak_settled": d["peak_settled"],
             "speed_max": d["speed_max"] * (1000 if slide else RPM), "unit_speed": "mm/s" if slide else "rpm",
-            "power_peak_w": d["power_peak"], "power_mean_w": d["power_mean"], "inertia_max_kgm2": d["inertia_max"]})
+            "power_peak_w": d["power_peak"], "power_mean_w": d["power_mean"], "inertia_max_kgm2": d["inertia_max"],
+            **({"peak_at_s": d["peak_at_s"]} if "peak_at_s" in d else {})})
         k = 1000 if slide else 180 / math.pi
         series[j] = {"q": _downsample(ch["q." + j] * k), "speed": _downsample(ch["qd." + j] * (1000 if slide else RPM)),
                      "drive": _downsample(ch["drive." + j])}
@@ -242,6 +246,10 @@ def run(setup: dict) -> dict:
             messages.append("闭环拉开 {:.3g} mm（t = {:.3g} s），超过最短构件的 0.1 %（{:.3g} mm）："
                             "驱动力矩和铰链反力的误差可能超过 1 %；可加密时间步，或改用 DAE 内核（model 格式）".format(
                                 gap[k] * 1000, ch["t"][k], lim_mm))
+    if summ.get("exact_inverse"):
+        data["force_solver"] = {"name": "inverse", "grid_s": summ["exact_inverse"]["grid_s"], "sample_hz": internal["sample_hz"]}
+        lims.append("各关节都是给定运动的开链：驱动力矩、功率按给定轨迹的精确逆动力学算（网格 {:.3g} ms，加速度跳变点两侧都取），"
+                    "与记录频率无关；峰值时刻见 peak_at_s".format(summ["exact_inverse"]["grid_s"] * 1000))
     if dae is not None:
         data["force_solver"] = {"driver": mechanisms.DRIVER[mid], "name": "DAE", "rev_over_tau": round(dae_ratio, 3)}
         lims.append("主动件的驱动力矩、功率由 DAE 内核按给定运动精确算出（一转时间只有给定运动约束时间常数的 "
