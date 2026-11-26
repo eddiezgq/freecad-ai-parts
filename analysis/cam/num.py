@@ -10,6 +10,7 @@ M00018EN-03_Flexium_Programming_manual.pdf；下面的 § 是这本手册的章�
   坐标位数按 §5.1.4（直线轴 3 位小数、C 4 位，ADR-0128）。
 
 车铣（ADR-0128）：FANUC `G12.1` … `G13.1` ↔ NUM `G21` … `G20`（端面直角坐标，X 半径、Y = 虚拟 C）；
+C 分度 + Y 轴铣（ADR-0132）：G19 同 FANUC，块外的 C 写成 0–360（NUM 的正负号是转向，§4.4.1）；
 `G07.1 C半径` … `G07.1 C0` ↔ `G22 (CYL R半径)` … `G20`（圆柱面，X 半径、Y = 角度 × π ÷ 180 × 当前半径，带 C 的进给按长度比换）。
 """
 
@@ -22,7 +23,7 @@ import re
 CODES_G = {"0": "5.6", "1": "5.7.1", "17": "5.4", "18": "5.4", "38": "5.13.2", "40": "5.11.4", "52": "5.16", "54": "5.16",
            "71": "5.1.1", "80": "5.12.2", "84": "5.12.7", "90": "5.3", "92": "5.5.4", "94": "5.10", "95": "5.10", "96": "5.5.3",
            "97": "5.5.2"}
-CODES_G_LATHE = {"20": "5.18.1", "21": "5.18.3", "22": "5.18.4"}          # 车床 C 轴坐标（ADR-0128）
+CODES_G_LATHE = {"20": "5.18.1", "21": "5.18.3", "22": "5.18.4", "19": "5.4"}   # 车床 C 轴坐标（ADR-0128）；C 分度 + Y 轴铣（ADR-0132）
 CODES_M = {"0": "5.1.2", "1": "5.1.2", "2": "3.3.1", "3": "5.5.1", "4": "5.5.1", "5": "5.5.1", "6": "5.11.1", "7": "5.1.2",
            "8": "5.1.2", "9": "5.1.2", "19": "5.5.6"}
 MANUAL = "NUM Flexium Programming Manual M00018EN-03"
@@ -94,6 +95,18 @@ def _pos(body: str, st: dict) -> None:
             st["g"] = t
         elif t[:1] in "XZCF" and re.fullmatch(_NUM, t[1:]):
             st[t[0].lower()] = float(t[1:])
+
+
+def _index_c(body: str, st: dict) -> str:
+    """车铣块外的 C（分度、进 G22 前定位）：NUM 绝对值的正负号是转向（§4.4.1），一律写成 0 ≤ C < 360（ADR-0132）"""
+    c = _word(body, "C")
+    if c is None:
+        return body
+    tok = body.split()
+    if st.get("g") != "G00" or any(x in tok for x in ("G01", "G02", "G03")):
+        raise NumError(f"NUM 车铣块外的 C 只认 G00 分度（ADR-0132）：{body}")
+    v = round(float(c) % 360.0, 4) % 360.0
+    return " ".join(f"C{_fmt(v)}" if re.fullmatch(rf"C{_NUM}", x) else x for x in tok)
 
 
 def _cyl_feed(f: float, dz: float, dth: float, r: float, big_r: float) -> float:
@@ -206,7 +219,8 @@ def to_num(text: str, lathe: bool) -> str:
             elif trafo:
                 out.append(pre + _mt_to_num(body, st, trafo) + tail)
             else:
-                _pos(body, st)
+                _pos(body, st)                       # 记 FANUC 原值（G22 的 Y 按它算）
+                body = _index_c(body, st)
                 handled = False
             if handled:
                 i += 1
@@ -451,8 +465,7 @@ def check_codes(text: str, lathe: bool, extra_m=()) -> None:
         bad_g = sorted(set(bad_g) | {"92"}, key=float)
     if bad_g or bad_m:
         miss = "、".join([f"G{g}" for g in bad_g] + [f"M{m}" for m in bad_m])
-        mt = (" NUM 的 C 分度 + Y 轴铣还没做（ADR-0128）。" if "19" in bad_g else
-              " NUM 车铣只按 ADR-0128 换端面、圆柱面。" if any(g in ("12.1", "13.1", "7.1") for g in bad_g) else "")
+        mt = (" NUM 车铣只按 ADR-0128 换端面、圆柱面。" if any(g in ("12.1", "13.1", "7.1") for g in bad_g) else "")
         raise NumError(f"NUM 程序里有手册代码表外（或还没按手册做）的 {miss}，程序不出。{mt}")
     long_ = sorted({w for w in re.findall(r"\b([XYZIJKUW]-?\d+\.\d{4,}|C-?\d+\.\d{5,})", body)})
     if long_:
