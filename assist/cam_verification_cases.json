@@ -1062,6 +1062,26 @@
     "en": "Fagor C-axis indexing + Y-axis milling: #CAX then index, G19 as FANUC, negative index angles written as 0-360 (the sign is the direction on Fagor), read-back matches"
    },
    "source": "CNCelite 8058/8060/8065/8070 Programming manual, 3.2.1, 3.4, 4.2.1, 18.1.1"
+  },
+  {
+   "id": "CAM-105",
+   "test": "tests/test_cam_machines_e2.py::test_mazak_qt_ez_from_product_page",
+   "category": "kin",
+   "title": {
+    "zh": "真实机床：马扎克 QT-Ez 8 / 10 / 12 按官网产品页规格表录入（英制换毫米），没公开的快移不编",
+    "en": "Real machine: Mazak QT-Ez 8 / 10 / 12 from the official product-page spec table (inch to mm); unpublished rapids not invented"
+   },
+   "source": "mazak.com/us-en/products/qt-ez Machine Specifications, 2026-11-26"
+  },
+  {
+   "id": "CAM-106",
+   "test": "tests/test_cam_machines_e2.py::test_mazak_missing_rapid_named_then_usable",
+   "category": "must",
+   "title": {
+    "zh": "真实机床：快移没公开时编程前报出来，不出错",
+    "en": "Real machine: unpublished rapid traverse is reported before programming instead of crashing"
+   },
+   "source": "ADR-0106 E2"
   }
  ]
 }

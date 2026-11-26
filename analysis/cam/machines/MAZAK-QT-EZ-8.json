@@ -1,0 +1,43 @@
+{
+ "format": "cam-machine/1",
+ "id": "MAZAK-QT-EZ-8",
+ "name": "Mazak QT-Ez 8 数控车床",
+ "example": false,
+ "source": "马扎克美国官网产品页 https://www.mazak.com/us-en/products/qt-ez/ 的 QT-Ez 8“Machine Specifications”表（2026-11-26 用浏览器读原文，英制）：行程 X 9\"、Z 25\"（按 1 in = 25.4 mm 换算为 228.6 mm、635.0 mm）；卡盘 8\"；最大回转直径 Φ27\"、最大车削直径 Φ16\"、最大车削长度 23\"；棒料 Φ2\"；主轴最高 6000 rpm、电机 15 kW（30 分钟额定）；12 工位刀塔；数控系统 MAZATROL SmoothEz（产品页）。规格页没公开：快移速度、各轴零点（按 ADR-0106 E2 的约定：X 直径 0 ~ 2 × 228.6、Z −317.5 ~ 317.5，按实际装夹改）、换刀点、换刀时间、传动效率、部件外形——按实机填。行程只给到整英寸，按实机核",
+ "kind": "lathe",
+ "controller": {
+  "family": "other",
+  "model": "Mazak MAZATROL SmoothEz"
+ },
+ "spindle": {
+  "max_rpm": 6000,
+  "power_kw": 15.0
+ },
+ "axes": [
+  {
+   "id": "X",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    1,
+    0,
+    0
+   ],
+   "min": 0.0,
+   "max": 457.2,
+   "diameter_mode": true
+  },
+  {
+   "id": "Z",
+   "type": "linear",
+   "carrier": "tool",
+   "direction": [
+    0,
+    0,
+    1
+   ],
+   "min": -317.5,
+   "max": 317.5
+  }
+ ]
+}
