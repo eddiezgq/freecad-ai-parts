@@ -23,7 +23,7 @@ class TwinPanel(QtWidgets.QDockWidget):
         row = QtWidgets.QHBoxLayout()
         self.csv_label = QtWidgets.QLabel("（未读入运行记录）")
         self.csv_button = QtWidgets.QPushButton("读运行记录 CSV")
-        self.csv_button.setToolTip("列：instance, hours, output_torque_avg_nm, output_torque_max_nm, output_speed_rpm,"
+        self.csv_button.setToolTip("列：instance, hours, output_torque_avg_nm（当量扭矩：按转速、时间加权的三次方平均）, output_torque_max_nm, output_speed_rpm,"
                                    " radial_load_n, speed_rpm")
         row.addWidget(self.csv_label, 1)
         row.addWidget(self.csv_button)
