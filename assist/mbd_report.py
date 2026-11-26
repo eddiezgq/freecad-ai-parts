@@ -121,12 +121,26 @@ def build_request(data: dict, F: dict, *, model: str = DEFAULT_MODEL) -> dict:
                                       "required": ["paragraphs"]}}}
 
 
-def check_paragraph(text: str, F: dict) -> str | None:
-    """不合规返回原因，合规返回 None"""
+def model_names(data: dict) -> set[str]:
+    """结果里出现的构件、运动副、驱动、执行器、接触、柔性体、核查的名字（j1、R2、d1 这类常带数字）"""
+    out = set()
+    for k in ("bodies", "joints", "motions", "actuators", "contacts", "flex", "forces"):
+        v = data.get(k)
+        if isinstance(v, dict):
+            out |= {str(x) for x in v}
+    out |= {str(v.get("key")) for v in data.get("verification", []) if v.get("key")}
+    return out
+
+
+def check_paragraph(text: str, F: dict, names=()) -> str | None:
+    """不合规返回原因，合规返回 None。names：模型里的名字，查数字前先去掉（《多体动力学》书第 45 章线索第 82 条：
+    “驱动 d1 的力矩峰值为 {{drive_d1_peak}}”因 d1 带数字被退回，37 句正确解释退回 17 句）"""
     for k in re.findall(r"\{\{([^}]+)\}\}", text):
         if k not in F:
             return f"用了不存在的占位符 {k}"
     bare = re.sub(r"\{\{[^}]+\}\}", "", text)
+    for n in sorted(names, key=len, reverse=True):
+        bare = re.sub(rf"(?<![A-Za-z0-9_]){re.escape(n)}(?![A-Za-z0-9_])", "", bare)
     if re.search(r"\d", bare):
         return "段落里直接写了数字"
     for w in FORBIDDEN:
@@ -142,7 +156,7 @@ def explain(data: dict, F: dict, client=None, *, model: str = DEFAULT_MODEL) -> 
     paras = (resp.get("tool_input") or {}).get("paragraphs") or []
     ok, bad = [], []
     for p in paras:
-        why = check_paragraph(str(p), F)
+        why = check_paragraph(str(p), F, model_names(data))
         (bad.append({"text": p, "why": why}) if why else ok.append(str(p)))
     return {"paragraphs": ok, "rejected": bad, "by": f"AI {resp.get('model', '')}（提示词 {PROMPT_VERSION}，响应 {resp.get('id', '')}）"}
 

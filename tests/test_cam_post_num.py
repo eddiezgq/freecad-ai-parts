@@ -140,17 +140,46 @@ def test_num_cylinder_feed_scaled_to_tool_radius(tmp_path, monkeypatch):
 
 
 def test_num_mill_turn_refusals(tmp_path, monkeypatch):
-    """不出：G22 里 G01 段 X、C 同变；进 G22 前 C 不知道；C 分度 + Y 轴铣（G19）；B 轴车铣配置；内置配置没写车铣 M 代码"""
+    """不出：G22 里 G01 段 X、C 同变；进 G22 前 C 不知道；车铣块外 C 参与切削（ADR-0132）；B 轴车铣配置；内置配置没写车铣 M 代码"""
     mv = [{"t": "rapid", "x": 60, "c": 0, "z": -10}, {"t": "feed", "x": 44, "c": 30, "z": -10, "f": 100}]
     p = _run_nmt(tmp_path, monkeypatch, mv)
     assert p["release"] is None and any("X、C 都变" in c["text"] for c in p["checks"])
     with pytest.raises(num.NumError, match="C 的位置不知道"):
         num.to_num("O1001\nG21 G18 G40 G97 G99\nG07.1 C25.0\nG00 X60.0 Z-10.0\n", True)
-    with pytest.raises(num.NumError, match="C 分度"):
-        num.check_codes("G71 G18\nG00 C30.0\nG19\nM02\n", True)
+    num.check_codes("G71 G18\nG00 C30.0\nG19\nG18\nM02\n", True)                      # G19 收了（ADR-0132）
+    with pytest.raises(num.NumError, match="只认 G00 分度"):
+        num.to_num("O1001\nG21 G18 G40 G97 G99\nG00 X60.0 Z-10.0\nG01 C30.0 F100.0\n", True)
     with pytest.raises(postcfg.PostConfigError, match="B 轴车铣"):
         postcfg.check({**NMT, "millturn": {**NMT["millturn"], "b_tool_comp": ["M99"]}}, "t")
     assert MT._run_mt("num-flexium")["release"] is None
+
+
+def _run_index(tmp_path, monkeypatch, angle):
+    d = tmp_path / "posts"
+    d.mkdir(exist_ok=True)
+    monkeypatch.setenv("FAP_POSTS", str(d))
+    (d / "nmt.json").write_text(json.dumps(NMT), encoding="utf-8")
+    mv = MT.MT.flat_moves({"angle": angle, "r_outer": 25.0, "depth": 3.0,
+                           "shape": {"type": "slot", "a": [0.0, -10.0], "b": [0.0, -30.0], "width": 12.0}}, 6.0, 3.0, 200.0, 100.0)
+    live = {"right": [{"tool": {"n": 10, "d": 6.0}, "spindle": {"rpm": 3000}, "title": "平底槽", "interp": {"index": angle}, "moves": mv}]}
+    r = cam.run({"mode": "turn", "machine": "EX-MT-CY", "segments": [[40, 30], [50, 40]], "live_ops": live, "post": "nmt",
+                 "machine_sim": {"tools": {"10": {"tool": "EM6", "length_mm": 40}}, "chuck": {"jaw_len": 15, "jaw_d": 80}}})
+    return r["data"]["programs"][0]
+
+
+@pytest.mark.parametrize("angle,c", [(90.0, "C90.0"), (-60.0, "C300.0")])
+def test_num_c_index_y_mill(tmp_path, monkeypatch, angle, c):
+    """C 分度 + Y 轴铣（ADR-0132）：Ø50 上宽 12、深 3 的长圆平底槽；G19 同 FANUC（§5.4），X 在 G20 下仍是直径（§5.18.1、E11005）；
+    分度角写成 0–360（NUM 绝对值的正负号是转向，§4.4.1：FANUC C-60 是 300° 的位置）；去料与积分值差 < 1%；回读与仿真刀路一致"""
+    p = _run_index(tmp_path, monkeypatch, angle)
+    assert p["sim"]["mill_removed_mm3"] == pytest.approx(MT._keyway_volume(w=12.0), rel=0.01)
+    t = _rel(p)
+    assert f"G00 {c}\nG19" in t and "G00 Y0.0\nG18" in t and not re.search(r"\bC-", t)
+    assert "G00 X54.0 Y0.0 Z-10.0" in t                    # X 直径（Ø54 = 外圆 Ø50 外 2 mm）
+    if angle < 0:
+        record_verdict(("NUM C 分度 + Y 轴铣：G19 同 FANUC，负分度角写成 0–360（NUM 的正负号是转向），回读一致",
+                        "NUM C-axis indexing + Y-axis milling: G19 as FANUC, negative index angles written as 0-360 (the sign is the direction on NUM), read-back matches"),
+                       "pass", "pass")
 
 
 def test_num_word_format_digits():
