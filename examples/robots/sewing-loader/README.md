@@ -1,19 +1,22 @@
 # 案例 B：缝纫车间裁片上下料机器人（ADR-0115 44.5）
 
-`requirement.txt` 是需求原话。现在做到 **44.5.5 第二步：三维装配、按真实质量复核选件、门架有限元**（构型初筛回放 CI 上 Claude 的录制，不调用真实 AI；后面全是确定性计算）：
+`requirement.txt` 是需求原话。现在做到 **44.5.5 第三步之一：报告、BOM、对照页**。一条命令从需求跑到报告（构型初筛回放 CI 上 Claude 的录制，不调用真实 AI；后面全是确定性计算，约 3.5 分钟）：
 
 ```bash
-python -m assist.robot_design examples/robots/sewing-loader/requirement.txt --screen-only -o examples/robots/sewing-loader/out/concept-result.json
-python -m assist.gantry_build examples/robots/sewing-loader/out/concept-result.json -o examples/robots/sewing-loader/out/build-result.json
-python -m assist.gantry_cad examples/robots/sewing-loader/out/concept-result.json examples/robots/sewing-loader/out/build-result.json -o examples/robots/sewing-loader/out
+python -m assist.gantry_case examples/robots/sewing-loader --replay tests/recordings/robot_design
 ```
 
-最后一条约 3 分钟（门架有限元两层网格）；三维模型 `out/cad/assembly.step`、`out/cad/frame.step` 不入库，跑一遍就生成。
+分步跑：`python -m assist.robot_design … --screen-only`、`python -m assist.gantry_build …`、`python -m assist.gantry_cad …`、`python -m assist.gantry_report examples/robots/sewing-loader/out`。
+三维模型 `out/cad/assembly.step`、`out/cad/frame.step` 不入库，跑一遍就生成。
 
 | 文件 | 内容 |
 | --- | --- |
 | `out/concept-result.json` | AI 摘的条件（带原话引用；节拍与取放条件单独问一次）、AI 的问题、每轮构型与初筛（取放距离、同高、一叠最高处够不够得着、节拍）、采用哪个 |
 | `out/cad-result.json` | 三维装配的零件（质量、重心）、干涉与取放区避让、按真实质量与偏置复核的选件与受力（和第一步对照）、门架的公式校核与有限元（变形、频率）、待确认项 |
+| `out/report.md` | 设计报告：需求原话与条件、整机方案、校核结论、仿真数字与需求逐条对照、三维模型与 BOM、用时、卡在哪里 |
+| `out/bom.json`、`out/bom.csv` | 外购件（零件库型号、质量出处）、自制件（图号 SL-01…07，体积 × 密度）、未列入的 |
+| `out/comparison.md` | 和公开资料的对照（`reference.json`：同类布片取放设备的节拍，只作参照） |
+| `out/timing.json` | 各步实测用时 |
 | `out/build-result.json` | 一个节拍（取—升—移—降—放—回，2.8 s）的多体动力学：各轴推力、速度、加速度曲线与滑台受力；直线模组与抓手的选件与比较、重复定位精度、电机要的力矩与转速、待确认项 |
 
 第 1 轮 AI 提了两个构型：台面上的 X–Z 两轴龙门（真空吸盘）、偏置底座的 SCARA。龙门全部通过初筛（节拍 2.8 s ≤ 3 s），采用；
@@ -29,4 +32,7 @@ SCARA 的取料点、放料点在关节行程内够不着。还没判的（选�
 按真实质量复核选件不变；X 滑台俯仰力矩 1.5 → 17.8 N·m（Z 模组挂在滑台下约 200 mm），载荷比较系数 0.05 → 0.51，仍 ≤ 1。
 门架有限元：跨中变形 0.065 mm + 重复定位精度 0.1 mm ≤ ±1 mm；一阶固有频率 32 Hz（横梁水平方向弯曲），只报数。
 
-后面（ADR-0115 44.5.5 第三步）：报告与 BOM、对照页、问渠 CAD 面板回放。
+报告与 BOM（44.5.5 第三步之一）：外购 17.22 kg + 自制 29.27 kg = 46.49 kg（吸盘质量厂商没给，电机、气路、控制器不在库里）；
+需求 11 条里 7 条通过，不伤布料、一次只取一片、不占通道、成本待确认。对照页：Robotextile 公开每层 2–4 s，我们 2.8 s（不含吸放与停稳）。
+
+后面（第三步之二）：问渠 CAD 面板“载入示例”加案例 B（回放）。

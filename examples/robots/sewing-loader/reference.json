@@ -1,0 +1,73 @@
+{
+ "format": "robot-reference/1",
+ "purpose": "同类裁片 / 布片取放设备的公开数字，只作参照：不进零件库、不参与校核、不作为方案依据（ADR-0115 44.5.5 第三步）",
+ "accessed": "2026-11-26",
+ "robots": [
+  {
+   "name": "裁片取放单元（标准配置 KUKA SCARA）",
+   "vendor": "Robotextile",
+   "why": "专做布料逐层取放的设备厂，规格页直接给每层的节拍",
+   "url": "https://robotextile.com/en/technology/",
+   "kind": "SCARA 机器人 + 布料专用抓手",
+   "cycle_s": {
+    "min": 2,
+    "max": 4,
+    "unit": "s",
+    "quote": "cycle times of 2 to 4 seconds per fabric layer are possible",
+    "note": "厂商写“视布置与条件而定”"
+   },
+   "payload_kg": {
+    "value": 5,
+    "unit": "kg",
+    "quote": "5 kg payload",
+    "note": "机器人本身的负载，不是裁片质量"
+   },
+   "work_range_mm": {
+    "value": 1600,
+    "unit": "mm",
+    "quote": "working diameter of 1600mm diameter",
+    "note": "工作范围直径"
+   },
+   "gripper": {
+    "text": "气流、黏附、橡胶辊、手指触觉四种原理",
+    "quote": "by air flow / by adhesion / by rubber roller / by finger haptics",
+    "note": "规格页上的四个列表项"
+   }
+  },
+  {
+   "name": "Stackit（鞋面裁片叠放）",
+   "vendor": "Grabit",
+   "why": "电吸附抓手逐片取放鞋面裁片，公开报道给了片数与时间",
+   "url": "https://www.themanufacturer.com/articles/robotics-start-up-aims-to-revolutionise-material-handling/",
+   "kind": "改装的东芝 THL1000 SCARA + 电吸附抓手",
+   "cycle_s": {
+    "max": 1.5,
+    "unit": "s",
+    "quote": "handle up to 40 material pieces in under a minute",
+    "note": "原话是页面摘要；正文写一双鞋面“up to 40 pieces of material”、机器“less than one”分钟做完。我们按原话折算：60 s ÷ 40 片 = 平均不到 1.5 s/片；出处是行业媒体 The Manufacturer 2018-02-08 的报道，不是厂商规格页；鞋面裁片，不是缝纫车间的衣片"
+   },
+   "payload_kg": {
+    "value": 10,
+    "unit": "kg",
+    "quote": "a maximum payload of 10kg",
+    "note": "机器人本身的负载"
+   },
+   "gripper": {
+    "text": "电吸附（静电）",
+    "quote": "electroadhesive gripper"
+   }
+  },
+  {
+   "name": "真空吸盘取单层机织布片（试验）",
+   "vendor": "Kong、Liu、Kong（论文）",
+   "why": "公开试验：真空吸盘从一叠机织布片里只取最上面一片",
+   "url": "https://arxiv.org/abs/2408.09504",
+   "kind": "试验台（真空吸盘抓手）",
+   "gripper": {
+    "text": "真空吸盘（Ø2 mm，6–12 个），负压 −55 kPa；多种机织面料、5–10 层一叠，各组都判通过",
+    "quote": "The maximum supply of negative is dropped from -92kPa to -55kPa",
+    "note": "论文没给成功率、试验次数与节拍"
+   }
+  }
+ ]
+}
