@@ -16,6 +16,7 @@ Z 轴连接板、管夹、吸盘座、竖管），在零位装起来，查干涉
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import math
 import sys
@@ -566,7 +567,8 @@ def judge(fea: Mapping, formula: Mapping, rep: Mapping, cond: Mapping, cyc: Mapp
 
 
 # ---------------------------------------------------------------- 整条
-def run(concept_result: Mapping, build_result: Mapping, out_dir: str | Path, fea: bool = True) -> dict:
+def run(concept_result: Mapping, build_result: Mapping, out_dir: str | Path, fea: bool = True, reuse: Mapping | None = None) -> dict:
+    """三维装配 + 按真实质量复核选件 + 门架公式；fea=True 再做门架有限元（add_fea）。reuse：已算过的 frame_fea，指纹一样就用它"""
     lib = GB._library()
     concept = copy.deepcopy(dict(concept_result["chosen"]))
     cond = concept_result.get("conditions") or {}
@@ -602,13 +604,52 @@ def run(concept_result: Mapping, build_result: Mapping, out_dir: str | Path, fea
                                                                           "cog_mm": [round(float(x), 2) for x in v["cog_mm"]]}
                                                                       for j, v in mv.items()},
            "reverify": _compact(out, build_result), "frame_loads": {k: round(v, 4) for k, v in fl.items()}, "frame_formula": formula}
+    _finish(res)
     if fea:
-        fr = frame_fea(cad, fl, mv, out_dir / "cad")
-        res["frame_fea"] = fr
-        res["judge"] = judge(fr, formula, out.get("repeatability"), cond, out["cycle"])
-    ok = [cad["status"] == "pass", out["status"] == "pass", not fea or res["judge"]["deflection"]["status"] != "fail"]
+        add_fea(res, cond, out["cycle"], out_dir, reuse)
+    return res
+
+
+def _finish(res: dict) -> None:
+    """总结论与待确认：装配通过、复核通过、做了有限元的话变形不是“不通过”"""
+    ok = [res["cad"]["status"] == "pass", res["reverify"]["status"] == "pass",
+          ((res.get("judge") or {}).get("deflection") or {}).get("status") != "fail"]
     res["status"] = "pass" if all(ok) else "fail"
-    res["open_items"] = _open(res, out)
+    res["open_items"] = _open(res, res["reverify"])
+
+
+def _sig(x):
+    """浮点取 5 位有效数字（指纹用；JSON 往返不变）"""
+    if isinstance(x, bool) or x is None or isinstance(x, (str, int)):
+        return x
+    if isinstance(x, float):
+        return float(f"{x:.5g}")
+    if isinstance(x, Mapping):
+        return {str(k): _sig(v) for k, v in sorted(x.items())}
+    if isinstance(x, (list, tuple)):
+        return [_sig(v) for v in x]
+    return x
+
+
+def fea_fingerprint(res: Mapping) -> str:
+    """门架有限元的输入指纹：布置（全部尺寸）、设计值、载荷、运动部分、网格、阶数、材料。一样就说明有限元的输入一样"""
+    key = {"layout": res["cad"]["layout"], "design": res["design"], "frame_loads": res["frame_loads"], "moving": res["moving"],
+           "mesh_mm": list(FEA_MESH_MM), "n_modes": N_MODES, "material": MATERIAL, "e_mpa": E_MPA}
+    return hashlib.sha256(json.dumps(_sig(_round(key)), sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+def add_fea(res: dict, cond: Mapping, cycle: Mapping, out_dir: str | Path, reuse: Mapping | None = None) -> dict:
+    """门架有限元与判定，写进 res（就地）。载荷、重心取 res 里保存的值，保存的结果重算也是同一个输入。
+    reuse 的指纹与这次一样就用它（标 reused），不一样就现算"""
+    fp = fea_fingerprint(res)
+    if reuse and reuse.get("fingerprint") == fp:
+        fr = dict(copy.deepcopy(dict(reuse)), reused=True)
+    else:
+        fr = frame_fea(res["cad"], res["frame_loads"], res["moving"], Path(out_dir) / "cad")
+        fr["fingerprint"] = fp
+    res["frame_fea"] = fr
+    res["judge"] = judge(fr, res["frame_formula"], res["reverify"].get("repeatability"), cond, cycle)
+    _finish(res)
     return res
 
 

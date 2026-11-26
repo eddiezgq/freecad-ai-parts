@@ -184,3 +184,51 @@ def test_command_and_tool_window(gui, lib):
     assert win.isVisible() and win.objectName() == "FapRobotDesignPanel" and win.windowFlags() & QtCore.Qt.Tool
     assert not isinstance(win, QtWidgets.QDockWidget) and P.open_panel(lib, None) is p
     win.close()
+
+
+# ---------------------------------------------------------------- 案例 B（龙门取放，ADR-0115 44.5.5 第三步之二）
+@pytest.fixture(scope="module")
+def gcase(tmp_path_factory):
+    """案例 B 的结果目录；装配 STEP 由三维装配按案例的方案与选件重出（不做有限元，用保存的结果）"""
+    pytest.importorskip("gmsh")
+    pytest.importorskip("mujoco")
+    from assist import gantry_cad
+
+    d = tmp_path_factory.mktemp("gantry")
+    shutil.copytree(C.GANTRY_CASE / "out", d / "out")
+    o = d / "out"
+    cr = json.loads((o / "concept-result.json").read_text(encoding="utf-8"))
+    br = json.loads((o / "build-result.json").read_text(encoding="utf-8"))
+    gantry_cad.run(cr, br, o, fea=False)                    # 只为写 cad/assembly.step
+    return d
+
+
+def test_place_gantry_names_colours_and_bom(gui, doc, gcase):
+    from freecad_addon.fc import robot_doc as D
+
+    res = json.loads((gcase / "out" / "cad-result.json").read_text(encoding="utf-8"))
+    parts = res["cad"]["parts"]
+    r = D.place(doc, gcase, "gantry")
+    assert list(r["objects"]) == [p["name"] for p in parts] and len(parts) == 10
+    for p in parts:
+        ob = r["objects"][p["name"]]
+        want = D.GREY if p["kind"] in ("module", "gripper") else D.VERDICT["pass"] if p["kind"] == "frame" else D.ALUMINIUM
+        assert tuple(round(c, 2) for c in ob.ViewObject.ShapeColor[:3]) == tuple(round(c, 2) for c in want), p["name"]
+    b = json.loads((gcase / "out" / "bom.json").read_text(encoding="utf-8"))
+    assert r["bom_rows"] == len(b["purchased"]) + len(b["made"]) == 10
+    assert r["sheet"].get("D2") == "EGC-80-TB-KF-GK"
+
+
+def test_panel_gantry_example(gui, gcase, lib, tmp_path):
+    from freecad_addon.gui.robot_design_panel import RobotDesignPanel
+
+    p = RobotDesignPanel(lib, None, client_factory=lambda: None, fea_log=tmp_path / "fea.json")
+    assert set(p.examples) == set(C.EXAMPLES)
+    p.examples[C.GANTRY_NAME].click()
+    assert "1500 mm" in p.text.toPlainText() and p.replay
+    table = [{"step": s, "who": "代码", "status": "pass", "seconds": 1.0, "note": ""} for s in C.GANTRY_STEPS]
+    p.done({"out_dir": str(gcase), "steps": table, "status": "pass", "stopped_at": None, "replay": True, "do_fea": True,
+            "kind": "gantry"})
+    assert all(s in p.steps.toPlainText() for s in C.GANTRY_STEPS)
+    assert "节拍" in p.views["校核"].toPlainText() and "门架有限元" in p.views["仿真"].toPlainText()
+    assert p.placed is not None and len(p.placed["objects"]) == 10 and not p.ok.isEnabled()

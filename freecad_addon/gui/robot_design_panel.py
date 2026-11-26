@@ -48,13 +48,17 @@ class RobotDesignPanel:
         self.go = QtWidgets.QPushButton(T("开始设计"))
         self.go.clicked.connect(self.start)
         self.go.setDefault(True)
-        self.example = QtWidgets.QPushButton(T("载入示例：") + T(C.EXAMPLE_NAME))
-        self.example.clicked.connect(self.load_example)
         row.addWidget(self.go)
-        row.addWidget(self.example)
+        self.examples = {}
+        for name in C.EXAMPLES:
+            b = QtWidgets.QPushButton(T("载入示例：") + T(name))
+            b.clicked.connect(lambda _=False, n=name: self.load_example(n))
+            row.addWidget(b)
+            self.examples[name] = b
+        self.example = self.examples[C.EXAMPLE_NAME]
         row.addStretch(1)
         lay.addLayout(row)
-        self.do_fea = QtWidgets.QCheckBox(T("做支架有限元"))
+        self.do_fea = QtWidgets.QCheckBox(T("做有限元（机械臂：支架；龙门：门架）"))
         self.do_fea.setChecked(True)
         lay.addWidget(self.do_fea)
         self.fea_hint = QtWidgets.QLabel("")
@@ -100,8 +104,8 @@ class RobotDesignPanel:
         lay.addWidget(self.ok)
 
     def _hint(self):
-        self.fea_hint.setText(T("回放示例时支架有限元用案例 A 已算的结果（几何与载荷的指纹一样才用）；现算时：")
-                              + T(C.fea_estimate(self.fea_log)) + T("。不勾时支架强度判待确认，不算通过。"))
+        self.fea_hint.setText(T("回放示例时有限元用案例已算的结果（几何与载荷的指纹一样才用）；机械臂支架现算时：")
+                              + T(C.fea_estimate(self.fea_log)) + T("；龙门门架现算约 3 分钟。不勾时强度、变形判待确认，不算通过。"))
 
     def _enterprise_name(self) -> str:
         names = {c.get("vendor") for c in (self.enterprise.all("custom_part") if self.enterprise is not None else [])}
@@ -110,8 +114,8 @@ class RobotDesignPanel:
 
     # ------------------------------------------------------------ 动作
 
-    def load_example(self):
-        self.text.setPlainText(C.example_text())
+    def load_example(self, name: str = C.EXAMPLE_NAME):
+        self.text.setPlainText(C.example_text(name))
         self.replay = True
 
     def start(self):
@@ -119,9 +123,10 @@ class RobotDesignPanel:
         if not statement:
             self.progress.setText(T("先写需求原话"))
             return
-        use_replay = self.replay and C.is_example(statement)
+        ex = C.which_example(statement) if self.replay else None
+        use_replay = ex is not None
         if use_replay:
-            statement = C.example_text()               # 原样（含末尾换行）：录制按示例文件原文算请求键
+            statement = C.example_text(ex)             # 原样（含末尾换行）：录制按示例文件原文算请求键
         try:
             client = C.example_client() if use_replay else self.client_factory()
         except Exception as exc:  # noqa: BLE001 — 显示给人
@@ -177,10 +182,9 @@ class RobotDesignPanel:
         verdict = {"pass": "全部通过", "unknown": "跑完了，有待确认的项（见各页签）", "fail": "没有跑完"}[out["status"]]
         stop = T(f"；停在“{out['stopped_at']}”") if out.get("stopped_at") else ""
         self.progress.setText(head + T(f"结论：{verdict}") + stop + T(f"；用时 {sec // 60} 分 {sec % 60:02d} 秒"))
-        for title, md in C.tabs(out["out_dir"]):
+        for title, md in C.tabs(out["out_dir"], out.get("kind", "arm")):
             self.views[title].setMarkdown(md or T("这一步还没有结果"))
-        if (Path(out["out_dir"]) / "out" / "cad" / "cad-result.json").exists() and \
-                out["steps"][2]["status"] != "fail":
+        if C.cad_result(out).exists() and out["steps"][2]["status"] != "fail":
             self.place()
 
     def place(self):
@@ -192,13 +196,15 @@ class RobotDesignPanel:
         QtWidgets.QApplication.processEvents()
         doc = FreeCAD.newDocument("AiRobot")
         try:
-            self.placed = D.place(doc, self.out["out_dir"])
+            self.placed = D.place(doc, self.out["out_dir"], self.out.get("kind", "arm"))
         except Exception as exc:  # noqa: BLE001 — 显示给人
             self.model_info.setText(T(f"没有放进文档：{exc}"))
             return
         n = len(self.placed["objects"])
         bom = T(f"、BOM 表 {self.placed['bom_rows']} 行") if self.placed["sheet"] is not None else ""
-        self.model_info.setText(T(f"已放进文档：整机装配 {n} 个零件（外购模组灰色、自制件铝色，支架按有限元结论着色）") + bom
+        colors = (T("直线模组与吸盘灰色、自制件铝色，门架按有限元结论着色") if self.out.get("kind") == "gantry"
+                  else T("外购模组灰色、自制件铝色，支架按有限元结论着色"))
+        self.model_info.setText(T(f"已放进文档：整机装配 {n} 个零件（") + colors + T("）") + bom
                                 + T(f"；结果文件在 {self.out['out_dir']}"))
         if FreeCADGui.activeDocument() is not None and FreeCADGui.activeDocument().activeView() is not None:
             FreeCADGui.SendMsgToActiveView("ViewFit")

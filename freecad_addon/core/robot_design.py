@@ -5,6 +5,8 @@
 - 回放示例：需求原话与案例 A 的 `requirement.txt` 一字不差才回放录制；支架有限元按指纹复用案例已算的结果，指纹不一样的现算。
 - 不做有限元：这一步记“没做”，报告里支架强度是待确认，不是通过。
 - 页签内容取报告（`assist.robot_report`）的各节，面板不另算。
+- 案例 B（龙门取放，ADR-0115 44.5.5 第三步之二）：构型全是移动关节时，后面换成龙门的五步（选件与节拍 → 三维装配与复核 →
+  门架有限元 → 报告与 BOM，`assist.gantry_*`）；回放示例时门架有限元按指纹复用案例 B 已算的结果。
 - confirm：人确认后把装配 STEP、报告、BOM、各步结果登记为企业资料；录制回放的示例不入库。
 
 显示的文字照旧写中文，按界面语言在显示时翻（assist.i18n.tr）；报告正文这一步只出中文。
@@ -25,6 +27,11 @@ ROOT = Path(__file__).resolve().parents[2]
 CASE = ROOT / "examples" / "robots" / "teaching-arm"
 EXAMPLE_NAME = "教学桌面机械臂"
 STEPS = ("构型（AI 提、代码初筛）", "选件（代码）", "三维装配（代码）", "复核多体动力学（代码）", "支架有限元（代码）", "报告与 BOM（代码）")
+GANTRY_CASE = ROOT / "examples" / "robots" / "sewing-loader"
+GANTRY_NAME = "缝纫车间裁片上下料机器人"
+GANTRY_STEPS = ("构型（AI 提、代码初筛）", "选件与节拍多体动力学（代码）", "三维装配与复核选件（代码）", "门架有限元（代码）",
+                "报告与 BOM（代码）")
+EXAMPLES = {EXAMPLE_NAME: ("arm", CASE), GANTRY_NAME: ("gantry", GANTRY_CASE)}
 STATUS = {"waiting": "等待", "running": "进行中", "pass": "通过", "unknown": "待确认", "fail": "不通过", "skipped": "没做"}
 COLORS = {"pass": "#1b7f3b", "unknown": "#a26b00", "fail": "#b3261e", "skipped": "#a26b00", "running": "#1f5fbf", "waiting": "#777"}
 # 报告的哪几节放进哪个页签（报告的二级、三级标题）
@@ -35,19 +42,37 @@ TABS = (("条件", ("需求原话",)), ("构型", ("1 整机方案",)),
 CASE_FILES = ("plates.json",)                 # 回放示例时一起带上的案例文件（第 9 步定的板厚）
 RESULT_FILES = ("concept-result.json", "build-result.json", "cad/cad-result.json", "verify-result.json", "fea-result.json",
                 "timing.json", "bom.json", "bom.csv", "report.md")
+GANTRY_TABS = (("条件", ("需求原话",)), ("构型", ("1 整机方案",)),
+               ("校核", ("节拍", "选件", "抓手", "重复定位精度", "三维装配")),
+               ("仿真", ("3 仿真数字与需求逐条对照", "门架有限元")),
+               ("BOM", ("4 三维模型与 BOM",)), ("用时与卡点", ("5 用时", "6 卡在哪里")))
+GANTRY_RESULT_FILES = ("concept-result.json", "build-result.json", "cad-result.json", "timing.json", "bom.json", "bom.csv",
+                       "report.md")
 
 
 class ConfirmError(ValueError):
     pass
 
 
-def example_text() -> str:
+def example_text(name: str = EXAMPLE_NAME) -> str:
     """示例原话；Windows 上 git 检出可能是 \\r\\n，录制按 \\n 录的，统一成 \\n"""
-    return (CASE / "requirement.txt").read_text(encoding="utf-8").replace("\r\n", "\n")
+    return (EXAMPLES[name][1] / "requirement.txt").read_text(encoding="utf-8").replace("\r\n", "\n")
+
+
+def which_example(statement: str) -> str | None:
+    """和哪个示例的原话一字不差（只有一字不差才回放录制）；都不是就 None"""
+    s = statement.replace("\r\n", "\n").strip()
+    return next((n for n in EXAMPLES if s == example_text(n).strip()), None)
 
 
 def is_example(statement: str) -> bool:
-    return statement.replace("\r\n", "\n").strip() == example_text().strip()
+    return which_example(statement) is not None
+
+
+def is_gantry(concept) -> bool:
+    """构型的关节全是移动关节：走龙门的步骤（案例 B）"""
+    js = (concept or {}).get("joints") or []
+    return bool(js) and all(j.get("type") == "prismatic" for j in js)
 
 
 def example_client():
@@ -68,6 +93,14 @@ def example_reuse() -> dict:
     return {i["fingerprint"]: i for i in json.loads(p.read_text(encoding="utf-8"))["items"] if i.get("fingerprint")}
 
 
+def gantry_reuse() -> dict | None:
+    """案例 B 已算的门架有限元（带指纹）"""
+    p = GANTRY_CASE / "out" / "cad-result.json"
+    if not p.exists():
+        return None
+    return json.loads(p.read_text(encoding="utf-8")).get("frame_fea")
+
+
 def _status(x) -> str:
     return x if x in ("pass", "unknown", "fail") else "unknown"
 
@@ -82,10 +115,12 @@ def _tail(text: str, n: int = 3) -> str:
 
 
 def run(statement: str, client, *, replay: bool = False, out_dir: str | Path | None = None, do_fea: bool = True,
-        progress=None, reuse: dict | None = None, steps: dict | None = None, clock=time.perf_counter,
-        fea_log: str | Path | None = None) -> dict:
-    """依次跑六步。progress(步骤表, 说明, 已做, 总数) 每有变化就回调（步骤表是 [{step, who, status, seconds, note}]）。
-    steps：测试替换某几步的实现（{步名: 函数(out_dir) -> (状态, 说明)}）；fea_log：本机有限元用时记录（面板显示预计用时）。返回 {out_dir, steps, status, stopped_at, replay, do_fea}"""
+        progress=None, reuse=None, steps: dict | None = None, clock=time.perf_counter,
+        fea_log: str | Path | None = None, kind: str | None = None) -> dict:
+    """依次跑各步（机械臂六步；构型全是移动关节时换成龙门的五步）。progress(步骤表, 说明, 已做, 总数) 每有变化就回调
+    （步骤表是 [{step, who, status, seconds, note}]）。steps：测试替换某几步的实现（{步名: 函数(out_dir) -> (状态, 说明)}）；
+    kind：测试时直接指定 "arm" / "gantry"，不指定就按 AI 采用的构型定；fea_log：本机有限元用时记录（面板显示预计用时）。
+    返回 {out_dir, steps, status, stopped_at, replay, do_fea, kind}"""
     from assist import robot_design, robot_report
 
     statement = statement.replace("\r\n", "\n")
@@ -93,7 +128,9 @@ def run(statement: str, client, *, replay: bool = False, out_dir: str | Path | N
     o = case / "out"
     (o / "cad").mkdir(parents=True, exist_ok=True)
     (case / "requirement.txt").write_text(statement, encoding="utf-8")
-    if replay:
+    ex = which_example(statement) if replay else None
+    guess = kind or (EXAMPLES[ex][0] if ex else "arm")
+    if ex == EXAMPLE_NAME:
         for f in CASE_FILES:
             if (CASE / f).exists():
                 shutil.copy(CASE / f, case / f)
@@ -101,9 +138,16 @@ def run(statement: str, client, *, replay: bool = False, out_dir: str | Path | N
             shutil.copy(CASE / "out" / "thin-result.json", o / "thin-result.json")
         if reuse is None:
             reuse = example_reuse()
+    elif ex == GANTRY_NAME and reuse is None:
+        reuse = gantry_reuse()
     who0 = "AI（回放录制）+ 代码" if replay else "AI（真实调用）+ 代码"
-    table = [{"step": s, "who": who0 if k == 0 else "代码", "status": "waiting", "seconds": None, "note": ""}
-             for k, s in enumerate(STEPS)]
+
+    def rows(names, start=0):
+        return [{"step": n, "who": who0 if k + start == 0 else "代码", "status": "waiting", "seconds": None, "note": ""}
+                for k, n in enumerate(names[start:], start)]
+
+    table = rows(GANTRY_STEPS if guess == "gantry" else STEPS)
+    state = {"kind": guess}
 
     def tell(text, done=None, total=None):
         if progress is not None:
@@ -112,15 +156,24 @@ def run(statement: str, client, *, replay: bool = False, out_dir: str | Path | N
     cr, br, cad, vr = o / "concept-result.json", o / "build-result.json", o / "cad", o / "verify-result.json"
     plates = case / "plates.json"
 
-    def s_concept(_):
+    def screen_then_build(concept, cond):
+        """龙门构型初筛通过就采用（选件是下一步 assist.gantry_build，同 --screen-only）；机械臂照旧做选件与装配校核"""
         from assist.robot_build import build_check
 
+        if is_gantry(concept):
+            return {"ok": True, "items": [], "summary": "龙门：选件在下一步"}
+        return build_check(concept, cond)
+
+    def s_concept(_):
         model = getattr(client, "model", None) or robot_design.DEFAULT_MODEL
-        res = robot_design.design(statement, client, model=model, after_screen=build_check)
+        after = None if (kind == "gantry" or ex == GANTRY_NAME) else screen_then_build
+        res = robot_design.design(statement, client, model=model, after_screen=after)
         cr.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         if res.get("status") != "pass":
             miss = "；".join((res.get("missing") or []) + (res.get("rejected") or []))
             return "fail", f"构型循环没有通过（{len(res.get('rounds') or [])} 轮）" + (f"：{miss}" if miss else "")
+        if kind is None:
+            state["kind"] = "gantry" if is_gantry(res["chosen"]) else "arm"
         return "pass", f"{len(res['rounds'])} 轮；采用第 {res['chosen_round']} 轮的“{res['chosen'].get('name')}”"
 
     def via_main(fn, argv, result):
@@ -192,24 +245,78 @@ def run(statement: str, client, *, replay: bool = False, out_dir: str | Path | N
         robot_report.write(o)
         return "pass", "report.md、bom.csv、bom.json"
 
-    impl = dict(zip(STEPS, (s_concept, s_build, s_cad, s_verify, s_fea, s_report)))
-    impl.update(steps or {})
+    # ---- 龙门（案例 B）
+    gcad = o / "cad-result.json"
+
+    def g_build(_):
+        from assist import gantry_build
+
+        r = via_main(gantry_build.main, [str(cr), "-o", str(br)], br)
+        if r[0] != "fail":
+            b = _read(br)
+            r = (r[0], "；".join(f"{j} 选 {p.get('model')}" for j, p in b["picks"].items())
+                 + f"；抓手 {(b.get('gripper') or {}).get('model')}；节拍 {(b.get('cycle_time') or {}).get('total_s')} s")
+        return r
+
+    def g_cad(_):
+        from assist import gantry_cad
+
+        res = gantry_cad.run(_read(cr), _read(br), o, fea=False)
+        gcad.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        if res.get("status") == "fail" and "cad" not in res:
+            return "fail", res.get("note") or "复核选件没通过"
+        c, rv = res["cad"], res["reverify"]
+        same = "与上一步相同" if all(rv["same_as_step1"].values()) else "与上一步不同"
+        return _status(res["status"]), (f"{len(c['parts'])} 个零件，干涉 {len(c['interferences'])} 处，进取放区 {len(c['keepout_hits'])} 处；"
+                                        f"按真实质量复核选件{same}")
+
+    def g_fea(_):
+        from assist import gantry_cad
+
+        if not do_fea:
+            return "skipped", "没勾“做门架有限元”：放料定位精度待确认"
+        res, c, b = _read(gcad), _read(cr), _read(br)
+        tell("门架有限元：两层网格")
+        gantry_cad.add_fea(res, c.get("conditions") or {}, b["cycle"], o, reuse=reuse if isinstance(reuse, dict) else None)
+        gcad.write_text(json.dumps(res, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        fr, jd = res["frame_fea"], res["judge"]
+        note = f"跨中变形 {fr['result']['u_pad_abs_mm']:g} mm，一阶 {fr['result']['freqs_hz'][0]:.3g} Hz"
+        if fr.get("reused"):
+            note += "；回放：用案例已算的有限元结果"
+        return _status(jd["deflection"]["status"]), note
+
+    def g_report(_):
+        from assist import gantry_report
+
+        gantry_report.write(o)
+        return "pass", "report.md、bom.csv、bom.json" + ("、comparison.md" if (o / "comparison.md").exists() else "")
+
+    impls = {"arm": dict(zip(STEPS, (s_concept, s_build, s_cad, s_verify, s_fea, s_report))),
+             "gantry": dict(zip(GANTRY_STEPS, (s_concept, g_build, g_cad, g_fea, g_report)))}
+    for v in impls.values():
+        v.update(steps or {})
     timing = {"format": "robot-timing/1", "date": _dt.datetime.now().astimezone().isoformat(timespec="seconds"),
               "machine": _machine(), "ai": "回放录制" if replay else f"真实调用（{getattr(client, 'model', None) or '缺省'}）",
               "steps": [], "status": "pass"}
     stopped = None
-    for row in table:
+    k = 0
+    while k < len(table):
+        row = table[k]
         name = row["step"]
         row["status"] = "running"
         tell(name)
         t0 = clock()
         try:
-            st, note = impl[name](case)
+            st, note = impls[state["kind"]][name](case)
         except Exception as exc:  # noqa: BLE001 — 写明停在哪一步、为什么
             st, note = "fail", f"{type(exc).__name__}：{exc}"
         row.update(status=st, seconds=round(clock() - t0, 1), note=note)
         timing["steps"].append({"step": name, "who": row["who"], "seconds": row["seconds"], "exit_code": int(st == "fail")}
                                | ({"note": note} if st == "skipped" else {}))
+        if k == 0 and st != "fail":                    # 构型定了：后面按机械臂还是龙门的步骤走
+            names = GANTRY_STEPS if state["kind"] == "gantry" else STEPS
+            if [r["step"] for r in table[1:]] != list(names[1:]):
+                table[1:] = rows(names, 1)
         if st == "fail":
             stopped = name
             timing["status"] = "fail"
@@ -218,11 +325,18 @@ def run(statement: str, client, *, replay: bool = False, out_dir: str | Path | N
         tell(name)
         if stopped:
             break
+        k += 1
     if not stopped and (o / "report.md").exists():
-        robot_report.write(o)                  # 用时表补上“报告与 BOM”这一步
+        if state["kind"] == "gantry":                  # 用时表补上“报告与 BOM”这一步
+            from assist import gantry_report
+
+            gantry_report.write(o)
+        else:
+            robot_report.write(o)
     sts = {r["status"] for r in table}
     status = "fail" if stopped else "unknown" if sts & {"unknown", "skipped"} else "pass"
-    return {"out_dir": str(case), "steps": table, "status": status, "stopped_at": stopped, "replay": replay, "do_fea": do_fea}
+    return {"out_dir": str(case), "steps": table, "status": status, "stopped_at": stopped, "replay": replay, "do_fea": do_fea,
+            "kind": state["kind"]}
 
 
 def record_fea_time(path: str | Path, seconds: float, computed: int, brackets: int) -> None:
@@ -264,13 +378,20 @@ def sections(md: str) -> dict[str, str]:
     return out
 
 
-def tabs(out_dir: str | Path) -> list[tuple[str, str]]:
-    """[(页签名, Markdown)]；报告还没出时，用已有的结果文件说明到了哪一步"""
+def tabs(out_dir: str | Path, kind: str = "arm") -> list[tuple[str, str]]:
+    """[(页签名, Markdown)]；报告还没出时，用已有的结果文件说明到了哪一步。页签名两种整机一样，取报告里的哪几节不同"""
+    spec = GANTRY_TABS if kind == "gantry" else TABS
     p = Path(out_dir) / "out" / "report.md"
     if not p.exists():
-        return [(t, "") for t, _ in TABS]
+        return [(t, "") for t, _ in spec]
     sec = sections(p.read_text(encoding="utf-8"))
-    return [(t, "\n\n".join(sec[k] for k in keys if k in sec)) for t, keys in TABS]
+    return [(t, "\n\n".join(sec[k] for k in keys if k in sec)) for t, keys in spec]
+
+
+def cad_result(run_out: dict) -> Path:
+    """三维装配的结果文件：机械臂在 out/cad/，龙门在 out/"""
+    o = Path(run_out["out_dir"]) / "out"
+    return o / "cad-result.json" if run_out.get("kind") == "gantry" else o / "cad" / "cad-result.json"
 
 
 def steps_html(table: list[dict]) -> str:
@@ -301,7 +422,8 @@ def confirm(enterprise_lib, run_out: dict, *, drawing_no: str, name: str, enterp
     if run_out.get("stopped_at") or run_out.get("status") == "fail":
         raise ConfirmError("没有跑完或有不通过的项，不能入库")
     o = Path(run_out["out_dir"]) / "out"
-    files = [("cad/assembly.step", "整机三维装配（STEP）")] + [(f, f) for f in RESULT_FILES]
+    names = GANTRY_RESULT_FILES + ("comparison.md",) if run_out.get("kind") == "gantry" else RESULT_FILES
+    files = [("cad/assembly.step", "整机三维装配（STEP）")] + [(f, f) for f in names]
     docs = []
     for f, what in files:
         if (o / f).exists():
