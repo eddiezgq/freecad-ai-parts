@@ -2,7 +2,9 @@
 
 - 装配 STEP 里没有零件名：按 cad-result.json 的零件表，用重心（自制件再加体积）认出每个实体；
 - 颜色：外购模组灰色，自制件铝色；有限元做完后支架按结论着色（通过绿、待确认黄、不通过红）；
-- BOM：与 out/bom.json 同一份数据（robot_report.bom）。
+- BOM：与 out/bom.json 同一份数据（robot_report.bom；龙门是 gantry_report.bom）。
+- 龙门（案例 B）：零件表在 out/cad-result.json · cad.parts，装配在 out/cad/assembly.step；直线模组与吸盘灰色，
+  门架（横梁、立柱）按门架有限元的变形结论着色。
 """
 
 from __future__ import annotations
@@ -57,7 +59,8 @@ def bom_sheet(doc, bom: dict):
     head = [T("序号"), T("类别"), T("图号 / 零件库编号"), T("名称 / 型号"), T("数量"), T("材料"), T("单件质量 kg")]
     for j, h in enumerate(head):
         sheet.set(f"{chr(65 + j)}1", h)
-    rows = [("外购件", r) for r in bom["purchased"]] + [("自制件", r) for r in bom["made"]] + [("紧固件", r) for r in bom["fasteners"]]
+    rows = [("外购件", r) for r in bom["purchased"]] + [("自制件", r) for r in bom["made"]] \
+        + [("紧固件", r) for r in bom.get("fasteners") or []]
     for i, (kind, r) in enumerate(rows, start=2):
         name = r.get("name") or r.get("model") or ""
         if r.get("grip_mm") is not None:
@@ -71,12 +74,17 @@ def bom_sheet(doc, bom: dict):
     return sheet, len(rows)
 
 
-def place(doc, out_dir: str | Path) -> dict:
+def place(doc, out_dir: str | Path, kind: str = "arm") -> dict:
     """装配与 BOM 放进 doc。返回 {"objects": {零件名: 对象}, "group", "sheet", "bom_rows"}"""
     import Part
 
     o = Path(out_dir) / "out"
-    cad = json.loads((o / "cad" / "cad-result.json").read_text(encoding="utf-8"))
+    if kind == "gantry":
+        res = json.loads((o / "cad-result.json").read_text(encoding="utf-8"))
+        cad = res["cad"]
+    else:
+        res = None
+        cad = json.loads((o / "cad" / "cad-result.json").read_text(encoding="utf-8"))
     shape = Part.read(str(o / "cad" / cad.get("step", "assembly.step")))
     solids = shape.Solids
     if len(solids) != len(cad["parts"]):
@@ -90,16 +98,28 @@ def place(doc, out_dir: str | Path) -> dict:
         ob.Label = p["name"]
         ob.Shape = solids[k]
         group.addObject(ob)
-        _color(ob, GREY if p["kind"] == "actuator" else ALUMINIUM)
+        _color(ob, GREY if p["kind"] in ("actuator", "module", "gripper") else ALUMINIUM)
         objs[p["name"]] = ob
     fea = o / "fea-result.json"
-    if fea.exists():
+    if kind == "gantry":
+        color_frame(objs, cad["parts"], res)
+    elif fea.exists():
         color_by_fea(objs, json.loads(fea.read_text(encoding="utf-8")))
     sheet, n = None, 0
     if (o / "bom.json").exists():
         sheet, n = bom_sheet(doc, json.loads((o / "bom.json").read_text(encoding="utf-8")))
     doc.recompute()
     return {"objects": objs, "group": group, "sheet": sheet, "bom_rows": n}
+
+
+def color_frame(objs: dict, parts: list[dict], res: dict) -> None:
+    """龙门：门架（横梁、立柱）按门架有限元的变形结论着色；没做有限元就不改（铝色）"""
+    st = (((res or {}).get("judge") or {}).get("deflection") or {}).get("status")
+    if st not in VERDICT:
+        return
+    for p in parts:
+        if p["kind"] == "frame" and p["name"] in objs:
+            _color(objs[p["name"]], VERDICT[st])
 
 
 def color_by_fea(objs: dict, fea: dict) -> None:
