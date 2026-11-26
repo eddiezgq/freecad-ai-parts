@@ -949,6 +949,7 @@ def time_breaks(sysm):
 
 
 SEG_ROT_RAD = 0.5          # 积分每段里构件最多转过的角度（rad）
+WALK_ROT_RAD = 0.5         # 记录点之间投影时每小步最多转过的角度（rad，线索第 1 条）
 
 
 def _max_angular_speed(sysm, q, qd):
@@ -1150,18 +1151,32 @@ def _dynamic_loop(v):
                                  f"t = {t_cur:.6g} s 后走不下去。机构在这里会卡死；请检查摩擦系数、销半径，"
                                  "或确认这就是要找的自锁位置")
             raise SolveError(f"积分失败：{sol.message}")
+        def walk(t_to, y_to, need_acc=True, sol=sol, dep=dep, ind=ind, seg0=(t_cur, q_cur, qd_cur)):
+            # 《多体动力学》书第 3 章线索第 1 条（问渠 CAD 0.3.9 细则）：牛顿迭代从上一个记录点起步，记录点之间转得多
+            # （重陀螺输出 25 点，每个间隔自转 8 rad）时起点太远，发散出非数，lu_solve 抛“array must not contain infs
+            # or NaNs”退出；原来分小步走的回退只接 SolveError，而且上一个记录点常在本段（每段转角限 SEG_ROT_RAD）
+            # 之前，稠密输出在那里是外推。现在起点取上一个记录点与本段起点中较晚的一个；按角速度估转角，每 WALK_ROT_RAD
+            # 一小步沿稠密输出走过去（等于内部自动加点）；非数、线性代数异常也走回退；仍失败报中文原因
+            if rec.t[-1] >= seg0[0] - 1e-15:
+                t_from, q_from, qd_from = rec.t[-1], rec.q[-1], rec.qd[-1]
+            else:
+                t_from, q_from, qd_from = seg0
+            rot = _max_angular_speed(sysm, q_from, qd_from) * (t_to - t_from)
+            n_sub = math.ceil(rot / WALK_ROT_RAD) if rot > WALK_ROT_RAD else 1
+            for attempt in (n_sub, max(32, 4 * n_sub)):
+                state["q"] = q_from.copy()
+                try:
+                    for s_ in range(1, attempt):
+                        ts = t_from + (t_to - t_from) * s_ / attempt
+                        full_state(ts, sol.sol(ts), dep, ind, need_acc=False)
+                    return full_state(t_to, y_to, dep, ind, need_acc=need_acc)
+                except (SolveError, np.linalg.LinAlgError, ValueError, FloatingPointError):
+                    continue
+            raise SolveError(f"t = {t_to:.6g} s 附近，构件在一个输出间隔里转过约 {rot:.3g} rad，"
+                             "从上一个输出点接不上（约束投影不收敛）。请加密输出点（output_steps）")
+
         for n_, tt in enumerate(sol.t):
-            state["q"] = rec.q[-1].copy()       # 牛顿迭代从上一个记录点起步（积分器的最后一次求值可能在更后面）
-            try:
-                qq, qqd, qqdd, lam = full_state(tt, sol.y[:, n_], dep, ind)
-            except SolveError:
-                # 两个记录点之间动得多（大摆角、柔性构件）时，从上一点直接牛顿可能收不回来：沿积分器的稠密输出分小步走过去
-                t_prev = rec.t[-1]
-                state["q"] = rec.q[-1].copy()
-                for s_ in range(1, 33):
-                    ts = t_prev + (tt - t_prev) * s_ / 32
-                    full_state(ts, sol.sol(ts), dep, ind, need_acc=False)
-                qq, qqd, qqdd, lam = full_state(tt, sol.y[:, n_], dep, ind)
+            qq, qqd, qqdd, lam = walk(tt, sol.y[:, n_])
             rec.add(float(tt), qq, qqd, qqdd, keep, lam)
             rec.ctrl.append(dict(getattr(sysm, "act", {})))
             k += 1
@@ -1169,14 +1184,7 @@ def _dynamic_loop(v):
             stats["repartitions"] += 1
             te = float(sol.t_events[0][0])
             ye = sol.sol(te)
-            state["q"] = rec.q[-1].copy()
-            try:
-                q_cur, qd_cur, _, _ = full_state(te, ye, dep, ind, need_acc=False)
-            except SolveError:
-                state["q"] = rec.q[-1].copy()
-                for s_ in range(1, 33):
-                    ts = rec.t[-1] + (te - rec.t[-1]) * s_ / 32
-                    q_cur, qd_cur, _, _ = full_state(ts, sol.sol(ts), dep, ind, need_acc=False)
+            q_cur, qd_cur, _, _ = walk(te, ye, need_acc=False)
             t_cur = te
             xc_cur = ye[2 * dof:]
         else:
@@ -1185,8 +1193,11 @@ def _dynamic_loop(v):
                 xc_cur = sol.y[2 * dof:, -1]
             else:                               # 停在采样时刻（不是输出点）
                 ys = sol.sol(t_stop)
-                state["q"] = (rec.q[-1] if len(sol.t) else q_cur).copy()
-                q_cur, qd_cur, _, _ = full_state(t_stop, ys, dep, ind, need_acc=False)
+                if len(sol.t):
+                    q_cur, qd_cur, _, _ = walk(t_stop, ys, need_acc=False)
+                else:
+                    state["q"] = q_cur.copy()
+                    q_cur, qd_cur, _, _ = full_state(t_stop, ys, dep, ind, need_acc=False)
                 t_cur, xc_cur = t_stop, ys[2 * dof:]
             if h_s and abs(t_cur - next_s) < 1e-12:      # FMU 采样：送入测量量、走一拍、保持输出
                 ctrl.sample_at(t_cur, sysm.measures(q_cur, qd_cur))
