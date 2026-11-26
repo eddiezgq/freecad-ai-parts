@@ -1,0 +1,43 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/4",
+  "request_key": "19d503a40f7b1ff9106fe22df920f09a35dab368439ada694746aba8fe6e567b",
+  "response": {
+    "id": "msg_011ChSAX1U4oETmPzh4aPCHt",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "for_people": [
+        {
+          "quote": "不能损伤布料"
+        },
+        {
+          "quote": "机器人不能占用车间通道"
+        }
+      ],
+      "kind": "other",
+      "kind_quote": "裁片上下料机器人",
+      "payload": {
+        "quote": "裁片单片质量不超过 100 g",
+        "unit": "g",
+        "value": 100
+      },
+      "questions": [
+        "原话没说机器人是什么构型（串联臂、龙门等），请确认。",
+        "机器人底座装在哪里（裁床旁地面、台面、吊装）？底座相对取料区和送料台的位置没给，臂展无法确定。",
+        "车间通道在哪一侧、离裁床和送料台多远？这决定机器人能占多大的地面范围。",
+        "节拍 3 s/片（按最远一叠算）没有对应的字段，需要在后续核对。关节最高角速度的限制未给出。",
+        "裁片最大 600 mm × 400 mm，用什么抓取方式（真空吸盘、针刺等）？抓取点怎么选？",
+        "各叠的具体位置和叠数没说，取料高度会随叠高变化（最高 100 mm），取料时要按多高算？",
+        "放料时裁片转 90° 是由末端第 4 轴完成，还是整臂转动完成？",
+        "对自由度（轴数）有没有限制或偏好？"
+      ],
+      "repeatability": {
+        "quote": "放料定位精度 ±1 mm",
+        "unit": "mm",
+        "value": 1
+      }
+    }
+  }
+}

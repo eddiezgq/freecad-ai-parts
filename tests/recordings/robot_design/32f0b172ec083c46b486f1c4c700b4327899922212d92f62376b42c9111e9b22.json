@@ -1,0 +1,592 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "robot-design/4",
+  "request_key": "32f0b172ec083c46b486f1c4c700b4327899922212d92f62376b42c9111e9b22",
+  "response": {
+    "id": "msg_011ChSAh3SuVp4PQGNg3WtHu",
+    "model": "claude-sonnet-5-5",
+    "provider": "claude",
+    "simulated": false,
+    "tool_input": {
+      "candidates": [
+        {
+          "base": {
+            "height_mm": 850,
+            "mount": "table"
+          },
+          "end_effector": {
+            "offset_mm": [
+              0,
+              0,
+              -50
+            ],
+            "parent": "c_head",
+            "type": "vacuum"
+          },
+          "format": "robot-concept/1",
+          "joints": [
+            {
+              "axis": [
+                1,
+                0,
+                0
+              ],
+              "child": "y_beam",
+              "id": "j1_x",
+              "lead_mm": 200,
+              "module_group": "lin_xy",
+              "origin_mm": [
+                0,
+                -150,
+                750
+              ],
+              "parent": "base",
+              "range_mm": [
+                0,
+                2400
+              ],
+              "transmission": "belt_linear",
+              "type": "prismatic"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "z_housing",
+              "id": "j2_y",
+              "lead_mm": 150,
+              "module_group": "lin_xy",
+              "origin_mm": [
+                0,
+                150,
+                0
+              ],
+              "parent": "y_beam",
+              "range_mm": [
+                0,
+                1000
+              ],
+              "transmission": "belt_linear",
+              "type": "prismatic"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "z_slide",
+              "id": "j3_z",
+              "lead_mm": 100,
+              "module_group": "lin_z",
+              "origin_mm": [
+                0,
+                0,
+                0
+              ],
+              "parent": "z_housing",
+              "range_mm": [
+                -50,
+                250
+              ],
+              "transmission": "belt_linear",
+              "type": "prismatic"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "c_head",
+              "id": "j4_c",
+              "origin_mm": [
+                0,
+                0,
+                -650
+              ],
+              "parent": "z_slide",
+              "range_deg": [
+                -100,
+                100
+              ],
+              "ratio": 9,
+              "transmission": "reducer",
+              "type": "revolute"
+            }
+          ],
+          "kind": "gantry",
+          "links": [
+            {
+              "id": "y_beam",
+              "length_mm": 1200,
+              "material": "6061-T6",
+              "section": {
+                "height_mm": 120,
+                "width_mm": 80
+              },
+              "shape": "profile"
+            },
+            {
+              "id": "z_housing",
+              "length_mm": 250,
+              "material": "6061-T6",
+              "section": {
+                "height_mm": 200,
+                "wall_mm": 4,
+                "width_mm": 120
+              },
+              "shape": "box"
+            },
+            {
+              "id": "z_slide",
+              "length_mm": 700,
+              "material": "6061-T6",
+              "section": {
+                "height_mm": 60,
+                "width_mm": 40
+              },
+              "shape": "profile"
+            },
+            {
+              "id": "c_head",
+              "length_mm": 100,
+              "material": "7075-T6",
+              "section": {
+                "thickness_mm": 10,
+                "width_mm": 120
+              },
+              "shape": "plate"
+            }
+          ],
+          "name": "桌面悬臂龙门 XYZ+C(多区真空吸盘)",
+          "reason": "最远角到放料点约 2285 mm，转动臂要么压住取料区、要么臂展过长且有奇异位姿。直角龙门没有奇异问题，行程直接覆盖取放区。X 为长轴只背较轻的 Y 横梁，Z 与 C 在末端，运动质量小。机架立在台面后沿，不占车间通道。",
+          "tasks": [
+            {
+              "dwell_s": 0.08,
+              "from_mm": [
+                0,
+                0,
+                0
+              ],
+              "move_s": 0.24,
+              "name": "lift_pick",
+              "to_mm": [
+                0,
+                0,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                0,
+                0,
+                130
+              ],
+              "move_s": 0.92,
+              "name": "carry_and_rotate_90",
+              "to_mm": [
+                2100,
+                900,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0.08,
+              "from_mm": [
+                2100,
+                900,
+                130
+              ],
+              "move_s": 0.24,
+              "name": "lower_place",
+              "to_mm": [
+                2100,
+                900,
+                0
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                2100,
+                900,
+                0
+              ],
+              "move_s": 0.24,
+              "name": "lift_place",
+              "to_mm": [
+                2100,
+                900,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                2100,
+                900,
+                130
+              ],
+              "move_s": 0.92,
+              "name": "return",
+              "to_mm": [
+                0,
+                0,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                0,
+                0,
+                130
+              ],
+              "move_s": 0.24,
+              "name": "lower_pick",
+              "to_mm": [
+                0,
+                0,
+                0
+              ],
+              "type": "cartesian_move"
+            }
+          ],
+          "workspace": {
+            "points_mm": [
+              [
+                600,
+                400,
+                0
+              ],
+              [
+                2100,
+                900,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                1200,
+                0,
+                0
+              ],
+              [
+                1200,
+                800,
+                0
+              ],
+              [
+                0,
+                800,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "base": {
+            "height_mm": 850,
+            "mount": "table"
+          },
+          "end_effector": {
+            "offset_mm": [
+              0,
+              0,
+              -50
+            ],
+            "parent": "c_head",
+            "type": "vacuum"
+          },
+          "format": "robot-concept/1",
+          "joints": [
+            {
+              "axis": [
+                1,
+                0,
+                0
+              ],
+              "child": "y_beam",
+              "id": "j1_x",
+              "lead_mm": 200,
+              "module_group": "lin_xy",
+              "origin_mm": [
+                0,
+                -200,
+                750
+              ],
+              "parent": "base",
+              "range_mm": [
+                0,
+                2400
+              ],
+              "transmission": "belt_linear",
+              "type": "prismatic"
+            },
+            {
+              "axis": [
+                0,
+                1,
+                0
+              ],
+              "child": "z_housing",
+              "id": "j2_y",
+              "lead_mm": 150,
+              "module_group": "lin_xy",
+              "origin_mm": [
+                0,
+                200,
+                0
+              ],
+              "parent": "y_beam",
+              "range_mm": [
+                0,
+                1000
+              ],
+              "transmission": "belt_linear",
+              "type": "prismatic"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "z_slide",
+              "id": "j3_z",
+              "lead_mm": 100,
+              "module_group": "lin_z",
+              "origin_mm": [
+                0,
+                0,
+                0
+              ],
+              "parent": "z_housing",
+              "range_mm": [
+                -50,
+                250
+              ],
+              "transmission": "belt_linear",
+              "type": "prismatic"
+            },
+            {
+              "axis": [
+                0,
+                0,
+                1
+              ],
+              "child": "c_head",
+              "id": "j4_c",
+              "origin_mm": [
+                0,
+                0,
+                -650
+              ],
+              "parent": "z_slide",
+              "range_deg": [
+                -100,
+                100
+              ],
+              "ratio": 9,
+              "transmission": "reducer",
+              "type": "revolute"
+            }
+          ],
+          "kind": "gantry",
+          "links": [
+            {
+              "id": "y_beam",
+              "length_mm": 1300,
+              "material": "6061-T6",
+              "section": {
+                "height_mm": 150,
+                "wall_mm": 4,
+                "width_mm": 100
+              },
+              "shape": "box"
+            },
+            {
+              "id": "z_housing",
+              "length_mm": 250,
+              "material": "6061-T6",
+              "section": {
+                "height_mm": 200,
+                "wall_mm": 4,
+                "width_mm": 120
+              },
+              "shape": "box"
+            },
+            {
+              "id": "z_slide",
+              "length_mm": 700,
+              "material": "6061-T6",
+              "section": {
+                "height_mm": 60,
+                "width_mm": 40
+              },
+              "shape": "profile"
+            },
+            {
+              "id": "c_head",
+              "length_mm": 100,
+              "material": "7075-T6",
+              "section": {
+                "thickness_mm": 10,
+                "width_mm": 120
+              },
+              "shape": "plate"
+            }
+          ],
+          "name": "桌面双侧支撑龙门 XYZ+C(多区真空吸盘)",
+          "reason": "Y 横梁两端架在 X 导轨上，桥式结构无悬臂变形，刚性和重复定位更有把握；代价是 X 轴双侧同步、运动质量更大。",
+          "tasks": [
+            {
+              "dwell_s": 0.08,
+              "from_mm": [
+                0,
+                0,
+                0
+              ],
+              "move_s": 0.24,
+              "name": "lift_pick",
+              "to_mm": [
+                0,
+                0,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                0,
+                0,
+                130
+              ],
+              "move_s": 0.92,
+              "name": "carry_and_rotate_90",
+              "to_mm": [
+                2100,
+                900,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0.08,
+              "from_mm": [
+                2100,
+                900,
+                130
+              ],
+              "move_s": 0.24,
+              "name": "lower_place",
+              "to_mm": [
+                2100,
+                900,
+                0
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                2100,
+                900,
+                0
+              ],
+              "move_s": 0.24,
+              "name": "lift_place",
+              "to_mm": [
+                2100,
+                900,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                2100,
+                900,
+                130
+              ],
+              "move_s": 0.92,
+              "name": "return",
+              "to_mm": [
+                0,
+                0,
+                130
+              ],
+              "type": "cartesian_move"
+            },
+            {
+              "dwell_s": 0,
+              "from_mm": [
+                0,
+                0,
+                130
+              ],
+              "move_s": 0.24,
+              "name": "lower_pick",
+              "to_mm": [
+                0,
+                0,
+                0
+              ],
+              "type": "cartesian_move"
+            }
+          ],
+          "workspace": {
+            "points_mm": [
+              [
+                600,
+                400,
+                0
+              ],
+              [
+                2100,
+                900,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                1200,
+                0,
+                0
+              ],
+              [
+                1200,
+                800,
+                0
+              ],
+              [
+                0,
+                800,
+                0
+              ]
+            ]
+          }
+        }
+      ],
+      "reason": "本轮改动：初筛不通过的是取料区四角——上一轮第 3–6 点是“之字形”顺序（左下、右下、左上、右上），不是绕一圈。现改为 (0,0)→(1200,0)→(1200,800)→(0,800)，组成 1200×800 的矩形，中心为 (600,400)，与取料点一致。放料点 (2100,900)：沿长边距中心 1500 mm，侧偏 500 mm，与条件一致。离放料点最远的角是 (0,0)，节拍从这里取料。\n\n节拍重新分配：垂直抬放由 0.2 s 改为 0.24 s，水平搬运由 0.95 s 改为 0.92 s。垂直加速度从约 17.3 降到约 12 m/s²，水平加速度约 14.4 m/s²，最高速度约 3.3 m/s。合计 2.96 s，不大于 3.0 s。这些仍要在选件后按直线模组的速度和推力核，现在判不了。\n\n推荐第 0 个（悬臂龙门）：运动质量最小，加速度最容易满足。第 1 个（双侧桥式）刚性更好，但 X 轴要双侧同步，运动质量更大。若选件后 Y 悬臂变形影响 ±1 mm 重复定位，就改用第 1 个。\n\n末端用多区真空吸盘：多点吸附可防止 600×400 的软片在加速时下垂，不用针刺，因为扎针会伤布料。布料透气时用大流量、低真空度的真空发生器。抓取力至少 5.43 N 是按旧加速度算的，加速度降低后会更小。吸力、透气布料的保持力和伤布情况，选件后按公开数据核，查不到的记待确认。\n\n待确认项：台面要能容纳 X 方向约 2.4 m、Y 方向约 1 m 的行程和立柱；重复定位精度要选件后按编码器分辨率与传动回差核。",
+      "recommend": 0
+    }
+  }
+}
