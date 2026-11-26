@@ -3010,6 +3010,7 @@
 "点一条或几条边：球头刀沿边走，刀轴取边旁边朝上那个面的法向（五轴联动）": "Pick one or more edges: a ball end mill follows the edge with the tool axis along the normal of the upward-facing neighbouring face (simultaneous 5-axis)",
 "；面是扭曲的直纹面，圆柱侧刃贴不严：刀位已推出不过切，那里最多剩料 {} mm（留给后面清根或换球头多轴精加工）": "; the face is a twisted ruled surface the cylinder flank cannot fit exactly: tool positions were pushed out so nothing is overcut, leaving at most {} mm there (for a later rest pass or ball-end multi-axis finishing)",
 "swarf_clear 要用 swarf 算出的刀位（一条直纹线一个，插点前）": "swarf_clear needs the tool positions from swarf (one per ruling, before densifying)",
+"t = 0 是奇异位形（分岔点，例如平行四边形四杆共线）：只看运动副，这里瞬时有 {} 个自由度，离开一点只剩 {} 个，所以加了驱动以后看上去还剩 {} 个。请换一个初始位形（例如把曲柄转开几度），不要因此改用动力学分析": "t = 0 is a singular configuration (a bifurcation point, e.g. a parallelogram with all four links collinear): counting joints only, it instantaneously has {} degrees of freedom here but only {} just away from it, which is why {} appear to remain after adding drives. Choose another initial configuration (e.g. turn the crank a few degrees); do not switch to dynamic analysis because of this",
 "t ≈ {:.4g} s，“{}”与“{}”在运动副“{}”处共线": "t ≈ {:.4g} s, “{}” and “{}” collinear at joint “{}”",
 "t ≈ {:.4g} s，运动副 {}": "t ≈ {:.4g} s, joints {}",
 "T{}（{}）的刀杆 {}、刀片 {} 查不到主偏角或刀尖角，轮廓的斜度车不车得到没查": "T{} ({}): approach or corner angle not found for holder {} and insert {}; whether the profile slopes can be turned was not checked",

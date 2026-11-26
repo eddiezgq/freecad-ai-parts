@@ -117,6 +117,37 @@ def assemble(sysm: System, q, t, rows, free=None):
     return q
 
 
+def _nearby_dof(sysm: System, q, t, step=1e-2):
+    """只看运动副：此处的结构自由度，和沿各可动方向走特征长度的 1 %、投影回约束面后的最少结构自由度。
+    后者小于前者说明此处是奇异位形（分岔）。返回 (此处, 邻近) 或 None"""
+    rows = [r for r in sysm.rows if r.kind not in DRIVE_KINDS]
+    if not rows or sysm.nb == 0:
+        return None
+
+    def count(x):
+        sv = np.linalg.svd(sysm.jac(x, t, rows), compute_uv=False)
+        tol = max(len(rows), sysm.n) * np.finfo(float).eps * max(sv[0], 1.0) * 1e3
+        return sysm.n - int(np.sum(sv > tol))
+
+    J = sysm.jac(q, t, rows)
+    _, sv, Vt = np.linalg.svd(J)
+    tol = max(J.shape) * np.finfo(float).eps * max(sv[0], 1.0) * 1e3
+    here = sysm.n - int(np.sum(sv > tol))
+    pos = [7 * k + i for k in range(sysm.nb) for i in range(3)]
+    rot = [7 * k + 3 + i for k in range(sysm.nb) for i in range(4)]
+    cms = [np.asarray(sysm.rp(q, k)[0], float) for k in range(sysm.nb)]
+    L = max([np.linalg.norm(a - b) for a in cms for b in cms] + [np.linalg.norm(a) for a in cms] + [1e-2])
+    best = here
+    for v in Vt[int(np.sum(sv > tol)):]:
+        h = step * L / max(np.max(np.abs(v[pos])), L * np.max(np.abs(v[rot])), 1e-30)
+        try:
+            x = assemble(sysm, q + h * v, t, rows)
+        except SolveError:
+            continue
+        best = min(best, count(x))
+    return here, best
+
+
 def _rows(sysm, idx):
     return [sysm.rows[k] for k in idx]
 
@@ -489,6 +520,13 @@ def kinematic(sysm: System, t_end, steps, branch="continue"):
     rows = _rows(sysm, keep)
     dof = sysm.n - len(keep)
     if dof != 0:
+        near = _nearby_dof(sysm, q, 0.0)
+        if near is not None and near[1] < near[0]:
+            # 线索第 80 条：开始位形是分岔点（如平行四边形四杆共线），离开一点自由度就少了——不是真有多余自由度
+            raise SolveError(
+                f"t = 0 是奇异位形（分岔点，例如平行四边形四杆共线）：只看运动副，这里瞬时有 {near[0]} 个自由度，"
+                f"离开一点只剩 {near[1]} 个，所以加了驱动以后看上去还剩 {dof} 个。请换一个初始位形"
+                "（例如把曲柄转开几度），不要因此改用动力学分析")
         raise SolveError(f"运动学分析要自由度为 0（加了驱动以后还剩 {dof} 个自由度）；有自由度的用动力学分析")
     rec = Recorder(sysm)
     # 《多体动力学》书第 5 章线索第 13 条（问渠 CAD 0.3.8 细则）：原来牛顿初值取上一时刻的解，过死点（雅可比奇异）时走“倒回”
