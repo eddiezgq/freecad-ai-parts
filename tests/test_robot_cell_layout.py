@@ -150,3 +150,25 @@ def test_design_loop_asks_layout_then_screens():
     user = c.requests[3]["user"]
     assert "取放布置的写法" in user and "取料区长 mm（沿长边）：1200" in user and "最多 90°" in user
     assert "取放布置的写法" not in RC.notes({k: v for k, v in r["conditions"].items() if k not in dict.fromkeys(x[0] for x in RC.LAYOUT_FIELDS)})
+
+
+def test_distance_given_by_direction_comes_from_the_layout_list():
+    """CI 上真实 AI 第一次列取放条件时没填“水平距离”（原话只给沿裁床长度的 1500 mm 和侧偏 500 mm）：
+    取放布置里的“沿长边的取放距离”补上；两次列的不一样就退回"""
+    class _Script:
+        def __init__(self, *answers):
+            self.q, self.requests = list(answers), []
+
+        def complete(self, req):
+            self.requests.append(req)
+            return {"tool_input": copy.deepcopy(self.q.pop(0)), "provider": "test", "model": req["model"]}
+
+    cell = {k: v for k, v in CELL.items() if k != "pick_to_place"}
+    lay = dict(LAYOUT, along_distance=_v(1500, "mm", "取料区中心到放料点水平距离 1500 mm"))
+    r = RD.design(STATEMENT, _Script(COND, cell, lay, {"candidates": [concept()], "recommend": 0, "reason": "x"}))
+    assert r["status"] == "pass" and r["conditions"]["pick_to_place"] == 1500 and "along_distance" not in r["conditions"]
+    r = RD.design(STATEMENT, _Script(COND, cell, LAYOUT))
+    assert r["status"] == "needs_input" and r["missing"] == ["取料区到放料区的水平距离"]
+    bad = dict(CELL, pick_to_place=_v(500, "mm", "偏 500 mm"))
+    r = RD.design(STATEMENT, _Script(COND, bad, lay))
+    assert r["status"] == "needs_input" and any("两次列的不一样" in x for x in r["rejected"])

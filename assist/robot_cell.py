@@ -57,6 +57,7 @@ LAYOUT_WORDS = ("偏", "转", "区内")          # 原话里有这些字才问�
 LAYOUT_FIELDS = (
     ("area_length", "length_mm", "取料区长（沿长边）", "mm"),
     ("area_width", "length_mm", "取料区宽", "mm"),
+    ("along_distance", "length_mm", "沿取料区长边方向的取放距离", "mm"),
     ("lateral_offset", "length_mm", "放料点在取料区宽度方向的侧偏", "mm"),
     ("max_rotation", "angle_deg", "放料时最大转角", "°"),
 )
@@ -64,6 +65,7 @@ LAYOUT_TOOL = {"name": "list_cell_layout", "description": "列出取放布置：
     "type": "object", "properties": {
         "area_length": {**_V, "description": "取料区（工件分几处摆放的范围）的长度，沿较长的那条边（mm）"},
         "area_width": {**_V, "description": "取料区的宽度（mm）"},
+        "along_distance": {**_V, "description": "沿取料区长边方向，取料区中心到放料点的水平距离（mm；原话按方向分开给时填这一项）"},
         "lateral_offset": {**_V, "description": "放料点在取料区宽度方向上比取料区中心偏多少（mm）"},
         "max_rotation": {**_V, "description": "放料时工件绕竖直轴最多要转的角度（°）"},
         "questions": {"type": "array", "items": {"type": "string"}, "description": "原话没说清、要问工程师的"}},
@@ -121,7 +123,8 @@ def _check_values(ti: Any, statement: str, fields) -> tuple[dict, list[str], lis
 
 
 def check_layout(ti: Any, statement: str) -> tuple[dict, list[str], list[str], list[dict]]:
-    """核对取放布置 → (条件, 退回的项, 缺的项, 引用)。取料区长宽要成对；侧偏、转角可单独有"""
+    """核对取放布置 → (条件, 退回的项, 缺的项, 引用)。取料区长宽要成对；侧偏、转角可单独有。
+    沿长边的取放距离（along_distance）由调用方并进 pick_to_place（原话按方向分开给时，第一次列的“水平距离”会缺）"""
     if not isinstance(ti, dict):
         return {}, ["取放布置不是一个对象"], [], []
     cond, rej, quotes = _check_values(ti, statement, LAYOUT_FIELDS)

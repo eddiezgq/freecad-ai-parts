@@ -333,11 +333,18 @@ def design(statement: str, client, *, model: str = DEFAULT_MODEL, max_rounds: in
         miss += miss2
         quotes += q2
         out["questions"] += [q for q in (r["tool_input"] or {}).get("questions") or [] if isinstance(q, str)]
-        if robot_cell.needs_layout(statement) and not miss2 and not rej2:   # 取料区、侧偏、转角（案例 B2，ADR-0115 44.5.6）
+        dist = "取料区到放料区的水平距离"
+        if robot_cell.needs_layout(statement) and not rej2 and set(miss2) <= {dist}:   # 取料区、侧偏、转角（案例 B2，ADR-0115 44.5.6）
             say("AI 列取放布置")
             r = client.complete(robot_cell.layout_request(statement, model=model))
             out["ai"].append({k: r[k] for k in ("id", "provider", "model", "simulated") if k in r})
             c3, rej3, miss3, q3 = robot_cell.check_layout(r["tool_input"], statement)
+            along = c3.pop("along_distance", None)
+            if along is not None:                        # 原话按方向分开给：取放距离按沿长边的分量（初筛也按这个分量核）
+                if "pick_to_place" in cond and abs(cond["pick_to_place"] - along) > robot_cell.TOL_MM:
+                    rej3.append(f"{dist}：两次列的不一样（{cond['pick_to_place']:g} 与沿长边 {along:g} mm）")
+                cond["pick_to_place"] = along
+                miss[:] = [m for m in miss if m != dist]
             cond.update(c3)
             rej += rej3
             miss += miss3
