@@ -46,7 +46,10 @@ def test_bundle_contents(built):
                 # AI 设计零件两个示例的原话与录制（含有限元 kt、动力学载荷），回放不调用 AI（ADR-0100 42.4、42.5 第 7 步）
                 "examples/ai-design/ls-upper-shaft/requirement.txt", "tests/recordings/design/kt.json",
                 "examples/ai-design/cobot-j2/requirement.txt", "tests/recordings/joint_design/kt.json",
-                "tests/recordings/joint_design/loads.json"):
+                "tests/recordings/joint_design/loads.json",
+                # AI 设计整机两个示例：原话、录制与已算结果（门架有限元按指纹复用），回放不调用 AI（ADR-0115 44.5.5 第三步）
+                "examples/robots/teaching-arm/requirement.txt", "examples/robots/teaching-arm/out/fea-result.json",
+                "examples/robots/sewing-loader/requirement.txt", "examples/robots/sewing-loader/out/cad-result.json"):
         assert (dest / rel).exists(), rel
     assert any((dest / "data/library").glob("*/*.json"))
     assert not list(dest.rglob("__pycache__"))
