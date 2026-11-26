@@ -259,6 +259,17 @@ def run(setup: dict) -> dict:
                     f"{dae_ratio:.3g} 倍，MuJoCo 软约束跟不上）；动画和其余关节的运动仍来自 MuJoCo")
     else:
         messages += _loop_checks(mid, internal, data, setup)
+    if mid in mechanisms.LOOP_MIDS and not setup.get("payloads"):
+        # 线索第 72 条：单自由度闭环机构的等效惯量按 J(θ) = 2T/θ̇² 一转统计（原来取锁住其他关节的对角元，平缝机偏大 4.8 倍）
+        ji = mechanisms.loop_inertia(mid, (setup.get("model") or {}).get("params"))
+        d0 = next((x for x in drives if x["joint"] == mechanisms.DRIVER[mid]), None)
+        if ji and d0 is not None:
+            d0.update(inertia_max_kgm2=ji["max"], inertia_min_kgm2=ji["min"], inertia_mean_kgm2=ji["mean"],
+                      inertia_def="J(θ) = 2T/θ̇²：整个机构折算到主动件的等效惯量，一转统计")
+            lims.append("闭环机构的等效惯量按 J(θ) = Σm|∂r/∂θ|² + I(∂φ/∂θ)² 在一转上统计（最大、最小、平均）；"
+                        "飞轮、电机惯量匹配一般用平均值")
+    elif drives:
+        lims.append("等效惯量 inertia_max_kgm2 取运动中质量矩阵的对角元（其他关节锁住时绕本关节的惯量）的最大值")
     if mid in mechanisms.LOOP_MIDS:
         data["energy_balance"] = eb = _energy_balance(ch, summ, setup)
         if eb["status"] == "fail":

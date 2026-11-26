@@ -471,3 +471,37 @@ def dae_route(mid, setup, dt, w_max):
     ok = (len(drives) == 1 and drives[0]["joint"] == DRIVER[mid] and drives[0]["kind"] in ("speed", "sine")
           and not setup.get("payloads") and not setup.get("forces") and not setup.get("friction"))
     return ok and ratio < DAE_RATIO, ratio
+
+
+# ---------------------------------------------------------------- 闭环机构的等效惯量（线索第 72 条）
+def loop_inertia(mid, given, n=360):
+    """单自由度闭环机构折算到主动件的等效转动惯量 J(θ) = 2T/θ̇²（T 是主动件以单位角速度转动时整个机构的动能，
+    即 Σ m|∂r/∂θ|² + Iω(∂φ/∂θ)²），按一转 n 个位置算。原来取“其他关节锁住”的质量矩阵对角元，平缝机偏大 4.8 倍。
+    返回 {min, max, mean, points}；装不上的位置跳过（非整周转的机构只统计能到的范围）"""
+    import mujoco
+    import numpy as np
+
+    p = params(mid, given)
+    model = mujoco.MjModel.from_xml_string(mjcf(mid, p))
+    model.opt.enableflags |= int(mujoco.mjtEnableBit.mjENBL_ENERGY)
+    model.opt.gravity[:] = 0
+    data = mujoco.MjData(model)
+    adr = {mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_JOINT, j): (int(model.jnt_qposadr[j]), int(model.jnt_dofadr[j]))
+           for j in range(model.njnt)}
+    out, e = [], 1e-6
+    for th in np.linspace(0.0, 2 * math.pi, n, endpoint=False):
+        try:
+            a, b, c = initial(mid, p, th), initial(mid, p, th + e), initial(mid, p, th - e)
+        except ValueError:
+            continue
+        for k, v in a.items():
+            qa, da = adr[k]
+            data.qpos[qa] = v
+            data.qvel[da] = (b[k] - c[k]) / (2 * e)
+        mujoco.mj_forward(model, data)
+        mujoco.mj_energyVel(model, data)
+        out.append(2 * float(data.energy[1]))
+    if not out:
+        return None
+    arr = np.asarray(out)
+    return {"min": float(arr.min()), "max": float(arr.max()), "mean": float(arr.mean()), "points": len(arr)}
