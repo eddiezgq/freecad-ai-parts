@@ -79,10 +79,12 @@ def main(argv=None):
         arm = {"kind": "arm", "base_height_mm": 89, "links": [{"length_mm": 425, "mass_kg": 8.393},
                                                               {"length_mm": 392.25, "mass_kg": 2.275}],
                "payload_kg": 5 + 1.219 + 1.219 + 0.1879}
-        r = analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": [
-            {"joint": "j2", "kind": "move", "to": -90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
-            {"joint": "j3", "kind": "move", "to": 90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
-            {"joint": "j1", "kind": "hold"}]})
+        def moves(a2, a3):
+            return [{"joint": "j2", "kind": "move", "to": a2, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
+                    {"joint": "j3", "kind": "move", "to": a3, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
+                    {"joint": "j1", "kind": "hold"}]
+        out["arm"], out["drives"] = arm, (moves(-90, 90), moves(90, -90))
+        r = analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": out["drives"][0]})
         d = {x["joint"]: x for x in r["data"]["drives"]}
         g = r["data"]["static"]["gravity_torque_nm"]
         hand = 9.81 * (8.393 * 0.2125 + 2.275 * (0.425 + 0.392 / 2) + 7.626 * (0.425 + 0.39225))
@@ -91,10 +93,7 @@ def main(argv=None):
                 j2=d["j2"], j3=d["j3"], gravity=g, hand_gravity_j2=hand)
         out["mbd"] = r
         # 线索第 5 条：同一段动作反过来——从水平往上抬（肩 +90°、肘 −90°），需求取两个方向的包络
-        up = analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": [
-            {"joint": "j2", "kind": "move", "to": 90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
-            {"joint": "j3", "kind": "move", "to": -90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
-            {"joint": "j1", "kind": "hold"}]})
+        up = analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": out["drives"][1]})
         du = {x["joint"]: x for x in up["data"]["drives"]}
         run.add("动力学：往上抬", "ok", f"肩 j2 峰值 {du['j2']['peak']:.1f} N·m、均方根 {du['j2']['rms']:.1f} N·m；"
                 f"肘 j3 峰值 {du['j3']['peak']:.1f} N·m（选型取往下放与往上抬的包络）", j2=du["j2"], j3=du["j3"])
@@ -115,9 +114,31 @@ def main(argv=None):
     base = {"safety_factor": 1.2, "supply": {"current_type": "ac", "voltage_v": 200, "phases": 3},
             "fieldbus_protocol": "ethercat", "ambient_temp_c": 25}
 
+    def elbow_module():
+        """线索第 6 条：肘部 j3 的电机 + 减速器挂在大臂末端，原来不在模型里（肩关节连续扭矩少算 9.8 %）。
+        选出 j3 后按样本质量挂上，重算肩关节两个方向；样本缺质量时不估，照原样并说明"""
+        from examples.apps.cobot_arm import module_mass
+
+        m3 = module_mass(out["j3"]["system"]) if out.get("j3") else None
+        if m3 is None:
+            run.add("动力学：挂上肘部模组", "unknown", "肘部模组缺样本质量（或 j3 没选出），肩关节按不挂模组算")
+            return
+        arm = dict(out["arm"], joint_masses_kg=[0.0, m3])
+        dn, up = (analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": dr}) for dr in out["drives"])
+        d0 = next(x for x in out["mbd"]["data"]["drives"] if x["joint"] == "j2")
+        d1 = next(x for x in dn["data"]["drives"] if x["joint"] == "j2")
+        run.add("动力学：挂上肘部模组", "ok", f"肘部模组 {m3:g} kg 挂在大臂末端：肩 j2 往下放均方根 {d0['rms']:.1f} → {d1['rms']:.1f} N·m"
+                f"（+{d1['rms'] / d0['rms'] - 1:.1%}）", module_kg=m3, j2_down=d1)
+        out["mbd_plain"] = out["mbd"]                      # 不挂模组、只往下放的原工况（选不出组合时用来继续演示）
+        out["mbd"], out["mbd_up"] = dn, up
+
     def select():
         from analysis import mbd
-        for j, res, jj in (("j2", out["mbd"], "j2"), ("j3", out["mbd"], "j3"), ("j4", out.get("mbd_w"), "j2")):
+        order = (("j3", "j3"), ("j4", "j2"), ("j2", "j2"))          # 先选肘 j3，挂上它的模组再算肩 j2（线索第 6 条）
+        for j, jj in order:
+            if j == "j2":
+                run.guard("动力学：挂上肘部模组", elbow_module)
+            res = out.get("mbd_w") if j == "j4" else out["mbd"]
             if res is None:
                 continue
             req = mbd.requirement(res, jj, base=base)
@@ -132,6 +153,13 @@ def main(argv=None):
                 down["id"] = f"cobot-{j}-down"
                 cands = C.compose(down, top=20)
                 note = "两个方向的包络零件库里没有能满足的组合（往上抬不满足）；下面按只满足往下放的组合继续——"
+            if not cands and out.get("mbd_plain") is not None and out["mbd_plain"] is not res:
+                # 挂上肘部模组后连往下放也供不了（线索第 6 条：肩关节连续扭矩 +9 %）：按原来的工况（不挂模组、只往下放）继续演示
+                down = mbd.requirement(out["mbd_plain"], jj, base=base)
+                down["id"] = f"cobot-{j}-plain"
+                cands = C.compose(down, top=20)
+                note = ("挂上肘部模组后，两个方向都算的需求零件库里没有能满足的组合（往上抬、往下放都不满足）；"
+                        "下面按原来的工况（不挂模组、只往下放）选出的组合继续——")
             if not cands:
                 run.add(f"选型 {j}", "fail", "零件库里没有能满足的组合")
                 continue
