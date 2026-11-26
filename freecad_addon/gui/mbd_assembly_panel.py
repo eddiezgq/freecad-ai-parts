@@ -11,6 +11,7 @@ import threading
 import FreeCAD as App
 from PySide import QtCore, QtWidgets
 
+from analysis.mbd import mates as MT
 from assist.i18n import tr as T
 from freecad_addon.core import mbd_study as ST
 
@@ -54,7 +55,7 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         self.client_factory = client_factory          # 返回 LLM 客户端；None 时只用规则草稿
         self.doc = None
         self.assembly = None
-        self.objs, self.found, self.draft = [], None, None
+        self.objs, self.parts, self.found, self.draft = [], [], None, None
         self.model, self.data, self.animator = None, None, None
         self.model_file, self.model_dir = None, None         # 打开的模型文件（ADR-0102 第 5 步）
         self.busy = False
@@ -265,7 +266,7 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         self.doc = doc or App.newDocument("MbdAssembly")
         client = self.client_factory() if (self.use_ai.isChecked() and self.client_factory) else None
         try:
-            self.objs, _parts, self.found, self.draft = ST.draft_from_step(path, self.doc, client)
+            self.objs, self.parts, self.found, self.draft = ST.draft_from_step(path, self.doc, client)
         except Exception as exc:  # noqa: BLE001 — AI 或导入出错都显示给人
             self.status.setText(f"导入或起草失败：{exc}")
             return False
@@ -295,8 +296,13 @@ class MbdAssemblyPanel(QtWidgets.QDockWidget):
         self.build_btn.setEnabled(True)
         extra = "；".join(self.draft["notes"])
         miss = "、".join(labels[p] for p in self.found["unconnected"])
+        mob = MT.mobility(self.parts, self.found)          # 线索第 66 条：候选全用上时的整体自由度、局部自由度
+        local = "、".join(labels[p] for p in mob["local"])
         self.status.setText(f"{self.draft['by']}起草了 {len(self.draft['accept'])} 个运动副，请逐条核对后点“确认”。"
-                            + (f"没连上的零件：{miss}。" if miss else "") + (f"注意：{extra}" if extra else ""))
+                            + (f"没连上的零件：{miss}。" if miss else "")
+                            + f"候选全用上时整体约 {mob['dof']} 个自由度（只数约束，冗余另看）。"
+                            + (f"局部自由度（只靠一个转动副挂着，绕自身轴转）：{local}。" if local else "")
+                            + (f"注意：{extra}" if extra else ""))
         return True
 
     def accepted(self) -> list[dict]:
