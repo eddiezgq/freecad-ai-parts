@@ -1,0 +1,57 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "4060ae60f1784314bb4011dcb67b7fc388c73a25b98d210e2e76407d597071e5",
+  "response": {
+    "id": "msg_011ChQ4XF9dVbHtayXQvnj8V",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Flat Suction Cups (Round)",
+          "printed_text": "Flat Suction Cups (Round)",
+          "printed_unit": "",
+          "quote": "Flat Suction Cups (Round)",
+          "target": "params/gripper_type",
+          "value": "suction_cup"
+        },
+        {
+          "condition": "-600 mbar",
+          "confidence": 0.7,
+          "page": 4,
+          "printed_label": "Suction force (-600 mbar) [N]*",
+          "printed_text": "107.00",
+          "printed_unit": "N",
+          "quote": "| SPF | 60 | 107.00 | 135.0 | 65.0 | 12.7 | 75 | 6 |",
+          "target": "params/holding_force_n",
+          "value": 107.0
+        },
+        {
+          "confidence": 0.45,
+          "page": 6,
+          "printed_label": "Ds [mm]",
+          "printed_text": "61.2",
+          "printed_unit": "mm",
+          "quote": "| SPF | 60 | 10.5 | 17.5 | 22.1 | 65.0 | 61.2 | 18.1 | 7.5 | 5.1 |",
+          "target": "params/cup_diameter_mm",
+          "value": 61.2
+        },
+        {
+          "confidence": 0.5,
+          "page": 1,
+          "printed_label": "Application",
+          "printed_text": "Handling of cardboards and rigid packaging in top-loading and side-loading machines",
+          "printed_unit": "",
+          "quote": "• Handling of cardboards and rigid packaging in top-loading",
+          "target": "params/suitable_materials",
+          "value": "Handling of cardboards and rigid packaging in top-loading and side-loading machines"
+        }
+      ],
+      "model": "SPF 60",
+      "series": "SPF",
+      "vendor": "Schmalz"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "model": "claude-sonnet-5-5",
+  "prompt_version": "extract/3",
+  "request_key": "cab6799bc90e666cac9ed3a5ea01bbf73be1571b3e02d531b520db3594ca8f6b",
+  "response": {
+    "id": "msg_011ChQ4TSRgETz9AFvTDtseb",
+    "simulated": false,
+    "tool_input": {
+      "items": [
+        {
+          "confidence": 0.9,
+          "page": 1,
+          "printed_label": "Flat Suction Cups SPF",
+          "printed_text": "Flat Suction Cups SPF",
+          "printed_unit": "",
+          "quote": "Flat Suction Cups SPF",
+          "target": "params/gripper_type",
+          "value": "suction_cup"
+        },
+        {
+          "condition": "Suction force at -600 mbar (theoretical value, smooth dry workpiece surface)",
+          "confidence": 0.6,
+          "page": 4,
+          "printed_label": "Suction force (-600 mbar) [N]*",
+          "printed_text": "9.81",
+          "printed_unit": "N",
+          "quote": "| SPF | 15 | 9.81 | 11.0 | 7.9 | 0.8 | 13 | 4 |",
+          "target": "params/holding_force_n",
+          "value": 9.81
+        }
+      ],
+      "model": "SPF 15",
+      "series": "Flat Suction Cups SPF",
+      "vendor": "J. Schmalz GmbH"
+    }
+  }
+}
