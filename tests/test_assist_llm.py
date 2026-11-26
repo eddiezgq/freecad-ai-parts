@@ -62,6 +62,19 @@ def test_must_call_the_tool_exactly_once():
         GatewayClient("gpt")
 
 
+def test_a_truncated_answer_is_not_used(tmp_path):
+    """真实运行里见过：回答写到一半被截断，工具参数整个是空的（案例 B2 构型，ADR-0115 44.5.6.1）——不当答案、不录制"""
+    cut = Fake("claude", "claude-x", {})
+    cut.create = lambda **kw: {"id": "m", "stop_reason": "max_tokens",
+                               "content": [{"type": "tool_use", "id": "t", "name": "t", "input": {}}]}
+    with pytest.raises(GatewayError, match="截断"):
+        GatewayClient(gateway=Gateway([cut]), record_dir=tmp_path).complete(_req("claude-x"))
+    assert not list(tmp_path.glob("*.json"))
+    big = Fake("claude", "claude-x", {"a": 1})
+    GatewayClient(gateway=Gateway([big])).complete(_req("claude-x"))
+    assert big.calls == [32000]
+
+
 def test_draft_and_explanation_record_the_model_that_answered():
     """起草的依据说明、报告解释里写实际回答的模型（换了另一家也如实写）"""
     _need_fea()
