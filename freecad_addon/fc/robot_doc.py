@@ -17,7 +17,11 @@ from assist.i18n import tr as T
 GREY = (0.35, 0.35, 0.38)
 ALUMINIUM = (0.80, 0.82, 0.85)
 VERDICT = {"pass": (0.20, 0.65, 0.30), "unknown": (0.90, 0.70, 0.10), "fail": (0.80, 0.15, 0.12)}
-COG_TOL_MM = 0.05
+# 认零件的容差：STEP 读回来后，各版几何内核对 B 样条实体的体积、重心积分精度不同。2026-11-26 在问渠 CAD 1.1.4
+# （OCCT 7.8.1）上，同一个装配文件的自制件体积比写出前小 0.27%–0.81%、重心偏 0.005–0.053 mm（面积、包围盒一致）；
+# OCCT 7.9.3 上与写出前一致。所以体积按相对 2%、重心按 0.5 mm 认；零件之间重心相距都在毫米以上，不会认错。
+COG_TOL_MM = 0.5
+VOL_REL_TOL = 0.02
 
 
 class PlaceError(ValueError):
@@ -35,7 +39,7 @@ def match(solids, parts) -> list[int]:
             c = s.CenterOfMass
             d = ((c.x - p["cog_mm"][0]) ** 2 + (c.y - p["cog_mm"][1]) ** 2 + (c.z - p["cog_mm"][2]) ** 2) ** 0.5
             v = p.get("volume_mm3")
-            if v and abs(s.Volume - v) > 1e-3 * v + 0.5:
+            if v and abs(s.Volume - v) > VOL_REL_TOL * v + 0.5:
                 continue
             if dist is None or d < dist:
                 best, dist = k, d
