@@ -826,7 +826,7 @@ def frame_formula(cad: Mapping, fl: Mapping) -> dict:
 
 
 def _formula_xyz(L, fl, span, b, h, t, Ib, Ic, hc, sag, sway, f1, fs, fl_, Iz) -> dict:
-    """三轴龙门：在两轴的公式上加 Y 悬臂造成的扭转与沿 y 的侧移（偏保守，各项同号相加）：
+    """三轴龙门：在两轴的公式上加 Y 悬臂造成的扭转与沿 y 的侧移（各项同号相加；扭转没计截面畸变、地脚板柔度，不一定偏保守）：
     扭矩 T = (运动部分重量 + Z 惯性力) × 重心离横梁中心的 y 距离 + Y 推力 × 重心离横梁中心的高度差（Y 伸到最远、Z 降到最低、在跨中）；
     横梁两端在立柱上不转、T 加在跨中：θ = T·L / (4·G·J)，闭口薄壁矩形管 J = 2t(b−t)²(h−t)² / (b + h − 2t)（布雷特公式）；
     两根立柱各受 T/2 的弯矩、柱顶转角 (T/2)·h / (E·I)；末端点的位移 = 转角 × 末端点到横梁中心的距离"""
@@ -1006,7 +1006,8 @@ def judge(fea: Mapping, formula: Mapping, rep: Mapping, cond: Mapping, cyc: Mapp
         d = {"status": "fail" if tot > tol + 1e-9 else "unknown", "deflection_mm": ut, "repeatability_mm": worst, "total_mm": round(tot, 4),
              "limit_mm": tol, "u_pad_mm": u, "missing": ["Y 模组（悬臂）、Z 模组与竖杆自身的弯曲：零件库没有模组型材的截面惯性矩"],
              "note": f"只算门架：末端点（Y 伸到最远、Z 降到最低、在跨中）的位移 {ut:.3g} mm（跨中垫块 {u:.3g} mm，加横梁截面转角 × 力臂）"
-                     f"+ 模组重复定位精度 ±{worst:g} mm = {tot:.3g} mm，要求 ±{tol:g} mm；公式（偏保守）{formula['tool_frame_mm']:.3g} mm。"
+                     f"+ 模组重复定位精度 ±{worst:g} mm = {tot:.3g} mm，要求 ±{tol:g} mm；公式估 {formula['tool_frame_mm']:.3g} mm"
+                     "（扭转按闭口薄壁管的布雷特公式，没计截面畸变与地脚板的柔度，比有限元小）。"
                      + ("已超出：再加模组自身的弯曲只会更大，判不通过" if tot > tol + 1e-9 else
                         "Y 模组悬臂自身的下垂没算：零件库没有费斯托模组型材的截面惯性矩，判待确认")}
     elif not isinstance(tol, (int, float)) or worst is None:

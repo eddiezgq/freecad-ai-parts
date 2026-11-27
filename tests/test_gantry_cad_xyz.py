@@ -174,3 +174,26 @@ def test_tool_displacement_from_probe_rotation():
     out = C._tool_from_probes(L, {"tool_worst_mm": [0, 1000, -500]}, geo, probes, 0.0)
     assert out["rotation_rad"] == pytest.approx([th, 0, 0], abs=1e-12)
     assert out["u_tool_frame_mm"] == pytest.approx(u([0, 1000, -500]), abs=1e-9)
+
+
+def test_saved_result_consistent():
+    """保存的 B2 结果：装配通过、复核选件收敛；门架有限元两层网格差别小、力平衡；末端变形超出要求，判不通过（如实）"""
+    res = json.loads((EX / "cad-result.json").read_text(encoding="utf-8"))
+    assert res["format"] == C.FORMAT and res["status"] == "fail"
+    assert res["cad"]["status"] == "pass" and not res["cad"]["interferences"] and not res["cad"]["keepout_hits"]
+    assert res["reverify"]["status"] == "pass"
+    fe = res["frame_fea"]
+    assert fe["mesh_change"]["u_pad"] < 0.05 and fe["mesh_change"]["f1"] < 0.05
+    assert abs(fe["result"]["balance"]["force_error_ratio"]) < 1e-3
+    d = res["judge"]["deflection"]
+    assert d["status"] == "fail" and d["total_mm"] > d["limit_mm"]
+    assert fe["result"]["u_tool_frame_abs_mm"] > fe["result"]["u_pad_abs_mm"]          # 扭转把末端放大
+    assert fe["fingerprint"] == C.fea_fingerprint(res)
+    _need()
+    cr, br = _inputs()
+    lib, _ = _picks(br)
+    genv = C._env(lib.get(br["gripper"]["component"]))
+    picks = dict({j: {"component": p["component"]} for j, p in res["reverify"]["picks"].items()}, _gripper={"envelope": genv})
+    cad = C.assemble(cr["chosen"], cr["conditions"], picks, lib)
+    assert cad["layout"] == res["cad"]["layout"]
+    assert [p.get("mass_kg") for p in cad["parts"]] == [p.get("mass_kg") for p in res["cad"]["parts"]]

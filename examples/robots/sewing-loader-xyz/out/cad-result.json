@@ -1,0 +1,2200 @@
+{
+ "format": "gantry-cad/1",
+ "design": {
+  "keepout_clear_mm": 50.0,
+  "stack_clear_mm": 20.0,
+  "beam_w_mm": 80.0,
+  "beam_h_mm": 160.0,
+  "beam_wall_mm": 6.0,
+  "col_w_mm": 100.0,
+  "col_wall_mm": 6.0,
+  "foot_mm": 160.0,
+  "foot_t_mm": 12.0,
+  "plate_mm": 10.0,
+  "web_mm": 10.0,
+  "bracket_w_mm": 60.0,
+  "bracket_fillet_mm": 5.0,
+  "z_top_gap_mm": 8.0,
+  "clamp_back_mm": 20.0,
+  "clamp_front_mm": 10.0,
+  "clamp_w_mm": 50.0,
+  "clamp_h_mm": 40.0,
+  "seat_h_mm": 20.0,
+  "seat_hole_mm": 8.0,
+  "pad_mm": [
+   100.0,
+   60.0,
+   2.0
+  ],
+  "arm_wall_mm": 4.0,
+  "adapter_x_mm": 160.0,
+  "c_gap_mm": 3.0,
+  "c_bracket_t_mm": 8.0,
+  "c_bracket_w_mm": 60.0,
+  "c_side_clear_mm": 5.0,
+  "c_sweep_clear_mm": 10.0,
+  "boss_pocket_mm": [
+   11.0,
+   6.0
+  ]
+ },
+ "cad": {
+  "status": "pass",
+  "layout": {
+   "kind": "xyz",
+   "axes": [
+    {
+     "joint": "j1_x",
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "dir": 0,
+     "lo": 0,
+     "hi": 2400,
+     "transmission": "belt_linear"
+    },
+    {
+     "joint": "j2_y",
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "dir": 1,
+     "lo": 0,
+     "hi": 1000,
+     "transmission": "belt_linear"
+    },
+    {
+     "joint": "j3_z",
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "dir": 2,
+     "lo": -50,
+     "hi": 250,
+     "transmission": "belt_linear"
+    }
+   ],
+   "tool0_mm": [
+    0.0,
+    0.0,
+    50.0
+   ],
+   "slide_x_mm": 679.5,
+   "slide_y_mm": 593.0,
+   "zc0_mm": 247.5,
+   "y_slide_z_mm": -88.102,
+   "x_ref_mm": [
+    0.0,
+    -119.352,
+    679.5
+   ],
+   "refs_mm": {
+    "j1_x": [
+     0.0,
+     -119.352,
+     679.5
+    ],
+    "j2_y": [
+     0.0,
+     -69.352,
+     593.0
+    ],
+    "j3_z": [
+     0.0,
+     -88.102,
+     247.5
+    ],
+    "j4_c": [
+     0.0,
+     0.0,
+     70.0
+    ]
+   },
+   "c_axis_xy": [
+    0.0,
+    0.0
+   ],
+   "chain": [
+    {
+     "body": "x",
+     "joint": "j1_x",
+     "dir": 0,
+     "lo": 0,
+     "hi": 2400
+    },
+    {
+     "body": "y",
+     "joint": "j2_y",
+     "dir": 1,
+     "lo": 0,
+     "hi": 1000
+    },
+    {
+     "body": "z",
+     "joint": "j3_z",
+     "dir": 2,
+     "lo": -50,
+     "hi": 250
+    },
+    {
+     "body": "c",
+     "joint": "j4_c",
+     "dir": "rot",
+     "lo": -100,
+     "hi": 100
+    }
+   ],
+   "modules": {
+    "j1_x": {
+     "component": "linear_module.festo-se-co-kg.egc-185-tb-kf-gk",
+     "model": "EGC-185-TB-KF-GK",
+     "box": [
+      [
+       -306.0,
+       -212.352,
+       679.5
+      ],
+      [
+       2706.0,
+       -26.352,
+       852.0
+      ]
+     ],
+     "length_mm": 3012
+    },
+    "j2_y": {
+     "component": "linear_module.festo-se-co-kg.egc-80-tb-kf-gk",
+     "model": "EGC-80-TB-KF-GK",
+     "box": [
+      [
+       -41.0,
+       -212.352,
+       593.0
+      ],
+      [
+       41.0,
+       1073.648,
+       669.5
+      ]
+     ],
+     "length_mm": 1286
+    },
+    "j3_z": {
+     "component": "linear_module.festo-se-co-kg.egc-50-tb-kf-gk",
+     "model": "EGC-50-TB-KF-GK",
+     "box": [
+      [
+       -24.0,
+       -130.602,
+       120.0
+      ],
+      [
+       24.0,
+       -88.102,
+       575.0
+      ]
+     ],
+     "length_mm": 455
+    }
+   },
+   "actuator": {
+    "joint": "j4_c",
+    "component": "smart_actuator.robotis.xm540-w270",
+    "model": "XM540-W270",
+    "horn_z_mm": 70.0,
+    "top_z_mm": 119.0,
+    "side_x_mm": 16.75
+   },
+   "adapter": [
+    [
+     -80.0,
+     -212.352,
+     669.5
+    ],
+    [
+     80.0,
+     -26.352,
+     679.5
+    ]
+   ],
+   "beam": [
+    [
+     -450.0,
+     -159.352,
+     852.0
+    ],
+    [
+     2806.0,
+     -79.352,
+     1012.0
+    ]
+   ],
+   "columns": [
+    [
+     [
+      -450.0,
+      -169.352,
+      12.0
+     ],
+     [
+      -350.0,
+      -69.352,
+      852.0
+     ]
+    ],
+    [
+     [
+      2706.0,
+      -169.352,
+      12.0
+     ],
+     [
+      2806.0,
+      -69.352,
+      852.0
+     ]
+    ]
+   ],
+   "feet": [
+    [
+     [
+      -480.0,
+      -199.352,
+      0.0
+     ],
+     [
+      -320.0,
+      -39.352,
+      12.0
+     ]
+    ],
+    [
+     [
+      2676.0,
+      -199.352,
+      0.0
+     ],
+     [
+      2836.0,
+      -39.352,
+      12.0
+     ]
+    ]
+   ],
+   "bracket": {
+    "top": [
+     [
+      -30.0,
+      -140.602,
+      583.0
+     ],
+     [
+      30.0,
+      1.898,
+      593.0
+     ]
+    ],
+    "web": [
+     [
+      -30.0,
+      -140.602,
+      120.0
+     ],
+     [
+      30.0,
+      -130.602,
+      583.0
+     ]
+    ]
+   },
+   "clamp": [
+    [
+     -25.0,
+     -88.102,
+     227.5
+    ],
+    [
+     25.0,
+     1.898,
+     267.5
+    ]
+   ],
+   "arm": {
+    "box": [
+     [
+      -20.0,
+      -68.102,
+      130.0
+     ],
+     [
+      20.0,
+      -8.102,
+      267.5
+     ]
+    ],
+    "wall_mm": 4.0
+   },
+   "arm_offset_mm": 38.102,
+   "c_sweep_r_mm": 78.102,
+   "c_bracket": {
+    "top": [
+     [
+      -20.0,
+      -68.102,
+      122.0
+     ],
+     [
+      24.75,
+      30.0,
+      130.0
+     ]
+    ],
+    "side": [
+     [
+      16.75,
+      -30.0,
+      75.0
+     ],
+     [
+      24.75,
+      30.0,
+      122.0
+     ]
+    ]
+   },
+   "head": {
+    "box": [
+     [
+      -50.0,
+      -60.0,
+      60.0
+     ],
+     [
+      50.0,
+      60.0,
+      70.0
+     ]
+    ],
+    "material": "7075-T6"
+   },
+   "cup": {
+    "z0": 50.0,
+    "z1": 60.0,
+    "r": 9.25
+   },
+   "keepouts": [
+    {
+     "name": "取料区（几叠裁片）",
+     "box": [
+      [
+       -300.0,
+       -300.0,
+       0.0
+      ],
+      [
+       1500.0,
+       1100.0,
+       100.0
+      ]
+     ]
+    },
+    {
+     "name": "放料区",
+     "box": [
+      [
+       1800.0,
+       600.0,
+       0.0
+      ],
+      [
+       2400.0,
+       1200.0,
+       100.0
+      ]
+     ]
+    }
+   ],
+   "span_mm": 3156.0,
+   "col_x_mm": [
+    -400.0,
+    2756.0
+   ],
+   "beam_bottom_mm": 852.0,
+   "part_size_mm": [
+    600.0,
+    400.0
+   ],
+   "concept_slide_x_mm": 750.0
+  },
+  "parts": [
+   {
+    "name": "横梁（矩形管）",
+    "kind": "frame",
+    "body": "base",
+    "material": "6061-T6",
+    "volume_mm3": 8908416.0,
+    "cog_mm": [
+     1178.0,
+     -119.352,
+     932.0
+    ],
+    "mass_kg": 24.0527
+   },
+   {
+    "name": "立柱与地脚板 左",
+    "kind": "frame",
+    "body": "base",
+    "material": "6061-T6",
+    "volume_mm3": 2202240.0,
+    "cog_mm": [
+     -400.0,
+     -119.352,
+     372.575
+    ],
+    "mass_kg": 5.946
+   },
+   {
+    "name": "立柱与地脚板 右",
+    "kind": "frame",
+    "body": "base",
+    "material": "6061-T6",
+    "volume_mm3": 2202240.0,
+    "cog_mm": [
+     2756.0,
+     -119.352,
+     372.575
+    ],
+    "mass_kg": 5.946
+   },
+   {
+    "name": "j1_x 直线模组 EGC-185-TB-KF-GK（外形）",
+    "kind": "module",
+    "body": "base",
+    "component": "linear_module.festo-se-co-kg.egc-185-tb-kf-gk",
+    "joint": "j1_x",
+    "volume_mm3": 96640020.0,
+    "cog_mm": [
+     1200.0,
+     -119.352,
+     765.75
+    ]
+   },
+   {
+    "name": "j2_y 直线模组 EGC-80-TB-KF-GK（外形）",
+    "kind": "module",
+    "body": "x",
+    "component": "linear_module.festo-se-co-kg.egc-80-tb-kf-gk",
+    "joint": "j2_y",
+    "volume_mm3": 8067078.0,
+    "cog_mm": [
+     0.0,
+     430.648,
+     631.25
+    ]
+   },
+   {
+    "name": "j3_z 直线模组 EGC-50-TB-KF-GK（外形）",
+    "kind": "module",
+    "body": "y",
+    "component": "linear_module.festo-se-co-kg.egc-50-tb-kf-gk",
+    "joint": "j3_z",
+    "volume_mm3": 928200.0,
+    "cog_mm": [
+     0.0,
+     -109.352,
+     347.5
+    ]
+   },
+   {
+    "name": "Y 模组连接板",
+    "kind": "made",
+    "body": "x",
+    "material": "6061-T6",
+    "volume_mm3": 297600.0,
+    "cog_mm": [
+     0.0,
+     -119.352,
+     674.5
+    ],
+    "mass_kg": 0.8035
+   },
+   {
+    "name": "Z 轴连接板（L 形）",
+    "kind": "made",
+    "body": "y",
+    "material": "6061-T6",
+    "volume_mm3": 363621.9,
+    "cog_mm": [
+     0.0,
+     -120.019,
+     407.313
+    ],
+    "mass_kg": 0.9818
+   },
+   {
+    "name": "管夹",
+    "kind": "made",
+    "body": "z",
+    "material": "6061-T6",
+    "volume_mm3": 84000.0,
+    "cog_mm": [
+     0.0,
+     -48.817,
+     247.5
+    ],
+    "mass_kg": 0.2268
+   },
+   {
+    "name": "竖杆 40×60×4 矩形管（长 137.5 mm）",
+    "kind": "made",
+    "body": "z",
+    "material": "6061-T6",
+    "length_mm": 137.5,
+    "tool": true,
+    "volume_mm3": 101200.0,
+    "cog_mm": [
+     0.0,
+     -38.102,
+     198.75
+    ],
+    "mass_kg": 0.2732
+   },
+   {
+    "name": "C 轴支架（L 形）",
+    "kind": "made",
+    "body": "z",
+    "material": "6061-T6",
+    "tool": true,
+    "volume_mm3": 57680.7,
+    "cog_mm": [
+     9.562,
+     -11.6,
+     115.244
+    ],
+    "mass_kg": 0.1557
+   },
+   {
+    "name": "j4_c 转动模组 XM540-W270（外形）",
+    "kind": "actuator",
+    "body": "z",
+    "component": "smart_actuator.robotis.xm540-w270",
+    "joint": "j4_c",
+    "tool": true,
+    "volume_mm3": 135026.4,
+    "cog_mm": [
+     0.0,
+     0.0,
+     94.415
+    ]
+   },
+   {
+    "name": "转动头板",
+    "kind": "made",
+    "body": "c",
+    "material": "7075-T6",
+    "tool": true,
+    "volume_mm3": 118521.3,
+    "cog_mm": [
+     0.0,
+     -0.0,
+     65.0
+    ],
+    "mass_kg": 0.333
+   },
+   {
+    "name": "吸盘（外形）",
+    "kind": "gripper",
+    "body": "c",
+    "tool": true,
+    "volume_mm3": 2688.0,
+    "cog_mm": [
+     0.0,
+     -0.0,
+     55.0
+    ]
+   }
+  ],
+  "interferences": [],
+  "keepout_hits": [],
+  "step": "assembly.step"
+ },
+ "moving": {
+  "j1_x": {
+   "mass_kg": 15.8835,
+   "cog_mm": [
+    0.0,
+    177.75,
+    653.18
+   ]
+  },
+  "j2_y": {
+   "mass_kg": 2.6618,
+   "cog_mm": [
+    0.0,
+    -103.97,
+    426.75
+   ]
+  },
+  "j3_z": {
+   "mass_kg": 0.9507,
+   "cog_mm": [
+    1.57,
+    -36.54,
+    185.26
+   ]
+  },
+  "j4_c": {
+   "mass_kg": 0.433,
+   "cog_mm": [
+    0.0,
+    0.0,
+    61.54
+   ]
+  },
+  "all": {
+   "mass_kg": 19.929,
+   "cog_mm": [
+    0.07,
+    126.04,
+    587.76
+   ]
+  }
+ },
+ "reverify": {
+  "status": "pass",
+  "rounds": [
+   {
+    "moving_masses": {
+     "j1_x": [
+      [
+       "EGC-120-TB-KF-GK 滑台",
+       2.18
+      ],
+      [
+       "EGC-70-TB-KF-GK 本体（不含滑台）",
+       5.88
+      ],
+      [
+       "Y 模组连接板",
+       0.5184
+      ]
+     ],
+     "j2_y": [
+      [
+       "EGC-70-TB-KF-GK 滑台",
+       0.37
+      ],
+      [
+       "EGC-50-TB-KF-GK 本体（不含滑台）",
+       1.06
+      ],
+      [
+       "Z 轴连接板（L 形）",
+       0.9818
+      ]
+     ],
+     "j3_z": [
+      [
+       "EGC-50-TB-KF-GK 滑台",
+       0.13
+      ],
+      [
+       "管夹",
+       0.2268
+      ],
+      [
+       "竖杆 40×60×4 矩形管（长 137.5 mm）",
+       0.2732
+      ],
+      [
+       "C 轴支架（L 形）",
+       0.1557
+      ],
+      [
+       "XM540-W270 转动模组",
+       0.165
+      ]
+     ],
+     "j4_c": [
+      [
+       "转动头板",
+       0.333
+      ],
+      [
+       "工件（单片）",
+       0.1
+      ]
+     ]
+    },
+    "loads": {
+     "j1_x": {
+      "thrust_n": 163.9122,
+      "thrust_peak_raw_n": 180.8136,
+      "thrust_rms_n": 89.8057,
+      "speed_mm_s": 3047.387,
+      "force_lateral_n": 21.5475,
+      "force_normal_n": 138.0789,
+      "moment_roll_nm": 84.8401,
+      "moment_pitch_nm": 19.6199,
+      "moment_yaw_nm": 91.7965
+     },
+     "j2_y": {
+      "thrust_n": 21.5475,
+      "thrust_peak_raw_n": 23.7693,
+      "thrust_rms_n": 11.8056,
+      "speed_mm_s": 1306.023,
+      "force_lateral_n": 50.2775,
+      "force_normal_n": 53.9248,
+      "moment_roll_nm": 12.5936,
+      "moment_pitch_nm": 5.6944,
+      "moment_yaw_nm": 0.461
+     },
+     "j3_z": {
+      "thrust_n": 30.265,
+      "thrust_peak_raw_n": 31.9853,
+      "thrust_rms_n": 15.0965,
+      "speed_mm_s": 725.777,
+      "force_lateral_n": 18.3293,
+      "force_normal_n": 7.8554,
+      "moment_roll_nm": 1.1032,
+      "moment_pitch_nm": 1.9065,
+      "moment_yaw_nm": 1.8651
+     }
+    },
+    "picks": {
+     "j1_x": "linear_module.festo-se-co-kg.egc-185-tb-kf-gk",
+     "j2_y": "linear_module.festo-se-co-kg.egc-80-tb-kf-gk",
+     "j3_z": "linear_module.festo-se-co-kg.egc-50-tb-kf-gk",
+     "j4_c": "smart_actuator.robotis.xm540-w270"
+    }
+   },
+   {
+    "moving_masses": {
+     "j1_x": [
+      [
+       "EGC-185-TB-KF-GK 滑台",
+       6.5
+      ],
+      [
+       "EGC-80-TB-KF-GK 本体（不含滑台）",
+       8.58
+      ],
+      [
+       "Y 模组连接板",
+       0.8035
+      ]
+     ],
+     "j2_y": [
+      [
+       "EGC-80-TB-KF-GK 滑台",
+       0.62
+      ],
+      [
+       "EGC-50-TB-KF-GK 本体（不含滑台）",
+       1.06
+      ],
+      [
+       "Z 轴连接板（L 形）",
+       0.9818
+      ]
+     ],
+     "j3_z": [
+      [
+       "EGC-50-TB-KF-GK 滑台",
+       0.13
+      ],
+      [
+       "管夹",
+       0.2268
+      ],
+      [
+       "竖杆 40×60×4 矩形管（长 137.5 mm）",
+       0.2732
+      ],
+      [
+       "C 轴支架（L 形）",
+       0.1557
+      ],
+      [
+       "XM540-W270 转动模组",
+       0.165
+      ]
+     ],
+     "j4_c": [
+      [
+       "转动头板",
+       0.333
+      ],
+      [
+       "工件（单片）",
+       0.1
+      ]
+     ]
+    },
+    "loads": {
+     "j1_x": {
+      "thrust_n": 263.9917,
+      "thrust_peak_raw_n": 291.2125,
+      "thrust_rms_n": 144.6382,
+      "speed_mm_s": 3047.387,
+      "force_lateral_n": 22.9668,
+      "force_normal_n": 212.1944,
+      "moment_roll_nm": 100.2869,
+      "moment_pitch_nm": 22.7662,
+      "moment_yaw_nm": 112.9468
+     },
+     "j2_y": {
+      "thrust_n": 22.9668,
+      "thrust_peak_raw_n": 25.3349,
+      "thrust_rms_n": 12.5833,
+      "speed_mm_s": 1306.023,
+      "force_lateral_n": 53.5892,
+      "force_normal_n": 56.3773,
+      "moment_roll_nm": 12.5936,
+      "moment_pitch_nm": 5.6944,
+      "moment_yaw_nm": 0.461
+     },
+     "j3_z": {
+      "thrust_n": 30.265,
+      "thrust_peak_raw_n": 31.9853,
+      "thrust_rms_n": 15.0965,
+      "speed_mm_s": 725.777,
+      "force_lateral_n": 18.3293,
+      "force_normal_n": 7.8554,
+      "moment_roll_nm": 1.1032,
+      "moment_pitch_nm": 1.9065,
+      "moment_yaw_nm": 1.8651
+     }
+    },
+    "picks": {
+     "j1_x": "linear_module.festo-se-co-kg.egc-185-tb-kf-gk",
+     "j2_y": "linear_module.festo-se-co-kg.egc-80-tb-kf-gk",
+     "j3_z": "linear_module.festo-se-co-kg.egc-50-tb-kf-gk",
+     "j4_c": "smart_actuator.robotis.xm540-w270"
+    }
+   }
+  ],
+  "loads": {
+   "j1_x": {
+    "thrust_n": 263.9917,
+    "thrust_peak_raw_n": 291.2125,
+    "thrust_rms_n": 144.6382,
+    "speed_mm_s": 3047.387,
+    "force_lateral_n": 22.9668,
+    "force_normal_n": 212.1944,
+    "moment_roll_nm": 100.2869,
+    "moment_pitch_nm": 22.7662,
+    "moment_yaw_nm": 112.9468
+   },
+   "j2_y": {
+    "thrust_n": 22.9668,
+    "thrust_peak_raw_n": 25.3349,
+    "thrust_rms_n": 12.5833,
+    "speed_mm_s": 1306.023,
+    "force_lateral_n": 53.5892,
+    "force_normal_n": 56.3773,
+    "moment_roll_nm": 12.5936,
+    "moment_pitch_nm": 5.6944,
+    "moment_yaw_nm": 0.461
+   },
+   "j3_z": {
+    "thrust_n": 30.265,
+    "thrust_peak_raw_n": 31.9853,
+    "thrust_rms_n": 15.0965,
+    "speed_mm_s": 725.777,
+    "force_lateral_n": 18.3293,
+    "force_normal_n": 7.8554,
+    "moment_roll_nm": 1.1032,
+    "moment_pitch_nm": 1.9065,
+    "moment_yaw_nm": 1.8651
+   }
+  },
+  "picks": {
+   "j1_x": {
+    "component": "linear_module.festo-se-co-kg.egc-185-tb-kf-gk",
+    "model": "EGC-185-TB-KF-GK",
+    "mass_kg": 104.6,
+    "carriage_kg": 6.5,
+    "body_kg": 98.1,
+    "checks": [
+     {
+      "check": "L1",
+      "status": "pass",
+      "message": "行程 ≤ 最大工作行程（订货时任选）：需要 2400 mm，能力 8500 mm"
+     },
+     {
+      "check": "L2",
+      "status": "pass",
+      "message": "最高速度（厂商：目录表格 70–185 合并为一格 5）：需要 3.043 m/s，能力 5 m/s"
+     },
+     {
+      "check": "L3",
+      "status": "pass",
+      "message": "最大加速度：需要 13.23 m/s²，能力 50 m/s²"
+     },
+     {
+      "check": "L4",
+      "status": "pass",
+      "message": "推力 × 安全系数 ≤ 最大推力：需要 316.8 N，能力 2500 N"
+     },
+     {
+      "check": "L5",
+      "status": "pass",
+      "message": "载荷比较系数 fv = Σ 载荷 × 安全系数 / 允许值 = 0.387（侧向力 Fy 27.6/1.52e+04 N，法向力 Fz 255/1.52e+04 N，滚转力矩 Mx 120/529 N·m，俯仰力矩 My 27.3/1157 N·m，偏摆力矩 Mz 136/1157 N·m）≤ 1（厂商：参考寿命 5000 km 下的最大允许值（动态；几项同时作用时还要满足载荷比较系数 fv ≤ 1）；标准滑台 GK/GP）"
+     },
+     {
+      "check": "L6",
+      "status": "not_applicable",
+      "message": "重复定位精度 ±0.1 mm（只报数，整机合成）"
+     }
+    ]
+   },
+   "j2_y": {
+    "component": "linear_module.festo-se-co-kg.egc-80-tb-kf-gk",
+    "model": "EGC-80-TB-KF-GK",
+    "mass_kg": 9.2,
+    "carriage_kg": 0.62,
+    "body_kg": 8.58,
+    "checks": [
+     {
+      "check": "L1",
+      "status": "pass",
+      "message": "行程 ≤ 最大工作行程（订货时任选）：需要 1000 mm，能力 8500 mm"
+     },
+     {
+      "check": "L2",
+      "status": "pass",
+      "message": "最高速度（厂商：目录表格 70–185 合并为一格 5）：需要 1.304 m/s，能力 5 m/s"
+     },
+     {
+      "check": "L3",
+      "status": "pass",
+      "message": "最大加速度：需要 5.671 m/s²，能力 50 m/s²"
+     },
+     {
+      "check": "L4",
+      "status": "pass",
+      "message": "推力 × 安全系数 ≤ 最大推力：需要 27.56 N，能力 350 N"
+     },
+     {
+      "check": "L5",
+      "status": "pass",
+      "message": "载荷比较系数 fv = Σ 载荷 × 安全系数 / 允许值 = 0.539（侧向力 Fy 64.3/3050 N，法向力 Fz 67.7/3050 N，滚转力矩 Mx 15.1/36 N·m，俯仰力矩 My 6.83/97 N·m，偏摆力矩 Mz 0.553/97 N·m）≤ 1（厂商：参考寿命 5000 km 下的最大允许值（动态；几项同时作用时还要满足载荷比较系数 fv ≤ 1）；标准滑台 GK/GP）"
+     },
+     {
+      "check": "L6",
+      "status": "not_applicable",
+      "message": "重复定位精度 ±0.08 mm（只报数，整机合成）"
+     }
+    ]
+   },
+   "j3_z": {
+    "component": "linear_module.festo-se-co-kg.egc-50-tb-kf-gk",
+    "model": "EGC-50-TB-KF-GK",
+    "mass_kg": 1.19,
+    "carriage_kg": 0.13,
+    "body_kg": 1.06,
+    "checks": [
+     {
+      "check": "L1",
+      "status": "pass",
+      "message": "行程 ≤ 最大工作行程（订货时任选）：需要 300 mm，能力 1900 mm"
+     },
+     {
+      "check": "L2",
+      "status": "pass",
+      "message": "最高速度（厂商：目录表格 70–185 合并为一格 5）：需要 0.7222 m/s，能力 3 m/s"
+     },
+     {
+      "check": "L3",
+      "status": "pass",
+      "message": "最大加速度：需要 12.04 m/s²，能力 50 m/s²"
+     },
+     {
+      "check": "L4",
+      "status": "pass",
+      "message": "推力 × 安全系数 ≤ 最大推力：需要 36.32 N，能力 50 N"
+     },
+     {
+      "check": "L5",
+      "status": "pass",
+      "message": "载荷比较系数 fv = Σ 载荷 × 安全系数 / 允许值 = 0.879（侧向力 Fy 22/650 N，法向力 Fz 9.43/650 N，滚转力矩 Mx 1.32/3.5 N·m，俯仰力矩 My 2.29/10 N·m，偏摆力矩 Mz 2.24/10 N·m）≤ 1（厂商：参考寿命 5000 km 下的最大允许值（动态；几项同时作用时还要满足载荷比较系数 fv ≤ 1）；标准滑台 GK/GP）"
+     },
+     {
+      "check": "L6",
+      "status": "not_applicable",
+      "message": "重复定位精度 ±0.08 mm（只报数，整机合成）"
+     }
+    ]
+   },
+   "j4_c": {
+    "component": "smart_actuator.robotis.xm540-w270",
+    "model": "XM540-W270",
+    "mass_kg": 0.165,
+    "carriage_kg": null,
+    "body_kg": null,
+    "checks": [
+     {
+      "check": "S1",
+      "status": "pass",
+      "message": "峰值力矩 × 安全系数 ≤ 堵转力矩：需要 0.0564 N·m，能力 10.6 N·m"
+     },
+     {
+      "check": "S2",
+      "status": "unknown",
+      "message": "厂商没给连续额定力矩（堵转力矩不能当连续值用），连续力矩判待确认；连续需求 × 安全系数 0.0288 N·m，是堵转力矩的 0%"
+     },
+     {
+      "check": "S3",
+      "status": "pass",
+      "message": "动作过程 613 个工作点里最紧的一点（0.0249 N·m）：转速 ≤ n₀(1 − T·SF/Tₛ)：需要 21.7 rpm，能力 29.9 rpm"
+     },
+     {
+      "check": "S4",
+      "status": "not_applicable",
+      "message": "回差 15 arcmin（只报数，整机合成重复定位精度）"
+     }
+    ]
+   }
+  },
+  "same_as_step1": {
+   "j1_x": false,
+   "j2_y": false,
+   "j3_z": true,
+   "j4_c": true
+  },
+  "loads_vs_step1": {
+   "j1_x": {
+    "thrust_n": {
+     "step1": 157.7274,
+     "cad": 263.9917
+    },
+    "force_lateral_n": {
+     "step1": 21.8399,
+     "cad": 22.9668
+    },
+    "force_normal_n": {
+     "step1": 125.6398,
+     "cad": 212.1944
+    },
+    "moment_roll_nm": {
+     "step1": 57.5522,
+     "cad": 100.2869
+    },
+    "moment_pitch_nm": {
+     "step1": 4.5871,
+     "cad": 22.7662
+    },
+    "moment_yaw_nm": {
+     "step1": 65.1362,
+     "cad": 112.9468
+    }
+   },
+   "j2_y": {
+    "thrust_n": {
+     "step1": 21.8399,
+     "cad": 22.9668
+    },
+    "force_lateral_n": {
+     "step1": 50.9597,
+     "cad": 53.5892
+    },
+    "force_normal_n": {
+     "step1": 46.5712,
+     "cad": 56.3773
+    },
+    "moment_roll_nm": {
+     "step1": 4.5871,
+     "cad": 12.5936
+    },
+    "moment_pitch_nm": {
+     "step1": 1.9659,
+     "cad": 5.6944
+    },
+    "moment_yaw_nm": {
+     "step1": 0.043,
+     "cad": 0.461
+    }
+   },
+   "j3_z": {
+    "thrust_n": {
+     "step1": 16.0151,
+     "cad": 30.265
+    },
+    "force_lateral_n": {
+     "step1": 9.6992,
+     "cad": 18.3293
+    },
+    "force_normal_n": {
+     "step1": 4.1568,
+     "cad": 7.8554
+    },
+    "moment_roll_nm": {
+     "step1": 0.043,
+     "cad": 1.1032
+    },
+    "moment_pitch_nm": {
+     "step1": 2.2984,
+     "cad": 1.9065
+    },
+    "moment_yaw_nm": {
+     "step1": 5.363,
+     "cad": 1.8651
+    }
+   }
+  },
+  "cycle_time": {
+   "status": "pass",
+   "total_s": 2.96,
+   "limit_s": 3.0,
+   "note": "一圈 6 段直线动作加停留 2.96 s，要求 ≤ 3 s；各轴的速度、加速度由所选模组核（L2、L3）；停稳时间另看横梁一阶频率"
+  },
+  "repeatability": {
+   "rows": [
+    {
+     "joint": "j1_x",
+     "model": "EGC-185-TB-KF-GK",
+     "repeatability_mm": 0.1
+    },
+    {
+     "joint": "j2_y",
+     "model": "EGC-80-TB-KF-GK",
+     "repeatability_mm": 0.08
+    },
+    {
+     "joint": "j3_z",
+     "model": "EGC-50-TB-KF-GK",
+     "repeatability_mm": 0.08
+    }
+   ],
+   "worst_mm": 0.26,
+   "target_mm": 1.0,
+   "status": "pass",
+   "note": "各轴重复定位精度最坏相加 ±0.26 mm，要求 ±1 mm（只含直线模组本身；横梁变形与振动在有限元那一步，抓手放料偏差没有公开数据）；C 轴 j4_c 在工具点的轴线上，转角误差不影响放料位置（裁片转角精度需求没给）"
+  },
+  "motors": {
+   "j1_x": {
+    "status": "unknown",
+    "lead_mm": 232,
+    "torque_nm": 11.6971,
+    "speed_rpm": 787.1,
+    "note": "电机轴上要 11.7 N·m（推力 × 安全系数 1.2 × 每转行程 232 mm / 2π，传动效率厂商没给、未计）、787 rpm；零件库里没有配费斯托模组的电机与电机套件，电机没选"
+   },
+   "j2_y": {
+    "status": "unknown",
+    "lead_mm": 90,
+    "torque_nm": 0.3948,
+    "speed_rpm": 869.5,
+    "note": "电机轴上要 0.395 N·m（推力 × 安全系数 1.2 × 每转行程 90 mm / 2π，传动效率厂商没给、未计）、870 rpm；零件库里没有配费斯托模组的电机与电机套件，电机没选"
+   },
+   "j3_z": {
+    "status": "unknown",
+    "lead_mm": 58,
+    "torque_nm": 0.3353,
+    "speed_rpm": 747.1,
+    "note": "电机轴上要 0.335 N·m（推力 × 安全系数 1.2 × 每转行程 58 mm / 2π，传动效率厂商没给、未计）、747 rpm；零件库里没有配费斯托模组的电机与电机套件，电机没选"
+   }
+  },
+  "moving_masses": {
+   "j1_x": [
+    [
+     "EGC-185-TB-KF-GK 滑台",
+     6.5
+    ],
+    [
+     "EGC-80-TB-KF-GK 本体（不含滑台）",
+     8.58
+    ],
+    [
+     "Y 模组连接板",
+     0.8035
+    ]
+   ],
+   "j2_y": [
+    [
+     "EGC-80-TB-KF-GK 滑台",
+     0.62
+    ],
+    [
+     "EGC-50-TB-KF-GK 本体（不含滑台）",
+     1.06
+    ],
+    [
+     "Z 轴连接板（L 形）",
+     0.9818
+    ]
+   ],
+   "j3_z": [
+    [
+     "EGC-50-TB-KF-GK 滑台",
+     0.13
+    ],
+    [
+     "管夹",
+     0.2268
+    ],
+    [
+     "竖杆 40×60×4 矩形管（长 137.5 mm）",
+     0.2732
+    ],
+    [
+     "C 轴支架（L 形）",
+     0.1557
+    ],
+    [
+     "XM540-W270 转动模组",
+     0.165
+    ]
+   ],
+   "j4_c": [
+    [
+     "转动头板",
+     0.333
+    ],
+    [
+     "工件（单片）",
+     0.1
+    ]
+   ]
+  },
+  "mbd": {
+   "drives": [
+    {
+     "joint": "j1_x",
+     "kind": "path",
+     "unit_force": "N",
+     "peak": 291.21247174548336,
+     "rms": 144.63819461214135,
+     "peak_settled": 263.9916619709291,
+     "speed_max": 3047.3865063657668,
+     "unit_speed": "mm/s",
+     "power_peak_w": 878.9251281516388,
+     "power_mean_w": -0.14846801584057592,
+     "inertia_max_kgm2": 19.929000000000002
+    },
+    {
+     "joint": "j2_y",
+     "kind": "path",
+     "unit_force": "N",
+     "peak": 25.33494020568531,
+     "rms": 12.583252322946466,
+     "peak_settled": 22.966780682317868,
+     "speed_max": 1306.0227884431006,
+     "unit_speed": "mm/s",
+     "power_peak_w": 32.77064646334601,
+     "power_mean_w": -0.005535617285863818,
+     "inertia_max_kgm2": 4.0455000000000005
+    },
+    {
+     "joint": "j3_z",
+     "kind": "path",
+     "unit_force": "N",
+     "peak": 31.985270290280173,
+     "rms": 15.096514593141592,
+     "peak_settled": 30.2649984726891,
+     "speed_max": 725.7773815253356,
+     "unit_speed": "mm/s",
+     "power_peak_w": 22.607766749056804,
+     "power_mean_w": -0.004446786443853631,
+     "inertia_max_kgm2": 1.3837000000000002
+    },
+    {
+     "joint": "j4_c",
+     "kind": "path",
+     "unit_force": "N·m",
+     "peak": 0.04740026325716562,
+     "rms": 0.023542564833196403,
+     "peak_settled": 0.04296956857664706,
+     "speed_max": 21.767046474062358,
+     "unit_speed": "rpm",
+     "power_peak_w": 0.10700972461777386,
+     "power_mean_w": -1.8076053934064623e-05,
+     "inertia_max_kgm2": 0.00433666333333342
+    }
+   ],
+   "tracking_error_mm": 0.610205,
+   "settle_window_s": 0.008,
+   "reactions_max_abs": {
+    "y_beam": {
+     "fx": 263.99166197092904,
+     "fy": 22.966780682317868,
+     "fz": 212.19439147268912,
+     "mx": 100.28691772802074,
+     "my": 22.766192068075807,
+     "mz": 112.94677692221327
+    },
+    "z_housing": {
+     "fx": 53.58915492515398,
+     "fy": 22.966780682317868,
+     "fz": 56.377256472689105,
+     "mx": 5.694359100572727,
+     "my": 12.593614672895562,
+     "mz": 0.4610470900700241
+    },
+    "z_slide": {
+     "fx": 18.329332262992352,
+     "fy": 7.855428112748296,
+     "fz": 30.2649984726891,
+     "mx": 1.9065438828150043,
+     "my": 1.865054168854292,
+     "mz": 1.1032347889465153
+    }
+   }
+  },
+  "open_items": [
+   "j4_c（XM540-W270）：S2 厂商没给连续额定力矩（堵转力矩不能当连续值用），连续力矩判待确认；连续需求 × 安全系数 0.0288 N·m，是堵转力矩的 0%",
+   "抓手（SPF 15）：G2 厂商没写适用材料，伤不伤工件、透气工件漏不漏气判待确认",
+   "抓手（SPF 15）：G3 一次只取一片（分层）可靠不可靠，没有公开数据，判待确认",
+   "质量没计入：抓手质量厂商没给（未计入运动质量）",
+   "电机（j1_x）：电机轴上要 11.7 N·m（推力 × 安全系数 1.2 × 每转行程 232 mm / 2π，传动效率厂商没给、未计）、787 rpm；零件库里没有配费斯托模组的电机与电机套件，电机没选",
+   "电机（j2_y）：电机轴上要 0.395 N·m（推力 × 安全系数 1.2 × 每转行程 90 mm / 2π，传动效率厂商没给、未计）、870 rpm；零件库里没有配费斯托模组的电机与电机套件，电机没选",
+   "电机（j3_z）：电机轴上要 0.335 N·m（推力 × 安全系数 1.2 × 每转行程 58 mm / 2π，传动效率厂商没给、未计）、747 rpm；零件库里没有配费斯托模组的电机与电机套件，电机没选",
+   "竖直轴断电会下滑：要带抱闸的电机（库里没有电机，未选）"
+  ]
+ },
+ "frame_loads": {
+  "x_module_static_kg": 98.1,
+  "moving_kg": 19.929,
+  "thrust_x_n": 263.9917,
+  "thrust_y_n": 22.9668,
+  "inertia_z_n": 16.6909,
+  "cog_all_worst_mm": [
+   0.075,
+   329.032,
+   584.291
+  ],
+  "cog_y_worst_mm": [
+   0.368,
+   923.004,
+   313.805
+  ],
+  "cog_z_worst_mm": [
+   1.076,
+   974.893,
+   96.544
+  ],
+  "tool_worst_mm": [
+   0.0,
+   1000.0,
+   0.0
+  ]
+ },
+ "frame_formula": {
+  "span_mm": 3156.0,
+  "beam_I_mm4": 8936512.0,
+  "column_I_mm4": 3335872.0,
+  "column_h_mm": 852.0,
+  "sag_mm": 1.0223,
+  "sway_mm": 0.1184,
+  "deflection_mm": 1.0291,
+  "beam_I_lateral_mm4": 2948672.0,
+  "beam_J_mm4": 6835201.0,
+  "torque_nm": 109.343,
+  "twist_beam_rad": 0.0004873,
+  "twist_columns_rad": 0.0002027,
+  "tool_lever_mm": 1456.56,
+  "twist_tool_mm": 1.0049,
+  "sway_y_mm": 0.0103,
+  "tool_frame_mm": 2.1559,
+  "f1_vertical_hz": 17.33,
+  "f1_sway_hz": 19.74,
+  "f1_lateral_hz": 9.96,
+  "formulas": [
+   "垂直：5qL⁴/(384EI) + PL³/(48EI)（简支）",
+   "侧移：F·h³/(2·3EI)（两根悬臂立柱；沿 x 用 X 推力、沿 y 用 Y 推力）",
+   "扭转：θ = T·L/(4GJ)（横梁）+ (T/2)·h/(EI)（立柱），J = 2t(b−t)²(h−t)²/(b+h−2t)（布雷特）；末端位移 = θ × 力臂",
+   "末端点（只算门架）：垂直 + 两个方向侧移 + 扭转，同号相加（偏保守）",
+   "竖直频率：(1/2π)√(48EI/L³ / (M + 17/35·m))（瑞利法）",
+   "横梁水平弯曲频率：同上，I 取绕竖直轴",
+   "侧摆频率：(1/2π)√(2·3EI/h³ / (柱顶以上全部质量 + 33/140·立柱))（两根悬臂立柱，质量当集中在柱顶，不计偏心）"
+  ]
+ },
+ "status": "fail",
+ "open_items": [
+  "j4_c（XM540-W270）：S2 厂商没给连续额定力矩（堵转力矩不能当连续值用），连续力矩判待确认；连续需求 × 安全系数 0.0288 N·m，是堵转力矩的 0%",
+  "抓手（SPF 15）：G2 厂商没写适用材料，伤不伤工件、透气工件漏不漏气判待确认",
+  "抓手（SPF 15）：G3 一次只取一片（分层）可靠不可靠，没有公开数据，判待确认",
+  "质量没计入：抓手质量厂商没给（未计入运动质量）",
+  "电机（j1_x）：电机轴上要 11.7 N·m（推力 × 安全系数 1.2 × 每转行程 232 mm / 2π，传动效率厂商没给、未计）、787 rpm；零件库里没有配费斯托模组的电机与电机套件，电机没选",
+  "电机（j2_y）：电机轴上要 0.395 N·m（推力 × 安全系数 1.2 × 每转行程 90 mm / 2π，传动效率厂商没给、未计）、870 rpm；零件库里没有配费斯托模组的电机与电机套件，电机没选",
+  "电机（j3_z）：电机轴上要 0.335 N·m（推力 × 安全系数 1.2 × 每转行程 58 mm / 2π，传动效率厂商没给、未计）、747 rpm；零件库里没有配费斯托模组的电机与电机套件，电机没选",
+  "竖直轴断电会下滑：要带抱闸的电机（库里没有电机，未选）",
+  "X 滑台面高 679.5 mm（方案的关节原点 750 mm）：为让 Z 模组下端高出一叠裁片，X 模组的安装高度由三维装配定，末端点的运动不变",
+  "立柱在 x = -400 mm 与 2756 mm（门架跨度 3156 mm）：落脚处要有与台面同高、能打螺栓的安装面；裁床与送料台之间、立柱旁边的通道位置没有资料，要现场核",
+  "X 模组装在横梁下面用的安装件（型材连接件、滑块螺母）、电机与电机套件的外形没建",
+  "Y 模组悬臂伸出 1286 mm，自身的下垂与扭转没算：零件库没有费斯托模组型材的截面惯性矩（目录里有，要登记后才能算）",
+  "真空气路过 C 轴：要旋转接头或随转的软管（C 轴行程 ±100°，软管也行），没建；吸盘接在转动头板下面",
+  "竖杆按 4 mm 壁厚的矩形管建（方案只给了型材外形）；为让转动头板转一圈（外圆半径 78.1 mm）随 Z 上下时从 Z 模组旁边过，竖杆在 C 轴后面 38.1 mm，由 C 轴支架上板搭过去",
+  "转动模组用侧面安装面接 C 轴支架（螺钉孔没建）；转动头板用输出舵盘的 8 个孔",
+  "门架一阶 10.8 Hz 主要沿 y（垂直于横梁的水平方向）：Y 悬臂在前面，可把横梁加宽或在立柱后面加斜撑——这一版没改"
+ ],
+ "frame_fea": {
+  "runs": [
+   {
+    "rotation_rad": [
+     -0.00130939,
+     -0.00018744,
+     -0.00026779
+    ],
+    "u_tool_frame_mm": [
+     0.53839,
+     -1.00891,
+     -1.98658
+    ],
+    "u_tool_frame_abs_mm": 2.29221,
+    "tool_point_mm": [
+     1178.0,
+     1000.0,
+     0.0
+    ],
+    "study": {
+     "format": "fea-study/1",
+     "name": "gantry-frame",
+     "supports": [
+      {
+       "type": "fixed",
+       "body": "frame",
+       "faces": [
+        44,
+        49
+       ]
+      }
+     ],
+     "loads": [
+      {
+       "type": "gravity",
+       "body": "frame",
+       "acceleration_m_s2": [
+        0,
+        0,
+        -9.81
+       ]
+      },
+      {
+       "type": "mass",
+       "body": "frame",
+       "faces": [
+        11
+       ],
+       "mass_kg": 98.1,
+       "label": "X 模组本体"
+      },
+      {
+       "type": "mass",
+       "body": "frame",
+       "faces": [
+        42
+       ],
+       "mass_kg": 19.929,
+       "label": "运动部分（跨中）"
+      },
+      {
+       "type": "remote_load",
+       "body": "frame",
+       "faces": [
+        42
+       ],
+       "point_mm": [
+        1178.0,
+        -119.352,
+        850.0
+       ],
+       "vector_nm": [
+        -87.66064,
+        0.01466,
+        0.0
+       ]
+      },
+      {
+       "type": "remote_load",
+       "body": "frame",
+       "faces": [
+        42
+       ],
+       "point_mm": [
+        1178.075,
+        329.032,
+        584.291
+       ],
+       "force_n": [
+        263.992,
+        0.0,
+        0.0
+       ]
+      },
+      {
+       "type": "remote_load",
+       "body": "frame",
+       "faces": [
+        42
+       ],
+       "point_mm": [
+        1178.368,
+        923.004,
+        313.805
+       ],
+       "force_n": [
+        0.0,
+        22.967,
+        0.0
+       ]
+      },
+      {
+       "type": "remote_load",
+       "body": "frame",
+       "faces": [
+        42
+       ],
+       "point_mm": [
+        1179.076,
+        974.893,
+        96.544
+       ],
+       "force_n": [
+        0.0,
+        0.0,
+        -16.691
+       ]
+      }
+     ],
+     "steps": [
+      {
+       "id": "s",
+       "type": "static"
+      },
+      {
+       "id": "m",
+       "type": "modal",
+       "n_modes": 4
+      },
+      {
+       "id": "m1",
+       "type": "modal",
+       "n_modes": 1
+      }
+     ],
+     "mesh": {
+      "size_mm": 25.0
+     },
+     "checks": {
+      "convergence": false
+     },
+     "time_limit_s": 3000,
+     "probes": [
+      {
+       "id": "pad",
+       "point_mm": [
+        1178.0,
+        -119.352,
+        850.0
+       ]
+      },
+      {
+       "id": "yp",
+       "point_mm": [
+        1178.0,
+        -84.352,
+        852.0
+       ]
+      },
+      {
+       "id": "ym",
+       "point_mm": [
+        1178.0,
+        -154.352,
+        852.0
+       ]
+      },
+      {
+       "id": "xp",
+       "point_mm": [
+        1248.0,
+        -119.352,
+        852.0
+       ]
+      },
+      {
+       "id": "xm",
+       "point_mm": [
+        1108.0,
+        -119.352,
+        852.0
+       ]
+      }
+     ],
+     "provenance": {
+      "drafted_by": "human",
+      "confirmed_by_human": true
+     }
+    },
+    "notes": [
+     "固定：两块地脚板底面",
+     "加载：重力；X 模组本体质量分在横梁底面；运动部分质量放在跨中垫块，它的重量偏在横梁前面造成的扭矩另加（力偶）；X、Y 轴最大推力的反作用、Z 轴最大惯性力（推力减重量）加在各自运动部分的重心（Y 伸到最远、Z 降到最低、都搬到跨中）"
+    ],
+    "size_mm": 25.0,
+    "u_pad_mm": [
+     0.07931,
+     0.10407,
+     -0.52091
+    ],
+    "u_pad_abs_mm": 0.53709,
+    "u_max_mm": 0.618648,
+    "vm_max_mpa": 50.484,
+    "balance": {
+     "available": true,
+     "applied_n": [
+      263.992,
+      22.967,
+      -1527.49201
+     ],
+     "reaction_n": [
+      -263.991835,
+      -22.967271,
+      1527.491219
+     ],
+     "force_error_ratio": 5.498297014196247e-07,
+     "moment_error_ratio": 7.268356643047646e-07
+    },
+    "freqs_hz": [
+     10.8153,
+     24.2923,
+     25.8504,
+     31.2029
+    ],
+    "mode1_effective_mass": {
+     "x": 0.0,
+     "y": 0.849598,
+     "z": 0.0
+    },
+    "mode1_direction": "y",
+    "elements": null
+   },
+   {
+    "rotation_rad": [
+     -0.00133316,
+     -0.00020863,
+     -0.00026077
+    ],
+    "u_tool_frame_mm": [
+     0.54899,
+     -1.02745,
+     -2.01657
+    ],
+    "u_tool_frame_abs_mm": 2.32886,
+    "tool_point_mm": [
+     1178.0,
+     1000.0,
+     0.0
+    ],
+    "study": {
+     "format": "fea-study/1",
+     "name": "gantry-frame",
+     "supports": [
+      {
+       "type": "fixed",
+       "body": "frame",
+       "faces": [
+        44,
+        49
+       ]
+      }
+     ],
+     "loads": [
+      {
+       "type": "gravity",
+       "body": "frame",
+       "acceleration_m_s2": [
+        0,
+        0,
+        -9.81
+       ]
+      },
+      {
+       "type": "mass",
+       "body": "frame",
+       "faces": [
+        11
+       ],
+       "mass_kg": 98.1,
+       "label": "X 模组本体"
+      },
+      {
+       "type": "mass",
+       "body": "frame",
+       "faces": [
+        42
+       ],
+       "mass_kg": 19.929,
+       "label": "运动部分（跨中）"
+      },
+      {
+       "type": "remote_load",
+       "body": "frame",
+       "faces": [
+        42
+       ],
+       "point_mm": [
+        1178.0,
+        -119.352,
+        850.0
+       ],
+       "vector_nm": [
+        -87.66064,
+        0.01466,
+        0.0
+       ]
+      },
+      {
+       "type": "remote_load",
+       "body": "frame",
+       "faces": [
+        42
+       ],
+       "point_mm": [
+        1178.075,
+        329.032,
+        584.291
+       ],
+       "force_n": [
+        263.992,
+        0.0,
+        0.0
+       ]
+      },
+      {
+       "type": "remote_load",
+       "body": "frame",
+       "faces": [
+        42
+       ],
+       "point_mm": [
+        1178.368,
+        923.004,
+        313.805
+       ],
+       "force_n": [
+        0.0,
+        22.967,
+        0.0
+       ]
+      },
+      {
+       "type": "remote_load",
+       "body": "frame",
+       "faces": [
+        42
+       ],
+       "point_mm": [
+        1179.076,
+        974.893,
+        96.544
+       ],
+       "force_n": [
+        0.0,
+        0.0,
+        -16.691
+       ]
+      }
+     ],
+     "steps": [
+      {
+       "id": "s",
+       "type": "static"
+      },
+      {
+       "id": "m",
+       "type": "modal",
+       "n_modes": 4
+      },
+      {
+       "id": "m1",
+       "type": "modal",
+       "n_modes": 1
+      }
+     ],
+     "mesh": {
+      "size_mm": 20.0
+     },
+     "checks": {
+      "convergence": false
+     },
+     "time_limit_s": 3000,
+     "probes": [
+      {
+       "id": "pad",
+       "point_mm": [
+        1178.0,
+        -119.352,
+        850.0
+       ]
+      },
+      {
+       "id": "yp",
+       "point_mm": [
+        1178.0,
+        -84.352,
+        852.0
+       ]
+      },
+      {
+       "id": "ym",
+       "point_mm": [
+        1178.0,
+        -154.352,
+        852.0
+       ]
+      },
+      {
+       "id": "xp",
+       "point_mm": [
+        1248.0,
+        -119.352,
+        852.0
+       ]
+      },
+      {
+       "id": "xm",
+       "point_mm": [
+        1108.0,
+        -119.352,
+        852.0
+       ]
+      }
+     ],
+     "provenance": {
+      "drafted_by": "human",
+      "confirmed_by_human": true
+     }
+    },
+    "notes": [
+     "固定：两块地脚板底面",
+     "加载：重力；X 模组本体质量分在横梁底面；运动部分质量放在跨中垫块，它的重量偏在横梁前面造成的扭矩另加（力偶）；X、Y 轴最大推力的反作用、Z 轴最大惯性力（推力减重量）加在各自运动部分的重心（Y 伸到最远、Z 降到最低、都搬到跨中）"
+    ],
+    "size_mm": 20.0,
+    "u_pad_mm": [
+     0.07976,
+     0.10574,
+     -0.52429
+    ],
+    "u_pad_abs_mm": 0.54076,
+    "u_max_mm": 0.62445,
+    "vm_max_mpa": 37.678,
+    "balance": {
+     "available": true,
+     "applied_n": [
+      263.992,
+      22.967,
+      -1527.49201
+     ],
+     "reaction_n": [
+      -263.991661,
+      -22.967348,
+      1527.492448
+     ],
+     "force_error_ratio": 4.2181060593446047e-07,
+     "moment_error_ratio": 2.0282078742642165e-07
+    },
+    "freqs_hz": [
+     10.7928,
+     24.2132,
+     25.7731,
+     31.1643
+    ],
+    "mode1_effective_mass": {
+     "x": 0.0,
+     "y": 0.849453,
+     "z": 0.0
+    },
+    "mode1_direction": "y",
+    "elements": null
+   }
+  ],
+  "result": {
+   "rotation_rad": [
+    -0.00133316,
+    -0.00020863,
+    -0.00026077
+   ],
+   "u_tool_frame_mm": [
+    0.54899,
+    -1.02745,
+    -2.01657
+   ],
+   "u_tool_frame_abs_mm": 2.32886,
+   "tool_point_mm": [
+    1178.0,
+    1000.0,
+    0.0
+   ],
+   "study": {
+    "format": "fea-study/1",
+    "name": "gantry-frame",
+    "supports": [
+     {
+      "type": "fixed",
+      "body": "frame",
+      "faces": [
+       44,
+       49
+      ]
+     }
+    ],
+    "loads": [
+     {
+      "type": "gravity",
+      "body": "frame",
+      "acceleration_m_s2": [
+       0,
+       0,
+       -9.81
+      ]
+     },
+     {
+      "type": "mass",
+      "body": "frame",
+      "faces": [
+       11
+      ],
+      "mass_kg": 98.1,
+      "label": "X 模组本体"
+     },
+     {
+      "type": "mass",
+      "body": "frame",
+      "faces": [
+       42
+      ],
+      "mass_kg": 19.929,
+      "label": "运动部分（跨中）"
+     },
+     {
+      "type": "remote_load",
+      "body": "frame",
+      "faces": [
+       42
+      ],
+      "point_mm": [
+       1178.0,
+       -119.352,
+       850.0
+      ],
+      "vector_nm": [
+       -87.66064,
+       0.01466,
+       0.0
+      ]
+     },
+     {
+      "type": "remote_load",
+      "body": "frame",
+      "faces": [
+       42
+      ],
+      "point_mm": [
+       1178.075,
+       329.032,
+       584.291
+      ],
+      "force_n": [
+       263.992,
+       0.0,
+       0.0
+      ]
+     },
+     {
+      "type": "remote_load",
+      "body": "frame",
+      "faces": [
+       42
+      ],
+      "point_mm": [
+       1178.368,
+       923.004,
+       313.805
+      ],
+      "force_n": [
+       0.0,
+       22.967,
+       0.0
+      ]
+     },
+     {
+      "type": "remote_load",
+      "body": "frame",
+      "faces": [
+       42
+      ],
+      "point_mm": [
+       1179.076,
+       974.893,
+       96.544
+      ],
+      "force_n": [
+       0.0,
+       0.0,
+       -16.691
+      ]
+     }
+    ],
+    "steps": [
+     {
+      "id": "s",
+      "type": "static"
+     },
+     {
+      "id": "m",
+      "type": "modal",
+      "n_modes": 4
+     },
+     {
+      "id": "m1",
+      "type": "modal",
+      "n_modes": 1
+     }
+    ],
+    "mesh": {
+     "size_mm": 20.0
+    },
+    "checks": {
+     "convergence": false
+    },
+    "time_limit_s": 3000,
+    "probes": [
+     {
+      "id": "pad",
+      "point_mm": [
+       1178.0,
+       -119.352,
+       850.0
+      ]
+     },
+     {
+      "id": "yp",
+      "point_mm": [
+       1178.0,
+       -84.352,
+       852.0
+      ]
+     },
+     {
+      "id": "ym",
+      "point_mm": [
+       1178.0,
+       -154.352,
+       852.0
+      ]
+     },
+     {
+      "id": "xp",
+      "point_mm": [
+       1248.0,
+       -119.352,
+       852.0
+      ]
+     },
+     {
+      "id": "xm",
+      "point_mm": [
+       1108.0,
+       -119.352,
+       852.0
+      ]
+     }
+    ],
+    "provenance": {
+     "drafted_by": "human",
+     "confirmed_by_human": true
+    }
+   },
+   "notes": [
+    "固定：两块地脚板底面",
+    "加载：重力；X 模组本体质量分在横梁底面；运动部分质量放在跨中垫块，它的重量偏在横梁前面造成的扭矩另加（力偶）；X、Y 轴最大推力的反作用、Z 轴最大惯性力（推力减重量）加在各自运动部分的重心（Y 伸到最远、Z 降到最低、都搬到跨中）"
+   ],
+   "size_mm": 20.0,
+   "u_pad_mm": [
+    0.07976,
+    0.10574,
+    -0.52429
+   ],
+   "u_pad_abs_mm": 0.54076,
+   "u_max_mm": 0.62445,
+   "vm_max_mpa": 37.678,
+   "balance": {
+    "available": true,
+    "applied_n": [
+     263.992,
+     22.967,
+     -1527.49201
+    ],
+    "reaction_n": [
+     -263.991661,
+     -22.967348,
+     1527.492448
+    ],
+    "force_error_ratio": 4.2181060593446047e-07,
+    "moment_error_ratio": 2.0282078742642165e-07
+   },
+   "freqs_hz": [
+    10.7928,
+    24.2132,
+    25.7731,
+    31.1643
+   ],
+   "mode1_effective_mass": {
+    "x": 0.0,
+    "y": 0.849453,
+    "z": 0.0
+   },
+   "mode1_direction": "y",
+   "elements": null
+  },
+  "mesh_change": {
+   "u_pad": 0.0068,
+   "f1": 0.0021
+  },
+  "limits": [
+   "直线模组按目录外形建成长方体（含滑台），型材槽、端盖、电机没建；本体重心取外形中心",
+   "螺钉孔、型材连接件（模组装在横梁上的安装件）没建：门架当一个焊接整体算，连接处的柔度没计入，固有频率偏高",
+   "门架有限元里 X 模组只计质量、不计刚度（它的铝型材实际会帮横梁承载，变形偏大、偏保守）",
+   "运动部分放在跨中（垂直变形最不利）；X 轴最大推力与 Z 轴最大惯性力同时加上（节拍里两轴不同时加速，偏保守）",
+   "地脚板底面全固定（台面当刚体）"
+  ],
+  "fingerprint": "e938cf86ac6df5934a44dee9a6ab566ba57e6e911792e00a8f7ae7f66e293d37",
+  "reused": true
+ },
+ "judge": {
+  "deflection": {
+   "status": "fail",
+   "deflection_mm": 2.32886,
+   "repeatability_mm": 0.26,
+   "total_mm": 2.5889,
+   "limit_mm": 1.0,
+   "u_pad_mm": 0.54076,
+   "missing": [
+    "Y 模组（悬臂）、Z 模组与竖杆自身的弯曲：零件库没有模组型材的截面惯性矩"
+   ],
+   "note": "只算门架：末端点（Y 伸到最远、Z 降到最低、在跨中）的位移 2.33 mm（跨中垫块 0.541 mm，加横梁截面转角 × 力臂）+ 模组重复定位精度 ±0.26 mm = 2.59 mm，要求 ±1 mm；公式估 2.16 mm（扭转按闭口薄壁管的布雷特公式，没计截面畸变与地脚板的柔度，比有限元小）。已超出：再加模组自身的弯曲只会更大，判不通过"
+  },
+  "frequency": {
+   "status": "report",
+   "f1_hz": 10.7928,
+   "f1_direction": "y",
+   "freqs_hz": [
+    10.7928,
+    24.2132,
+    25.7731,
+    31.1643
+   ],
+   "f1_formula_vertical_hz": 17.33,
+   "f1_formula_sway_hz": 19.74,
+   "f1_formula_lateral_hz": 9.96,
+   "note": "门架一阶固有频率 10.8 Hz，主要沿垂直于横梁的水平方向（y）摆（有效质量占 85%）（公式：横梁水平弯曲 9.96 Hz、立柱侧摆 19.7 Hz、跨中竖直 17.3 Hz）；放料前停留 0.08 s 里振 1 个周期。没有公开的判定值，只报数；阻尼没有数据，余振多久衰减到 ±0.1 mm 以内算不了"
+  }
+ }
+}
