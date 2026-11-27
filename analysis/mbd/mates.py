@@ -13,6 +13,8 @@
 - 外球面与内球面同心、半径差在间隙内 → 球副候选；
 - 两零件之间没有同轴配合，但有两组以上法向不平行的贴合平面（法向相反、共面）→ 移动副候选，方向为两法向的叉积；
 - 同一对零件有两条以上不同轴线的轴孔配合 → 固定候选（两个销钉定位，转不动）。
+- 轴孔半径差 ≤ 孔径 1 % 才算配合；更大的是过孔，不当运动副。同一根外圆柱穿过两件的过孔、两件端面贴合 → 螺栓连接：两件固定，
+  螺栓与其中一件固定。最后按候选算一次整体自由度，只靠一个转动副挂着的零件提示“局部自由度”。
 """
 
 from __future__ import annotations
@@ -23,8 +25,10 @@ import numpy as np
 
 LIN_TOL_MM = 1e-3            # 同轴、共面、同心的位置容差
 ANG_TOL = 1e-6               # 平行的方向容差（|sin|）
-GAP_MAX_MM = 0.5             # 轴孔、球窝半径差上限（配合间隙）
+GAP_MAX_MM = 0.5             # 球窝半径差上限
 GAP_REL = 0.05
+FIT_REL = 0.01               # 轴孔半径差 ≤ 孔径的 1 % 算配合（线索第 66 条）；更大的是过孔，不当运动副
+CLEAR_MAX_REL = 0.15         # 半径差 ≤ 孔径的 15 % 算过孔（螺栓、轴穿过），用来找“螺栓连接”
 
 
 def _u(v):
@@ -37,12 +41,27 @@ def _parallel(a, b):
 
 
 def _gap_ok(r_shaft, r_hole):
+    """球窝：半径差在间隙内"""
     g = r_hole - r_shaft
     return -LIN_TOL_MM <= g <= max(GAP_MAX_MM, GAP_REL * r_hole)
 
 
-def _coaxial(fa, fb):
-    """外圆柱 fa、内圆柱 fb 同轴且轴向有重叠：返回 (轴线上一点, 轴向, 重叠段中点) 或 None"""
+def _fit(r_shaft, r_hole):
+    """轴孔：'fit'（配合，半径差 ≤ 孔径 1 %）、'clearance'（过孔）或 None。
+    《多体动力学》书第 39 章线索第 66 条（问渠 CAD 0.3.9 细则）：原来半径差上限 Ø20 以下恒为 0.5 mm（Ø4 时是半径的 25 %），
+    M8 螺栓在 Ø9 过孔里、轴穿过 Ø20.6 过孔都被当成转动副，螺栓连接的两块板之间反而没有候选"""
+    g = r_hole - r_shaft
+    if g < -LIN_TOL_MM:
+        return None
+    if g <= max(FIT_REL * 2 * r_hole, LIN_TOL_MM):
+        return "fit"
+    if g <= CLEAR_MAX_REL * 2 * r_hole:
+        return "clearance"
+    return None
+
+
+def _coaxial(fa, fb, kind="fit"):
+    """外圆柱 fa、内圆柱 fb 同轴、半径差属于 kind（配合 / 过孔）且轴向有重叠：返回 (轴线上一点, 轴向, 重叠段中点) 或 None"""
     a, b = _u(fa["axis"]), _u(fb["axis"])
     if not _parallel(a, b):
         return None
@@ -50,7 +69,7 @@ def _coaxial(fa, fb):
     d = pb - pa
     if np.linalg.norm(d - (d @ a) * a) > LIN_TOL_MM:
         return None
-    if not _gap_ok(fa["radius"], fb["radius"]):
+    if _fit(fa["radius"], fb["radius"]) != kind:
         return None
     ta = sorted(fa["t"])
     sb = float(d @ a)                              # fb 的参数原点在 fa 轴上的位置
@@ -172,11 +191,61 @@ def pair_candidates(A, B):
     return out
 
 
+def _clearance_axes(bolt, P):
+    """bolt 的外圆柱穿过 P 的过孔：[(轴线上一点, 轴向)]"""
+    out = []
+    for fa, fb in itertools.product(bolt["faces"], P["faces"]):
+        if fa["kind"] == "cylinder" and fb["kind"] == "cylinder" and fa["convex"] and not fb["convex"]:
+            hit = _coaxial(fa, fb, "clearance")
+            if hit is not None:
+                out.append((hit[0], hit[1]))
+    return out
+
+
+def bolted_candidates(parts: list[dict], taken: set) -> list[dict]:
+    """线索第 66 条：同一根外圆柱（螺栓、轴）穿过两件的过孔、两件之间有法向平行于它的贴合平面（端面压紧）→ 两件固定，
+    螺栓与其中一件固定。taken：已有候选的零件对（不重复给）"""
+    out, seen = [], set(taken)
+    for bolt in parts:
+        hits = [(P, _clearance_axes(bolt, P)) for P in parts if P is not bolt]
+        hits = [(P, ax) for P, ax in hits if ax]
+        for (P, axp), (Q, axq) in itertools.combinations(hits, 2):
+            for p1, a1 in axp:
+                if not any(_same_line(p1, a1, p2, a2) for p2, a2 in axq):
+                    continue
+                if not any(_parallel(n, a1) for n in _plane_contacts(P, Q)):
+                    continue
+                for X, Y, why in ((P, Q, f"{bolt.get('label') or bolt['id']} 穿过两件的过孔，两件端面贴合，按螺栓连接固定"),
+                                  (bolt, P, f"{bolt.get('label') or bolt['id']} 在 {P.get('label') or P['id']} 的过孔里（不是配合），按紧固件固定")):
+                    key = frozenset((X["id"], Y["id"]))
+                    if key not in seen:
+                        seen.add(key)
+                        out.append({"type": "fixed", "point_mm": np.asarray(p1, float).tolist(), "alternatives": [], "evidence": why,
+                                    "part1": X["id"], "part2": Y["id"]})
+                break
+    return out
+
+
+DOF_OF = {"fixed": 0, "revolute": 1, "translational": 1, "cylindrical": 2, "spherical": 3, "universal": 2, "planar": 3}
+
+
+def mobility(parts: list[dict], found: dict) -> dict:
+    """按候选算整体自由度（Grübler：6(n−1) − Σ(6 − f)，只数约束不看几何，冗余要另看），并找“局部自由度”：
+    只靠一个转动副连着别的零件、自己再没别的连接（螺栓、销绕自身轴转）"""
+    cands, ground = found["candidates"], (found.get("ground") or {}).get("part")
+    n = len(parts)
+    dof = 6 * (n - 1) - sum(6 - DOF_OF.get(c["type"], 0) for c in cands) if n else 0
+    deg = {p["id"]: [c for c in cands if p["id"] in (c["part1"], c["part2"])] for p in parts}
+    local = [pid for pid, cs in deg.items() if pid != ground and len(cs) == 1 and cs[0]["type"] in ("revolute", "cylindrical")]
+    return {"dof": dof, "local": local}
+
+
 def find_candidates(parts: list[dict]) -> dict:
-    """全部零件 → {"candidates": [...], "ground": 建议的机架, "unconnected": [...]}"""
+    """全部零件 → {"candidates": [...], "ground": 建议的机架, "unconnected": [...]}（整体自由度另用 mobility(parts, found)）"""
     cands = []
     for A, B in itertools.combinations(parts, 2):
         cands += pair_candidates(A, B)
+    cands += bolted_candidates(parts, {frozenset((c["part1"], c["part2"])) for c in cands})
     for k, c in enumerate(cands, 1):
         c["id"] = f"c{k}"
     linked = {c["part1"] for c in cands} | {c["part2"] for c in cands}

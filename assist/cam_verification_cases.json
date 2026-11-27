@@ -1018,8 +1018,8 @@
    "test": "tests/test_cam_post_fagor.py::test_fagor_mill_turn_refusals",
    "category": "must",
    "title": {
-    "zh": "发格车铣：没做的（C 分度 + Y 轴铣、B 轴）和超位数的不出、点名",
-    "en": "Fagor mill-turn: unsupported cases (C indexing + Y-axis milling, B axis) and excess decimals are refused and named"
+    "zh": "发格车铣：没做的（B 轴）和超位数的不出、点名",
+    "en": "Fagor mill-turn: unsupported cases (B axis) and excess decimals are refused and named"
    },
    "source": "CNCelite 8058/8060/8065/8070 Programming manual, 1.3.1, 18.1"
   },
@@ -1042,6 +1042,46 @@
     "en": "KND machining center: slot and drill programs output; tapping refused and G84 named (F is lead or feed depending on parameters)"
    },
    "source": "凯恩帝Fi系列铣床标准编程手册 V5.1（2022.4）第 2、12.3、14.1.7、14.2.2 节 / KND Fi series milling standard programming manual V5.1 (2022.4), sections 2, 12.3, 14.1.7, 14.2.2"
+  },
+  {
+   "id": "CAM-103",
+   "test": "tests/test_cam_post_num.py::test_num_c_index_y_mill",
+   "category": "post",
+   "title": {
+    "zh": "NUM C 分度 + Y 轴铣：G19 同 FANUC，负分度角写成 0–360（NUM 的正负号是转向），回读一致",
+    "en": "NUM C-axis indexing + Y-axis milling: G19 as FANUC, negative index angles written as 0-360 (the sign is the direction on NUM), read-back matches"
+   },
+   "source": "NUM Flexium Programming Manual M00018EN-03 §4.4.1, §5.4, §5.18.1"
+  },
+  {
+   "id": "CAM-104",
+   "test": "tests/test_cam_post_fagor.py::test_fagor_c_index_y_mill",
+   "category": "post",
+   "title": {
+    "zh": "发格 C 分度 + Y 轴铣：#CAX 后分度、G19 同 FANUC，负分度角写成 0–360（发格的正负号是转向），回读一致",
+    "en": "Fagor C-axis indexing + Y-axis milling: #CAX then index, G19 as FANUC, negative index angles written as 0-360 (the sign is the direction on Fagor), read-back matches"
+   },
+   "source": "CNCelite 8058/8060/8065/8070 Programming manual, 3.2.1, 3.4, 4.2.1, 18.1.1"
+  },
+  {
+   "id": "CAM-105",
+   "test": "tests/test_cam_machines_e2.py::test_mazak_qt_ez_from_product_page",
+   "category": "kin",
+   "title": {
+    "zh": "真实机床：马扎克 QT-Ez 8 / 10 / 12 按官网产品页规格表录入（英制换毫米），没公开的快移不编",
+    "en": "Real machine: Mazak QT-Ez 8 / 10 / 12 from the official product-page spec table (inch to mm); unpublished rapids not invented"
+   },
+   "source": "mazak.com/us-en/products/qt-ez Machine Specifications, 2026-11-26"
+  },
+  {
+   "id": "CAM-106",
+   "test": "tests/test_cam_machines_e2.py::test_mazak_missing_rapid_named_then_usable",
+   "category": "must",
+   "title": {
+    "zh": "真实机床：快移没公开时编程前报出来，不出错",
+    "en": "Real machine: unpublished rapid traverse is reported before programming instead of crashing"
+   },
+   "source": "ADR-0106 E2"
   }
  ]
 }

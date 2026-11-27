@@ -31,7 +31,8 @@ SOURCES = [
 ]
 ASSUMPTIONS = [
     "姿态：大臂、小臂水平伸直（重力矩最大），满载 5 kg；关节轴都沿 y，末端在 x = a2 + a3 = 817.2 mm",
-    "运动：j1–j5 各转 90°，用时 1.0 s，加减速各占 25%（最高 120°/s，低于数据表的 180°/s）；j6 的负载按 5 kg 质点在半径 50 mm 处（偏心工具，偏保守）",
+    ("运动：j1–j5 各转 90°，用时 1.0 s，加减速各占 25%（最高 120°/s，低于数据表的 180°/s）；j6 的负载按 5 kg 质点在半径 50 mm 处"
+     "（偏心工具，偏保守）；肩 j2、肘 j3 从水平往下放、往上抬两个方向都算，选型需求取包络"),
     "供电按控制柜 200 V 三相交流、EtherCAT 总线（零件库里的伺服是 200 V 交流；真实协作臂多用 48 V 直流关节）",
     "结构设计取值：大臂铝管 Ø90×4、小臂铝管 Ø70×3、底座铝管 Ø130×6，6061-T6；关节壳体壁厚 6 mm、端板 6 mm，内径按减速器包络外径；"
     + "管子输入端的法兰毂外径同上一关节的壳体，法兰盘厚 10 mm；第二版：法兰毂远端加 6 mm 封板（防止椭圆化，第一版末端结构下垂 0.855 mm → 0.673 mm）",
@@ -253,6 +254,9 @@ def main(argv=None):
         r = analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": [
             {"joint": "j1", **MOVE}, {"joint": "j2", **MOVE}, {"joint": "j3", **dict(MOVE, to=90)}]})
         res["j1"] = res["j2"] = res["j3"] = r
+        # 线索第 5 条：肩、肘再算一遍从水平往上抬（j2 +90°、j3 −90°），需求取两个方向的包络
+        r_up = analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": [
+            {"joint": "j1", **MOVE}, {"joint": "j2", **dict(MOVE, to=90)}, {"joint": "j3", **MOVE}]})
         w = analysis.run("mbd", {"model": {"kind": "arm", "base_height_mm": 0,
                                            "links": [{"length_mm": 99.7 + 99.6, "mass_kg": max(link_mass["wrist"], 1e-3)}],
                                            "joint_masses_kg": [0.0], "payload_kg": 5 + mods.get("j5", 0.0) + mods.get("j6", 0.0)},
@@ -267,16 +271,23 @@ def main(argv=None):
                 + sum(mods.get(k, 0.0) for k in ("j2", "j3", "j4", "j5", "j6")) + 5.0) * 9.81
         picks = {}
         for j, rr, jj in (("j1", r, "j1"), ("j2", r, "j2"), ("j3", r, "j3"), ("j4", w, "j2"), ("j5", w5, "j2"), ("j6", w6, "j1")):
-            req = mbd.requirement(rr, jj, base=BASE_CFG)
-            req["id"] = f"arm-{j}"
-            cands = C.compose(req, top=30)
-            # 协作臂在意重量：在没有“不通过”的候选里取外购件最轻、且电机与减速器都有样本质量的
-            ok = [c for c in cands if c.report["overall"] != "fail" and module_mass(c.system) is not None]
-            if j == "j1":                                                   # 选型引擎不查输出轴承寿命：这里补上
-                ok = [c for c in ok if (bearing_life(_comp(c.system, "reducer"), 0.0, w_up, g, *DUTY) or (0,))[0] >= BEARING_LIFE_H]
+            down = mbd.requirement(rr, jj, base=BASE_CFG)
+            reqs = [down]
+            if j in ("j2", "j3"):
+                # 两个方向取包络；包络零件库供不了时如实标出，按只满足往下放的组合继续（书第 40 章：往上抬时肩关节 C4 超额定）
+                reqs = [C.envelope({"往下放": down, "往上抬": mbd.requirement(r_up, jj, base=BASE_CFG)}), down]
+            for k, req in enumerate(reqs):
+                req["id"] = f"arm-{j}" + ("-down" if k else "")
+                cands = C.compose(req, top=30)
+                # 协作臂在意重量：在没有“不通过”的候选里取外购件最轻、且电机与减速器都有样本质量的
+                ok = [c for c in cands if c.report["overall"] != "fail" and module_mass(c.system) is not None]
+                if j == "j1":                                               # 选型引擎不查输出轴承寿命：这里补上
+                    ok = [c for c in ok if (bearing_life(_comp(c.system, "reducer"), 0.0, w_up, g, *DUTY) or (0,))[0] >= BEARING_LIFE_H]
+                if ok:
+                    break
             best = min(ok, key=lambda c: module_mass(c.system)) if ok else (cands[0] if cands else None)
-            picks[j] = (req, best, len(cands))
-        return picks, {"arm": r, "j4": w, "j5": w5, "j6": w6}
+            picks[j] = (req, best, len(cands), len(reqs) > 1 and req is down)
+        return picks, {"arm": r, "arm_up": r_up, "j4": w, "j5": w5, "j6": w6}
 
     # 1–2 两轮动力学与选型（第一轮模组质量为 0、结构质量按第一版几何；第二轮带上第一轮选出的模组质量）
     def dyn():
@@ -305,10 +316,11 @@ def main(argv=None):
                 f"结构质量（铝，按最后一轮几何）底座 {link_mass['base']:.2f}、大臂 {link_mass['upper']:.2f}、小臂 {link_mass['fore']:.2f}、"
                 f"腕部 {link_mass['wrist']:.2f} kg", gravity=g, link_mass_kg=link_mass)
         for j in joints:
-            req, best, n = picks[j]
+            req, best, n, fallback = picks[j]
             names = "、".join(c["component"].split(".")[-1].upper() for c in best.system["components"])
-            run.add(f"选型 {j}", "ok" if best.report["overall"] == "pass" else "unknown",
-                    f"需求 连续 {req['output_torque_cont_nm']:.2f} / 峰值 {req['output_torque_peak_nm']:.2f} N·m、{req['output_speed_rpm']:.1f} rpm → "
+            run.add(f"选型 {j}", "fail" if fallback else "ok" if best.report["overall"] == "pass" else "unknown",
+                    ("两个方向的包络零件库里没有能满足的组合（往上抬不满足）；下面按只满足往下放的组合继续——" if fallback else "")
+                    + f"需求 连续 {req['output_torque_cont_nm']:.2f} / 峰值 {req['output_torque_peak_nm']:.2f} N·m、{req['output_speed_rpm']:.1f} rpm → "
                     f"{names}（电机 + 减速器 {mods[j]:.2f} kg）；{C.checks_text(best.report)}；{n} 个候选里取外购件最轻的",
                     requirement=req, system=best.system, report=best.report)
     run.guard("动力学", dyn)

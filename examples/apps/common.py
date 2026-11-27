@@ -24,6 +24,55 @@ def library():
     return JsonLibrary(ROOT / "data" / "library")
 
 
+def version_stamp() -> dict:
+    """报告的版本：程序提交号、零件库内容哈希、生成时间（《多体动力学》书第 36 章线索第 54 条：五份报告都不记版本，
+    过时了认不出——cobot_joint 的 C8 存档是 unknown，当前代码和零件库是 warn）"""
+    import datetime
+    import hashlib
+    import subprocess
+
+    commit = os.environ.get("FAP_COMMIT")
+    if not commit:
+        try:
+            commit = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True,
+                                    timeout=10, check=True).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            commit = "unknown"
+    h = hashlib.sha256()
+    for f in sorted((ROOT / "data" / "library").rglob("*.json")):
+        h.update(f.relative_to(ROOT).as_posix().encode())
+        h.update(f.read_bytes())
+    return {"code_commit": commit, "library_sha256": h.hexdigest()[:16],
+            "generated_at": datetime.datetime.now(datetime.UTC).isoformat(timespec="seconds")}
+
+
+def stale_reasons(report: dict) -> list[str]:
+    """存档报告与当前程序、零件库比：不一致的说明（空表示一致）。没有版本信息的旧报告一律算可能过时"""
+    v = report.get("version")
+    if not v:
+        return ["报告没有记录程序和零件库版本，可能过时"]
+    cur, out = version_stamp(), []
+    if v.get("library_sha256") != cur["library_sha256"]:
+        out.append(f"零件库变了（报告 {v.get('library_sha256')}，现在 {cur['library_sha256']}）")
+    if v.get("code_commit") != cur["code_commit"]:
+        out.append(f"程序变了（报告 {str(v.get('code_commit'))[:12]}，现在 {cur['code_commit'][:12]}）")
+    return out
+
+
+def compare_reports(old: dict, new: dict) -> dict:
+    """两份同一应用的报告：版本差别与结论（状态、摘要）变了的步骤"""
+    before = {s["step"]: s for s in old.get("steps", [])}
+    changed = []
+    for s in new.get("steps", []):
+        o = before.get(s["step"])
+        if o is None:
+            changed.append({"step": s["step"], "before": None, "after": s["status"]})
+        elif o.get("status") != s["status"] or o.get("summary") != s["summary"]:
+            changed.append({"step": s["step"], "before": o.get("status"), "after": s["status"],
+                            "summary_before": o.get("summary"), "summary_after": s["summary"]})
+    return {"previous_version": old.get("version"), "stale_reasons": stale_reasons(old), "changed_steps": changed}
+
+
 _RANK = {"ok": 0, "unknown": 1, "fail": 2}
 _MAP = {"pass": "ok", "ok": "ok", "not_applicable": "ok", "na": "ok", "warn": "unknown", "unknown": "unknown", "fail": "fail",
         "severe": "fail"}
@@ -90,10 +139,24 @@ class Run:
             return None
 
     def save(self, extra: dict | None = None) -> dict:
-        rep = {"app": self.key, "title": self.title, "sources": self.sources, "assumptions": self.assumptions,
-               "steps": self.steps, "elapsed_s": round(time.time() - self.t0, 1), **(extra or {})}
+        prev = None
+        try:
+            prev = json.loads((self.out / "report.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            pass
+        rep = {"app": self.key, "title": self.title, "version": version_stamp(), "sources": self.sources,
+               "assumptions": self.assumptions, "steps": self.steps, "elapsed_s": round(time.time() - self.t0, 1), **(extra or {})}
+        if prev:
+            # 线索第 54 条：和上一次的报告比，程序或零件库变了、哪些步的结论变了都写下来
+            rep["changes_since_previous"] = compare_reports(prev, rep)
         (self.out / "report.json").write_text(json.dumps(rep, ensure_ascii=False, indent=1, default=str), encoding="utf-8")
-        lines = [f"# {self.title}", "", "## 依据", ""]
+        v = rep["version"]
+        lines = [f"# {self.title}", "", f"生成：{v['generated_at']}，程序 {v['code_commit'][:12]}，零件库 {v['library_sha256']}", ""]
+        ch = rep.get("changes_since_previous")
+        if ch and (ch["stale_reasons"] or ch["changed_steps"]):
+            lines += ["与上一次报告相比：" + "；".join(ch["stale_reasons"]) + ("；" if ch["stale_reasons"] else "")
+                      + "结论变了的步骤：" + ("、".join(c["step"] for c in ch["changed_steps"]) or "无"), ""]
+        lines += ["## 依据", ""]
         lines += [f"- [{s['title']}]({s['url']})" + (f"：{s['note']}" if s.get("note") else "") for s in self.sources]
         lines += ["", "## 假设（不是零件库数据，按需改）", ""] + [f"- {a}" for a in self.assumptions]
         lines += ["", "## 各步结果", "", "| 步骤 | 结论 | 摘要 |", "| --- | --- | --- |"]
@@ -187,6 +250,19 @@ def cyl_d(d: float, z0: float | None = None, z1: float | None = None, tol: float
 
 
 # ---------------------------------------------------------------- 选型与布局
+def envelope(reqs: dict) -> dict:
+    """几个工况的选型需求取包络（《多体动力学》书第 40 章线索第 5 条：协作臂原来只算“往下放”，“往上抬”峰值大 34 %）。
+    reqs：{工况名: 需求}；扭矩、转速、惯量逐项取最大，statement 写明各工况的值"""
+    keys = ("output_torque_cont_nm", "output_torque_peak_nm", "output_speed_rpm", "load_inertia_kgm2")
+    first = next(iter(reqs.values()))
+    out = {k: v for k, v in first.items() if k not in keys and k != "statement"}
+    for k in keys:
+        out[k] = max(r[k] for r in reqs.values())
+    out["statement"] = "两个方向取包络：" + "；".join(
+        f"{n} 连续 {r['output_torque_cont_nm']:.1f} / 峰值 {r['output_torque_peak_nm']:.1f} N·m" for n, r in reqs.items())
+    return out
+
+
 def compose(requirement: dict, top: int = 3) -> list:
     from engine.compose import compose_chain
 
