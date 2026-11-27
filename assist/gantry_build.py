@@ -19,6 +19,10 @@
   力：侧向 Fy、法向 Fz；力矩：绕运动方向 Mx（滚转）、绕侧向 My（俯仰）、绕法向 Mz（偏摆）。各项取节拍里绝对值的最大，
   不同时刻的最大值放在一起算载荷比较系数，偏保守。
 成本：零件库没有价格数据，判不了。
+末端转动（案例 B2，ADR-0115 44.5.6.2）：链上最后一个关节可以是轴线竖直的转动关节（C 轴），工具点要在它的轴线上（位置与转角无关）。
+  节拍里按“取放条件的最大转角”转：一圈里水平走得最远的两段，前一段（去放料点）从 0 转到最大转角，后一段（回取料位）转回 0，
+  与平移同时、同一梯形曲线。C 轴构件上放：转动头杆件、工件（按裁片长宽当薄板算转动惯量）、抓手（有质量时）；
+  转动模组本体集中在 Z 构件上的关节原点。转动模组按 engine.smart_actuator 选（同案例 A，只选有机械接口数据的一体化关节模组）。
 """
 
 from __future__ import annotations
@@ -78,7 +82,10 @@ def axes(concept: Mapping) -> list[dict]:
     m = K.build(concept)
     T = K.fk(m)
     out = []
+    w = wrist(concept)
     for j in K.chain(m):
+        if w and j.id == w["joint"]:
+            continue
         if j.type != "prismatic":
             raise BuildError(f"关节 {j.id} 是{j.type}关节：这一步只做全部是移动关节的龙门（转动关节走 assist.robot_build）")
         a = T[j.parent][:3, :3] @ j.axis
@@ -90,6 +97,27 @@ def axes(concept: Mapping) -> list[dict]:
     if len({a["dir"] for a in out}) != len(out):
         raise BuildError("有两个轴沿同一方向：这一步只做每个方向一个轴的龙门")
     return out
+
+
+def wrist(concept: Mapping) -> dict | None:
+    """末端的 C 轴：链上最后一个关节是轴线竖直的转动关节、工具点在轴线上时返回 {"joint", "link", "lo", "hi", "origin_mm"}；
+    最后一个关节不是转动关节时 None；是转动关节但轴线不竖直、或工具点不在轴线上时报错"""
+    from analysis.robot import kinematics as K
+
+    m = K.build(concept)
+    ch = K.chain(m)
+    if not ch or ch[-1].type != "revolute":
+        return None
+    j = ch[-1]
+    T = K.fk(m)
+    a = T[j.parent][:3, :3] @ j.axis
+    if abs(abs(a[2]) / np.linalg.norm(a) - 1.0) > 1e-9:
+        raise BuildError(f"关节 {j.id} 是转动关节、轴线 {a.round(4).tolist()} 不竖直：末端只做绕竖直轴转的 C 轴")
+    pj = (T[j.parent] @ np.append(j.origin, 1.0))[:3]
+    tp = K.tool_point(m)
+    if math.hypot(tp[0] - pj[0], tp[1] - pj[1]) > TOL_MM:
+        raise BuildError(f"工具点不在 {j.id} 的轴线上（水平偏 {math.hypot(tp[0] - pj[0], tp[1] - pj[1]):.1f} mm）：转动时取放点会跟着转")
+    return {"joint": j.id, "link": j.child, "lo": j.lo, "hi": j.hi, "origin_mm": j.origin.tolist()}
 
 
 def joint_values(concept: Mapping, p_mm) -> dict[str, float]:
@@ -117,9 +145,9 @@ def trapezoid(length: float, move_s: float, accel: float = ACCEL) -> tuple[float
     return v, v / ta
 
 
-def cycle(concept: Mapping) -> dict:
+def cycle(concept: Mapping, rotation_deg: float | None = None) -> dict:
     """一个节拍：{"initial", "drives"（analysis.mbd 的多段路径）, "segments", "total_s", "axes": {关节: 最高速度、加速度、走过的范围},
-    "tool": {最高速度、最大加速度}}"""
+    "tool": {最高速度、最大加速度}}；有 C 轴时多一项 "wrist"（转角 °、最高转速 rpm、角加速度 °/s²，模块说明里的转法）"""
     moves = [t for t in concept.get("tasks") or [] if t.get("type") == "cartesian_move"]
     if not moves or len(moves) != len(concept.get("tasks") or []):
         raise BuildError("节拍要全部用直线动作（cartesian_move）写")
@@ -158,10 +186,34 @@ def cycle(concept: Mapping) -> dict:
         t += T + dw
         cur = q1
     drives = [{"joint": jid, "kind": "path", "segments": sg} if sg else {"joint": jid, "kind": "hold"} for jid, sg in paths.items()]
-    return {"initial": {k: round(v, 6) for k, v in q0.items()}, "drives": drives, "segments": segs, "total_s": round(t, 6),
+    q0 = dict(q0)
+    w = wrist(concept)
+    wr = None
+    if w is not None:
+        q0[w["joint"]] = 0.0
+        rot = float(rotation_deg or 0.0)
+        if rot and ((w["hi"] is not None and rot > w["hi"] + 1e-9) or (w["lo"] is not None and w["lo"] > 1e-9)):
+            raise BuildError(f"{w['joint']} 转 {rot:g}° 超出行程 [{w['lo']:g}, {w['hi']:g}]°")
+        horiz = sorted(range(len(segs)), key=lambda k: -math.hypot(segs[k]["to_mm"][0] - segs[k]["from_mm"][0],
+                                                                  segs[k]["to_mm"][1] - segs[k]["from_mm"][1]))[:2]
+        go, back = sorted(horiz)
+        wsegs = []
+        if rot:
+            for k, to in ((go, rot), (back, 0.0)):
+                wsegs.append({"to": to, "t0_s": segs[k]["t0_s"], "t1_s": segs[k]["t1_s"], "accel_ratio": ACCEL})
+                segs[k]["wrist_to_deg"] = to
+        drives.append({"joint": w["joint"], "kind": "path", "segments": wsegs} if wsegs else {"joint": w["joint"], "kind": "hold"})
+        T = segs[go]["t1_s"] - segs[go]["t0_s"]
+        vw, aw = trapezoid(rot, T) if rot else (0.0, 0.0)
+        wr = {"joint": w["joint"], "rotation_deg": rot, "speed_rpm": round(vw / 6, 4), "accel_deg_s2": round(aw, 3),
+              "move_s": round(T, 6), "segments": [segs[go]["name"], segs[back]["name"]]}
+    out = {"initial": {k: round(v, 6) for k, v in q0.items()}, "drives": drives, "segments": segs, "total_s": round(t, 6),
             "axes": {jid: {"speed_m_s": round(vmax[jid] / 1000, 4), "accel_m_s2": round(amax[jid] / 1000, 4),
                            "travel_mm": [round(min(seen[jid]), 3), round(max(seen[jid]), 3)]} for jid in paths},
             "tool": {"speed_m_s": round(tool_v / 1000, 4), "accel_m_s2": round(tool_a / 1000, 4)}}
+    if wr is not None:
+        out["wrist"] = wr
+    return out
 
 
 # ---------------------------------------------------------------- 多体动力学模型
@@ -172,13 +224,16 @@ def frame(a: Mapping) -> dict[str, np.ndarray]:
     return {"motion": e1, "normal": n, "lateral": np.cross(n, e1)}
 
 
-def masses(concept: Mapping, picks: Mapping[str, Mapping], gripper_kg: float | None, part_kg: float) -> dict:
-    """各轴运动部分上的集中质量 {关节: [(名称, kg, 位置 mm（该轴构件坐标）)]}——模块说明里的放法；缺的质量不计、写进 missing"""
+def masses(concept: Mapping, picks: Mapping[str, Mapping], gripper_kg: float | None, part_kg: float,
+           part_size_mm: tuple[float, float] | None = None) -> dict:
+    """各轴运动部分上的集中质量 {关节: [(名称, kg, 位置 mm（该轴构件坐标）[, 薄板长宽 mm])]}——模块说明里的放法；缺的质量不计、写进 missing。
+    有 C 轴时多一个 C 轴构件：工件按薄板（裁片长宽）算转动惯量，其余集中"""
     from analysis.robot import kinematics as K
     from analysis.robot import mjcf as RM
 
     m = K.build(concept)
     ax = axes(concept)
+    w = wrist(concept)
     lm, probs = RM.link_masses(concept)
     out, missing = {}, list(probs)
     for i, a in enumerate(ax):
@@ -194,6 +249,12 @@ def masses(concept: Mapping, picks: Mapping[str, Mapping], gripper_kg: float | N
             if nk.get("body_kg") is not None:
                 nj = next(x for x in m.joints if x.id == ax[i + 1]["joint"])
                 rows.append((f"{nk['model']} 本体（不含滑台）", nk["body_kg"], nj.origin.tolist()))
+        if w is not None and i + 1 == len(ax):
+            wk = picks.get(w["joint"]) or {}
+            if wk.get("mass_kg") is not None:
+                rows.append((f"{wk['model']} 转动模组", wk["mass_kg"], w["origin_mm"]))
+            elif wk:
+                missing.append(f"{wk.get('model')} 的质量厂商没给")
         if j.child in lm:
             mid = (np.zeros(3) + RM._segment(m, j.child)) / 2
             rows.append((f"杆件 {j.child}", lm[j.child], mid.tolist()))
@@ -202,6 +263,16 @@ def masses(concept: Mapping, picks: Mapping[str, Mapping], gripper_kg: float | N
             if gripper_kg is not None:
                 rows.append(("抓手", gripper_kg, m.tool_offset.tolist()))
         out[a["joint"]] = rows
+    if w is not None:
+        rows = []
+        if w["link"] in lm:
+            rows.append((f"杆件 {w['link']}", lm[w["link"]], ((np.zeros(3) + RM._segment(m, w["link"])) / 2).tolist()))
+        rows.append(("工件（单片）", part_kg, m.tool_offset.tolist(), *([tuple(part_size_mm)] if part_size_mm else [])))
+        if gripper_kg is not None:
+            rows.append(("抓手", gripper_kg, m.tool_offset.tolist()))
+        if not part_size_mm:
+            missing.append("裁片尺寸没给：工件按集中质量算，C 轴转动惯量偏小")
+        out[w["joint"]] = rows
     if gripper_kg is None:
         missing.append("抓手质量厂商没给（未计入运动质量）")
     return {"bodies": out, "missing": missing}
@@ -222,8 +293,12 @@ def mjcf(concept: Mapping, bodies: Mapping[str, list], origins: Mapping[str, lis
 
     def geoms(jid, rows):
         out = []
-        for k, (_name, kg, pos) in enumerate(rows):
-            if kg and kg > 0:
+        for k, (_name, kg, pos, *plate) in enumerate(rows):
+            if kg and kg > 0 and plate:                          # 薄板（裁片）：box，厚 1 mm
+                half = f"{plate[0][0] / 2000:.6g} {plate[0][1] / 2000:.6g} 0.0005"
+                out.append(f'<geom name="{jid}_m{k}" type="box" size="{half}" pos="{f(np.asarray(pos) / 1000)}" mass="{kg:.6g}" '
+                           'contype="0" conaffinity="0"/>')
+            elif kg and kg > 0:
                 out.append(f'<geom name="{jid}_m{k}" type="sphere" size="0.005" pos="{f(np.asarray(pos) / 1000)}" mass="{kg:.6g}" '
                            'contype="0" conaffinity="0"/>')
         if not out:
@@ -231,6 +306,12 @@ def mjcf(concept: Mapping, bodies: Mapping[str, list], origins: Mapping[str, lis
         return "".join(out)
 
     xml = ""
+    w = wrist(concept)
+    if w is not None:
+        j = next(x for x in m.joints if x.id == w["joint"])
+        o = np.asarray((origins or {}).get(w["joint"], j.origin), float)
+        xml = (f'<body name="{j.child}" pos="{f(o / 1000)}"><joint name="{j.id}" type="hinge" axis="{f(j.axis)}"/>'
+               f'{geoms(w["joint"], bodies[w["joint"]])}</body>')
     for a in reversed(ax):
         j = next(x for x in m.joints if x.id == a["joint"])
         o = np.asarray((origins or {}).get(a["joint"], j.origin), float)
@@ -314,6 +395,27 @@ def pick_axis(lib, a: Mapping, req: Mapping) -> dict:
                 carriage_kg=car, body_kg=None if car is None else round(best["mass_kg"] - car, 4))
 
 
+def wrist_requirement(res: Mapping, jid: str) -> dict:
+    from analysis import mbd
+
+    return mbd.requirement(res, jid, base={"safety_factor": SAFETY})
+
+
+def pick_wrist(lib, req: Mapping, res: Mapping, jid: str) -> dict:
+    """C 轴：有机械接口数据的一体化关节模组里没有“不通过”的最轻的（同案例 A，assist.robot_build.pick_smart）；
+    返回 {"component", "model", "check", "mass_kg", "candidates", "shortfall"}，选不出时 component 为 None"""
+    from assist import robot_build as RB
+
+    pts = RB.operating_points(res, [jid])
+    best, n = RB.pick_smart(lib, req, pts)
+    if best is None:
+        return {"component": None, "model": None, "check": None, "mass_kg": None, "candidates": n,
+                "shortfall": RB.smart_shortfall(lib, req, pts)}
+    comp = lib.get(best["component"])
+    return {"component": best["component"], "model": comp.get("model"), "check": best, "mass_kg": round(best["mass_kg"], 4),
+            "candidates": n, "shortfall": None}
+
+
 def pick_gripper(lib, concept: Mapping, cond: Mapping, tool_accel: float) -> dict:
     """抓手：方案写的类型（真空 → 吸盘）里保持力判通过的；并列每种类型的代表供人比较"""
     from engine import gripper as GR
@@ -377,27 +479,38 @@ def build(concept: Mapping, cond: Mapping, layout=None, start: Mapping | None = 
     if not isinstance(part, (int, float)) or isinstance(part, bool):
         raise BuildError("取放条件里没有单片质量：载荷算不了")
     ax = axes(concept)
-    cyc = cycle(concept)
+    w = wrist(concept)
+    rot = cond.get("max_rotation")
+    if w is not None and not isinstance(rot, (int, float)):
+        raise BuildError("方案有 C 轴，取放条件里没有放料最大转角：C 轴怎么转定不了")
+    cyc = cycle(concept, rot if w is not None else None)
+    size = ((cond["part_length"], cond["part_width"]) if isinstance(cond.get("part_length"), (int, float))
+            and isinstance(cond.get("part_width"), (int, float)) else None)
     grip = pick_gripper(lib, concept, cond, cyc["tool"]["accel_m_s2"])
     picks: dict[str, dict] = {j: dict(p) for j, p in (start or {}).items()}
     rounds = []
     for _ in range(MAX_ROUNDS):
-        ms = (masses(concept, picks, grip.get("mass_kg"), float(part)) if layout is None
+        ms = (masses(concept, picks, grip.get("mass_kg"), float(part), size if w is not None else None) if layout is None
               else layout(picks, grip.get("mass_kg"), float(part)))
         res = dynamics(concept, ms["bodies"], cyc, ms.get("origins"))
         loads = axis_loads(concept, res)
         new = {}
+        if w is not None:                              # C 轴先选：它的质量压在 Z 上
+            wreq = wrist_requirement(res, w["joint"])
+            new[w["joint"]] = dict(pick_wrist(lib, wreq, res, w["joint"]), requirement=wreq)
         for a in reversed(ax):                         # 末端那一轴先选（它的质量压在前面的轴上）
             new[a["joint"]] = dict(pick_axis(lib, a, requirement(a, cyc, loads[a["joint"]])),
                                    requirement=requirement(a, cyc, loads[a["joint"]]))
-        new = {a["joint"]: new[a["joint"]] for a in ax}
-        rounds.append({"moving_masses": {j: [[n, round(k, 4)] for n, k, _ in rows] for j, rows in ms["bodies"].items()},
+        new = {j: new[j] for j in [a["joint"] for a in ax] + ([w["joint"]] if w else [])}
+        rounds.append({"moving_masses": {j: [[n, round(k, 4)] for n, k, *_ in rows] for j, rows in ms["bodies"].items()},
                        "loads": loads, "picks": {j: p["component"] for j, p in new.items()}})
         stable = rounds[-1]["picks"] == {j: p.get("component") for j, p in picks.items()}
         picks = new
         if any(p["component"] is None for p in picks.values()):
+            bad = [j for j, p in picks.items() if p["component"] is None]
+            why = "；".join(f"{j}：{picks[j]['shortfall']}" for j in bad if picks[j].get("shortfall"))
             return {"format": FORMAT, "status": "fail", "rounds": rounds, "cycle": cyc, "picks": picks, "gripper": grip,
-                    "note": "有轴选不出直线模组：" + "、".join(j for j, p in picks.items() if p["component"] is None)}
+                    "note": "有轴选不出：" + "、".join(bad) + (f"（{why}）" if why else "")}
         if stable:
             break
     else:
@@ -405,7 +518,10 @@ def build(concept: Mapping, cond: Mapping, layout=None, start: Mapping | None = 
                 "note": f"{MAX_ROUNDS} 轮后选型仍在变"}
     d = res["data"]
     target = cond.get("repeatability")
-    rep = repeatability(lib, picks, float(target) if isinstance(target, (int, float)) and not isinstance(target, bool) else None)
+    lin = {a["joint"]: picks[a["joint"]] for a in ax}
+    rep = repeatability(lib, lin, float(target) if isinstance(target, (int, float)) and not isinstance(target, bool) else None)
+    if w is not None:
+        rep["note"] += f"；C 轴 {w['joint']} 在工具点的轴线上，转角误差不影响放料位置（裁片转角精度需求没给）"
     lim = cond.get("cycle")
     ct = {"status": "unknown" if lim is None else ("pass" if cyc["total_s"] <= lim + 1e-9 else "fail"),
           "total_s": cyc["total_s"], "limit_s": lim,
@@ -421,12 +537,22 @@ def build(concept: Mapping, cond: Mapping, layout=None, start: Mapping | None = 
     if any(a["dir"] == 2 for a in ax):
         open_items.append("竖直轴断电会下滑：要带抱闸的电机（库里没有电机，未选）")
     status = "pass" if grip.get("component") and rep["status"] != "fail" and ct["status"] != "fail" else "fail"
+    wrist_out = None
+    if w is not None:
+        dw = next(x for x in d["drives"] if x["joint"] == w["joint"])
+        wrist_out = {**cyc["wrist"], "torque_peak_nm": round(dw["peak"], 5), "torque_peak_settled_nm": round(dw["peak_settled"], 5),
+                     "torque_rms_nm": round(dw["rms"], 5),
+                     "speed_max_rpm": round(dw["speed_max"], 3), "inertia_max_kgm2": round(dw["inertia_max_kgm2"], 7),
+                     "note": "C 轴力矩只含转动头、工件（薄板）与抓手（有质量时）的惯性；风阻、气管拖拽没计"}
+        if (picks[w["joint"]].get("check") or {}).get("overall") == "fail":
+            status = "fail"
+
     def r3(xs):
         return [round(float(x), 3) for x in xs or []]
 
     keep = {j: {k: r3(s.get(k)) for k in ("q", "speed", "drive", "accel")} for j, s in d["series"].items() if j != "t_s"}
     return {"format": FORMAT, "status": status, "rounds": rounds, "cycle": cyc, "loads": loads, "picks": picks, "gripper": grip,
-            "repeatability": rep, "cycle_time": ct, "motors": motors,
+            "repeatability": rep, "cycle_time": ct, "motors": motors, **({"wrist": wrist_out} if wrist_out else {}),
             "mbd": {"drives": d["drives"], "tracking_error_mm": round(d["tracking_error"] * 1000, 6),
                     "settle_window_s": d["settle_window_s"], "timestep_s": d["timestep_s"],
                     "reactions_max_abs": {b: r["max_abs_settled"] for b, r in d["reactions"].items()},
@@ -442,6 +568,10 @@ def bom(lib, concept: Mapping, picks: Mapping, grip: Mapping) -> dict:
     rows = []
     for jid, p in picks.items():
         comp = lib.get(p["component"])
+        if comp.get("category") == "smart_actuator":
+            rows.append({"component": p["component"], "role": "rotary_actuator", "model": comp.get("model"), "vendor": comp.get("vendor"),
+                         "qty": 1, "joints": [jid], "mass_kg_each": p["mass_kg"]})
+            continue
         rows.append({"component": p["component"], "role": "linear_module", "model": comp.get("model"), "vendor": comp.get("vendor"),
                      "qty": 1, "joints": [jid], "stroke_mm": p["requirement"]["stroke_mm"], "mass_kg_each": p["mass_kg"]})
     if grip.get("component"):
@@ -469,9 +599,15 @@ def summary(out: Mapping) -> str:
                                               f"Fz {x['force_normal_n']:.1f} N、My {x['moment_pitch_nm']:.2f} N·m"
                                               for j, x in rd["loads"].items()) + " → " + json.dumps(rd["picks"], ensure_ascii=False))
     for j, p in out["picks"].items():
+        fv = next((x for x in (p.get("check") or {}).get("checks") or [] if x["check"] == "L5"), None)
         if p.get("component"):
-            fv = next(x for x in p["check"]["checks"] if x["check"] == "L5")
-            lines.append(f"{j}：选 {p['model']}（{p['mass_kg']:g} kg）；{fv.get('message', '')}")
+            lines.append(f"{j}：选 {p['model']}（{p['mass_kg']:g} kg）；{(fv or {}).get('message', p['check'].get('overall', ''))}")
+        elif p.get("shortfall"):
+            lines.append(f"{j}：选不出（{p['shortfall']}）")
+    if out.get("wrist"):
+        wr = out["wrist"]
+        lines.append(f"C 轴 {wr['joint']}：{wr['rotation_deg']:g}° / {wr['move_s']:g} s，最高 {wr['speed_max_rpm']:.1f} rpm、"
+                     f"峰值力矩 {wr['torque_peak_nm']:.3g} N·m")
     g = out["gripper"]
     lines.append(f"抓手：{g.get('model') or g.get('note')}（至少 {g['required_force_n']:.3g} N）")
     if out.get("repeatability"):
