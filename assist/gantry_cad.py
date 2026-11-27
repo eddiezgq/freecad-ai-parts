@@ -56,6 +56,7 @@ DENSITY_KG_MM3 = {"6061-T6": 2.70e-6}
 MATERIAL = "6061-T6"
 E_MPA = 68900.0                  # analysis/common/materials.yaml 的 6061-T6
 FEA_MESH_MM = (20.0, 15.0)       # 门架 2.4 m 长、壁厚 6 mm：20 mm（约 6 万个节点）与 15 mm（约 11 万个）两层对照；
+FEA_MESH_XYZ_MM = (25.0, 20.0)   # 案例 B2 门架跨度 3.2 m：15 mm 约 15 万个节点、估计要 7.8 GB 内存（2026-11-26 实算），超过本机 7 GB
 TIME_LIMIT_S = 3000              # 12 mm 约 16 万个节点、求解器估计要 9.7 GB 内存，超过本机 7 GB
 N_MODES = 4
 LIMITS = ["直线模组按目录外形建成长方体（含滑台），型材槽、端盖、电机没建；本体重心取外形中心",
@@ -977,12 +978,16 @@ def _tool_from_probes(L: Mapping, fl: Mapping, geo: Mapping, probes: list, dx: f
             "u_tool_frame_abs_mm": round(float(np.linalg.norm(ut)), 5), "tool_point_mm": [round(float(x), 3) for x in tool]}
 
 
+def _mesh(cad: Mapping) -> tuple[float, float]:
+    return FEA_MESH_XYZ_MM if cad["layout"].get("kind") == "xyz" else FEA_MESH_MM
+
+
 def frame_fea(cad: Mapping, fl: Mapping, mv: Mapping, work: Path) -> dict:
     """同一个门架用两层网格（FEA_MESH_MM）各算一遍，差别作网格误差的估计"""
     work.mkdir(parents=True, exist_ok=True)
     step = work / "frame.step"
     geo = frame_step(cad, step)
-    runs = [frame_study(cad, fl, mv, str(step), geo, h) for h in FEA_MESH_MM]
+    runs = [frame_study(cad, fl, mv, str(step), geo, h) for h in _mesh(cad)]
     a, b = runs
     du = abs(a["u_pad_abs_mm"] - b["u_pad_abs_mm"]) / max(b["u_pad_abs_mm"], 1e-12)
     df = abs(a["freqs_hz"][0] - b["freqs_hz"][0]) / b["freqs_hz"][0]
@@ -1097,7 +1102,7 @@ def _sig(x):
 def fea_fingerprint(res: Mapping) -> str:
     """门架有限元的输入指纹：布置（全部尺寸）、设计值、载荷、运动部分、网格、阶数、材料。一样就说明有限元的输入一样"""
     key = {"layout": res["cad"]["layout"], "design": res["design"], "frame_loads": res["frame_loads"], "moving": res["moving"],
-           "mesh_mm": list(FEA_MESH_MM), "n_modes": N_MODES, "material": MATERIAL, "e_mpa": E_MPA}
+           "mesh_mm": list(_mesh(res["cad"])), "n_modes": N_MODES, "material": MATERIAL, "e_mpa": E_MPA}
     return hashlib.sha256(json.dumps(_sig(_round(key)), sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
