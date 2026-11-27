@@ -51,6 +51,9 @@ MADE = [
 ASSEMBLY = [["总装 Final assembly", 40], ["跑合试验 Run-in test", 20], ["出厂检验 Final inspection", 10], ["清洗包装 Cleaning & packing", 5]]
 
 
+ZH = {"pass": "通过", "fail": "不通过", "warn": "警告", "unknown": "待确认", "not_applicable": "不适用"}
+
+
 def _lightest(cands):
     """候选里外购件总质量最轻的一组（引擎排序在前的不一定最轻；协作臂在意重量）。缺质量数据的不比。"""
     from engine import export
@@ -79,10 +82,12 @@ def main(argv=None):
         arm = {"kind": "arm", "base_height_mm": 89, "links": [{"length_mm": 425, "mass_kg": 8.393},
                                                               {"length_mm": 392.25, "mass_kg": 2.275}],
                "payload_kg": 5 + 1.219 + 1.219 + 0.1879}
-        r = analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": [
-            {"joint": "j2", "kind": "move", "to": -90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
-            {"joint": "j3", "kind": "move", "to": 90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
-            {"joint": "j1", "kind": "hold"}]})
+        def moves(a2, a3):
+            return [{"joint": "j2", "kind": "move", "to": a2, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
+                    {"joint": "j3", "kind": "move", "to": a3, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
+                    {"joint": "j1", "kind": "hold"}]
+        out["arm"], out["drives"] = arm, (moves(-90, 90), moves(90, -90))
+        r = analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": out["drives"][0]})
         d = {x["joint"]: x for x in r["data"]["drives"]}
         g = r["data"]["static"]["gravity_torque_nm"]
         hand = 9.81 * (8.393 * 0.2125 + 2.275 * (0.425 + 0.392 / 2) + 7.626 * (0.425 + 0.39225))
@@ -91,10 +96,7 @@ def main(argv=None):
                 j2=d["j2"], j3=d["j3"], gravity=g, hand_gravity_j2=hand)
         out["mbd"] = r
         # 线索第 5 条：同一段动作反过来——从水平往上抬（肩 +90°、肘 −90°），需求取两个方向的包络
-        up = analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": [
-            {"joint": "j2", "kind": "move", "to": 90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
-            {"joint": "j3", "kind": "move", "to": -90, "t0_s": 0.2, "t1_s": 1.2, "accel_ratio": 0.25},
-            {"joint": "j1", "kind": "hold"}]})
+        up = analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": out["drives"][1]})
         du = {x["joint"]: x for x in up["data"]["drives"]}
         run.add("动力学：往上抬", "ok", f"肩 j2 峰值 {du['j2']['peak']:.1f} N·m、均方根 {du['j2']['rms']:.1f} N·m；"
                 f"肘 j3 峰值 {du['j3']['peak']:.1f} N·m（选型取往下放与往上抬的包络）", j2=du["j2"], j3=du["j3"])
@@ -115,9 +117,31 @@ def main(argv=None):
     base = {"safety_factor": 1.2, "supply": {"current_type": "ac", "voltage_v": 200, "phases": 3},
             "fieldbus_protocol": "ethercat", "ambient_temp_c": 25}
 
+    def elbow_module():
+        """线索第 6 条：肘部 j3 的电机 + 减速器挂在大臂末端，原来不在模型里（肩关节连续扭矩少算 9.8 %）。
+        选出 j3 后按样本质量挂上，重算肩关节两个方向；样本缺质量时不估，照原样并说明"""
+        from examples.apps.cobot_arm import module_mass
+
+        m3 = module_mass(out["j3"]["system"]) if out.get("j3") else None
+        if m3 is None:
+            run.add("动力学：挂上肘部模组", "unknown", "肘部模组缺样本质量（或 j3 没选出），肩关节按不挂模组算")
+            return
+        arm = dict(out["arm"], joint_masses_kg=[0.0, m3])
+        dn, up = (analysis.run("mbd", {"model": arm, "duration_s": 1.4, "sample_hz": 100, "drives": dr}) for dr in out["drives"])
+        d0 = next(x for x in out["mbd"]["data"]["drives"] if x["joint"] == "j2")
+        d1 = next(x for x in dn["data"]["drives"] if x["joint"] == "j2")
+        run.add("动力学：挂上肘部模组", "ok", f"肘部模组 {m3:g} kg 挂在大臂末端：肩 j2 往下放均方根 {d0['rms']:.1f} → {d1['rms']:.1f} N·m"
+                f"（+{d1['rms'] / d0['rms'] - 1:.1%}）", module_kg=m3, j2_down=d1)
+        out["mbd_plain"] = out["mbd"]                      # 不挂模组、只往下放的原工况（选不出组合时用来继续演示）
+        out["mbd"], out["mbd_up"], out["arm"] = dn, up, arm
+
     def select():
         from analysis import mbd
-        for j, res, jj in (("j2", out["mbd"], "j2"), ("j3", out["mbd"], "j3"), ("j4", out.get("mbd_w"), "j2")):
+        order = (("j3", "j3"), ("j4", "j2"), ("j2", "j2"))          # 先选肘 j3，挂上它的模组再算肩 j2（线索第 6 条）
+        for j, jj in order:
+            if j == "j2":
+                run.guard("动力学：挂上肘部模组", elbow_module)
+            res = out.get("mbd_w") if j == "j4" else out["mbd"]
             if res is None:
                 continue
             req = mbd.requirement(res, jj, base=base)
@@ -132,6 +156,13 @@ def main(argv=None):
                 down["id"] = f"cobot-{j}-down"
                 cands = C.compose(down, top=20)
                 note = "两个方向的包络零件库里没有能满足的组合（往上抬不满足）；下面按只满足往下放的组合继续——"
+            if not cands and out.get("mbd_plain") is not None and out["mbd_plain"] is not res:
+                # 挂上肘部模组后连往下放也供不了（线索第 6 条：肩关节连续扭矩 +9 %）：按原来的工况（不挂模组、只往下放）继续演示
+                down = mbd.requirement(out["mbd_plain"], jj, base=base)
+                down["id"] = f"cobot-{j}-plain"
+                cands = C.compose(down, top=20)
+                note = ("挂上肘部模组后，两个方向都算的需求零件库里没有能满足的组合（往上抬、往下放都不满足）；"
+                        "下面按原来的工况（不挂模组、只往下放）选出的组合继续——")
             if not cands:
                 run.add(f"选型 {j}", "fail", "零件库里没有能满足的组合")
                 continue
@@ -147,6 +178,53 @@ def main(argv=None):
             req = used
             out[j] = {"req": req, "system": best.system, "report": best.report}
     run.guard("选型", select)
+
+    def drive_inertia():
+        """线索第 4 条（ADR-0134）：选出组合后，电机转子与减速器输入侧惯量折到输出端 J_d = (J_m + J_in)·i²，作为关节的附加惯量
+        重算两个方向，再用同一组零件核 C4、C5（原来只进了 C8）。C8 用不含 J_d 的负载惯量（C8 自己会加 J_in，不重复计入）。
+        样本缺任何一项时不估，标 unknown"""
+        import copy
+
+        from analysis import mbd
+        from examples.apps.cobot_arm import _comp, _pv
+
+        jd, miss = {}, []
+        for j in ("j2", "j3"):
+            if not out.get(j):
+                continue
+            m, r = _comp(out[j]["system"], "motor"), _comp(out[j]["system"], "reducer")
+            jm, jin, i = _pv(m, "rotor_inertia_kgm2"), _pv(r, "input_inertia_kgm2"), _pv(r, "ratio")
+            if None in (jm, jin, i):
+                miss.append(j)
+                continue
+            jd[j] = (jm + jin) * i * i
+        if not jd:
+            run.add("选型校验：计入驱动侧惯量", "unknown", "样本缺转子或输入侧惯量，驱动侧惯量没有计入")
+            return
+        runs = [analysis.run("mbd", {"model": out["arm"], "duration_s": 1.4, "sample_hz": 100, "armature": jd, "drives": dr})
+                for dr in out["drives"]]
+        lines, worst = [], "pass"
+        for j, v in jd.items():
+            req = C.envelope({"往下放": mbd.requirement(runs[0], j, base=base), "往上抬": mbd.requirement(runs[1], j, base=base)})
+            req["load_inertia_kgm2"] = out[j]["req"]["load_inertia_kgm2"]
+            req["id"] = f"cobot-{j}-jd"
+            sysm = copy.deepcopy(out[j]["system"])
+            sysm["requirement"] = req
+            rep = C.verify(sysm)
+            cs = {c["check"]: c["status"] for c in rep["checks"] if c["check"] in ("C4", "C5")}
+            for st in cs.values():
+                if st == "fail" or (st == "unknown" and worst == "pass"):
+                    worst = st
+            lines.append(f"{j} J_d = {v:.3g} kg·m²：连续 {out[j]['req']['output_torque_cont_nm']:.1f} → {req['output_torque_cont_nm']:.1f}、"
+                         f"峰值 {out[j]['req']['output_torque_peak_nm']:.1f} → {req['output_torque_peak_nm']:.1f} N·m，"
+                         + "、".join(f"{k} {ZH.get(v2, v2)}" for k, v2 in sorted(cs.items())))
+            out[j]["req_jd"], out[j]["report_jd"] = req, rep
+        if miss:
+            lines.append("缺样本惯量没计入：" + "、".join(miss))
+            worst = "unknown" if worst == "pass" else worst
+        run.add("选型校验：计入驱动侧惯量", {"pass": "ok", "unknown": "unknown", "fail": "fail"}[worst],
+                "同一组零件，把驱动侧惯量算进关节重核 C4、C5：" + "；".join(lines), jd=jd)
+    run.guard("选型校验：计入驱动侧惯量", drive_inertia)
 
     # 3 布局与校验、BOM
     def lay():

@@ -198,8 +198,12 @@ class RobotDesignPanel:
         try:
             self.placed = D.place(doc, self.out["out_dir"], self.out.get("kind", "arm"))
         except Exception as exc:  # noqa: BLE001 — 显示给人
+            FreeCAD.closeDocument(doc.Name)  # 放失败就不留空文档，免得看成“生成了但是空的”
             self.model_info.setText(T(f"没有放进文档：{exc}"))
             return
+        FreeCAD.setActiveDocument(doc.Name)
+        if FreeCADGui.getDocument(doc.Name) is not None:
+            FreeCADGui.setActiveDocument(doc.Name)
         n = len(self.placed["objects"])
         bom = T(f"、BOM 表 {self.placed['bom_rows']} 行") if self.placed["sheet"] is not None else ""
         colors = (T("直线模组与吸盘灰色、自制件铝色，门架按有限元结论着色") if self.out.get("kind") == "gantry"
