@@ -2027,6 +2027,21 @@
                 "type": "string",
                 "minLength": 1
               },
+              "sample_time_s": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "采样周期（可选，ADR-0137）：给了就是数字 PID——只在采样时刻读测量、算输出，输出保持到下一拍（积分按矩形、微分按后向差分）；不给是连续 PID"
+              },
+              "delay_steps": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "输出延迟拍数（可选，要同时给 sample_time_s）：第 k 拍算出的输出在第 k + n 拍才送到执行器；缺省 0（报告写明“未计计算延迟”）"
+              },
+              "actuator_lag_s": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "执行器一阶滞后时间常数 τ_a（可选）：执行器实际力 / 力矩 f 满足 τ_a·ḟ = u − f"
+              },
               "antiwindup_tracking_s": {
                 "type": "number",
                 "exclusiveMinimum": 0,
@@ -2041,7 +2056,12 @@
               "actuator",
               "kp"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "dependentRequired": {
+              "delay_steps": [
+                "sample_time_s"
+              ]
+            }
           },
           {
             "type": "object",
@@ -2164,6 +2184,16 @@
               "sample_time_s": {
                 "type": "number",
                 "exclusiveMinimum": 0
+              },
+              "delay_steps": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "输出延迟拍数（可选，ADR-0137）：第 k 拍的输出在第 k + n 拍才送到执行器；缺省 0（与原来一致，报告写明“未计计算延迟”）"
+              },
+              "actuator_lag_s": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "执行器一阶滞后时间常数 τ_a（可选，ADR-0137）"
               },
               "structural_parameters": {
                 "type": "object",
