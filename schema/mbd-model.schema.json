@@ -577,6 +577,16 @@
                 "exclusiveMinimum": 0,
                 "description": "转动副的销半径（摩擦力臂）"
               },
+              "pin_length_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "转动副的销（轴承）长度（可选，ADR-0135）：给了时垂直于轴的反力矩换成两端接触力，正压力 = |F⊥| + 2|M⊥|/l；不给时只按横向反力"
+              },
+              "guide_length_mm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "移动副的导轨接触长度（可选，ADR-0135）：给了时垂直于导轨的反力矩换成两端接触力（抽屉效应），正压力 = |F⊥| + 2|M⊥|/l，反力矩对运动副点（body_j 上）取；不给时只按横向反力"
+              },
               "preload_n": {
                 "type": "number",
                 "minimum": 0,
