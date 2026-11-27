@@ -398,13 +398,78 @@ def simulate(spec, setup):
         p = tau * qd
         summ["drives"].append({"joint": j, "kind": d["kind"], "peak": float(np.max(np.abs(tau))), "rms": float(np.sqrt(np.mean(tau ** 2))),
                                "peak_settled": float(np.max(np.abs(tau[settled]))) if settled.any() else None,
-                               "speed_max": float(np.max(np.abs(qd))), "power_peak": float(np.max(np.abs(p))),
+                               # 线索第 9 条：剔除加速度突变后的软约束过冲；force_solver = "soft"（录制回放）时照旧取原始值
+                               "speed_max": float(np.max(np.abs(qd[settled]))) if settled.any() and setup.get("exact_inverse")
+                               else float(np.max(np.abs(qd))),
+                               "speed_max_raw": float(np.max(np.abs(qd))), "power_peak": float(np.max(np.abs(p))),
                                "power_mean": float(np.mean(p)), "inertia_max": float(np.max(ch["inertia." + j]))})
+    exact = _exact_inverse(model, drives, setup, ch) if setup.get("exact_inverse") else None
+    if exact:
+        # 线索第 19 条：全部关节都是给定运动的开链，驱动力矩改用沿给定轨迹的精确逆动力学（mj_inverse，解析的位置、速度、
+        # 加速度），不再受软约束在加速度跳变处的过冲影响；记录曲线上的驱动力矩也换成精确值（t = 0 不再是约束建立时的值）
+        for dd in summ["drives"]:
+            dd.update(exact["stats"][dd["joint"]])
+        for j, v in exact["series"].items():
+            ch["drive." + j] = v
+        summ["exact_inverse"] = {"grid_s": exact["grid_s"]}
     for name, v in ch.items():
         if name != "t":
             i = int(np.argmax(np.abs(v)))
             summ["peaks"][name] = {"max_abs": float(abs(v[i])), "at_s": float(ch["t"][i]), "rms": float(np.sqrt(np.mean(v ** 2)))}
     return summ, ch, rec.animation()
+
+
+def _exact_inverse(model, drives, setup, ch):
+    """全部自由度都由给定运动驱动、没有闭环 / 耦合 / 外力 / 摩擦 / 碰撞的开链：沿解析轨迹做逆动力学。
+    密网格（避开加速度跳变点，跳变点两侧各补一点）上统计峰值、均方根、功率；返回 None 表示不适用"""
+    import mujoco
+
+    if not drives or any(d["mode"] != "motion" for d in drives) or setup.get("forces") or setup.get("friction"):
+        return None
+    if model.nv != len(drives) or model.neq != len(drives) or not model.opt.disableflags & int(mujoco.mjtDisableBit.mjDSBL_CONTACT):
+        return None
+    data = mujoco.MjData(model)
+    _initial(model, data, setup, drives)
+    ids = _ids(model, drives)
+    if sorted(x["dadr"] for x in ids) != list(range(model.nv)):
+        return None
+    for x in ids:
+        x["f"] = profile(x["d"], float(data.qpos[x["qadr"]]))
+    data.eq_active[:] = 0
+    dur = float(ch["t"][-1])
+    h = max(1e-4, dur / 200000)
+    grid = np.arange(h / 2, dur, h)
+    br = sorted({b for x in ids for b in switch_times(x["d"]) if 0 <= b <= dur})
+    grid = np.unique(np.concatenate([grid, [0.0, dur], [b - 1e-7 for b in br if b > 0], [b + 1e-7 for b in br if b < dur]]))
+
+    def state(t):
+        for x in ids:
+            q, qd = x["f"](t)
+            e = 1e-6
+            data.qpos[x["qadr"]], data.qvel[x["dadr"]] = q, qd
+            # 加速度：同一侧的差分（跳变点两侧各取一侧）
+            data.qacc[x["dadr"]] = (x["f"](t + e)[1] - qd) / e if t + e <= dur else (qd - x["f"](t - e)[1]) / e
+        mujoco.mj_inverse(model, data)
+        return np.array([data.qfrc_inverse[x["dadr"]] for x in ids]), np.array([data.qvel[x["dadr"]] for x in ids])
+
+    tau = np.empty((len(grid), len(ids)))
+    vel = np.empty_like(tau)
+    for k, t in enumerate(grid):
+        tau[k], vel[k] = state(t)
+    stats, series = {}, {}
+    w = np.gradient(grid)
+    for i, x in enumerate(ids):
+        p = tau[:, i] * vel[:, i]
+        k = int(np.argmax(np.abs(tau[:, i])))
+        stats[x["d"]["joint"]] = {"peak": float(abs(tau[k, i])), "peak_at_s": float(grid[k]), "peak_settled": float(abs(tau[k, i])),
+                                  "rms": float(np.sqrt(np.sum(w * tau[:, i] ** 2) / np.sum(w))),
+                                  "speed_max": float(np.max(np.abs(vel[:, i]))), "power_peak": float(np.max(np.abs(p))),
+                                  "power_mean": float(np.sum(w * p) / np.sum(w))}
+    ts = np.asarray(ch["t"], float)
+    st = np.array([state(min(max(t, 0.0), dur))[0] for t in ts])
+    for i, x in enumerate(ids):
+        series[x["d"]["joint"]] = st[:, i]
+    return {"stats": stats, "series": series, "grid_s": h}
 
 
 SETTLE_TAUS = 8.0              # 加速度突变后跳过几个约束时间常数再取“稳定峰值”
@@ -417,6 +482,8 @@ def tau_of(dt: float) -> float:
 
 def switch_times(d) -> list[float]:
     """点到点 / 多段路径驱动的加速度突变时刻（梯形速度：开始、加速完、开始减速、停下）"""
+    if d["kind"] in ("speed", "sine"):
+        return [0.0]          # 线索第 9 条：匀速 / 正弦驱动在 t = 0 从约束建立起步，起步段同样有软约束过冲
     segs = [d] if d["kind"] == "move" else d.get("segments") or [] if d["kind"] == "path" else []
     out = []
     for g in segs:

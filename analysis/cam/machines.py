@@ -115,7 +115,8 @@ def model(machine_id: str, env=None) -> dict:
 
 def _view_ok(v: dict) -> bool:
     return (MM.is_three_axis(v["model"]) or MM.is_three_plus_two(v["model"]) or MM.is_mill_turn(v["model"])) \
-        and all(k in v for k in VIEW_NEED[v["kind"]])
+        and all(k in v for k in VIEW_NEED[v["kind"]]) \
+        and all(a in v["rapid"] for a in ("xyz" if v["kind"] == "mill" else "xz"))   # 快移缺一个轴也算没填（不然算用时会出错）
 
 
 def _missing(m: dict) -> list[str]:
