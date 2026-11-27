@@ -238,7 +238,7 @@ def evaluate(concept: Any, cond: dict) -> dict:
         cell, extra = robot_cell.points(c, cond)
         if extra:
             c["workspace"] = {"points_mm": list(((c.get("workspace") or {}).get("points_mm")) or []) + extra}
-        cell += robot_cell.cycle(c, cond)
+        cell += robot_cell.cycle(c, cond) + robot_cell.rotation(c, cond)
     rep = screen(c, cond.get("payload", cond.get("part_mass")))
     if rep["items"] and rep["items"][0]["item"] == "结构" and rep["items"][0]["status"] == "fail":
         return {"items": rep["items"], "overall": "fail", "screen": rep}
@@ -274,7 +274,11 @@ def evaluate(concept: Any, cond: dict) -> dict:
         if it["item"].startswith("工作空间点 1 ") and "reach" in cond:
             it = {**it, "item": f"臂展点（安装面上 r = {cond['reach']:g} mm）"}
         elif "pick_to_place" in cond:
-            for k, what in ((1, "取料点"), (2, "放料点"), (n_ws + 1, "一叠最高处")):
+            names = [(1, "取料点"), (2, "放料点"), (n_ws + 1, "一叠最高处")]
+            if "area_length" in cond:
+                names = [(1, "取料区中心"), (2, "放料点")] + [(2 + k, f"取料区角 {k}") for k in range(1, 5)] + [
+                    (n_ws + k, f"角 {k} 上方一叠最高处") for k in range(1, 5)]
+            for k, what in sorted(names, key=lambda x: -x[0]):
                 if it["item"].startswith(f"工作空间点 {k} "):
                     it = {**it, "item": f"{what}{it['item'][len(f'工作空间点 {k}'):]}"}
                     break
@@ -329,6 +333,23 @@ def design(statement: str, client, *, model: str = DEFAULT_MODEL, max_rounds: in
         miss += miss2
         quotes += q2
         out["questions"] += [q for q in (r["tool_input"] or {}).get("questions") or [] if isinstance(q, str)]
+        dist = "取料区到放料区的水平距离"
+        if robot_cell.needs_layout(statement) and not rej2 and set(miss2) <= {dist}:   # 取料区、侧偏、转角（案例 B2，ADR-0115 44.5.6）
+            say("AI 列取放布置")
+            r = client.complete(robot_cell.layout_request(statement, model=model))
+            out["ai"].append({k: r[k] for k in ("id", "provider", "model", "simulated") if k in r})
+            c3, rej3, miss3, q3 = robot_cell.check_layout(r["tool_input"], statement)
+            along = c3.pop("along_distance", None)
+            if along is not None:                        # 原话按方向分开给：取放距离按沿长边的分量（初筛也按这个分量核）
+                if "pick_to_place" in cond and abs(cond["pick_to_place"] - along) > robot_cell.TOL_MM:
+                    rej3.append(f"{dist}：两次列的不一样（{cond['pick_to_place']:g} 与沿长边 {along:g} mm）")
+                cond["pick_to_place"] = along
+                miss[:] = [m for m in miss if m != dist]
+            cond.update(c3)
+            rej += rej3
+            miss += miss3
+            quotes += q3
+            out["questions"] += [q for q in (r["tool_input"] or {}).get("questions") or [] if isinstance(q, str)]
     if miss or rej:
         out["status"] = "needs_input"
         return out

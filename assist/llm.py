@@ -13,7 +13,7 @@ from pathlib import Path
 
 from llm_gateway import ClaudeMessages, DeepSeekMessages, Gateway, GatewayError, load_dotenv
 
-MAX_TOKENS = {"claude": 16000, "deepseek": 8000}      # deepseek-chat 一次最多输出 8K
+MAX_TOKENS = {"claude": 32000, "deepseek": 8000}      # deepseek-chat 一次最多输出 8K；Claude 16000 时案例 B2 的三个构型写不完（44.5.6.1）
 
 
 class GatewayClient:
@@ -42,8 +42,11 @@ class GatewayClient:
         r = self.gateway.create(system=request["system"], messages=[{"role": "user", "content": request["user"]}],
                                 tools=[request["tool"]], max_tokens=MAX_TOKENS.get(self.provider, 8000))
         uses = [b for b in r["content"] if b.get("type") == "tool_use"]
+        if r.get("stop_reason") == "max_tokens":         # 写到一半被截断：工具参数不全（真实运行里见过整个是空的），不当答案用
+            raise GatewayError(f"模型的回答超过 {MAX_TOKENS.get(self.provider, 8000)} 个词元被截断；可重试")
         if len(uses) != 1:
-            raise GatewayError(f"模型没有按要求调用一次工具（{len(uses)} 次）；可重试")
+            text = "".join(b.get("text", "") for b in r["content"] if b.get("type") == "text")
+            raise GatewayError(f"模型没有按要求调用一次工具（{len(uses)} 次，停在 {r.get('stop_reason')}，文字 {len(text)} 字：{text[:300]}）；可重试")
         last = self.gateway.last or {}
         actual = last.get("provider", self.provider)
         model = next((b.model for b in self.gateway.backends if b.name == actual), request["model"])
