@@ -12,6 +12,8 @@
            {"joint", "kind": "hold"}、{"joint", "kind": "torque", "value"}（N·m 或 N）、
            {"joint", "kind": "path", "segments": [{"to", "t0_s", "t1_s", "accel_ratio"}, …]}  多段点到点（取—放节拍，ADR-0115 44.5.5）]
   payloads: [{"body", "mass_kg", "pos_mm"}]、forces: [{"body", "force_n": [x, y, z], "pos_mm"}]
+  force_solver: "inverse"（缺省，全给定运动的开链用精确逆动力学）或 "soft"（照旧取软约束的力，录制回放用）
+  armature: {关节: kg·m²}  驱动侧惯量 (J_m + J_in)·i²，折算到关节上（ADR-0134）
   reactions: [构件名]  要输出关节反力的构件（父构件作用在它上的力与力矩，世界坐标，力矩对它的关节中心）
 
 结果 data：
@@ -109,6 +111,8 @@ def _internal(setup: Mapping, slides: set[str]) -> dict:
                     "pos": [x / 1000 for x in f.get("pos_mm") or [0, 0, 0]]} for f in setup.get("forces") or []]
     if setup.get("friction"):
         s["friction"] = dict(setup["friction"])
+    if setup.get("armature"):
+        s["armature"] = {j: float(v) for j, v in setup["armature"].items()}
     return s
 
 
@@ -161,6 +165,8 @@ def run(setup: dict) -> dict:
         spec, mid = _spec(setup.get("model") or {})
         slides = _slide_joints(spec)
         internal = _internal(setup, slides)
+        # 线索第 19 条：全给定运动的开链用精确逆动力学（core 缺省不开，joint_loads 照旧）；force_solver = "soft" 时照旧用软约束的值
+        internal["exact_inverse"] = setup.get("force_solver", "inverse") != "soft"
         loop_tau = None
         if mid is not None:
             given = (setup.get("model") or {}).get("params")
@@ -185,7 +191,9 @@ def run(setup: dict) -> dict:
             "joint": j, "kind": d["kind"], "unit_force": "N" if slide else "N·m",
             "peak": d["peak"], "rms": d["rms"], "peak_settled": d["peak_settled"],
             "speed_max": d["speed_max"] * (1000 if slide else RPM), "unit_speed": "mm/s" if slide else "rpm",
-            "power_peak_w": d["power_peak"], "power_mean_w": d["power_mean"], "inertia_max_kgm2": d["inertia_max"]})
+            **({"speed_max_raw": d["speed_max_raw"] * (1000 if slide else RPM)} if "speed_max_raw" in d else {}),
+            "power_peak_w": d["power_peak"], "power_mean_w": d["power_mean"], "inertia_max_kgm2": d["inertia_max"],
+            **({"peak_at_s": d["peak_at_s"]} if "peak_at_s" in d else {})})
         k = 1000 if slide else 180 / math.pi
         series[j] = {"q": _downsample(ch["q." + j] * k), "speed": _downsample(ch["qd." + j] * (1000 if slide else RPM)),
                      "drive": _downsample(ch["drive." + j])}
@@ -242,12 +250,27 @@ def run(setup: dict) -> dict:
             messages.append("闭环拉开 {:.3g} mm（t = {:.3g} s），超过最短构件的 0.1 %（{:.3g} mm）："
                             "驱动力矩和铰链反力的误差可能超过 1 %；可加密时间步，或改用 DAE 内核（model 格式）".format(
                                 gap[k] * 1000, ch["t"][k], lim_mm))
+    if summ.get("exact_inverse"):
+        data["force_solver"] = {"name": "inverse", "grid_s": summ["exact_inverse"]["grid_s"], "sample_hz": internal["sample_hz"]}
+        lims.append("各关节都是给定运动的开链：驱动力矩、功率按给定轨迹的精确逆动力学算（网格 {:.3g} ms，加速度跳变点两侧都取），"
+                    "与记录频率无关；峰值时刻见 peak_at_s".format(summ["exact_inverse"]["grid_s"] * 1000))
     if dae is not None:
         data["force_solver"] = {"driver": mechanisms.DRIVER[mid], "name": "DAE", "rev_over_tau": round(dae_ratio, 3)}
         lims.append("主动件的驱动力矩、功率由 DAE 内核按给定运动精确算出（一转时间只有给定运动约束时间常数的 "
                     f"{dae_ratio:.3g} 倍，MuJoCo 软约束跟不上）；动画和其余关节的运动仍来自 MuJoCo")
     else:
         messages += _loop_checks(mid, internal, data, setup)
+    if mid in mechanisms.LOOP_MIDS and not setup.get("payloads"):
+        # 线索第 72 条：单自由度闭环机构的等效惯量按 J(θ) = 2T/θ̇² 一转统计（原来取锁住其他关节的对角元，平缝机偏大 4.8 倍）
+        ji = mechanisms.loop_inertia(mid, (setup.get("model") or {}).get("params"))
+        d0 = next((x for x in drives if x["joint"] == mechanisms.DRIVER[mid]), None)
+        if ji and d0 is not None:
+            d0.update(inertia_max_kgm2=ji["max"], inertia_min_kgm2=ji["min"], inertia_mean_kgm2=ji["mean"],
+                      inertia_def="J(θ) = 2T/θ̇²：整个机构折算到主动件的等效惯量，一转统计")
+            lims.append("闭环机构的等效惯量按 J(θ) = Σm|∂r/∂θ|² + I(∂φ/∂θ)² 在一转上统计（最大、最小、平均）；"
+                        "飞轮、电机惯量匹配一般用平均值")
+    elif drives:
+        lims.append("等效惯量 inertia_max_kgm2 取运动中质量矩阵的对角元（其他关节锁住时绕本关节的惯量）的最大值")
     if mid in mechanisms.LOOP_MIDS:
         data["energy_balance"] = eb = _energy_balance(ch, summ, setup)
         if eb["status"] == "fail":
@@ -401,10 +424,14 @@ def requirement(res: Mapping, joint: str, *, base: Mapping | None = None) -> dic
     if d["unit_force"] != "N·m":
         raise SetupError(f"{joint} 是移动关节，不能生成旋转关节的选型需求")
     req = dict(base or {})
-    req.update({"output_torque_cont_nm": round(d["rms"], 3), "output_torque_peak_nm": round(d["peak"], 3),
+    # 线索第 9 条：峰值取剔除加速度突变（含匀速驱动的起步）后软约束过冲的稳定峰值；转速同样剔除（speed_max 已剔除）
+    peak = d["peak_settled"] if d.get("peak_settled") is not None else d["peak"]
+    win = (res.get("data") or {}).get("settle_window_s")
+    req.update({"output_torque_cont_nm": round(d["rms"], 3), "output_torque_peak_nm": round(peak, 3),
                 "output_speed_rpm": round(d["speed_max"], 3), "load_inertia_kgm2": round(d["inertia_max_kgm2"], 6)})
-    req.setdefault("statement", f"动力学结果：关节 {joint} 峰值 {d['peak']:.1f} N·m、均方根 {d['rms']:.1f} N·m、"
-                                f"最高 {d['speed_max']:.1f} rpm")
+    note = f"（峰值、转速剔除加速度突变后 {win * 1000:.3g} ms 内的软约束过冲）" if win and peak < d["peak"] else ""
+    req.setdefault("statement", f"动力学结果：关节 {joint} 峰值 {peak:.1f} N·m、均方根 {d['rms']:.1f} N·m、"
+                                f"最高 {d['speed_max']:.1f} rpm{note}")
     return req
 
 

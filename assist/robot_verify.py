@@ -22,7 +22,7 @@ def verify(concept: Mapping, build_result: Mapping, cad_result: Mapping, payload
 
     dt = build_result["duty"]
     xml = mjcf.mjcf_parts(concept, cad_result["parts"], payload_kg=payload_kg)
-    res = analysis.run("mbd", {"model": {"kind": "mjcf", "xml": xml}, "duration_s": RB.T0 + dt["move_s"] + 0.2,
+    res = analysis.run("mbd", {"force_solver": "soft", "model": {"kind": "mjcf", "xml": xml}, "duration_s": RB.T0 + dt["move_s"] + 0.2,
                                "sample_hz": 200, "initial": dt["initial"], "drives": dt["drives"]})
     if res.get("status") != "ok":
         raise RB.BuildError(f"多体动力学没算成：{res.get('error')}")

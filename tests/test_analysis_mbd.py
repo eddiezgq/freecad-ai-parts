@@ -180,7 +180,10 @@ def test_gantry_path_thrust_and_slide_loads_match_hand_calc():
     dr = {x["joint"]: x for x in d["drives"]}
     assert dr["x"]["peak_settled"] == pytest.approx((m1 + m2) * ax, rel=0.01)
     assert dr["z"]["peak_settled"] == pytest.approx(m2 * (G + az), rel=0.01)
-    assert dr["x"]["peak"] > dr["x"]["peak_settled"]          # 理想梯形曲线的过冲只在原始峰值里
+    # 问渠 CAD 0.3.9（线索第 19 条）：各自由度都是给定运动的开链，驱动力按给定轨迹精确逆动力学算，原始峰值里不再有
+    # 软约束的过冲（原来这里核“原始峰值 > 稳定峰值”）；改核原始峰值同样等于手算
+    assert dr["x"]["peak"] == pytest.approx((m1 + m2) * ax, rel=0.01)
+    assert dr["z"]["peak"] == pytest.approx(m2 * (G + az), rel=0.01)
     rx, rz = d["reactions"]["xs"]["max_abs_settled"], d["reactions"]["zs"]["max_abs_settled"]
     assert rx["fz"] == pytest.approx(m1 * G + m2 * (G + az), rel=0.01)
     assert rx["my"] == pytest.approx(m2 * ax * h, rel=0.01)        # 对随滑台走的关节中心取矩（不是零位）

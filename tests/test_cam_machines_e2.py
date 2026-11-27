@@ -82,3 +82,33 @@ def test_vf2_mill_program_releases():
                  "machine_sim": Q5.MSIM_MILL, "post": "fanuc"})
     p = r["data"]["programs"][0]
     assert r["status"] == "ok" and p["release"] is not None, [c["text"] for c in p["checks"] if c["level"] == "error"]
+
+
+@pytest.mark.parametrize("mid,rpm,kw", [("MAZAK-QT-EZ-8", 6000, 15.0), ("MAZAK-QT-EZ-10", 4500, 15.0), ("MAZAK-QT-EZ-12", 4000, 22.0)])
+def test_mazak_qt_ez_from_product_page(mid, rpm, kw):
+    """马扎克美国官网 QT-Ez 产品页规格表（英制原文）：行程 X 9"、Z 25" 换成 228.6、635 mm；主轴转速、功率照抄；
+    产品页没写快移，不编——各轴不带 rapid"""
+    m = M.model(mid)
+    assert not MM.validate(m) and m["example"] is False and "mazak.com" in m["source"] and "没公开" in m["source"]
+    ax = {a["id"]: a for a in m["axes"]}
+    assert (ax["X"]["max"] - ax["X"]["min"]) / 2 == pytest.approx(228.6) and ax["Z"]["max"] - ax["Z"]["min"] == pytest.approx(635.0)
+    assert "rapid" not in ax["X"] and "rapid" not in ax["Z"]
+    assert (m["spindle"]["max_rpm"], m["spindle"]["power_kw"]) == (rpm, kw)
+    record_verdict(("真实机床：马扎克 QT-Ez 按官网产品页规格表录入，没公开的快移不编",
+                    "real machine: Mazak QT-Ez entered from the official product-page spec table; unpublished rapids not invented"), "pass", "pass")
+
+
+def test_mazak_missing_rapid_named_then_usable(tmp_path, monkeypatch):
+    """只填了换刀点、换刀时间、没填快移：编程前报“没公开快移速度”（之前算用时会出 KeyError）；按实机填上快移后能编程"""
+    monkeypatch.setenv("FAP_MACHINES_DIR", str(tmp_path / "m"))
+    m = M.model("MAZAK-QT-EZ-10")
+    base = {**{k: v for k, v in m.items() if not k.startswith("_")}, "lathe_home_mm": [200.0, 150.0], "tool_change_s": 0.5,
+            "source": m["source"] + "；换刀点、换刀时间：车间实测（测试）"}
+    M.save_model(base)
+    req = {"mode": "turn", "machine": "MAZAK-QT-EZ-10", "segments": [[30, 30], [40, 20]], "machine_sim": {"tools": {}}}
+    r = cam.run(req)
+    assert r["status"] == "failed" and "没公开快移速度" in r["messages"][0]
+    M.save_model({**base, "axes": [{**a, "rapid": 20000.0} for a in base["axes"]], "source": base["source"] + "；快移：车间实测（测试）"})
+    assert cam.run(req)["status"] == "ok"
+    record_verdict(("真实机床：快移没公开时编程前报出来，不出错", "real machine: unpublished rapid traverse is reported before programming instead of crashing"),
+                   "error", "error")

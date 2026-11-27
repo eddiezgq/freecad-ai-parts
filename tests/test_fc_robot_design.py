@@ -95,6 +95,52 @@ def test_place_refuses_a_part_list_that_does_not_match(gui, doc, case, tmp_path)
         D.place(doc, tmp_path)
 
 
+def test_place_tolerates_the_kernel_volume_spread(gui, doc, case, tmp_path):
+    """2026-11-26 问渠 CAD 1.1.4（OCCT 7.8.1）读回的自制件体积小 0.81%、重心偏 0.053 mm，原来的容差认不出 j1 舵盘法兰"""
+    from freecad_addon.fc import robot_doc as D
+
+    shutil.copytree(case / "out", tmp_path / "out")
+    p = tmp_path / "out" / "cad" / "cad-result.json"
+    cad = json.loads(p.read_text(encoding="utf-8"))
+    for q in cad["parts"]:
+        if q.get("volume_mm3"):
+            q["volume_mm3"] = q["volume_mm3"] / (1 - 0.0081)
+            q["cog_mm"] = [q["cog_mm"][0] + 0.053, *q["cog_mm"][1:]]
+    p.write_text(json.dumps(cad, ensure_ascii=False), encoding="utf-8")
+    r = D.place(doc, tmp_path)
+    assert list(r["objects"]) == [q["name"] for q in cad["parts"]]
+
+
+def test_panel_closes_the_empty_document_when_placing_fails(gui, case, lib, tmp_path):
+    import FreeCAD
+
+    from freecad_addon.gui.robot_design_panel import RobotDesignPanel
+
+    shutil.copytree(case / "out", tmp_path / "out")
+    p = tmp_path / "out" / "cad" / "cad-result.json"
+    cad = json.loads(p.read_text(encoding="utf-8"))
+    cad["parts"][4]["cog_mm"] = [500.0, 500.0, 500.0]
+    p.write_text(json.dumps(cad, ensure_ascii=False), encoding="utf-8")
+    before = set(FreeCAD.listDocuments())
+    panel = RobotDesignPanel(lib, None, client_factory=lambda: None, fea_log=tmp_path / "fea.json")
+    panel.done(_run_out(tmp_path))
+    assert set(FreeCAD.listDocuments()) == before
+    assert "认不出" in panel.model_info.text()
+
+
+def test_panel_makes_the_new_result_the_active_document(gui, case, lib, tmp_path):
+    import FreeCAD
+
+    from freecad_addon.gui.robot_design_panel import RobotDesignPanel
+
+    FreeCAD.newDocument("Older")
+    panel = RobotDesignPanel(lib, None, client_factory=lambda: None, fea_log=tmp_path / "fea.json")
+    panel.done(_run_out(case))
+    assert panel.placed is not None
+    assert FreeCAD.ActiveDocument.Name.startswith("AiRobot")
+    FreeCAD.closeDocument("Older")
+
+
 def test_panel_shows_steps_tabs_places_and_confirms(gui, case, lib, tmp_path):
     from freecad_addon.gui.robot_design_panel import RobotDesignPanel
     from kb.enterprise import EnterpriseLibrary
