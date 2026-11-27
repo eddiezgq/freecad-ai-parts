@@ -130,7 +130,7 @@ def dynamics(concept: Mapping, payload_kg: float, mods: Mapping[str, float], dt:
     from analysis.robot import mjcf
 
     xml = mjcf.mjcf(concept, module_masses_kg=mods, payload_kg=payload_kg)
-    r = analysis.run("mbd", {"model": {"kind": "mjcf", "xml": xml}, "duration_s": T0 + dt["move_s"] + 0.2, "sample_hz": 200,
+    r = analysis.run("mbd", {"force_solver": "soft", "model": {"kind": "mjcf", "xml": xml}, "duration_s": T0 + dt["move_s"] + 0.2, "sample_hz": 200,
                              "initial": dt["initial"], "drives": dt["drives"]})
     if r.get("status") != "ok":
         raise BuildError(f"多体动力学没算成：{r.get('error')}")

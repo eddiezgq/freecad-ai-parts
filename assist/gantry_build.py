@@ -245,7 +245,7 @@ def dynamics(concept: Mapping, bodies: Mapping, cyc: Mapping, origins: Mapping |
 
     m = K.build(concept)
     links = [next(x for x in m.joints if x.id == a["joint"]).child for a in axes(concept)]
-    r = analysis.run("mbd", {"model": {"kind": "mjcf", "xml": mjcf(concept, bodies, origins)}, "duration_s": cyc["total_s"] + 0.1,
+    r = analysis.run("mbd", {"force_solver": "soft", "model": {"kind": "mjcf", "xml": mjcf(concept, bodies, origins)}, "duration_s": cyc["total_s"] + 0.1,
                              "sample_hz": SAMPLE_HZ, "initial": cyc["initial"], "drives": cyc["drives"], "reactions": links})
     if r.get("status") != "ok":
         raise BuildError("多体动力学没算成：" + "；".join(r.get("messages") or []))
